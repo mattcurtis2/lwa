@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { X, Upload } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const mediaSchema = z.object({
   url: z.string().url("Must be a valid URL"),
@@ -63,6 +64,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showAddMedia, setShowAddMedia] = useState(false);
+  const [mediaType, setMediaType] = useState<"image" | "video">("image");
+  const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
+  const [mediaUrl, setMediaUrl] = useState("");
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -172,6 +177,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         title: "Success",
         description: "File uploaded successfully",
       });
+      setShowAddMedia(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -183,6 +189,43 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     }
   };
 
+  const handleAddMedia = () => {
+    if (inputMethod === "url") {
+      if (!mediaUrl) {
+        toast({
+          title: "Error",
+          description: "Please enter a URL",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newMedia = {
+        url: mediaUrl,
+        type: mediaType,
+        fileName: mediaUrl.split('/').pop(),
+        isNew: true,
+      };
+
+      const newInputs = [newMedia, ...mediaInputs];
+      setMediaInputs(newInputs);
+      form.setValue("media", newInputs);
+      setShowAddMedia(false);
+      setMediaUrl("");
+    } else {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = mediaType === 'image' ? 'image/*' : 'video/*';
+      fileInput.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          handleFileUpload(file);
+        }
+      };
+      fileInput.click();
+    }
+  };
+
   const removeMediaInput = (index: number) => {
     const newInputs = [...mediaInputs];
     newInputs.splice(index, 1);
@@ -191,135 +234,183 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{dog ? "Edit Dog" : "Add New Dog"}</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{dog ? "Edit Dog" : "Add New Dog"}</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="birthDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Birth Date (MM/DD/YYYY)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="MM/DD/YYYY" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="birthDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Birth Date (MM/DD/YYYY)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="MM/DD/YYYY" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <FormLabel>Media</FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/*,video/*';
-                    fileInput.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) {
-                        handleFileUpload(file);
-                      }
-                    };
-                    fileInput.click();
-                  }}
-                  disabled={isUploading}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {isUploading ? "Uploading..." : "Upload Media"}
-                </Button>
-              </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="space-y-4">
-                {mediaInputs.map((input, index) => (
-                  <div 
-                    key={index} 
-                    className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+                <div className="flex justify-between items-center">
+                  <FormLabel>Media</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddMedia(true)}
+                    disabled={isUploading}
                   >
-                    <div className="flex gap-4">
-                      <div className="w-20 h-20 relative shrink-0">
-                        {input.type === 'image' ? (
-                          <img
-                            src={input.url}
-                            alt="Preview"
-                            className="w-full h-full object-cover rounded"
-                          />
-                        ) : (
-                          <video
-                            src={input.url}
-                            className="w-full h-full object-cover rounded"
-                            controls
-                          />
-                        )}
+                    Add Media
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {mediaInputs.map((input, index) => (
+                    <div 
+                      key={index} 
+                      className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+                    >
+                      <div className="flex gap-4">
+                        <div className="w-20 h-20 relative shrink-0">
+                          {input.type === 'image' ? (
+                            <img
+                              src={input.url}
+                              alt="Preview"
+                              className="w-full h-full object-cover rounded"
+                            />
+                          ) : (
+                            <video
+                              src={input.url}
+                              className="w-full h-full object-cover rounded"
+                              controls
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium mb-1 truncate">
+                            {input.fileName || input.url.split('/').pop()}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0"
+                          onClick={() => removeMediaInput(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium mb-1">
-                          {input.fileName || input.url.split('/').pop()}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
-                        </p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeMediaInput(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
+              <div className="flex gap-4">
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? "Uploading..." : "Save"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAddMedia} onOpenChange={setShowAddMedia}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Media</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <FormLabel>Media Type</FormLabel>
+              <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="image" id="image" />
+                  <label htmlFor="image">Image</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="video" id="video" />
+                  <label htmlFor="video">Video</label>
+                </div>
+              </RadioGroup>
             </div>
 
+            <div className="space-y-4">
+              <FormLabel>Input Method</FormLabel>
+              <RadioGroup value={inputMethod} onValueChange={(value) => setInputMethod(value as "url" | "upload")} className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="url" id="url" />
+                  <label htmlFor="url">URL</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="upload" id="upload" />
+                  <label htmlFor="upload">Upload</label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {inputMethod === "url" && (
+              <div className="space-y-2">
+                <FormLabel>Media URL</FormLabel>
+                <Input
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  placeholder={`Enter ${mediaType} URL`}
+                />
+              </div>
+            )}
+
             <div className="flex gap-4">
-              <Button type="submit" disabled={isUploading}>
-                {isUploading ? "Uploading..." : "Save"}
+              <Button onClick={handleAddMedia} disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Add Media"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button variant="outline" onClick={() => setShowAddMedia(false)}>
                 Cancel
               </Button>
             </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
