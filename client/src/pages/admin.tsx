@@ -352,76 +352,87 @@ export default function Admin() {
               </div>
             )}
 
-            <DragDropContext onDragEnd={handleDragEnd}>
+            <DragDropContext >
               <Droppable droppableId="dogs">
                 {(provided) => (
                   <div
-                    {...provided.droppableProps}
                     ref={provided.innerRef}
                     className="flex flex-wrap gap-6"
                   >
                     {dogs?.map((dog, index) => (
-                      <Draggable key={dog.id} draggableId={String(dog.id)} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
-                              snapshot.isDragging ? 'ring-2 ring-primary ring-offset-2' : ''
-                            }`}
-                            style={{
-                              ...provided.draggableProps.style,
-                            }}
-                          >
-                            <Card className="h-full">
-                              <div className="aspect-square relative">
-                                <img
-                                  src={dog.imageUrl || ''}
-                                  alt={dog.name}
-                                  className="absolute inset-0 w-full h-full object-cover"
+                      <div
+                        key={dog.id}
+                        className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]`}
+                      >
+                        <Card className="h-full">
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between items-start mb-4">
+                              <h3 className="text-xl font-bold">{dog.name}</h3>
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor={`order-${dog.id}`}>Order:</Label>
+                                <Input
+                                  id={`order-${dog.id}`}
+                                  type="number"
+                                  min="0"
+                                  className="w-20"
+                                  value={dog.order}
+                                  onChange={async (e) => {
+                                    const newOrder = parseInt(e.target.value);
+                                    if (isNaN(newOrder)) return;
+
+                                    await reorderDogs.mutateAsync({ 
+                                      dogId: dog.id, 
+                                      newOrder: newOrder 
+                                    });
+                                  }}
                                 />
                               </div>
-                              <CardContent className="pt-6">
-                                <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
-                                <p className="text-stone-600 mb-2">
-                                  {dog.breed} • {dog.age} years old
-                                </p>
-                                <p className="text-stone-600 mb-4">{dog.description}</p>
-                                <div className="flex gap-2">
-                                  <Button 
-                                    variant="outline" 
-                                    onClick={() => {
-                                      setEditItem(dog);
-                                      setShowForm(true);
-                                    }}
-                                  >
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    onClick={async () => {
-                                      if (!confirm("Are you sure you want to delete this dog?")) return;
-                                      const res = await fetch(`/api/dogs/${dog.id}`, {
-                                        method: "DELETE",
+                            </div>
+                            <div className="aspect-square relative">
+                              <img
+                                src={dog.imageUrl || ''}
+                                alt={dog.name}
+                                className="absolute inset-0 w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="mt-4">
+                              <p className="text-stone-600 mb-2">
+                                {dog.breed} • {dog.age} years old
+                              </p>
+                              <p className="text-stone-600 mb-4">{dog.description}</p>
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => {
+                                    setEditItem(dog);
+                                    setShowForm(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  onClick={async () => {
+                                    if (!confirm("Are you sure you want to delete this dog?")) return;
+                                    const res = await fetch(`/api/dogs/${dog.id}`, {
+                                      method: "DELETE",
+                                    });
+                                    if (res.ok) {
+                                      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                                      toast({
+                                        title: "Success",
+                                        description: "Dog deleted successfully",
                                       });
-                                      if (res.ok) {
-                                        queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                                        toast({
-                                          title: "Success",
-                                          description: "Dog deleted successfully",
-                                        });
-                                      }
-                                    }}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        )}
-                      </Draggable>
+                                    }
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
                     ))}
                     {provided.placeholder}
                   </div>
