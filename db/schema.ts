@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -63,7 +63,7 @@ export const dogs = pgTable("dogs", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   breed: text("breed").notNull(),
-  age: integer("age"),
+  birthDate: date("birth_date").notNull(),  // Changed from age to birthDate
   description: text("description"),
   imageUrl: text("image_url"),
   isAvailable: boolean("is_available").default(true),

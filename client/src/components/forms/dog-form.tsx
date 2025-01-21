@@ -4,6 +4,10 @@ import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -25,7 +29,9 @@ import {
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   breed: z.string().min(1, "Breed is required"),
-  age: z.number().min(0),
+  birthDate: z.date({
+    required_error: "Birth date is required",
+  }),
   description: z.string(),
   imageUrl: z.string().url("Must be a valid URL"),
   isAvailable: z.boolean().default(true),
@@ -46,7 +52,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     defaultValues: {
       name: dog?.name ?? "",
       breed: dog?.breed ?? "Colorado Mountain Dog",
-      age: dog?.age ?? 0,
+      birthDate: dog?.birthDate ? new Date(dog.birthDate) : new Date(),
       description: dog?.description ?? "",
       imageUrl: dog?.imageUrl ?? "",
       isAvailable: dog?.isAvailable ?? true,
@@ -58,7 +64,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
         method: dog ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          birthDate: format(values.birthDate, 'yyyy-MM-dd'),
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to save dog");
@@ -76,8 +85,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto p-4">
-        <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
           <DialogTitle>{dog ? "Edit Dog" : "Add New Dog"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -112,18 +121,38 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
             <FormField
               control={form.control}
-              name="age"
+              name="birthDate"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={e => field.onChange(parseInt(e.target.value))} 
-                      value={field.value || ""}
-                    />
-                  </FormControl>
+                <FormItem className="flex flex-col">
+                  <FormLabel>Birth Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("2000-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -157,7 +186,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               )}
             />
 
-            <div className="flex gap-4 sticky bottom-0 bg-background pt-4">
+            <div className="flex gap-4">
               <Button type="submit">Save</Button>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel

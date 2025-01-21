@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatAge } from "@/lib/date-utils";
 
 export default function Dogs() {
   const { data: heroContent } = useQuery<DogsHero[]>({
@@ -12,7 +13,6 @@ export default function Dogs() {
     queryKey: ["/api/dogs"],
   });
 
-  // Scroll to top when the component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -46,7 +46,7 @@ export default function Dogs() {
             <Card key={dog.id}>
               <div className="aspect-square relative">
                 <img
-                  src={dog.imageUrl}
+                  src={dog.imageUrl || ''}
                   alt={dog.name}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -54,7 +54,7 @@ export default function Dogs() {
               <CardContent className="pt-6">
                 <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
                 <p className="text-stone-600 mb-2">
-                  {dog.breed} • {dog.age} years old
+                  {dog.breed} • {formatAge(new Date(dog.birthDate))} old
                 </p>
                 <p className="text-stone-600">{dog.description}</p>
               </CardContent>
