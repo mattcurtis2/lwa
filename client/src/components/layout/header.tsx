@@ -26,7 +26,7 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-6">
-            <Link href="/#dogs">
+            <Link href="/dogs">
               <a className="text-stone-600 hover:text-stone-900">Colorado Mountain Dogs</a>
             </Link>
             <Link href="/#goats">
