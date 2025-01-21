@@ -5,11 +5,11 @@ export function formatAge(birthDate: Date): string {
 
   // Calculate all time differences
   const years = differenceInYears(today, birthDate);
-  const months = differenceInMonths(today, birthDate);
-  const weeks = differenceInWeeks(today, birthDate);
-  const days = differenceInDays(today, birthDate);
+  const months = differenceInMonths(today, birthDate) % 12;
+  const weeks = differenceInWeeks(today, birthDate) % 4;
+  const days = differenceInDays(today, birthDate) % 7;
 
-  if (days === 0) {
+  if (years === 0 && months === 0 && weeks === 0 && days === 0) {
     return "0 days old";
   }
 

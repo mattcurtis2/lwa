@@ -48,7 +48,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
     defaultValues: {
       name: "",
@@ -85,16 +85,22 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
+      const formattedValues = {
+        ...values,
+        birthDate: format(values.birthDate, 'yyyy-MM-dd'),
+      };
+
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
         method: dog ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...values,
-          birthDate: format(values.birthDate, 'yyyy-MM-dd'),
-        }),
+        body: JSON.stringify(formattedValues),
       });
 
-      if (!res.ok) throw new Error("Failed to save dog");
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error);
+      }
+
       return res.json();
     },
     onSuccess: () => {
@@ -104,6 +110,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         description: `Dog ${dog ? "updated" : "created"} successfully`,
       });
       onOpenChange(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -153,7 +166,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant="outline"
+                          variant={"outline"}
                           className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                         >
                           {field.value ? (
