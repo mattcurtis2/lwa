@@ -318,7 +318,7 @@ export default function Admin() {
               <Card key={dog.id}>
                 <div className="aspect-square relative">
                   <img
-                    src={dog.imageUrl}
+                    src={dog.imageUrl || ''}
                     alt={dog.name}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
