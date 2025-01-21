@@ -7,6 +7,12 @@ import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
+declare module "express-session" {
+  interface SessionData {
+    userId: number;
+  }
+}
+
 export function registerRoutes(app: Express): Server {
   const SessionStore = MemoryStore(session);
 
@@ -18,7 +24,7 @@ export function registerRoutes(app: Express): Server {
     cookie: { secure: process.env.NODE_ENV === 'production' }
   }));
 
-  // Initialize admin user if not exists
+  // Initialize admin user and site content
   (async () => {
     const adminUser = await db.query.users.findFirst({
       where: eq(users.username, "admin"),
@@ -32,10 +38,11 @@ export function registerRoutes(app: Express): Server {
       });
     }
 
-    // Initialize default site content if not exists
     const defaultContent = [
       { key: "logo", value: "/images/logo.png", type: "image" },
       { key: "hero_background", value: "https://images.unsplash.com/photo-1611501807352-03324d70054c", type: "image" },
+      { key: "hero_text", value: "Welcome to Little Way Acres", type: "text" },
+      { key: "hero_subtext", value: "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market.", type: "text" },
     ];
 
     for (const content of defaultContent) {

@@ -8,6 +8,8 @@ export default function Hero() {
   });
 
   const heroBackground = siteContent?.find(content => content.key === "hero_background");
+  const heroText = siteContent?.find(content => content.key === "hero_text");
+  const heroSubtext = siteContent?.find(content => content.key === "hero_subtext");
 
   return (
     <div className="relative h-[600px] bg-cover bg-center" style={{
@@ -16,10 +18,11 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black bg-opacity-50" />
       <div className="relative container mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
-          <h1 className="text-5xl font-bold mb-6">Welcome to Little Way Acres</h1>
+          <h1 className="text-5xl font-bold mb-6">
+            {heroText?.value || "Welcome to Little Way Acres"}
+          </h1>
           <p className="text-xl mb-8">
-            Experience the charm of sustainable farming, meet our beloved animals,
-            and enjoy fresh, locally grown produce at our farmers market.
+            {heroSubtext?.value || "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market."}
           </p>
           <div className="flex gap-4">
             <Button size="lg" variant="default">

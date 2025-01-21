@@ -11,10 +11,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+
+interface ContentField {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "image";
+  value: string;
+}
 
 export default function Admin() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<Animal | Product | null>(null);
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -49,8 +58,39 @@ export default function Admin() {
     },
   });
 
-  const logo = siteContent?.find(content => content.key === "logo");
-  const heroBackground = siteContent?.find(content => content.key === "hero_background");
+  const contentFields: ContentField[] = [
+    { key: "logo", label: "Logo URL", type: "image", value: siteContent?.find(c => c.key === "logo")?.value || "" },
+    { key: "hero_background", label: "Hero Background URL", type: "image", value: siteContent?.find(c => c.key === "hero_background")?.value || "" },
+    { key: "hero_text", label: "Hero Title", type: "text", value: siteContent?.find(c => c.key === "hero_text")?.value || "" },
+    { key: "hero_subtext", label: "Hero Subtitle", type: "textarea", value: siteContent?.find(c => c.key === "hero_subtext")?.value || "" },
+  ];
+
+  const handleContentChange = (key: string, value: string) => {
+    setPendingContent(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleContentSave = async (key: string) => {
+    if (pendingContent[key] === undefined) return;
+
+    try {
+      await updateSiteContent.mutateAsync({
+        key,
+        value: pendingContent[key],
+      });
+      // Clear the pending content for this field after successful save
+      setPendingContent(prev => {
+        const newPending = { ...prev };
+        delete newPending[key];
+        return newPending;
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update content",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -65,48 +105,40 @@ export default function Admin() {
 
         <TabsContent value="site">
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div>
-                <Label htmlFor="logo">Logo URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="logo"
-                    value={logo?.value || ""}
-                    onChange={(e) => updateSiteContent.mutate({
-                      key: "logo",
-                      value: e.target.value,
-                    })}
-                  />
-                  {logo?.value && (
-                    <img
-                      src={logo.value}
-                      alt="Logo preview"
-                      className="w-10 h-10 object-contain"
-                    />
-                  )}
+            <CardContent className="pt-6 space-y-6">
+              {contentFields.map((field) => (
+                <div key={field.key} className="space-y-2">
+                  <Label htmlFor={field.key}>{field.label}</Label>
+                  <div className="flex gap-2">
+                    {field.type === "textarea" ? (
+                      <Textarea
+                        id={field.key}
+                        value={pendingContent[field.key] ?? field.value}
+                        onChange={(e) => handleContentChange(field.key, e.target.value)}
+                      />
+                    ) : (
+                      <Input
+                        id={field.key}
+                        value={pendingContent[field.key] ?? field.value}
+                        onChange={(e) => handleContentChange(field.key, e.target.value)}
+                      />
+                    )}
+                    {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
+                      <img
+                        src={pendingContent[field.key] ?? field.value}
+                        alt={`${field.label} preview`}
+                        className="w-10 h-10 object-contain"
+                      />
+                    )}
+                    <Button 
+                      onClick={() => handleContentSave(field.key)}
+                      disabled={pendingContent[field.key] === undefined}
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="hero">Hero Background URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="hero"
-                    value={heroBackground?.value || ""}
-                    onChange={(e) => updateSiteContent.mutate({
-                      key: "hero_background",
-                      value: e.target.value,
-                    })}
-                  />
-                  {heroBackground?.value && (
-                    <img
-                      src={heroBackground.value}
-                      alt="Hero preview"
-                      className="w-10 h-10 object-cover"
-                    />
-                  )}
-                </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
         </TabsContent>
