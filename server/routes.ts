@@ -31,10 +31,10 @@ export function registerRoutes(app: Express): Server {
     });
 
     if (!adminUser) {
-      const hashedPassword = await bcrypt.hash(
-        process.env.NODE_ENV === 'production' ? process.env.ADMIN_PASSWORD || 'AustenAlcott' : 'AustenAlcott',
-        10
-      );
+      const defaultPassword = process.env.NODE_ENV === 'production' ? 
+        process.env.ADMIN_PASSWORD?.replace(/\s+/g, '') || 'AustenAlcott' : 
+        'AustenAlcott';
+      const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       await db.insert(users).values({
         username: "admin",
         password: hashedPassword,
@@ -159,7 +159,7 @@ export function registerRoutes(app: Express): Server {
       where: eq(users.username, username),
     });
 
-    if (!user || !await bcrypt.compare(password, user.password)) {
+    if (!user || !await bcrypt.compare(password.replace(/\s+/g, ''), user.password)) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
