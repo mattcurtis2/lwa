@@ -67,6 +67,7 @@ export const dogs = pgTable("dogs", {
   description: text("description"),
   imageUrl: text("image_url"),
   isAvailable: boolean("is_available").default(true),
+  order: integer("order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -132,6 +133,41 @@ export default function Admin() {
         variant: "destructive",
       });
     }
+  };
+
+  const reorderDogs = useMutation({
+    mutationFn: async ({ dogId, newOrder }: { dogId: number; newOrder: number }) => {
+      const res = await fetch(`/api/dogs/${dogId}/reorder`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: newOrder }),
+      });
+
+      if (!res.ok) throw new Error("Failed to reorder dogs");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+      toast({
+        title: "Success",
+        description: "Dogs reordered successfully",
+      });
+    },
+  });
+
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination || !dogs) return;
+
+    const items = Array.from(dogs);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update orders for all affected dogs
+    const updates = items.map((dog, index) => 
+      reorderDogs.mutate({ dogId: dog.id, newOrder: index })
+    );
+
+    await Promise.all(updates);
   };
 
   return (
@@ -316,56 +352,77 @@ export default function Admin() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {dogs?.map((dog) => (
-                <Card key={dog.id}>
-                  <div className="aspect-square relative">
-                    <img
-                      src={dog.imageUrl || ''}
-                      alt={dog.name}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="dogs">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  >
+                    {dogs?.map((dog, index) => (
+                      <Draggable key={dog.id} draggableId={String(dog.id)} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <Card>
+                              <div className="aspect-square relative">
+                                <img
+                                  src={dog.imageUrl || ''}
+                                  alt={dog.name}
+                                  className="absolute inset-0 w-full h-full object-cover"
+                                />
+                              </div>
+                              <CardContent className="pt-6">
+                                <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
+                                <p className="text-stone-600 mb-2">
+                                  {dog.breed} • {dog.age} years old
+                                </p>
+                                <p className="text-stone-600 mb-4">{dog.description}</p>
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    onClick={() => {
+                                      setEditItem(dog);
+                                      setShowForm(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      if (!confirm("Are you sure you want to delete this dog?")) return;
+                                      const res = await fetch(`/api/dogs/${dog.id}`, {
+                                        method: "DELETE",
+                                      });
+                                      if (res.ok) {
+                                        queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                                        toast({
+                                          title: "Success",
+                                          description: "Dog deleted successfully",
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
-                  <CardContent className="pt-6">
-                    <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
-                    <p className="text-stone-600 mb-2">
-                      {dog.breed} • {dog.age} years old
-                    </p>
-                    <p className="text-stone-600 mb-4">{dog.description}</p>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setEditItem(dog);
-                          setShowForm(true);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={async () => {
-                          if (!confirm("Are you sure you want to delete this dog?")) return;
-                          const res = await fetch(`/api/dogs/${dog.id}`, {
-                            method: "DELETE",
-                          });
-                          if (res.ok) {
-                            queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                            toast({
-                              title: "Success",
-                              description: "Dog deleted successfully",
-                            });
-                          }
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+                )}
+              </Droppable>
+            </DragDropContext>
+        </TabsContent>
 
         <TabsContent value="animals">
           <div className="mb-6">
