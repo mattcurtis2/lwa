@@ -400,7 +400,7 @@ export default function Admin() {
                     </div>
                     <div className="mt-4">
                       <p className="text-stone-600 mb-2">
-                        {dog.breed} • {formatAge(new Date(dog.birthDate))}
+                        {formatAge(new Date(dog.birthDate))}
                       </p>
                       <p className="text-stone-600 mb-4">{dog.description}</p>
                       <div className="flex gap-2">
