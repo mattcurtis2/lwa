@@ -22,7 +22,7 @@ export default function Home() {
     <div className="w-full">
       <Hero />
       <FarmInfo />
-      
+
       <section className="container mx-auto py-12">
         <h2 className="text-3xl font-bold mb-8">Our Colorado Mountain Dogs</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -32,7 +32,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container mx-auto py-12 bg-stone-50">
+      <section className="container mx-auto py-12" style={{ backgroundColor: '#FDF7EB' }}>
         <h2 className="text-3xl font-bold mb-8">Nigerian Dwarf Goats</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {goats?.map((goat) => (

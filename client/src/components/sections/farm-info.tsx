@@ -2,10 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function FarmInfo() {
   return (
-    <section className="py-16 bg-stone-50">
+    <section className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-12">About Our Farm</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card>
             <CardContent className="pt-6">
