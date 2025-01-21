@@ -23,11 +23,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { X, Upload, Link as LinkIcon } from "lucide-react";
+import { X, Upload } from "lucide-react";
 
 const mediaSchema = z.object({
   url: z.string().url("Must be a valid URL"),
   type: z.enum(["image", "video"]),
+  fileName: z.string().optional(),
 });
 
 const dogSchema = z.object({
@@ -50,10 +51,17 @@ interface DogFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface MediaInput {
+  url: string;
+  type: "image" | "video";
+  fileName?: string;
+  isNew?: boolean;
+}
+
 export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [mediaInputs, setMediaInputs] = useState<{ url: string; type: "image" | "video" }[]>([]);
+  const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<z.infer<typeof dogSchema>>({
@@ -71,7 +79,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     if (dog) {
       const media = dog.media?.map(m => ({
         url: m.url,
-        type: m.type as "image" | "video"
+        type: m.type as "image" | "video",
+        isNew: false,
       })) || [];
 
       form.reset({
@@ -108,8 +117,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       });
 
       if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error);
+        throw new Error(await res.text());
       }
 
       return res.json();
@@ -131,7 +139,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     },
   });
 
-  const handleFileUpload = async (file: File, index: number) => {
+  const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -149,8 +157,16 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       const data = await res.json();
       const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
-      handleMediaChange(index, "url", data.url);
-      handleMediaChange(index, "type", fileType);
+      const newMedia = {
+        url: data.url,
+        type: fileType,
+        fileName: file.name,
+        isNew: true,
+      };
+
+      const newInputs = [newMedia, ...mediaInputs];
+      setMediaInputs(newInputs);
+      form.setValue("media", newInputs);
 
       toast({
         title: "Success",
@@ -167,25 +183,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     }
   };
 
-  const addMediaInput = () => {
-    const newInputs = [...mediaInputs, { url: "", type: "image" as const }];
-    setMediaInputs(newInputs);
-    form.setValue("media", newInputs);
-  };
-
   const removeMediaInput = (index: number) => {
     const newInputs = [...mediaInputs];
     newInputs.splice(index, 1);
-    setMediaInputs(newInputs);
-    form.setValue("media", newInputs);
-  };
-
-  const handleMediaChange = (index: number, field: "url" | "type", value: string) => {
-    const newInputs = [...mediaInputs];
-    newInputs[index] = {
-      ...newInputs[index],
-      [field]: field === "type" ? value as "image" | "video" : value,
-    };
     setMediaInputs(newInputs);
     form.setValue("media", newInputs);
   };
@@ -243,79 +243,70 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <FormLabel>Media</FormLabel>
-                <Button type="button" variant="outline" onClick={addMediaInput}>
-                  Add Media
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*,video/*';
+                    fileInput.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) {
+                        handleFileUpload(file);
+                      }
+                    };
+                    fileInput.click();
+                  }}
+                  disabled={isUploading}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploading ? "Uploading..." : "Upload Media"}
                 </Button>
               </div>
 
-              {mediaInputs.map((input, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <div className="flex gap-2 mb-2">
-                        <Input
-                          value={input.url}
-                          onChange={(e) => handleMediaChange(index, "url", e.target.value)}
-                          placeholder="Media URL"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="shrink-0"
-                          onClick={() => {
-                            const fileInput = document.createElement('input');
-                            fileInput.type = 'file';
-                            fileInput.accept = 'image/*,video/*';
-                            fileInput.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) {
-                                handleFileUpload(file, index);
-                              }
-                            };
-                            fileInput.click();
-                          }}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload
-                        </Button>
+              <div className="space-y-4">
+                {mediaInputs.map((input, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-20 h-20 relative shrink-0">
+                        {input.type === 'image' ? (
+                          <img
+                            src={input.url}
+                            alt="Preview"
+                            className="w-full h-full object-cover rounded"
+                          />
+                        ) : (
+                          <video
+                            src={input.url}
+                            className="w-full h-full object-cover rounded"
+                            controls
+                          />
+                        )}
                       </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium mb-1">
+                          {input.fileName || input.url.split('/').pop()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeMediaInput(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <select
-                      value={input.type}
-                      onChange={(e) => handleMediaChange(index, "type", e.target.value as "image" | "video")}
-                      className="px-2 py-1 border rounded"
-                    >
-                      <option value="image">Image</option>
-                      <option value="video">Video</option>
-                    </select>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeMediaInput(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
-                  {input.url && (
-                    <div className="w-20 h-20 relative">
-                      {input.type === 'image' ? (
-                        <img
-                          src={input.url}
-                          alt="Preview"
-                          className="w-full h-full object-cover rounded"
-                        />
-                      ) : (
-                        <video
-                          src={input.url}
-                          className="w-full h-full object-cover rounded"
-                          controls
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             <div className="flex gap-4">
