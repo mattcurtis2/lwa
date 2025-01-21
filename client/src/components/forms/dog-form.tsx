@@ -319,7 +319,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                             />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 max-w-[160px]">
                           <p className="text-sm font-medium mb-1 truncate">
                             {input.fileName || input.url.split('/').pop()}
                           </p>
@@ -362,7 +362,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           </DialogHeader>
           <div className="space-y-6">
             <div className="space-y-4">
-              <FormLabel>Media Type</FormLabel>
+              <div className="text-sm font-medium leading-none">Media Type</div>
               <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="image" id="image" />
@@ -376,7 +376,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
             </div>
 
             <div className="space-y-4">
-              <FormLabel>Input Method</FormLabel>
+              <div className="text-sm font-medium leading-none">Input Method</div>
               <RadioGroup value={inputMethod} onValueChange={(value) => setInputMethod(value as "url" | "upload")} className="flex gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="url" id="url" />
@@ -391,7 +391,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
             {inputMethod === "url" && (
               <div className="space-y-2">
-                <FormLabel>Media URL</FormLabel>
+                <div className="text-sm font-medium leading-none">Media URL</div>
                 <Input
                   value={mediaUrl}
                   onChange={(e) => setMediaUrl(e.target.value)}
