@@ -43,6 +43,13 @@ export function registerRoutes(app: Express): Server {
       { key: "hero_background", value: "https://images.unsplash.com/photo-1611501807352-03324d70054c", type: "image" },
       { key: "hero_text", value: "Welcome to Little Way Acres", type: "text" },
       { key: "hero_subtext", value: "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market.", type: "text" },
+      { key: "about_title", value: "About Our Farm", type: "text" },
+      { key: "mission_title", value: "Our Mission", type: "text" },
+      { key: "mission_text", value: "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community.", type: "text" },
+      { key: "animals_title", value: "The Animals", type: "text" },
+      { key: "animals_text", value: "Home to our wonderful Colorado Mountain Dogs and Nigerian Dwarf Goats, raised with love and care in a natural environment.", type: "text" },
+      { key: "market_title", value: "Farmers Market", type: "text" },
+      { key: "market_text", value: "Fresh bread, pastries, and seasonal vegetables grown and prepared right here on our farm.", type: "text" },
     ];
 
     for (const content of defaultContent) {

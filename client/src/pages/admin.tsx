@@ -63,6 +63,13 @@ export default function Admin() {
     { key: "hero_background", label: "Hero Background URL", type: "image", value: siteContent?.find(c => c.key === "hero_background")?.value || "" },
     { key: "hero_text", label: "Hero Title", type: "text", value: siteContent?.find(c => c.key === "hero_text")?.value || "" },
     { key: "hero_subtext", label: "Hero Subtitle", type: "textarea", value: siteContent?.find(c => c.key === "hero_subtext")?.value || "" },
+    { key: "about_title", label: "About Section Title", type: "text", value: siteContent?.find(c => c.key === "about_title")?.value || "" },
+    { key: "mission_title", label: "Mission Card Title", type: "text", value: siteContent?.find(c => c.key === "mission_title")?.value || "" },
+    { key: "mission_text", label: "Mission Card Text", type: "textarea", value: siteContent?.find(c => c.key === "mission_text")?.value || "" },
+    { key: "animals_title", label: "Animals Card Title", type: "text", value: siteContent?.find(c => c.key === "animals_title")?.value || "" },
+    { key: "animals_text", label: "Animals Card Text", type: "textarea", value: siteContent?.find(c => c.key === "animals_text")?.value || "" },
+    { key: "market_title", label: "Market Card Title", type: "text", value: siteContent?.find(c => c.key === "market_title")?.value || "" },
+    { key: "market_text", label: "Market Card Text", type: "textarea", value: siteContent?.find(c => c.key === "market_text")?.value || "" },
   ];
 
   const handleContentChange = (key: string, value: string) => {
