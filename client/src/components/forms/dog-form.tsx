@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {useEffect} from "react";
+import { useEffect } from "react";
 
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -67,8 +67,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         name: dog.name,
         breed: dog.breed,
         birthDate: new Date(dog.birthDate),
-        description: dog.description || "",
-        imageUrl: dog.imageUrl || "",
+        description: dog.description ?? "",
+        imageUrl: dog.imageUrl ?? "",
         isAvailable: dog.isAvailable,
       });
     } else {
@@ -206,6 +206,25 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isAvailable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Available</FormLabel>
+                  </div>
                 </FormItem>
               )}
             />

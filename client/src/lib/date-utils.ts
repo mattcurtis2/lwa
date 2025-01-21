@@ -2,26 +2,28 @@ import { differenceInDays, differenceInWeeks, differenceInMonths, differenceInYe
 
 export function formatAge(birthDate: Date): string {
   const today = new Date();
+
+  // Calculate all time differences
+  const years = differenceInYears(today, birthDate);
+  const months = differenceInMonths(today, birthDate);
+  const weeks = differenceInWeeks(today, birthDate);
   const days = differenceInDays(today, birthDate);
 
   if (days === 0) {
-    return "newborn";
+    return "0 days old";
   }
 
-  const years = differenceInYears(today, birthDate);
-  if (years > 0) {
-    return `${years} ${years === 1 ? 'year' : 'years'}`;
+  if (years >= 1) {
+    return `${years} ${years === 1 ? 'year' : 'years'} old`;
   }
 
-  const months = differenceInMonths(today, birthDate);
-  if (months > 0) {
-    return `${months} ${months === 1 ? 'month' : 'months'}`;
+  if (months >= 1) {
+    return `${months} ${months === 1 ? 'month' : 'months'} old`;
   }
 
-  const weeks = differenceInWeeks(today, birthDate);
-  if (weeks > 0) {
-    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
+  if (weeks >= 1) {
+    return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} old`;
   }
 
-  return `${days} ${days === 1 ? 'day' : 'days'}`;
+  return `${days} ${days === 1 ? 'day' : 'days'} old`;
 }
