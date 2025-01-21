@@ -359,6 +359,25 @@ export default function Admin() {
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-xl font-bold">{dog.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={`order-${dog.id}`}>Order:</Label>
+                        <Input
+                          id={`order-${dog.id}`}
+                          type="number"
+                          min="0"
+                          className="w-20"
+                          value={dog.order}
+                          onChange={async (e) => {
+                            const newOrder = parseInt(e.target.value);
+                            if (isNaN(newOrder)) return;
+
+                            await reorderDogs.mutateAsync({ 
+                              dogId: dog.id, 
+                              newOrder: newOrder 
+                            });
+                          }}
+                        />
+                      </div>
                     </div>
                     <div className="aspect-square relative">
                       <img
