@@ -28,11 +28,6 @@ export default function MobileNav() {
               Farmers Market
             </a>
           </Link>
-          <Link href="/admin">
-            <a className="block px-2 py-1 text-lg text-stone-600 hover:text-stone-900">
-              Admin
-            </a>
-          </Link>
         </nav>
       </SheetContent>
     </Sheet>
