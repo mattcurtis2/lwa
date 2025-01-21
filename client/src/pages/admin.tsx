@@ -65,12 +65,12 @@ export default function Admin() {
     { key: "hero_subtext", label: "Hero Subtitle", type: "textarea", value: siteContent?.find(c => c.key === "hero_subtext")?.value || "" },
     { key: "about_title", label: "About Section Title", type: "text", value: siteContent?.find(c => c.key === "about_title")?.value || "" },
     { key: "mission_text", label: "Mission Text", type: "textarea", value: siteContent?.find(c => c.key === "mission_text")?.value || "" },
-    { key: "animals_title", label: "Animals Card Title", type: "text", value: siteContent?.find(c => c.key === "animals_title")?.value || "" },
-    { key: "animals_text", label: "Animals Card Text", type: "textarea", value: siteContent?.find(c => c.key === "animals_text")?.value || "" },
-    { key: "bakery_title", label: "Bakery Card Title", type: "text", value: siteContent?.find(c => c.key === "bakery_title")?.value || "" },
-    { key: "bakery_text", label: "Bakery Card Text", type: "textarea", value: siteContent?.find(c => c.key === "bakery_text")?.value || "" },
-    { key: "products_title", label: "Products Card Title", type: "text", value: siteContent?.find(c => c.key === "products_title")?.value || "" },
-    { key: "products_text", label: "Products Card Text", type: "textarea", value: siteContent?.find(c => c.key === "products_text")?.value || "" },
+    { key: "animals_title", label: "Card 1 Title", type: "text", value: siteContent?.find(c => c.key === "animals_title")?.value || "" },
+    { key: "animals_text", label: "Card 1 Text", type: "textarea", value: siteContent?.find(c => c.key === "animals_text")?.value || "" },
+    { key: "bakery_title", label: "Card 2 Title", type: "text", value: siteContent?.find(c => c.key === "bakery_title")?.value || "" },
+    { key: "bakery_text", label: "Card 2 Text", type: "textarea", value: siteContent?.find(c => c.key === "bakery_text")?.value || "" },
+    { key: "products_title", label: "Card 3 Title", type: "text", value: siteContent?.find(c => c.key === "products_title")?.value || "" },
+    { key: "products_text", label: "Card 3 Text", type: "textarea", value: siteContent?.find(c => c.key === "products_text")?.value || "" },
   ];
 
   const handleContentChange = (key: string, value: string) => {
