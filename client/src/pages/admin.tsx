@@ -108,14 +108,20 @@ export default function Admin() {
     { key: "animals_title", label: "Card 1 Title", type: "text", value: siteContent?.find(c => c.key === "animals_title")?.value || "" },
     { key: "animals_text", label: "Card 1 Text", type: "textarea", value: siteContent?.find(c => c.key === "animals_text")?.value || "" },
     { key: "animals_image", label: "Card 1 Image URL", type: "image", value: siteContent?.find(c => c.key === "animals_image")?.value || "" },
+    { key: "animals_button_text", label: "Card 1 Button Text", type: "text", value: siteContent?.find(c => c.key === "animals_button_text")?.value || "" },
+    { key: "animals_redirect", label: "Card 1 Redirect URL", type: "text", value: siteContent?.find(c => c.key === "animals_redirect")?.value || "" },
     // Card 2 - Goats
     { key: "bakery_title", label: "Card 2 Title", type: "text", value: siteContent?.find(c => c.key === "bakery_title")?.value || "" },
     { key: "bakery_text", label: "Card 2 Text", type: "textarea", value: siteContent?.find(c => c.key === "bakery_text")?.value || "" },
     { key: "bakery_image", label: "Card 2 Image URL", type: "image", value: siteContent?.find(c => c.key === "bakery_image")?.value || "" },
+    { key: "bakery_button_text", label: "Card 2 Button Text", type: "text", value: siteContent?.find(c => c.key === "bakery_button_text")?.value || "" },
+    { key: "bakery_redirect", label: "Card 2 Redirect URL", type: "text", value: siteContent?.find(c => c.key === "bakery_redirect")?.value || "" },
     // Card 3 - Products
     { key: "products_title", label: "Card 3 Title", type: "text", value: siteContent?.find(c => c.key === "products_title")?.value || "" },
     { key: "products_text", label: "Card 3 Text", type: "textarea", value: siteContent?.find(c => c.key === "products_text")?.value || "" },
     { key: "products_image", label: "Card 3 Image URL", type: "image", value: siteContent?.find(c => c.key === "products_image")?.value || "" },
+    { key: "products_button_text", label: "Card 3 Button Text", type: "text", value: siteContent?.find(c => c.key === "products_button_text")?.value || "" },
+    { key: "products_redirect", label: "Card 3 Redirect URL", type: "text", value: siteContent?.find(c => c.key === "products_redirect")?.value || "" },
   ];
 
   const handleContentChange = (key: string, value: string) => {
