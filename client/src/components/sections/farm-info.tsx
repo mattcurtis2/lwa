@@ -38,15 +38,15 @@ export default function FarmInfo() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 h-[250px] flex flex-col">
               <h3 className="text-xl font-bold mb-4">
                 {getContent("animals_title") || "Our Animals"}
               </h3>
-              <p className="text-stone-600 mb-4 min-h-[6rem]">
+              <p className="text-stone-600 mb-4 flex-grow">
                 {getContent("animals_text") || 
                   "Home to our wonderful Colorado Mountain Dogs and Nigerian Dwarf Goats, raised with love and care in a natural environment."}
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Button className="whitespace-normal">
                   {getContent("animals_button_text") || "Learn More About Our Dogs"}
                 </Button>
@@ -62,15 +62,15 @@ export default function FarmInfo() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 h-[250px] flex flex-col">
               <h3 className="text-xl font-bold mb-4">
                 {getContent("bakery_title") || "Our Goats"}
               </h3>
-              <p className="text-stone-600 mb-4 min-h-[6rem]">
+              <p className="text-stone-600 mb-4 flex-grow">
                 {getContent("bakery_text") || 
                   "Fresh bread and delicious pastries baked daily using traditional methods and the finest ingredients."}
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Button className="whitespace-normal">
                   {getContent("bakery_button_text") || "Learn About Our Goats"}
                 </Button>
@@ -86,15 +86,15 @@ export default function FarmInfo() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 h-[250px] flex flex-col">
               <h3 className="text-xl font-bold mb-4">
                 {getContent("products_title") || "Farm Products"}
               </h3>
-              <p className="text-stone-600 mb-4 min-h-[6rem]">
+              <p className="text-stone-600 mb-4 flex-grow">
                 {getContent("products_text") || 
                   "Fresh, seasonal vegetables and farm products grown with care using sustainable practices."}
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Button className="whitespace-normal">
                   {getContent("products_button_text") || "Visit Our Market"}
                 </Button>
