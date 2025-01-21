@@ -156,28 +156,6 @@ export function registerRoutes(app: Express): Server {
     }
   })();
 
-  // Auth routes
-  app.post("/api/auth/login", async (req, res) => {
-    const { username, password } = req.body;
-    const user = await db.query.users.findFirst({
-      where: eq(users.username, username),
-    });
-
-    if (!user || !await bcrypt.compare(password.replace(/\s+/g, ''), user.password)) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    req.session.userId = user.id;
-    res.json({ message: "Logged in successfully" });
-  });
-
-  app.get("/api/auth/check-session", async (req, res) => {
-    if (!req.session.userId) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    res.json({ authenticated: true });
-  });
-
   // Site content routes
   app.get("/api/site-content", async (req, res) => {
     const content = await db.query.siteContent.findMany();
@@ -185,8 +163,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.put("/api/site-content/:key", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
-
     const { value } = req.body;
     const content = await db.update(siteContent)
       .set({ value, updatedAt: new Date() })
@@ -206,13 +182,11 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/animals", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const animal = await db.insert(animals).values(req.body).returning();
     res.json(animal[0]);
   });
 
   app.put("/api/animals/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const animal = await db.update(animals)
       .set(req.body)
       .where(eq(animals.id, parseInt(req.params.id)))
@@ -221,7 +195,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.delete("/api/animals/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     await db.delete(animals).where(eq(animals.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
@@ -236,13 +209,11 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/products", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const product = await db.insert(products).values(req.body).returning();
     res.json(product[0]);
   });
 
   app.put("/api/products/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const product = await db.update(products)
       .set(req.body)
       .where(eq(products.id, parseInt(req.params.id)))
@@ -251,7 +222,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.delete("/api/products/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     await db.delete(products).where(eq(products.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
@@ -271,8 +241,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/carousel", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
-
     // Get the highest order number
     const items = await db.query.carouselItems.findMany();
     const maxOrder = items.reduce((max, item) => Math.max(max, item.order), 0);
@@ -284,7 +252,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.put("/api/carousel/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const item = await db.update(carouselItems)
       .set({ ...req.body, updatedAt: new Date() })
       .where(eq(carouselItems.id, parseInt(req.params.id)))
@@ -293,7 +260,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.delete("/api/carousel/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     await db.delete(carouselItems)
       .where(eq(carouselItems.id, parseInt(req.params.id)));
 
@@ -318,8 +284,6 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.put("/api/dogs-hero/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
-
     const hero = await db.update(dogsHero)
       .set({ ...req.body, updatedAt: new Date() })
       .where(eq(dogsHero.id, parseInt(req.params.id)))
@@ -337,13 +301,11 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/dogs", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const dog = await db.insert(dogs).values(req.body).returning();
     res.json(dog[0]);
   });
 
   app.put("/api/dogs/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     const dog = await db.update(dogs)
       .set(req.body)
       .where(eq(dogs.id, parseInt(req.params.id)))
@@ -352,15 +314,12 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.delete("/api/dogs/:id", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     await db.delete(dogs).where(eq(dogs.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
 
   // Add reorder endpoint for dogs
   app.put("/api/dogs/:id/reorder", async (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
-
     const dog = await db.update(dogs)
       .set({ 
         order: req.body.order,
