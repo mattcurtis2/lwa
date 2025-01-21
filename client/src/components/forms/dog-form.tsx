@@ -42,6 +42,9 @@ const dogSchema = z.object({
       return false;
     }
   }, "Please enter a valid date in MM/DD/YYYY format"),
+  gender: z.enum(["male", "female"], {
+    required_error: "Please select sex",
+  }),
   description: z.string(),
   media: z.array(mediaSchema),
 });
@@ -74,6 +77,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     defaultValues: {
       name: "",
       birthDate: format(new Date(), 'MM/dd/yyyy'),
+      gender: "male",
       description: "",
       media: [],
     },
@@ -91,6 +95,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         name: dog.name,
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
+        gender: dog.gender,
         description: dog.description ?? "",
         media,
       });
@@ -99,6 +104,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         name: "",
         birthDate: format(new Date(), 'MM/dd/yyyy'),
+        gender: "male",
         description: "",
         media: [],
       });
@@ -272,6 +278,35 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
               <FormField
                 control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sex</FormLabel>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="male" id="male" />
+                        <label htmlFor="male" className="flex items-center gap-1">
+                          Male <span className="text-blue-500">♂</span>
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="female" id="female" />
+                        <label htmlFor="female" className="flex items-center gap-1">
+                          Female <span className="text-pink-500">♀</span>
+                        </label>
+                      </div>
+                    </RadioGroup>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
@@ -299,8 +334,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
                 <div className="space-y-4">
                   {mediaInputs.map((input, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
                     >
                       <div className="flex gap-4">

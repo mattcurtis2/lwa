@@ -73,6 +73,7 @@ export const dogs = pgTable("dogs", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   breed: text("breed").notNull(),
+  gender: text("gender").notNull(),  // Add gender field
   birthDate: date("birth_date").notNull(),
   description: text("description"),
   order: integer("order").notNull().default(0),

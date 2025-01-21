@@ -13,6 +13,12 @@ interface DogCardProps {
 }
 
 export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange }: DogCardProps) {
+  const genderSymbol = dog.gender === 'male' ? (
+    <span className="text-blue-500">♂</span>
+  ) : (
+    <span className="text-pink-500">♀</span>
+  );
+
   return (
     <Card className="h-full">
       {dog.media && dog.media.length > 0 ? (
@@ -26,7 +32,9 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
         {isAdmin ? (
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-xl font-bold inline-block">{dog.name}</h3>
+              <h3 className="text-xl font-bold inline-flex items-center gap-1">
+                {dog.name} {genderSymbol}
+              </h3>
               <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
             </div>
             {onOrderChange && (
@@ -52,7 +60,9 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
           </div>
         ) : (
           <div className="mb-4">
-            <h3 className="text-xl font-bold inline-block">{dog.name}</h3>
+            <h3 className="text-xl font-bold inline-flex items-center gap-1">
+              {dog.name} {genderSymbol}
+            </h3>
             <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
           </div>
         )}
