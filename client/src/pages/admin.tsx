@@ -104,12 +104,18 @@ export default function Admin() {
     { key: "hero_subtext", label: "Hero Subtitle", type: "textarea", value: siteContent?.find(c => c.key === "hero_subtext")?.value || "" },
     { key: "about_title", label: "About Section Title", type: "text", value: siteContent?.find(c => c.key === "about_title")?.value || "" },
     { key: "mission_text", label: "Mission Text", type: "textarea", value: siteContent?.find(c => c.key === "mission_text")?.value || "" },
+    // Card 1 - Animals
     { key: "animals_title", label: "Card 1 Title", type: "text", value: siteContent?.find(c => c.key === "animals_title")?.value || "" },
     { key: "animals_text", label: "Card 1 Text", type: "textarea", value: siteContent?.find(c => c.key === "animals_text")?.value || "" },
+    { key: "animals_image", label: "Card 1 Image URL", type: "image", value: siteContent?.find(c => c.key === "animals_image")?.value || "" },
+    // Card 2 - Goats
     { key: "bakery_title", label: "Card 2 Title", type: "text", value: siteContent?.find(c => c.key === "bakery_title")?.value || "" },
     { key: "bakery_text", label: "Card 2 Text", type: "textarea", value: siteContent?.find(c => c.key === "bakery_text")?.value || "" },
+    { key: "bakery_image", label: "Card 2 Image URL", type: "image", value: siteContent?.find(c => c.key === "bakery_image")?.value || "" },
+    // Card 3 - Products
     { key: "products_title", label: "Card 3 Title", type: "text", value: siteContent?.find(c => c.key === "products_title")?.value || "" },
     { key: "products_text", label: "Card 3 Text", type: "textarea", value: siteContent?.find(c => c.key === "products_text")?.value || "" },
+    { key: "products_image", label: "Card 3 Image URL", type: "image", value: siteContent?.find(c => c.key === "products_image")?.value || "" },
   ];
 
   const handleContentChange = (key: string, value: string) => {
@@ -371,9 +377,9 @@ export default function Admin() {
                             const newOrder = parseInt(e.target.value);
                             if (isNaN(newOrder)) return;
 
-                            await reorderDogs.mutateAsync({ 
-                              dogId: dog.id, 
-                              newOrder: newOrder 
+                            await reorderDogs.mutateAsync({
+                              dogId: dog.id,
+                              newOrder: newOrder
                             });
                           }}
                         />

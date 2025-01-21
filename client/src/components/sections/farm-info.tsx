@@ -24,6 +24,13 @@ export default function FarmInfo() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card>
+            <div className="aspect-video w-full overflow-hidden">
+              <img 
+                src={getContent("animals_image") || "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e"} 
+                alt="Our Animals"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="pt-6">
               <h3 className="text-xl font-bold mb-4">
                 {getContent("animals_title") || "Our Animals"}
@@ -36,9 +43,16 @@ export default function FarmInfo() {
           </Card>
 
           <Card>
+            <div className="aspect-video w-full overflow-hidden">
+              <img 
+                src={getContent("bakery_image") || "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"} 
+                alt="Our Goats"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="pt-6">
               <h3 className="text-xl font-bold mb-4">
-                {getContent("bakery_title") || "Our Bakery"}
+                {getContent("bakery_title") || "Our Goats"}
               </h3>
               <p className="text-stone-600">
                 {getContent("bakery_text") || 
@@ -48,6 +62,13 @@ export default function FarmInfo() {
           </Card>
 
           <Card>
+            <div className="aspect-video w-full overflow-hidden">
+              <img 
+                src={getContent("products_image") || "https://images.unsplash.com/photo-1488459716781-31db52582fe9"} 
+                alt="Farm Products"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="pt-6">
               <h3 className="text-xl font-bold mb-4">
                 {getContent("products_title") || "Farm Products"}
