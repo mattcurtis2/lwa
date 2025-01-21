@@ -54,7 +54,7 @@ export default function Dogs() {
               <CardContent className="pt-6">
                 <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
                 <p className="text-stone-600 mb-2">
-                  {dog.breed} • {formatAge(new Date(dog.birthDate))}
+                  {formatAge(new Date(dog.birthDate))}
                 </p>
                 <p className="text-stone-600">{dog.description}</p>
               </CardContent>

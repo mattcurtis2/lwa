@@ -26,7 +26,6 @@ import { useEffect } from "react";
 
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  breed: z.string().min(1, "Breed is required"),
   birthDate: z.string().refine((date) => {
     try {
       const parsedDate = parse(date, 'MM/dd/yyyy', new Date());
@@ -54,7 +53,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     resolver: zodResolver(dogSchema),
     defaultValues: {
       name: "",
-      breed: "Colorado Mountain Dog",
       birthDate: format(new Date(), 'MM/dd/yyyy'),
       description: "",
       imageUrl: "",
@@ -67,7 +65,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     if (dog) {
       form.reset({
         name: dog.name,
-        breed: dog.breed,
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         description: dog.description ?? "",
         imageUrl: dog.imageUrl ?? "",
@@ -76,7 +73,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     } else {
       form.reset({
         name: "",
-        breed: "Colorado Mountain Dog",
         birthDate: format(new Date(), 'MM/dd/yyyy'),
         description: "",
         imageUrl: "",
@@ -91,6 +87,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       const parsedDate = parse(values.birthDate, 'MM/dd/yyyy', new Date());
       const formattedValues = {
         ...values,
+        breed: "Colorado Mountain Dog",
         birthDate: format(parsedDate, 'yyyy-MM-dd'),
       };
 
@@ -138,20 +135,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="breed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Breed</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
