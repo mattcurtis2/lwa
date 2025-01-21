@@ -358,17 +358,23 @@ export default function Admin() {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    className="flex flex-wrap gap-6"
                   >
                     {dogs?.map((dog, index) => (
                       <Draggable key={dog.id} draggableId={String(dog.id)} index={index}>
-                        {(provided) => (
+                        {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
+                              snapshot.isDragging ? 'ring-2 ring-primary ring-offset-2' : ''
+                            }`}
+                            style={{
+                              ...provided.draggableProps.style,
+                            }}
                           >
-                            <Card>
+                            <Card className="h-full">
                               <div className="aspect-square relative">
                                 <img
                                   src={dog.imageUrl || ''}
