@@ -37,20 +37,24 @@ export default function FeatureCarousel() {
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {slides.map((slide, index) => (
+          {slides.map((slide) => (
             <div 
               key={slide.id}
               className="relative flex-[0_0_100%] min-w-0"
             >
               <div 
-                className="relative h-[600px] w-full bg-cover bg-center"
+                className="relative h-[400px] md:h-[500px] lg:h-[600px] w-full bg-cover bg-center"
                 style={{ backgroundImage: `url(${slide.imageUrl})` }}
               >
                 <div className="absolute inset-0 bg-black/50" />
-                <div className="absolute inset-0 flex items-center justify-center text-center">
-                  <div className="max-w-2xl px-4">
-                    <h2 className="text-4xl font-bold text-white mb-4">{slide.title}</h2>
-                    <p className="text-xl text-white/90">{slide.description}</p>
+                <div className="absolute inset-0 flex items-center justify-center text-center p-4 md:p-6">
+                  <div className="max-w-2xl">
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 md:mb-4">
+                      {slide.title}
+                    </h2>
+                    <p className="text-base md:text-lg lg:text-xl text-white/90">
+                      {slide.description}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -62,21 +66,21 @@ export default function FeatureCarousel() {
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-12 h-12 md:w-14 md:h-14"
         onClick={scrollPrev}
         disabled={!prevBtnEnabled}
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
       </Button>
 
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-12 h-12 md:w-14 md:h-14"
         onClick={scrollNext}
         disabled={!nextBtnEnabled}
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
       </Button>
     </div>
   );

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
+import MobileNav from "./mobile-nav";
 
 export default function Header() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -25,7 +26,7 @@ export default function Header() {
             )}
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
             <Link href="/dogs">
               <a className="text-stone-600 hover:text-stone-900">Colorado Mountain Dogs</a>
             </Link>
@@ -36,6 +37,8 @@ export default function Header() {
               <a className="text-stone-600 hover:text-stone-900">Farmers Market</a>
             </Link>
           </div>
+
+          <MobileNav />
         </nav>
       </div>
     </header>
