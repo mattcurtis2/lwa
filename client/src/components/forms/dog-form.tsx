@@ -68,13 +68,18 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   // Reset form when editing a different dog
   useEffect(() => {
     if (dog) {
+      const media = dog.media?.map(m => ({
+        url: m.url,
+        type: m.type as "image" | "video"
+      })) || [];
+
       form.reset({
         name: dog.name,
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         description: dog.description ?? "",
-        media: dog.media ?? [],
+        media,
       });
-      setMediaInputs(dog.media ?? []);
+      setMediaInputs(media);
     } else {
       form.reset({
         name: "",
@@ -126,7 +131,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   });
 
   const addMediaInput = () => {
-    setMediaInputs([...mediaInputs, { url: "", type: "image" }]);
+    const newInputs = [...mediaInputs, { url: "", type: "image" }];
+    setMediaInputs(newInputs);
+    form.setValue("media", newInputs);
   };
 
   const removeMediaInput = (index: number) => {
@@ -140,7 +147,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     const newInputs = [...mediaInputs];
     newInputs[index] = {
       ...newInputs[index],
-      [field]: value,
+      [field]: field === "type" ? value as "image" | "video" : value,
     };
     setMediaInputs(newInputs);
     form.setValue("media", newInputs);

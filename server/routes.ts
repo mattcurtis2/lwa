@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia } from "@db/schema"; // Added dogMedia import
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -337,16 +337,87 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/dogs", async (req, res) => {
-    const dog = await db.insert(dogs).values(req.body).returning();
-    res.json(dog[0]);
+    const { media, ...dogData } = req.body;
+
+    try {
+      // Start a transaction since we need to insert both dog and media
+      const dog = await db.transaction(async (tx) => {
+        // Insert dog first
+        const [newDog] = await tx.insert(dogs).values(dogData).returning();
+
+        // If there's media, insert all media items
+        if (media && media.length > 0) {
+          await tx.insert(dogMedia).values(
+            media.map((item: any, index: number) => ({
+              dogId: newDog.id,
+              url: item.url,
+              type: item.type,
+              order: index,
+            }))
+          );
+        }
+
+        // Return the newly created dog with its media
+        const dogWithMedia = await tx.query.dogs.findFirst({
+          where: eq(dogs.id, newDog.id),
+          with: {
+            media: true,
+          },
+        });
+
+        return dogWithMedia;
+      });
+
+      res.json(dog);
+    } catch (error) {
+      console.error("Error creating dog:", error);
+      res.status(500).json({ message: "Failed to create dog" });
+    }
   });
 
   app.put("/api/dogs/:id", async (req, res) => {
-    const dog = await db.update(dogs)
-      .set(req.body)
-      .where(eq(dogs.id, parseInt(req.params.id)))
-      .returning();
-    res.json(dog[0]);
+    const { media, ...dogData } = req.body;
+    const dogId = parseInt(req.params.id);
+
+    try {
+      const dog = await db.transaction(async (tx) => {
+        // Update dog data
+        await tx.update(dogs)
+          .set(dogData)
+          .where(eq(dogs.id, dogId));
+
+        // Delete existing media
+        await tx.delete(dogMedia)
+          .where(eq(dogMedia.dogId, dogId));
+
+        // Insert new media
+        if (media && media.length > 0) {
+          await tx.insert(dogMedia).values(
+            media.map((item: any, index: number) => ({
+              dogId: dogId,
+              url: item.url,
+              type: item.type,
+              order: index,
+            }))
+          );
+        }
+
+        // Return updated dog with media
+        const updatedDog = await tx.query.dogs.findFirst({
+          where: eq(dogs.id, dogId),
+          with: {
+            media: true,
+          },
+        });
+
+        return updatedDog;
+      });
+
+      res.json(dog);
+    } catch (error) {
+      console.error("Error updating dog:", error);
+      res.status(500).json({ message: "Failed to update dog" });
+    }
   });
 
   app.delete("/api/dogs/:id", async (req, res) => {
