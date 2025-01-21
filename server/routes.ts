@@ -48,11 +48,11 @@ export function registerRoutes(app: Express): Server {
       { key: "hero_subtext", value: "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market.", type: "text" },
       { key: "about_title", value: "About Our Farm", type: "text" },
       { key: "mission_text", value: "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community.", type: "text" },
-      { key: "animals_title", value: "Card 1 Title", type: "text" },
+      { key: "animals_title", value: "Our Animals", type: "text" },
       { key: "animals_text", value: "Our Colorado Mountain Dogs are exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals combine the best traits of various mountain dog breeds. Each puppy is raised with hands-on care and early socialization to ensure they develop into well-rounded guardians.", type: "text" },
-      { key: "bakery_title", value: "Card 2 Title", type: "text" },
+      { key: "bakery_title", value: "Our Goats", type: "text" },
       { key: "bakery_text", value: "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production. Perfect for small homesteads, they're easy to handle and maintain. Our goats are registered, health-tested, and raised with love to ensure they make wonderful additions to your family or farming operation.", type: "text" },
-      { key: "products_title", value: "Card 3 Title", type: "text" },
+      { key: "products_title", value: "Farmers Market", type: "text" },
       { key: "products_text", value: "Visit our Farmers Market for a delightful selection of homemade and farm-fresh goods. Savor our artisanal sourdough bread and buttery croissants, baked fresh daily. Enjoy our seasonal mixed salad greens, farm-fresh eggs, pasture-raised chicken, and pure local honey. Every product reflects our commitment to quality and sustainable farming practices.", type: "text" },
     ];
 
@@ -63,6 +63,36 @@ export function registerRoutes(app: Express): Server {
 
       if (!exists) {
         await db.insert(siteContent).values(content);
+      }
+    }
+
+    // Add default carousel items if none exist
+    const existingCarouselItems = await db.query.carouselItems.findMany();
+
+    if (existingCarouselItems.length === 0) {
+      const defaultCarouselItems = [
+        {
+          title: "Colorado Mountain Dogs",
+          description: "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals are raised with hands-on care and early socialization.",
+          imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
+          order: 1,
+        },
+        {
+          title: "Nigerian Dwarf Goats",
+          description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
+          imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
+          order: 2,
+        },
+        {
+          title: "Farm Fresh Products",
+          description: "Visit our Farmers Market for homemade and farm-fresh goods. From artisanal bread to seasonal produce, every product reflects our commitment to quality and sustainable farming.",
+          imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9",
+          order: 3,
+        },
+      ];
+
+      for (const item of defaultCarouselItems) {
+        await db.insert(carouselItems).values(item);
       }
     }
   })();
