@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { DogsHero, Dog } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export default function Dogs() {
   const { data: heroContent } = useQuery<DogsHero[]>({
@@ -11,6 +11,11 @@ export default function Dogs() {
   const { data: dogs } = useQuery<Dog[]>({
     queryKey: ["/api/dogs"],
   });
+
+  // Scroll to top when the component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const hero = heroContent?.[0];
 
