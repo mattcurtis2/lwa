@@ -9,6 +9,7 @@ export default function FeatureCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const { data: slides = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
@@ -21,6 +22,7 @@ export default function FeatureCarousel() {
     if (!emblaApi) return;
     setPrevBtnEnabled(emblaApi.canScrollPrev());
     setNextBtnEnabled(emblaApi.canScrollNext());
+    setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
   // Auto-rotation setup
@@ -82,10 +84,11 @@ export default function FeatureCarousel() {
         </div>
       </div>
 
+      {/* Navigation Arrows - Hidden on mobile */}
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 md:w-12 md:h-12"
+        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 md:w-12 md:h-12"
         onClick={scrollPrev}
         disabled={!prevBtnEnabled}
       >
@@ -95,12 +98,28 @@ export default function FeatureCarousel() {
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 md:w-12 md:h-12"
+        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white w-10 h-10 md:w-12 md:h-12"
         onClick={scrollNext}
         disabled={!nextBtnEnabled}
       >
         <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
       </Button>
+
+      {/* Pagination Dots */}
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+              index === selectedIndex
+                ? "bg-white scale-125"
+                : "bg-white/50 hover:bg-white/75"
+            }`}
+            onClick={() => emblaApi?.scrollTo(index)}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
