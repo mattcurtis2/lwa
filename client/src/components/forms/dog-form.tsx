@@ -4,10 +4,7 @@ import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { format, parse } from "date-fns";
 import {
   Form,
   FormControl,
@@ -30,9 +27,14 @@ import { useEffect } from "react";
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   breed: z.string().min(1, "Breed is required"),
-  birthDate: z.date({
-    required_error: "Birth date is required",
-  }),
+  birthDate: z.string().refine((date) => {
+    try {
+      const parsedDate = parse(date, 'MM/dd/yyyy', new Date());
+      return !isNaN(parsedDate.getTime()) && parsedDate <= new Date();
+    } catch {
+      return false;
+    }
+  }, "Please enter a valid date in MM/DD/YYYY format"),
   description: z.string(),
   imageUrl: z.string().url("Must be a valid URL"),
   isAvailable: z.boolean().default(true),
@@ -53,7 +55,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     defaultValues: {
       name: "",
       breed: "Colorado Mountain Dog",
-      birthDate: new Date(),
+      birthDate: format(new Date(), 'MM/dd/yyyy'),
       description: "",
       imageUrl: "",
       isAvailable: true,
@@ -66,7 +68,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         name: dog.name,
         breed: dog.breed,
-        birthDate: new Date(dog.birthDate),
+        birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         description: dog.description ?? "",
         imageUrl: dog.imageUrl ?? "",
         isAvailable: dog.isAvailable,
@@ -75,7 +77,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         name: "",
         breed: "Colorado Mountain Dog",
-        birthDate: new Date(),
+        birthDate: format(new Date(), 'MM/dd/yyyy'),
         description: "",
         imageUrl: "",
         isAvailable: true,
@@ -85,9 +87,11 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
+      // Parse the date string to ISO format for the API
+      const parsedDate = parse(values.birthDate, 'MM/dd/yyyy', new Date());
       const formattedValues = {
         ...values,
-        birthDate: format(values.birthDate, 'yyyy-MM-dd'),
+        birthDate: format(parsedDate, 'yyyy-MM-dd'),
       };
 
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
@@ -160,40 +164,11 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               control={form.control}
               name="birthDate"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Birth Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date()
-                        }
-                        initialFocus
-                        fromYear={2015}
-                        toYear={new Date().getFullYear()}
-                        captionLayout="dropdown-buttons"
-                        className="rounded-md border"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <FormItem>
+                  <FormLabel>Birth Date (MM/DD/YYYY)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="MM/DD/YYYY" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
