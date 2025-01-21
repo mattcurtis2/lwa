@@ -163,7 +163,7 @@ export default function Admin() {
     items.splice(result.destination.index, 0, reorderedItem);
 
     // Update orders for all affected dogs
-    const updates = items.map((dog, index) => 
+    const updates = items.map((dog, index) =>
       reorderDogs.mutate({ dogId: dog.id, newOrder: index })
     );
 
@@ -291,154 +291,122 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="dogs">
-            <Card className="mb-8">
-              <CardContent className="pt-6">
-                <h2 className="text-2xl font-bold mb-4">Hero Section</h2>
-                {dogsHero?.[0] && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Title</Label>
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <h2 className="text-2xl font-bold mb-4">Hero Section</h2>
+              {dogsHero?.[0] && (
+                <div className="space-y-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={dogsHero[0].title}
+                      onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Input
+                      value={dogsHero[0].subtitle}
+                      onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Background Image URL</Label>
+                    <div className="flex gap-2">
                       <Input
-                        value={dogsHero[0].title}
-                        onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
+                        value={dogsHero[0].imageUrl}
+                        onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
                       />
-                    </div>
-                    <div>
-                      <Label>Subtitle</Label>
-                      <Input
-                        value={dogsHero[0].subtitle}
-                        onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>Background Image URL</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          value={dogsHero[0].imageUrl}
-                          onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
+                      {dogsHero[0].imageUrl && (
+                        <img
+                          src={dogsHero[0].imageUrl}
+                          alt="Hero background"
+                          className="w-10 h-10 object-cover"
                         />
-                        {dogsHero[0].imageUrl && (
-                          <img
-                            src={dogsHero[0].imageUrl}
-                            alt="Hero background"
-                            className="w-10 h-10 object-cover"
-                          />
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-            <div className="mb-6">
-              <Button onClick={() => {
-                setEditItem(null);
-                setShowForm(true);
-              }}>
-                Add New Dog
-              </Button>
-            </div>
+          <div className="mb-6">
+            <Button onClick={() => {
+              setEditItem(null);
+              setShowForm(true);
+            }}>
+              Add New Dog
+            </Button>
+          </div>
 
-            {showForm && (
-              <div className="mb-6">
-                <DogForm
-                  dog={editItem as Dog}
-                  onClose={() => {
-                    setEditItem(null);
-                    setShowForm(false);
-                  }}
-                />
-              </div>
-            )}
+          <DogForm
+            dog={editItem as Dog}
+            open={showForm}
+            onOpenChange={(open) => {
+              setShowForm(open);
+              if (!open) setEditItem(null);
+            }}
+          />
 
-            <DragDropContext >
-              <Droppable droppableId="dogs">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    className="flex flex-wrap gap-6"
-                  >
-                    {dogs?.map((dog, index) => (
-                      <div
-                        key={dog.id}
-                        className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]`}
-                      >
-                        <Card className="h-full">
-                          <CardContent className="pt-6">
-                            <div className="flex justify-between items-start mb-4">
-                              <h3 className="text-xl font-bold">{dog.name}</h3>
-                              <div className="flex items-center gap-2">
-                                <Label htmlFor={`order-${dog.id}`}>Order:</Label>
-                                <Input
-                                  id={`order-${dog.id}`}
-                                  type="number"
-                                  min="0"
-                                  className="w-20"
-                                  value={dog.order}
-                                  onChange={async (e) => {
-                                    const newOrder = parseInt(e.target.value);
-                                    if (isNaN(newOrder)) return;
-
-                                    await reorderDogs.mutateAsync({ 
-                                      dogId: dog.id, 
-                                      newOrder: newOrder 
-                                    });
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            <div className="aspect-square relative">
-                              <img
-                                src={dog.imageUrl || ''}
-                                alt={dog.name}
-                                className="absolute inset-0 w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="mt-4">
-                              <p className="text-stone-600 mb-2">
-                                {dog.breed} • {dog.age} years old
-                              </p>
-                              <p className="text-stone-600 mb-4">{dog.description}</p>
-                              <div className="flex gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  onClick={() => {
-                                    setEditItem(dog);
-                                    setShowForm(true);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  onClick={async () => {
-                                    if (!confirm("Are you sure you want to delete this dog?")) return;
-                                    const res = await fetch(`/api/dogs/${dog.id}`, {
-                                      method: "DELETE",
-                                    });
-                                    if (res.ok) {
-                                      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                                      toast({
-                                        title: "Success",
-                                        description: "Dog deleted successfully",
-                                      });
-                                    }
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+          <div className="flex flex-wrap gap-6">
+            {dogs?.map((dog, index) => (
+              <div
+                key={dog.id}
+                className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]`}
+              >
+                <Card className="h-full">
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold">{dog.name}</h3>
+                    </div>
+                    <div className="aspect-square relative">
+                      <img
+                        src={dog.imageUrl || ''}
+                        alt={dog.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <p className="text-stone-600 mb-2">
+                        {dog.breed} • {dog.age} years old
+                      </p>
+                      <p className="text-stone-600 mb-4">{dog.description}</p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setEditItem(dog);
+                            setShowForm(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={async () => {
+                            if (!confirm("Are you sure you want to delete this dog?")) return;
+                            const res = await fetch(`/api/dogs/${dog.id}`, {
+                              method: "DELETE",
+                            });
+                            if (res.ok) {
+                              queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                              toast({
+                                title: "Success",
+                                description: "Dog deleted successfully",
+                              });
+                            }
+                          }}
+                        >
+                          Delete
+                        </Button>
                       </div>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="animals">
