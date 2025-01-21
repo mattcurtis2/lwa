@@ -176,12 +176,36 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/site-content/:key", async (req, res) => {
     const { value } = req.body;
-    const content = await db.update(siteContent)
-      .set({ value, updatedAt: new Date() })
-      .where(eq(siteContent.key, req.params.key))
-      .returning();
+    const key = req.params.key;
 
-    res.json(content[0]);
+    try {
+      // Check if the content exists first
+      const existingContent = await db.query.siteContent.findFirst({
+        where: eq(siteContent.key, key),
+      });
+
+      if (!existingContent) {
+        // If it doesn't exist, create it
+        const content = await db.insert(siteContent)
+          .values({
+            key,
+            value,
+            type: key.includes('image') ? 'image' : 'text',
+          })
+          .returning();
+        res.json(content[0]);
+      } else {
+        // If it exists, update it
+        const content = await db.update(siteContent)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(siteContent.key, key))
+          .returning();
+        res.json(content[0]);
+      }
+    } catch (error) {
+      console.error(`Error updating site content for key ${key}:`, error);
+      res.status(500).json({ message: "Failed to update site content" });
+    }
   });
 
   // Animals routes
