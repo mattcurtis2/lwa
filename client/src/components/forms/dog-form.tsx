@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Upload, Link as LinkIcon } from "lucide-react";
 
 const mediaSchema = z.object({
   url: z.string().url("Must be a valid URL"),
@@ -54,6 +54,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<{ url: string; type: "image" | "video" }[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -130,8 +131,44 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     },
   });
 
+  const handleFileUpload = async (file: File, index: number) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const data = await res.json();
+      const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+
+      handleMediaChange(index, "url", data.url);
+      handleMediaChange(index, "type", fileType);
+
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload file",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const addMediaInput = () => {
-    const newInputs = [...mediaInputs, { url: "", type: "image" }];
+    const newInputs = [...mediaInputs, { url: "", type: "image" as const }];
     setMediaInputs(newInputs);
     form.setValue("media", newInputs);
   };
@@ -214,11 +251,35 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               {mediaInputs.map((input, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex gap-2">
-                    <Input
-                      value={input.url}
-                      onChange={(e) => handleMediaChange(index, "url", e.target.value)}
-                      placeholder="Media URL"
-                    />
+                    <div className="flex-1">
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          value={input.url}
+                          onChange={(e) => handleMediaChange(index, "url", e.target.value)}
+                          placeholder="Media URL"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="shrink-0"
+                          onClick={() => {
+                            const fileInput = document.createElement('input');
+                            fileInput.type = 'file';
+                            fileInput.accept = 'image/*,video/*';
+                            fileInput.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) {
+                                handleFileUpload(file, index);
+                              }
+                            };
+                            fileInput.click();
+                          }}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload
+                        </Button>
+                      </div>
+                    </div>
                     <select
                       value={input.type}
                       onChange={(e) => handleMediaChange(index, "type", e.target.value as "image" | "video")}
@@ -236,12 +297,31 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
+                  {input.url && (
+                    <div className="w-20 h-20 relative">
+                      {input.type === 'image' ? (
+                        <img
+                          src={input.url}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      ) : (
+                        <video
+                          src={input.url}
+                          className="w-full h-full object-cover rounded"
+                          controls
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit">Save</Button>
+              <Button type="submit" disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Save"}
+              </Button>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
