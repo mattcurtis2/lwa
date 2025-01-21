@@ -12,27 +12,21 @@ export default function FarmInfo() {
   return (
     <section id="about-farm" className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-12">
-          {getContent("about_title") || "About Our Farm"}
-        </h2>
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-4">
+            {getContent("about_title") || "About Our Farm"}
+          </h2>
+          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+            {getContent("mission_text") || 
+              "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community."}
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-bold mb-4">
-                {getContent("mission_title") || "Our Mission"}
-              </h3>
-              <p className="text-stone-600">
-                {getContent("mission_text") || 
-                  "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community."}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-bold mb-4">
-                {getContent("animals_title") || "The Animals"}
+                {getContent("animals_title") || "Our Animals"}
               </h3>
               <p className="text-stone-600">
                 {getContent("animals_text") || 
@@ -44,11 +38,23 @@ export default function FarmInfo() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-bold mb-4">
-                {getContent("market_title") || "Farmers Market"}
+                {getContent("bakery_title") || "Our Bakery"}
               </h3>
               <p className="text-stone-600">
-                {getContent("market_text") || 
-                  "Fresh bread, pastries, and seasonal vegetables grown and prepared right here on our farm."}
+                {getContent("bakery_text") || 
+                  "Fresh bread and delicious pastries baked daily using traditional methods and the finest ingredients."}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-xl font-bold mb-4">
+                {getContent("products_title") || "Farm Products"}
+              </h3>
+              <p className="text-stone-600">
+                {getContent("products_text") || 
+                  "Fresh, seasonal vegetables and farm products grown with care using sustainable practices."}
               </p>
             </CardContent>
           </Card>
