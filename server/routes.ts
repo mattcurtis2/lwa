@@ -48,11 +48,11 @@ export function registerRoutes(app: Express): Server {
       { key: "hero_subtext", value: "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market.", type: "text" },
       { key: "about_title", value: "About Our Farm", type: "text" },
       { key: "mission_text", value: "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community.", type: "text" },
-      { key: "animals_title", value: "Colorado Mountain Dogs", type: "text" },
+      { key: "animals_title", value: "Card 1 Title", type: "text" },
       { key: "animals_text", value: "Our Colorado Mountain Dogs are exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals combine the best traits of various mountain dog breeds. Each puppy is raised with hands-on care and early socialization to ensure they develop into well-rounded guardians.", type: "text" },
-      { key: "bakery_title", value: "Nigerian Dwarf Goats", type: "text" },
+      { key: "bakery_title", value: "Card 2 Title", type: "text" },
       { key: "bakery_text", value: "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production. Perfect for small homesteads, they're easy to handle and maintain. Our goats are registered, health-tested, and raised with love to ensure they make wonderful additions to your family or farming operation.", type: "text" },
-      { key: "products_title", value: "Farm Fresh Products", type: "text" },
+      { key: "products_title", value: "Card 3 Title", type: "text" },
       { key: "products_text", value: "Visit our Farmers Market for a delightful selection of homemade and farm-fresh goods. Savor our artisanal sourdough bread and buttery croissants, baked fresh daily. Enjoy our seasonal mixed salad greens, farm-fresh eggs, pasture-raised chicken, and pure local honey. Every product reflects our commitment to quality and sustainable farming practices.", type: "text" },
     ];
 
