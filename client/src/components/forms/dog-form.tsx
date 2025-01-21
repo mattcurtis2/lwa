@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {useEffect} from "react";
 
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,14 +51,37 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const form = useForm({
     resolver: zodResolver(dogSchema),
     defaultValues: {
-      name: dog?.name ?? "",
-      breed: dog?.breed ?? "Colorado Mountain Dog",
-      birthDate: dog?.birthDate ? new Date(dog.birthDate) : new Date(),
-      description: dog?.description ?? "",
-      imageUrl: dog?.imageUrl ?? "",
-      isAvailable: dog?.isAvailable ?? true,
+      name: "",
+      breed: "Colorado Mountain Dog",
+      birthDate: new Date(),
+      description: "",
+      imageUrl: "",
+      isAvailable: true,
     },
   });
+
+  // Reset form when editing a different dog
+  useEffect(() => {
+    if (dog) {
+      form.reset({
+        name: dog.name,
+        breed: dog.breed,
+        birthDate: new Date(dog.birthDate),
+        description: dog.description || "",
+        imageUrl: dog.imageUrl || "",
+        isAvailable: dog.isAvailable,
+      });
+    } else {
+      form.reset({
+        name: "",
+        breed: "Colorado Mountain Dog",
+        birthDate: new Date(),
+        description: "",
+        imageUrl: "",
+        isAvailable: true,
+      });
+    }
+  }, [dog, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
