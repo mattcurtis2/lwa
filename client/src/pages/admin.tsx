@@ -77,24 +77,22 @@ export default function Admin() {
     setPendingContent(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleContentSave = async (key: string) => {
-    if (pendingContent[key] === undefined) return;
-
+  const handleSaveAllContent = async () => {
     try {
-      await updateSiteContent.mutateAsync({
-        key,
-        value: pendingContent[key],
-      });
-      // Clear the pending content for this field after successful save
-      setPendingContent(prev => {
-        const newPending = { ...prev };
-        delete newPending[key];
-        return newPending;
+      // Save all pending changes
+      for (const [key, value] of Object.entries(pendingContent)) {
+        await updateSiteContent.mutateAsync({ key, value });
+      }
+      // Clear all pending changes after successful save
+      setPendingContent({});
+      toast({
+        title: "Success",
+        description: "All content updated successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update content",
+        description: "Failed to update some content",
         variant: "destructive",
       });
     }
@@ -104,14 +102,14 @@ export default function Admin() {
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-bold mb-8">Content Management</h1>
 
-      <Tabs defaultValue="site">
+      <Tabs defaultValue="home">
         <TabsList>
-          <TabsTrigger value="site">Site Content</TabsTrigger>
+          <TabsTrigger value="home">Home Page</TabsTrigger>
           <TabsTrigger value="animals">Animals</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="site">
+        <TabsContent value="home">
           <Card>
             <CardContent className="pt-6 space-y-6">
               {contentFields.map((field) => (
@@ -138,15 +136,16 @@ export default function Admin() {
                         className="w-10 h-10 object-contain"
                       />
                     )}
-                    <Button
-                      onClick={() => handleContentSave(field.key)}
-                      disabled={pendingContent[field.key] === undefined}
-                    >
-                      Save
-                    </Button>
                   </div>
                 </div>
               ))}
+              {Object.keys(pendingContent).length > 0 && (
+                <div className="flex justify-end pt-4">
+                  <Button onClick={handleSaveAllContent}>
+                    Save All Changes
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
