@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -170,6 +170,56 @@ export function registerRoutes(app: Express): Server {
   // Add a new route to check deployment status
   app.get("/api/deployment-status", (_req, res) => {
     res.json({ isProduction: process.env.NODE_ENV === 'production' });
+  });
+
+
+  // Add carousel routes
+  app.get("/api/carousel", async (_req, res) => {
+    const items = await db.query.carouselItems.findMany({
+      orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
+    });
+    res.json(items);
+  });
+
+  app.post("/api/carousel", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+
+    // Get the highest order number
+    const items = await db.query.carouselItems.findMany();
+    const maxOrder = items.reduce((max, item) => Math.max(max, item.order), 0);
+
+    const item = await db.insert(carouselItems)
+      .values({ ...req.body, order: maxOrder + 1 })
+      .returning();
+    res.json(item[0]);
+  });
+
+  app.put("/api/carousel/:id", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    const item = await db.update(carouselItems)
+      .set({ ...req.body, updatedAt: new Date() })
+      .where(eq(carouselItems.id, parseInt(req.params.id)))
+      .returning();
+    res.json(item[0]);
+  });
+
+  app.delete("/api/carousel/:id", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    await db.delete(carouselItems)
+      .where(eq(carouselItems.id, parseInt(req.params.id)));
+
+    // Reorder remaining items
+    const items = await db.query.carouselItems.findMany({
+      orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
+    });
+
+    for (let i = 0; i < items.length; i++) {
+      await db.update(carouselItems)
+        .set({ order: i + 1 })
+        .where(eq(carouselItems.id, items[i].id));
+    }
+
+    res.json({ message: "Deleted successfully" });
   });
 
   const httpServer = createServer(app);

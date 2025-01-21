@@ -16,6 +16,16 @@ export const siteContent = pgTable("site_content", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const carouselItems = pgTable("carousel_items", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const animals = pgTable("animals", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -57,6 +67,8 @@ export const productRelations = relations(products, ({ one }) => ({
 
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
+export const insertCarouselItemSchema = createInsertSchema(carouselItems);
+export const selectCarouselItemSchema = createSelectSchema(carouselItems);
 export const insertAnimalSchema = createInsertSchema(animals);
 export const selectAnimalSchema = createSelectSchema(animals);
 export const insertProductSchema = createInsertSchema(products);
@@ -66,6 +78,8 @@ export const selectSiteContentSchema = createSelectSchema(siteContent);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type CarouselItem = typeof carouselItems.$inferSelect;
+export type NewCarouselItem = typeof carouselItems.$inferInsert;
 export type Animal = typeof animals.$inferSelect;
 export type NewAnimal = typeof animals.$inferInsert;
 export type Product = typeof products.$inferSelect;

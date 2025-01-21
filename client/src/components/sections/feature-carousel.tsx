@@ -2,29 +2,17 @@ import { useState, useEffect, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const slides = [
-  {
-    title: "Colorado Mountain Dogs",
-    description: "Our exceptional working dogs bred for livestock protection",
-    imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e"
-  },
-  {
-    title: "Nigerian Dwarf Goats",
-    description: "Friendly and productive miniature dairy goats",
-    imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"
-  },
-  {
-    title: "Farmers Market",
-    description: "Fresh produce, artisanal bread, and farm-fresh goods",
-    imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9"
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import { CarouselItem } from "@db/schema";
 
 export default function FeatureCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
+
+  const { data: slides = [] } = useQuery<CarouselItem[]>({
+    queryKey: ["/api/carousel"],
+  });
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
@@ -41,13 +29,17 @@ export default function FeatureCarousel() {
     emblaApi.on("select", onSelect);
   }, [emblaApi, onSelect]);
 
+  if (slides.length === 0) {
+    return null;
+  }
+
   return (
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {slides.map((slide, index) => (
             <div 
-              key={index}
+              key={slide.id}
               className="relative flex-[0_0_100%] min-w-0"
             >
               <div 
@@ -66,7 +58,7 @@ export default function FeatureCarousel() {
           ))}
         </div>
       </div>
-      
+
       <Button
         variant="outline"
         size="icon"
@@ -76,7 +68,7 @@ export default function FeatureCarousel() {
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
-      
+
       <Button
         variant="outline"
         size="icon"

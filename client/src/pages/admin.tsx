@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Animal, Product, SiteContent } from "@db/schema";
+import { Animal, Product, SiteContent, CarouselItem } from "@db/schema";
 import AnimalCard from "@/components/cards/animal-card";
 import ProductCard from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import CarouselForm from "@/components/forms/carousel-form";
+
 
 interface ContentField {
   key: string;
@@ -22,7 +24,7 @@ interface ContentField {
 
 export default function Admin() {
   const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState<Animal | Product | null>(null);
+  const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -38,6 +40,11 @@ export default function Admin() {
   const { data: products } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  const { data: carouselItems } = useQuery<CarouselItem[]>({
+    queryKey: ["/api/carousel"],
+  });
+
 
   const updateSiteContent = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
@@ -79,11 +86,9 @@ export default function Admin() {
 
   const handleSaveAllContent = async () => {
     try {
-      // Save all pending changes
       for (const [key, value] of Object.entries(pendingContent)) {
         await updateSiteContent.mutateAsync({ key, value });
       }
-      // Clear all pending changes after successful save
       setPendingContent({});
       toast({
         title: "Success",
@@ -105,6 +110,7 @@ export default function Admin() {
       <Tabs defaultValue="home">
         <TabsList>
           <TabsTrigger value="home">Home Page</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel</TabsTrigger>
           <TabsTrigger value="animals">Animals</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
         </TabsList>
@@ -148,6 +154,72 @@ export default function Admin() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="carousel">
+          <div className="mb-6">
+            <Button onClick={() => {
+              setEditItem(null);
+              setShowForm(true);
+            }}>
+              Add New Carousel Item
+            </Button>
+          </div>
+
+          {showForm && (
+            <div className="mb-6">
+              <CarouselForm
+                item={editItem as CarouselItem}
+                onClose={() => setShowForm(false)}
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-6">
+            {carouselItems?.map((item) => (
+              <Card key={item.id}>
+                <CardContent className="pt-6 flex gap-4">
+                  <div className="w-40 h-40">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover rounded"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                    <p className="text-stone-600 mb-4">{item.description}</p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={() => {
+                        setEditItem(item);
+                        setShowForm(true);
+                      }}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                          const res = await fetch(`/api/carousel/${item.id}`, {
+                            method: "DELETE",
+                          });
+                          if (res.ok) {
+                            queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                            toast({
+                              title: "Success",
+                              description: "Carousel item deleted successfully",
+                            });
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="animals">
