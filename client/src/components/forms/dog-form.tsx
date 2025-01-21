@@ -27,7 +27,7 @@ import { X, Upload } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const mediaSchema = z.object({
-  url: z.string().url("Must be a valid URL"),
+  url: z.string().min(1, "Media URL or file path is required"),
   type: z.enum(["image", "video"]),
   fileName: z.string().optional(),
 });
