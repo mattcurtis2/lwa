@@ -255,111 +255,117 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="dogs">
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <h2 className="text-2xl font-bold mb-4">Hero Section</h2>
-              {dogsHero?.[0] && (
-                <div className="space-y-4">
-                  <div>
-                    <Label>Title</Label>
-                    <Input
-                      value={dogsHero[0].title}
-                      onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Subtitle</Label>
-                    <Input
-                      value={dogsHero[0].subtitle}
-                      onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Background Image URL</Label>
-                    <div className="flex gap-2">
+            <Card className="mb-8">
+              <CardContent className="pt-6">
+                <h2 className="text-2xl font-bold mb-4">Hero Section</h2>
+                {dogsHero?.[0] && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Title</Label>
                       <Input
-                        value={dogsHero[0].imageUrl}
-                        onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
+                        value={dogsHero[0].title}
+                        onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
                       />
-                      {dogsHero[0].imageUrl && (
-                        <img
-                          src={dogsHero[0].imageUrl}
-                          alt="Hero background"
-                          className="w-10 h-10 object-cover"
+                    </div>
+                    <div>
+                      <Label>Subtitle</Label>
+                      <Input
+                        value={dogsHero[0].subtitle}
+                        onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Background Image URL</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={dogsHero[0].imageUrl}
+                          onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
                         />
-                      )}
+                        {dogsHero[0].imageUrl && (
+                          <img
+                            src={dogsHero[0].imageUrl}
+                            alt="Hero background"
+                            className="w-10 h-10 object-cover"
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
 
-          <div className="mb-6">
-            <Button onClick={() => {
-              setEditItem(null);
-              setShowForm(true);
-            }}>
-              Add New Dog
-            </Button>
-          </div>
-
-          {showForm && (
             <div className="mb-6">
-              <DogForm
-                dog={editItem as Dog}
-                onClose={() => setShowForm(false)}
-              />
+              <Button onClick={() => {
+                setEditItem(null);
+                setShowForm(true);
+              }}>
+                Add New Dog
+              </Button>
             </div>
-          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dogs?.map((dog) => (
-              <Card key={dog.id}>
-                <div className="aspect-square relative">
-                  <img
-                    src={dog.imageUrl || ''}
-                    alt={dog.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-                <CardContent className="pt-6">
-                  <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
-                  <p className="text-stone-600 mb-2">
-                    {dog.breed} • {dog.age} years old
-                  </p>
-                  <p className="text-stone-600 mb-4">{dog.description}</p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => {
-                      setEditItem(dog);
-                      setShowForm(true);
-                    }}>
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={async () => {
-                        if (!confirm("Are you sure you want to delete this dog?")) return;
-                        const res = await fetch(`/api/dogs/${dog.id}`, {
-                          method: "DELETE",
-                        });
-                        if (res.ok) {
-                          queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                          toast({
-                            title: "Success",
-                            description: "Dog deleted successfully",
-                          });
-                        }
-                      }}
-                    >
-                      Delete
-                    </Button>
+            {showForm && (
+              <div className="mb-6">
+                <DogForm
+                  dog={editItem as Dog}
+                  onClose={() => {
+                    setEditItem(null);
+                    setShowForm(false);
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {dogs?.map((dog) => (
+                <Card key={dog.id}>
+                  <div className="aspect-square relative">
+                    <img
+                      src={dog.imageUrl || ''}
+                      alt={dog.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+                  <CardContent className="pt-6">
+                    <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
+                    <p className="text-stone-600 mb-2">
+                      {dog.breed} • {dog.age} years old
+                    </p>
+                    <p className="text-stone-600 mb-4">{dog.description}</p>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditItem(dog);
+                          setShowForm(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!confirm("Are you sure you want to delete this dog?")) return;
+                          const res = await fetch(`/api/dogs/${dog.id}`, {
+                            method: "DELETE",
+                          });
+                          if (res.ok) {
+                            queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                            toast({
+                              title: "Success",
+                              description: "Dog deleted successfully",
+                            });
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
         <TabsContent value="animals">
           <div className="mb-6">

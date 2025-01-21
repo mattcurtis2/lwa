@@ -46,6 +46,8 @@ export default function DogForm({ dog, onClose }: DogFormProps) {
     },
   });
 
+  console.log("Dog being edited:", dog);
+
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
