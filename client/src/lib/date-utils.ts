@@ -13,11 +13,8 @@ export function formatAge(birthDate: Date): string {
     return "0 days old";
   }
 
-  // Display years and months if available
+  // Display only years if over 1 year old
   if (years > 0) {
-    if (months > 0) {
-      return `${years} ${years === 1 ? 'year' : 'years'}, ${months} ${months === 1 ? 'month' : 'months'} old`;
-    }
     return `${years} ${years === 1 ? 'year' : 'years'} old`;
   }
 
