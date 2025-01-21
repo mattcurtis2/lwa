@@ -11,6 +11,10 @@ export default function Hero() {
   const heroText = siteContent?.find(content => content.key === "hero_text");
   const heroSubtext = siteContent?.find(content => content.key === "hero_subtext");
 
+  const scrollToAbout = () => {
+    document.getElementById('about-farm')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="relative h-[600px] bg-cover bg-center" style={{
       backgroundImage: `url('${heroBackground?.value || "https://images.unsplash.com/photo-1611501807352-03324d70054c"}')`
@@ -25,7 +29,11 @@ export default function Hero() {
             {heroSubtext?.value || "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market."}
           </p>
           <div className="flex gap-4">
-            <Button size="lg" variant="default">
+            <Button 
+              size="lg" 
+              variant="default"
+              onClick={scrollToAbout}
+            >
               Learn More
             </Button>
           </div>

@@ -1,12 +1,28 @@
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { SiteContent } from "@db/schema";
 
 export default function Header() {
+  const { data: siteContent } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"],
+  });
+
+  const logo = siteContent?.find(content => content.key === "logo");
+
   return (
     <header className="bg-white border-b border-stone-200">
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
-            <a className="text-2xl font-bold" style={{ color: '#476251' }}>Little Way Acres</a>
+            {logo?.value ? (
+              <img 
+                src={logo.value} 
+                alt="Little Way Acres" 
+                className="h-12 object-contain"
+              />
+            ) : (
+              <a className="text-2xl font-bold" style={{ color: '#476251' }}>Little Way Acres</a>
+            )}
           </Link>
 
           <div className="flex items-center gap-6">
