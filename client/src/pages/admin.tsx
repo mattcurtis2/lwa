@@ -15,7 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import CarouselForm from "@/components/forms/carousel-form";
 import DogForm from "@/components/forms/dog-form";
-
+import { formatAge } from "@/lib/date-utils";
 
 interface ContentField {
   key: string;
@@ -362,7 +362,7 @@ export default function Admin() {
           />
 
           <div className="flex flex-wrap gap-6">
-            {dogs?.map((dog, index) => (
+            {dogs?.map((dog) => (
               <div
                 key={dog.id}
                 className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]`}
@@ -400,7 +400,7 @@ export default function Admin() {
                     </div>
                     <div className="mt-4">
                       <p className="text-stone-600 mb-2">
-                        {dog.breed} • {dog.age} years old
+                        {dog.breed} • {formatAge(new Date(dog.birthDate))}
                       </p>
                       <p className="text-stone-600 mb-4">{dog.description}</p>
                       <div className="flex gap-2">
