@@ -8,6 +8,14 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const siteContent = pgTable("site_content", {
+  id: serial("id").primaryKey(),
+  key: text("key").unique().notNull(),
+  value: text("value").notNull(),
+  type: text("type").notNull(), // "image" or "text"
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const animals = pgTable("animals", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -53,6 +61,8 @@ export const insertAnimalSchema = createInsertSchema(animals);
 export const selectAnimalSchema = createSelectSchema(animals);
 export const insertProductSchema = createInsertSchema(products);
 export const selectProductSchema = createSelectSchema(products);
+export const insertSiteContentSchema = createInsertSchema(siteContent);
+export const selectSiteContentSchema = createSelectSchema(siteContent);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -60,3 +70,5 @@ export type Animal = typeof animals.$inferSelect;
 export type NewAnimal = typeof animals.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
+export type SiteContent = typeof siteContent.$inferSelect;
+export type NewSiteContent = typeof siteContent.$inferInsert;

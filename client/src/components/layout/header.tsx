@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (
@@ -19,9 +18,6 @@ export default function Header() {
             </Link>
             <Link href="/#market">
               <a className="text-stone-600 hover:text-stone-900">Farmers Market</a>
-            </Link>
-            <Link href="/admin">
-              <Button variant="outline">Admin</Button>
             </Link>
           </div>
         </nav>

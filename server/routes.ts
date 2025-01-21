@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users } from "@db/schema";
+import { animals, products, users, siteContent } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -9,7 +9,7 @@ import MemoryStore from "memorystore";
 
 export function registerRoutes(app: Express): Server {
   const SessionStore = MemoryStore(session);
-  
+
   app.use(session({
     store: new SessionStore({ checkPeriod: 86400000 }),
     secret: "farm-secret",
@@ -17,6 +17,37 @@ export function registerRoutes(app: Express): Server {
     saveUninitialized: false,
     cookie: { secure: process.env.NODE_ENV === 'production' }
   }));
+
+  // Initialize admin user if not exists
+  (async () => {
+    const adminUser = await db.query.users.findFirst({
+      where: eq(users.username, "admin"),
+    });
+
+    if (!adminUser) {
+      const hashedPassword = await bcrypt.hash("AustenAlcott", 10);
+      await db.insert(users).values({
+        username: "admin",
+        password: hashedPassword,
+      });
+    }
+
+    // Initialize default site content if not exists
+    const defaultContent = [
+      { key: "logo", value: "/images/logo.png", type: "image" },
+      { key: "hero_background", value: "https://images.unsplash.com/photo-1611501807352-03324d70054c", type: "image" },
+    ];
+
+    for (const content of defaultContent) {
+      const exists = await db.query.siteContent.findFirst({
+        where: eq(siteContent.key, content.key),
+      });
+
+      if (!exists) {
+        await db.insert(siteContent).values(content);
+      }
+    }
+  })();
 
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
@@ -31,6 +62,24 @@ export function registerRoutes(app: Express): Server {
 
     req.session.userId = user.id;
     res.json({ message: "Logged in successfully" });
+  });
+
+  // Site content routes
+  app.get("/api/site-content", async (req, res) => {
+    const content = await db.query.siteContent.findMany();
+    res.json(content);
+  });
+
+  app.put("/api/site-content/:key", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const { value } = req.body;
+    const content = await db.update(siteContent)
+      .set({ value, updatedAt: new Date() })
+      .where(eq(siteContent.key, req.params.key))
+      .returning();
+
+    res.json(content[0]);
   });
 
   // Animals routes
