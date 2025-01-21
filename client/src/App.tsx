@@ -9,17 +9,27 @@ import Login from "@/pages/login";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const [, setLocation] = useLocation();
+  const { data: deploymentStatus } = useQuery({
+    queryKey: ["/api/deployment-status"],
+  });
 
   useEffect(() => {
+    // In development mode, allow direct access
+    if (deploymentStatus && !deploymentStatus.isProduction) {
+      return;
+    }
+
+    // In production, check session
     fetch("/api/auth/check-session").then(res => {
       if (!res.ok) {
         setLocation("/login");
       }
     });
-  }, [setLocation]);
+  }, [setLocation, deploymentStatus]);
 
   return <Component />;
 }
