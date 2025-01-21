@@ -15,14 +15,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dog } from "@db/schema";
+import { Dog, DogMedia } from "@db/schema";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+
+const mediaSchema = z.object({
+  url: z.string().url("Must be a valid URL"),
+  type: z.enum(["image", "video"]),
+});
 
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -35,12 +41,11 @@ const dogSchema = z.object({
     }
   }, "Please enter a valid date in MM/DD/YYYY format"),
   description: z.string(),
-  imageUrl: z.string().url("Must be a valid URL"),
-  isAvailable: z.boolean().default(true),
+  media: z.array(mediaSchema),
 });
 
 interface DogFormProps {
-  dog?: Dog;
+  dog?: Dog & { media?: DogMedia[] };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -48,6 +53,7 @@ interface DogFormProps {
 export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [mediaInputs, setMediaInputs] = useState<{ url: string; type: "image" | "video" }[]>([]);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -55,8 +61,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       name: "",
       birthDate: format(new Date(), 'MM/dd/yyyy'),
       description: "",
-      imageUrl: "",
-      isAvailable: true,
+      media: [],
     },
   });
 
@@ -67,23 +72,22 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         name: dog.name,
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         description: dog.description ?? "",
-        imageUrl: dog.imageUrl ?? "",
-        isAvailable: dog.isAvailable,
+        media: dog.media ?? [],
       });
+      setMediaInputs(dog.media ?? []);
     } else {
       form.reset({
         name: "",
         birthDate: format(new Date(), 'MM/dd/yyyy'),
         description: "",
-        imageUrl: "",
-        isAvailable: true,
+        media: [],
       });
+      setMediaInputs([]);
     }
   }, [dog, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
-      // Parse the date string to ISO format for the API
       const parsedDate = parse(values.birthDate, 'MM/dd/yyyy', new Date());
       const formattedValues = {
         ...values,
@@ -120,6 +124,27 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       });
     },
   });
+
+  const addMediaInput = () => {
+    setMediaInputs([...mediaInputs, { url: "", type: "image" }]);
+  };
+
+  const removeMediaInput = (index: number) => {
+    const newInputs = [...mediaInputs];
+    newInputs.splice(index, 1);
+    setMediaInputs(newInputs);
+    form.setValue("media", newInputs);
+  };
+
+  const handleMediaChange = (index: number, field: "url" | "type", value: string) => {
+    const newInputs = [...mediaInputs];
+    newInputs[index] = {
+      ...newInputs[index],
+      [field]: value,
+    };
+    setMediaInputs(newInputs);
+    form.setValue("media", newInputs);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -171,38 +196,42 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <FormLabel>Media</FormLabel>
+                <Button type="button" variant="outline" onClick={addMediaInput}>
+                  Add Media
+                </Button>
+              </div>
 
-            <FormField
-              control={form.control}
-              name="isAvailable"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={field.onChange}
+              {mediaInputs.map((input, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={input.url}
+                      onChange={(e) => handleMediaChange(index, "url", e.target.value)}
+                      placeholder="Media URL"
                     />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Available</FormLabel>
+                    <select
+                      value={input.type}
+                      onChange={(e) => handleMediaChange(index, "type", e.target.value as "image" | "video")}
+                      className="px-2 py-1 border rounded"
+                    >
+                      <option value="image">Image</option>
+                      <option value="video">Video</option>
+                    </select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeMediaInput(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                </FormItem>
-              )}
-            />
+                </div>
+              ))}
+            </div>
 
             <div className="flex gap-4">
               <Button type="submit">Save</Button>

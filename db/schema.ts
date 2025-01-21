@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, date, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
+import { z } from "zod";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -59,14 +60,21 @@ export const dogsHero = pgTable("dogs_hero", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const dogMedia = pgTable("dog_media", {
+  id: serial("id").primaryKey(),
+  dogId: integer("dog_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // "image" or "video"
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const dogs = pgTable("dogs", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   breed: text("breed").notNull(),
-  birthDate: date("birth_date").notNull(),  // Changed from age to birthDate
+  birthDate: date("birth_date").notNull(),
   description: text("description"),
-  imageUrl: text("image_url"),
-  isAvailable: boolean("is_available").default(true),
   order: integer("order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -86,6 +94,17 @@ export const productRelations = relations(products, ({ one }) => ({
   }),
 }));
 
+export const dogRelations = relations(dogs, ({ many }) => ({
+  media: many(dogMedia),
+}));
+
+export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
+  dog: one(dogs, {
+    fields: [dogMedia.dogId],
+    references: [dogs.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export const insertCarouselItemSchema = createInsertSchema(carouselItems);
@@ -100,6 +119,8 @@ export const insertDogsHeroSchema = createInsertSchema(dogsHero);
 export const selectDogsHeroSchema = createSelectSchema(dogsHero);
 export const insertDogSchema = createInsertSchema(dogs);
 export const selectDogSchema = createSelectSchema(dogs);
+export const insertDogMediaSchema = createInsertSchema(dogMedia);
+export const selectDogMediaSchema = createSelectSchema(dogMedia);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -115,3 +136,5 @@ export type DogsHero = typeof dogsHero.$inferSelect;
 export type NewDogsHero = typeof dogsHero.$inferInsert;
 export type Dog = typeof dogs.$inferSelect;
 export type NewDog = typeof dogs.$inferInsert;
+export type DogMedia = typeof dogMedia.$inferSelect;
+export type NewDogMedia = typeof dogMedia.$inferInsert;

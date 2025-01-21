@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatAge } from "@/lib/date-utils";
-import { Dog } from "@db/schema";
+import { Dog, DogMedia } from "@db/schema";
+import DogMediaCarousel from "./dog-media-carousel";
 
 interface DogCardProps {
-  dog: Dog;
+  dog: Dog & { media?: DogMedia[] };
   isAdmin?: boolean;
   onEdit?: (dog: Dog) => void;
   onDelete?: (dog: Dog) => void;
@@ -14,13 +15,13 @@ interface DogCardProps {
 export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange }: DogCardProps) {
   return (
     <Card className="h-full">
-      <div className="aspect-square relative">
-        <img
-          src={dog.imageUrl || ''}
-          alt={dog.name}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </div>
+      {dog.media && dog.media.length > 0 ? (
+        <DogMediaCarousel media={dog.media} />
+      ) : (
+        <div className="aspect-square bg-gray-100 flex items-center justify-center">
+          <p className="text-gray-500">No media available</p>
+        </div>
+      )}
       <CardContent className="pt-6">
         {isAdmin ? (
           <div className="flex justify-between items-start mb-4">
