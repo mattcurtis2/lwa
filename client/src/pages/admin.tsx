@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Animal, Product, SiteContent, CarouselItem } from "@db/schema";
+import { Animal, Product, SiteContent, CarouselItem, Dog, DogsHero } from "@db/schema";
 import AnimalCard from "@/components/cards/animal-card";
 import ProductCard from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import CarouselForm from "@/components/forms/carousel-form";
+import DogForm from "@/components/forms/dog-form";
 
 
 interface ContentField {
@@ -24,7 +25,7 @@ interface ContentField {
 
 export default function Admin() {
   const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | null>(null);
+  const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | Dog | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -45,6 +46,13 @@ export default function Admin() {
     queryKey: ["/api/carousel"],
   });
 
+  const { data: dogsHero } = useQuery<DogsHero[]>({
+    queryKey: ["/api/dogs-hero"],
+  });
+
+  const { data: dogs } = useQuery<Dog[]>({
+    queryKey: ["/api/dogs"],
+  });
 
   const updateSiteContent = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
@@ -61,6 +69,29 @@ export default function Admin() {
       toast({
         title: "Success",
         description: "Site content updated successfully",
+      });
+    },
+  });
+
+  const updateDogsHero = useMutation({
+    mutationFn: async (values: Partial<DogsHero>) => {
+      const hero = dogsHero?.[0];
+      if (!hero) throw new Error("No hero content found");
+
+      const res = await fetch(`/api/dogs-hero/${hero.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      if (!res.ok) throw new Error("Failed to update hero content");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
+      toast({
+        title: "Success",
+        description: "Hero content updated successfully",
       });
     },
   });
@@ -111,6 +142,7 @@ export default function Admin() {
         <TabsList>
           <TabsTrigger value="home">Home Page</TabsTrigger>
           <TabsTrigger value="carousel">Carousel</TabsTrigger>
+          <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="animals">Animals</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
         </TabsList>
@@ -215,6 +247,113 @@ export default function Admin() {
                         Delete
                       </Button>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="dogs">
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <h2 className="text-2xl font-bold mb-4">Hero Section</h2>
+              {dogsHero?.[0] && (
+                <div className="space-y-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={dogsHero[0].title}
+                      onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Input
+                      value={dogsHero[0].subtitle}
+                      onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Background Image URL</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={dogsHero[0].imageUrl}
+                        onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
+                      />
+                      {dogsHero[0].imageUrl && (
+                        <img
+                          src={dogsHero[0].imageUrl}
+                          alt="Hero background"
+                          className="w-10 h-10 object-cover"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="mb-6">
+            <Button onClick={() => {
+              setEditItem(null);
+              setShowForm(true);
+            }}>
+              Add New Dog
+            </Button>
+          </div>
+
+          {showForm && (
+            <div className="mb-6">
+              <DogForm
+                dog={editItem as Dog}
+                onClose={() => setShowForm(false)}
+              />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dogs?.map((dog) => (
+              <Card key={dog.id}>
+                <div className="aspect-square relative">
+                  <img
+                    src={dog.imageUrl}
+                    alt={dog.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
+                  <p className="text-stone-600 mb-2">
+                    {dog.breed} • {dog.age} years old
+                  </p>
+                  <p className="text-stone-600 mb-4">{dog.description}</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => {
+                      setEditItem(dog);
+                      setShowForm(true);
+                    }}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        if (!confirm("Are you sure you want to delete this dog?")) return;
+                        const res = await fetch(`/api/dogs/${dog.id}`, {
+                          method: "DELETE",
+                        });
+                        if (res.ok) {
+                          queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                          toast({
+                            title: "Success",
+                            description: "Dog deleted successfully",
+                          });
+                        }
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

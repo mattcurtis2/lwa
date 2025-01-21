@@ -51,6 +51,26 @@ export const products = pgTable("products", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const dogsHero = pgTable("dogs_hero", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle").notNull(),
+  imageUrl: text("image_url").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const dogs = pgTable("dogs", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  breed: text("breed").notNull(),
+  age: integer("age"),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  isAvailable: boolean("is_available").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const animalRelations = relations(animals, ({ one }) => ({
   user: one(users, {
     fields: [animals.id],
@@ -75,6 +95,10 @@ export const insertProductSchema = createInsertSchema(products);
 export const selectProductSchema = createSelectSchema(products);
 export const insertSiteContentSchema = createInsertSchema(siteContent);
 export const selectSiteContentSchema = createSelectSchema(siteContent);
+export const insertDogsHeroSchema = createInsertSchema(dogsHero);
+export const selectDogsHeroSchema = createSelectSchema(dogsHero);
+export const insertDogSchema = createInsertSchema(dogs);
+export const selectDogSchema = createSelectSchema(dogs);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -86,3 +110,7 @@ export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type SiteContent = typeof siteContent.$inferSelect;
 export type NewSiteContent = typeof siteContent.$inferInsert;
+export type DogsHero = typeof dogsHero.$inferSelect;
+export type NewDogsHero = typeof dogsHero.$inferInsert;
+export type Dog = typeof dogs.$inferSelect;
+export type NewDog = typeof dogs.$inferInsert;

@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
+import Dogs from "@/pages/dogs";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
@@ -31,6 +32,7 @@ function Router() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/dogs" component={Dogs} />
           <Route path="/login" component={Login} />
           <Route path="/admin">
             {() => <ProtectedRoute component={Admin} />}

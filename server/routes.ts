@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -93,6 +93,61 @@ export function registerRoutes(app: Express): Server {
 
       for (const item of defaultCarouselItems) {
         await db.insert(carouselItems).values(item);
+      }
+    }
+
+    // Add default dogs hero content if none exists
+    const existingHero = await db.query.dogsHero.findFirst();
+
+    if (!existingHero) {
+      await db.insert(dogsHero).values({
+        title: "Colorado Mountain Dogs",
+        subtitle: "Loyal guardians bred for livestock protection, combining strength with gentle temperament",
+        imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
+      });
+    }
+
+    // Add sample dogs if none exist
+    const existingDogs = await db.query.dogs.findMany();
+
+    if (existingDogs.length === 0) {
+      const sampleDogs = [
+        {
+          name: "Luna",
+          breed: "Colorado Mountain Dog",
+          age: 2,
+          description: "Luna is a gentle giant with exceptional guarding instincts. She's great with children and livestock alike.",
+          imageUrl: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
+          isAvailable: true,
+        },
+        {
+          name: "Atlas",
+          breed: "Colorado Mountain Dog",
+          age: 3,
+          description: "Atlas is a proven guardian with a calm demeanor. He excels at protecting livestock and is well-socialized.",
+          imageUrl: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
+          isAvailable: true,
+        },
+        {
+          name: "Sierra",
+          breed: "Colorado Mountain Dog",
+          age: 1,
+          description: "Sierra is a young, energetic guardian in training. She shows great promise in both protection and companionship.",
+          imageUrl: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
+          isAvailable: true,
+        },
+        {
+          name: "Rocky",
+          breed: "Colorado Mountain Dog",
+          age: 4,
+          description: "Rocky is an experienced guardian with a perfect track record. He's calm, confident, and excellent with other dogs.",
+          imageUrl: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
+          isAvailable: true,
+        },
+      ];
+
+      for (const dog of sampleDogs) {
+        await db.insert(dogs).values(dog);
       }
     }
   })();
@@ -249,6 +304,50 @@ export function registerRoutes(app: Express): Server {
         .where(eq(carouselItems.id, items[i].id));
     }
 
+    res.json({ message: "Deleted successfully" });
+  });
+
+  // Dogs Hero routes
+  app.get("/api/dogs-hero", async (_req, res) => {
+    const hero = await db.query.dogsHero.findMany();
+    res.json(hero);
+  });
+
+  app.put("/api/dogs-hero/:id", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const hero = await db.update(dogsHero)
+      .set({ ...req.body, updatedAt: new Date() })
+      .where(eq(dogsHero.id, parseInt(req.params.id)))
+      .returning();
+
+    res.json(hero[0]);
+  });
+
+  // Dogs routes
+  app.get("/api/dogs", async (_req, res) => {
+    const allDogs = await db.query.dogs.findMany();
+    res.json(allDogs);
+  });
+
+  app.post("/api/dogs", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    const dog = await db.insert(dogs).values(req.body).returning();
+    res.json(dog[0]);
+  });
+
+  app.put("/api/dogs/:id", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    const dog = await db.update(dogs)
+      .set(req.body)
+      .where(eq(dogs.id, parseInt(req.params.id)))
+      .returning();
+    res.json(dog[0]);
+  });
+
+  app.delete("/api/dogs/:id", async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    await db.delete(dogs).where(eq(dogs.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
 
