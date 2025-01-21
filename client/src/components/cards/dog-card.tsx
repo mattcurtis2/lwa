@@ -24,7 +24,10 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
       <CardContent className="pt-6">
         {isAdmin ? (
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold">{dog.name}</h3>
+            <div>
+              <h3 className="text-xl font-bold inline-block">{dog.name}</h3>
+              <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
+            </div>
             {onOrderChange && (
               <div className="flex items-center gap-2">
                 <label htmlFor={`order-${dog.id}`} className="text-sm text-stone-600">
@@ -47,11 +50,11 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
             )}
           </div>
         ) : (
-          <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
+          <div className="mb-4">
+            <h3 className="text-xl font-bold inline-block">{dog.name}</h3>
+            <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
+          </div>
         )}
-        <p className="text-stone-600 mb-2">
-          {formatAge(new Date(dog.birthDate))}
-        </p>
         <p className="text-stone-600 mb-4">{dog.description}</p>
         {isAdmin && (
           <div className="flex gap-2">
