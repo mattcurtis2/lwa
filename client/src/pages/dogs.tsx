@@ -18,6 +18,10 @@ export default function Dogs() {
 
   const hero = heroContent?.[0];
 
+  // Group dogs by gender
+  const females = dogs?.filter(dog => dog.gender === 'female') || [];
+  const males = dogs?.filter(dog => dog.gender === 'male') || [];
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -39,12 +43,30 @@ export default function Dogs() {
       </div>
 
       {/* Dogs Grid */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {dogs?.map((dog) => (
-            <DogCard key={dog.id} dog={dog} />
-          ))}
-        </div>
+      <div className="container mx-auto px-4 py-16 space-y-16">
+        {/* Females Section */}
+        {females.length > 0 && (
+          <div>
+            <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {females.map((dog) => (
+                <DogCard key={dog.id} dog={dog} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Males Section */}
+        {males.length > 0 && (
+          <div>
+            <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {males.map((dog) => (
+                <DogCard key={dog.id} dog={dog} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
