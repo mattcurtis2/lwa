@@ -31,7 +31,10 @@ export function registerRoutes(app: Express): Server {
     });
 
     if (!adminUser) {
-      const hashedPassword = await bcrypt.hash("AustenAlcott", 10);
+      const hashedPassword = await bcrypt.hash(
+        process.env.NODE_ENV === 'production' ? process.env.ADMIN_PASSWORD || 'AustenAlcott' : 'AustenAlcott',
+        10
+      );
       await db.insert(users).values({
         username: "admin",
         password: hashedPassword,
@@ -162,6 +165,11 @@ export function registerRoutes(app: Express): Server {
     if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
     await db.delete(products).where(eq(products.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
+  });
+
+  // Add a new route to check deployment status
+  app.get("/api/deployment-status", (_req, res) => {
+    res.json({ isProduction: process.env.NODE_ENV === 'production' });
   });
 
   const httpServer = createServer(app);
