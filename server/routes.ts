@@ -328,10 +328,15 @@ export function registerRoutes(app: Express): Server {
     res.json(hero[0]);
   });
 
-  // Dogs routes
+  // Add dogs routes
   app.get("/api/dogs", async (_req, res) => {
     const allDogs = await db.query.dogs.findMany({
-      orderBy: (dogs, { asc }) => [asc(dogs.order)]
+      orderBy: (dogs, { asc }) => [asc(dogs.order)],
+      with: {
+        media: {
+          orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+        },
+      },
     });
     res.json(allDogs);
   });
