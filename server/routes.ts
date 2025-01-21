@@ -115,38 +115,38 @@ export function registerRoutes(app: Express): Server {
         {
           name: "Luna",
           breed: "Colorado Mountain Dog",
-          age: 2,
+          birthDate: "2022-01-15",
           description: "Luna is a gentle giant with exceptional guarding instincts. She's great with children and livestock alike.",
           imageUrl: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
           isAvailable: true,
-          order: 1, // Added order field
+          order: 1,
         },
         {
           name: "Atlas",
           breed: "Colorado Mountain Dog",
-          age: 3,
+          birthDate: "2021-06-20",
           description: "Atlas is a proven guardian with a calm demeanor. He excels at protecting livestock and is well-socialized.",
           imageUrl: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
           isAvailable: true,
-          order: 2, // Added order field
+          order: 2,
         },
         {
           name: "Sierra",
           breed: "Colorado Mountain Dog",
-          age: 1,
+          birthDate: "2023-03-10",
           description: "Sierra is a young, energetic guardian in training. She shows great promise in both protection and companionship.",
           imageUrl: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
           isAvailable: true,
-          order: 3, // Added order field
+          order: 3,
         },
         {
           name: "Rocky",
           breed: "Colorado Mountain Dog",
-          age: 4,
+          birthDate: "2020-08-25",
           description: "Rocky is an experienced guardian with a perfect track record. He's calm, confident, and excellent with other dogs.",
           imageUrl: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
           isAvailable: true,
-          order: 4, // Added order field
+          order: 4,
         },
       ];
 

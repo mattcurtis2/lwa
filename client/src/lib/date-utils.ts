@@ -6,24 +6,29 @@ export function formatAge(birthDate: Date): string {
   // Calculate all time differences
   const years = differenceInYears(today, birthDate);
   const months = differenceInMonths(today, birthDate) % 12;
-  const weeks = differenceInWeeks(today, birthDate) % 4;
+  const weeks = Math.floor((differenceInDays(today, birthDate) % 30) / 7);
   const days = differenceInDays(today, birthDate) % 7;
 
-  if (years === 0 && months === 0 && weeks === 0 && days === 0) {
+  // Special case for newborn (0 days old)
+  if (differenceInDays(today, birthDate) === 0) {
     return "0 days old";
   }
 
-  if (years >= 1) {
+  // Display years if available
+  if (years > 0) {
     return `${years} ${years === 1 ? 'year' : 'years'} old`;
   }
 
-  if (months >= 1) {
+  // Display months if available
+  if (months > 0) {
     return `${months} ${months === 1 ? 'month' : 'months'} old`;
   }
 
-  if (weeks >= 1) {
+  // Display weeks if available
+  if (weeks > 0) {
     return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} old`;
   }
 
+  // Otherwise display days
   return `${days} ${days === 1 ? 'day' : 'days'} old`;
 }

@@ -184,9 +184,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
-                          date > new Date() || date < new Date("2000-01-01")
+                          date > new Date()
                         }
                         initialFocus
+                        fromYear={2015}
+                        toYear={new Date().getFullYear()}
+                        captionLayout="dropdown-buttons"
+                        className="rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>
