@@ -76,8 +76,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto p-4">
+        <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
           <DialogTitle>{dog ? "Edit Dog" : "Add New Dog"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -157,7 +157,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               )}
             />
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 sticky bottom-0 bg-background pt-4">
               <Button type="submit">Save</Button>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
