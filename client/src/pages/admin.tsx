@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import CarouselForm from "@/components/forms/carousel-form";
 import DogForm from "@/components/forms/dog-form";
 import { formatAge } from "@/lib/date-utils";
+import DogCard from "@/components/cards/dog-card"; // Import the DogCard component
 
 interface ContentField {
   key: string;
@@ -365,76 +366,35 @@ export default function Admin() {
             {dogs?.map((dog) => (
               <div
                 key={dog.id}
-                className={`w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]`}
+                className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
               >
-                <Card className="h-full">
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold">{dog.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor={`order-${dog.id}`}>Order:</Label>
-                        <Input
-                          id={`order-${dog.id}`}
-                          type="number"
-                          min="0"
-                          className="w-20"
-                          value={dog.order}
-                          onChange={async (e) => {
-                            const newOrder = parseInt(e.target.value);
-                            if (isNaN(newOrder)) return;
-
-                            await reorderDogs.mutateAsync({
-                              dogId: dog.id,
-                              newOrder: newOrder
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="aspect-square relative">
-                      <img
-                        src={dog.imageUrl || ''}
-                        alt={dog.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-stone-600 mb-2">
-                        {formatAge(new Date(dog.birthDate))}
-                      </p>
-                      <p className="text-stone-600 mb-4">{dog.description}</p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setEditItem(dog);
-                            setShowForm(true);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={async () => {
-                            if (!confirm("Are you sure you want to delete this dog?")) return;
-                            const res = await fetch(`/api/dogs/${dog.id}`, {
-                              method: "DELETE",
-                            });
-                            if (res.ok) {
-                              queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                              toast({
-                                title: "Success",
-                                description: "Dog deleted successfully",
-                              });
-                            }
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DogCard
+                  dog={dog}
+                  isAdmin
+                  onEdit={() => {
+                    setEditItem(dog);
+                    setShowForm(true);
+                  }}
+                  onDelete={async (dog) => {
+                    if (!confirm("Are you sure you want to delete this dog?")) return;
+                    const res = await fetch(`/api/dogs/${dog.id}`, {
+                      method: "DELETE",
+                    });
+                    if (res.ok) {
+                      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                      toast({
+                        title: "Success",
+                        description: "Dog deleted successfully",
+                      });
+                    }
+                  }}
+                  onOrderChange={async (dogId, newOrder) => {
+                    await reorderDogs.mutateAsync({
+                      dogId,
+                      newOrder
+                    });
+                  }}
+                />
               </div>
             ))}
           </div>

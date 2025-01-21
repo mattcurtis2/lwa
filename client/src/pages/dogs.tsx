@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog } from "@db/schema";
-import { Card, CardContent } from "@/components/ui/card";
-import { formatAge } from "@/lib/date-utils";
+import DogCard from "@/components/cards/dog-card";
 
 export default function Dogs() {
   const { data: heroContent } = useQuery<DogsHero[]>({
@@ -43,22 +42,7 @@ export default function Dogs() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {dogs?.map((dog) => (
-            <Card key={dog.id}>
-              <div className="aspect-square relative">
-                <img
-                  src={dog.imageUrl || ''}
-                  alt={dog.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-              <CardContent className="pt-6">
-                <h3 className="text-xl font-bold mb-2">{dog.name}</h3>
-                <p className="text-stone-600 mb-2">
-                  {formatAge(new Date(dog.birthDate))}
-                </p>
-                <p className="text-stone-600">{dog.description}</p>
-              </CardContent>
-            </Card>
+            <DogCard key={dog.id} dog={dog} />
           ))}
         </div>
       </div>
