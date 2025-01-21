@@ -64,6 +64,13 @@ export function registerRoutes(app: Express): Server {
     res.json({ message: "Logged in successfully" });
   });
 
+  app.get("/api/auth/check-session", async (req, res) => {
+    if (!req.session.userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    res.json({ authenticated: true });
+  });
+
   // Site content routes
   app.get("/api/site-content", async (req, res) => {
     const content = await db.query.siteContent.findMany();
