@@ -27,7 +27,7 @@ export default function DogMediaCarousel({ media }: DogMediaCarouselProps) {
       {currentMedia.type === 'video' ? (
         <video
           src={currentMedia.url}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
           controls
           loop
           muted
@@ -37,10 +37,10 @@ export default function DogMediaCarousel({ media }: DogMediaCarouselProps) {
         <img
           src={currentMedia.url}
           alt="Dog media"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
         />
       )}
-      
+
       {media.length > 1 && (
         <>
           <Button
@@ -59,7 +59,7 @@ export default function DogMediaCarousel({ media }: DogMediaCarouselProps) {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          
+
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
             {media.map((_, index) => (
               <button
