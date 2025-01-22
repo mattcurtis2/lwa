@@ -1,24 +1,27 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AnimalForm from "@/components/forms/animal-form";
-import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Animal, Product, SiteContent, CarouselItem, Dog, DogsHero, Litter } from "@db/schema";
-import AnimalCard from "@/components/cards/animal-card";
-import ProductCard from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import CarouselForm from "@/components/forms/carousel-form";
+import { SiteContent, Dog, DogsHero, Litter, CarouselItem } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
-import { formatDisplayDate } from "@/lib/date-utils";
 import DogCard from "@/components/cards/dog-card";
+import { Save } from "lucide-react";
+import { useLocation } from "wouter";
+import AnimalForm from "@/components/forms/animal-form";
+import ProductForm from "@/components/forms/product-form";
+import AnimalCard from "@/components/cards/animal-card";
+import ProductCard from "@/components/cards/product-card";
+import CarouselForm from "@/components/forms/carousel-form";
+import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
+
 
 interface ContentField {
   key: string;
@@ -29,21 +32,22 @@ interface ContentField {
 
 export default function Admin() {
   const { toast } = useToast();
+  const [_, navigate] = useLocation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
-  const [editItem, setEditItem] = useState<Dog | Animal | Product | CarouselItem | null>(null);
+  const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Update queries with proper error handling and loading states
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
-    staleTime: 0, // Ensure fresh data
+    staleTime: 0,
     retry: 1,
     onSuccess: (data) => {
       console.log("Site Content Fetched Successfully:", data);
-      // Initialize pendingContent with current values
       const initialContent: Record<string, string> = {};
       data.forEach((item) => {
         initialContent[item.key] = item.value;
@@ -62,22 +66,25 @@ export default function Admin() {
 
   // Update site content mutation
   const updateSiteContent = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: string }) => {
-      const res = await fetch(`/api/site-content/${key}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value }),
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to update content");
-      }
-      return res.json();
+    mutationFn: async (updates: { key: string; value: string }[]) => {
+      const results = await Promise.all(
+        updates.map(({ key, value }) =>
+          fetch(`/api/site-content/${key}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value }),
+            credentials: 'include',
+          }).then(res => {
+            if (!res.ok) throw new Error(`Failed to update ${key}`);
+            return res.json();
+          })
+        )
+      );
+      return results;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
+      setHasUnsavedChanges(false);
       toast({
         title: "Success",
         description: "Content updated successfully",
@@ -104,71 +111,38 @@ export default function Admin() {
     }
   }, [siteContent]);
 
+  // Handle content change without auto-saving
   const handleContentChange = (key: string, value: string) => {
-    setPendingContent((prev) => ({ ...prev, [key]: value }));
-    updateSiteContent.mutate({ key, value });
+    setPendingContent(prev => ({ ...prev, [key]: value }));
+    setHasUnsavedChanges(true);
   };
 
-  // Debug logging for site content
-  console.log("Current Site Content:", siteContent);
-  console.log("Pending Content:", pendingContent);
+  // Save all pending changes
+  const handleSaveChanges = () => {
+    const updates = Object.entries(pendingContent)
+      .filter(([key, value]) => {
+        const currentContent = siteContent.find(c => c.key === key);
+        return currentContent && currentContent.value !== value;
+      })
+      .map(([key, value]) => ({ key, value }));
 
-  // Other queries...
-  const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
-    queryKey: ["/api/carousel"],
-  });
+    if (updates.length > 0) {
+      updateSiteContent.mutate(updates);
+    }
+  };
 
-  const { data: dogs = [] } = useQuery<Dog[]>({
-    queryKey: ["/api/dogs"],
-  });
-
-  const { data: dogsHero = [] } = useQuery<DogsHero[]>({
-    queryKey: ["/api/dogs-hero"],
-  });
-
-  const { data: litters = [] } = useQuery<Litter[]>({
-    queryKey: ["/api/litters"],
-  });
-
-  const { data: animals = [] } = useQuery<Animal[]>({
-    queryKey: ["/api/animals"],
-  });
-
-  const { data: products = [] } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
-  });
-
-  const updateDogsHero = useMutation({
-    mutationFn: async (data: Partial<DogsHero>) => {
-      const res = await fetch("/api/dogs-hero", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to update Dogs Hero");
+  // Warning when leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
       }
+    };
 
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
-      toast({
-        title: "Success",
-        description: "Dogs hero updated successfully",
-      });
-    },
-    onError: (err) => {
-      console.error("Failed to update Dogs Hero", err);
-      toast({
-        title: "Error",
-        description: "Failed to update Dogs hero. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const contentFields: ContentField[] = [
     // Hero Section
@@ -177,10 +151,8 @@ export default function Admin() {
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     // About Section
-    { key: "about_title", label: "About Section Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
-    { key: "about_text", label: "About Content", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_title", label: "Mission Title", value: pendingContent["mission_title"] ?? siteContent.find(c => c.key === "mission_title")?.value ?? "", type: "text" },
-    { key: "mission_text", label: "Mission Content", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
+    { key: "about_text", label: "About Text", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
 
     // Feature Cards Section
     // Colorado Mountain Dogs Card
@@ -256,7 +228,7 @@ export default function Admin() {
         </TabsList>
 
         <TabsContent value="home">
-          {/* Hero Content Section */}
+          {/* Hero Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Hero Section</CardTitle>
@@ -275,32 +247,12 @@ export default function Admin() {
                       />
                     ) : field.type === "image" ? (
                       <div className="flex-1">
-                        <FileUpload
+                        <Input
+                          type="text"
+                          id={field.key}
                           value={pendingContent[field.key] ?? field.value}
-                          onChange={(value) => handleContentChange(field.key, value)}
-                          onFileSelect={async (file) => {
-                            const formData = new FormData();
-                            formData.append("file", file);
-
-                            try {
-                              const uploadRes = await fetch("/api/upload", {
-                                method: "POST",
-                                body: formData,
-                              });
-
-                              if (!uploadRes.ok) throw new Error("Failed to upload image");
-                              const { url } = await uploadRes.json();
-
-                              handleContentChange(field.key, url);
-                              updateSiteContent.mutate({ key: field.key, value: url });
-                            } catch (error) {
-                              toast({
-                                title: "Error",
-                                description: "Failed to upload image",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                          placeholder="Enter image URL"
                         />
                       </div>
                     ) : (
@@ -329,10 +281,10 @@ export default function Admin() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>About Section</CardTitle>
-              <CardDescription>Manage about and mission content</CardDescription>
+              <CardDescription>Manage about content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {contentFields.slice(3, 7).map((field) => (
+              {contentFields.slice(3, 5).map((field) => (
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <div className="flex gap-4">
@@ -342,52 +294,12 @@ export default function Admin() {
                         value={pendingContent[field.key] ?? field.value}
                         onChange={(e) => handleContentChange(field.key, e.target.value)}
                       />
-                    ) : field.type === "image" ? (
-                      <div className="flex-1">
-                        <FileUpload
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(value) => handleContentChange(field.key, value)}
-                          cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
-                          onFileSelect={async (file) => {
-                            const formData = new FormData();
-                            formData.append("file", file);
-
-                            try {
-                              const uploadRes = await fetch("/api/upload", {
-                                method: "POST",
-                                body: formData,
-                              });
-
-                              if (!uploadRes.ok) throw new Error("Failed to upload image");
-                              const { url } = await uploadRes.json();
-
-                              handleContentChange(field.key, url);
-                              updateSiteContent.mutate({ key: field.key, value: url });
-                            } catch (error) {
-                              toast({
-                                title: "Error",
-                                description: "Failed to upload image",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        />
-                      </div>
                     ) : (
                       <Input
                         id={field.key}
                         value={pendingContent[field.key] ?? field.value}
                         onChange={(e) => handleContentChange(field.key, e.target.value)}
                       />
-                    )}
-                    {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                      <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                        <img
-                          src={pendingContent[field.key] ?? field.value}
-                          alt={`${field.label} preview`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
                     )}
                   </div>
                 </div>
@@ -396,15 +308,40 @@ export default function Admin() {
           </Card>
 
           {/* Feature Cards Section */}
-          <Card className="mb-8">
+          <Card>
             <CardHeader>
               <CardTitle>Feature Cards</CardTitle>
               <CardDescription>Manage the three main feature cards</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
-              {/* Animals Card */}
+            <CardContent>
+              {/* Dogs Card */}
               <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Animals Card</h3>
+                <h3 className="text-lg font-semibold">Dogs Card</h3>
+                {contentFields.slice(5, 7).map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <div className="flex gap-4">
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      ) : (
+                        <Input
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Goats Card */}
+              <div className="space-y-6 pb-6 border-b">
+                <h3 className="text-lg font-semibold">Goats Card</h3>
                 {contentFields.slice(7, 9).map((field) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key}>{field.label}</Label>
@@ -415,117 +352,12 @@ export default function Admin() {
                           value={pendingContent[field.key] ?? field.value}
                           onChange={(e) => handleContentChange(field.key, e.target.value)}
                         />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                            cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-
-                                handleContentChange(field.key, url);
-                                updateSiteContent.mutate({ key: field.key, value: url });
-                              } catch (error) {
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                          />
-                        </div>
                       ) : (
                         <Input
                           id={field.key}
                           value={pendingContent[field.key] ?? field.value}
                           onChange={(e) => handleContentChange(field.key, e.target.value)}
                         />
-                      )}
-                      {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                        <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                          <img
-                            src={pendingContent[field.key] ?? field.value}
-                            alt={`${field.label} preview`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Goats Card */}
-              <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Goats Card</h3>
-                {contentFields.slice(9, 11).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                            cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-
-                                handleContentChange(field.key, url);
-                                updateSiteContent.mutate({ key: field.key, value: url });
-                              } catch (error) {
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
-                      {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                        <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                          <img
-                            src={pendingContent[field.key] ?? field.value}
-                            alt={`${field.label} preview`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
                       )}
                     </div>
                   </div>
@@ -535,7 +367,7 @@ export default function Admin() {
               {/* Products Card */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Products Card</h3>
-                {contentFields.slice(11, 15).map((field) => (
+                {contentFields.slice(9).map((field) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key}>{field.label}</Label>
                     <div className="flex gap-4">
@@ -545,37 +377,6 @@ export default function Admin() {
                           value={pendingContent[field.key] ?? field.value}
                           onChange={(e) => handleContentChange(field.key, e.target.value)}
                         />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                            cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-
-                                handleContentChange(field.key, url);
-                                updateSiteContent.mutate({ key: field.key, value: url });
-                              } catch (error) {
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                          />
-                        </div>
                       ) : (
                         <Input
                           id={field.key}
@@ -583,90 +384,8 @@ export default function Admin() {
                           onChange={(e) => handleContentChange(field.key, e.target.value)}
                         />
                       )}
-                      {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                        <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                          <img
-                            src={pendingContent[field.key] ?? field.value}
-                            alt={`${field.label} preview`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Carousel Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Carousel Items</CardTitle>
-              <CardDescription>Manage the homepage carousel content</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <Button onClick={() => {
-                  setEditItem(null);
-                  setShowForm(true);
-                }}>
-                  Add New Carousel Item
-                </Button>
-              </div>
-
-              {showForm && (
-                <div className="mb-6">
-                  <CarouselForm
-                    item={editItem as CarouselItem}
-                    onClose={() => setShowForm(false)}
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 gap-6">
-                {carouselItems.map((item) => (
-                  <Card key={item.id}>
-                    <CardContent className="pt-6 flex gap-4">
-                      <div className="w-40 h-40">
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                        <p className="text-stone-600 mb-4">{item.description}</p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" onClick={() => {
-                            setEditItem(item);
-                            setShowForm(true);
-                          }}>
-                            Edit
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={async () => {
-                              if (!confirm("Are you sure you want to delete this carousel item?")) return;
-                              const res = await fetch(`/api/carousel/${item.id}`, {
-                                method: "DELETE",
-                              });
-                              if (res.ok) {
-                                queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-                                toast({
-                                  title: "Success",
-                                  description: "Carousel item deleted successfully",
-                                });
-                              }
-                            }}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 ))}
               </div>
             </CardContent>
@@ -930,7 +649,6 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* Keep the Animals and Products tabs as they are */}
         <TabsContent value="animals">
           <div className="mb-6">
             <Button onClick={() => {
@@ -995,6 +713,21 @@ export default function Admin() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Floating Save Button */}
+      {hasUnsavedChanges && (
+        <div className="fixed bottom-6 right-6">
+          <Button
+            size="lg"
+            onClick={handleSaveChanges}
+            disabled={updateSiteContent.isPending}
+            className="shadow-lg"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {updateSiteContent.isPending ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
