@@ -82,8 +82,8 @@ export const dogs = pgTable("dogs", {
   color: text("color"),
   dewclaws: text("dewclaws"),
   furLength: text("fur_length"),
-  height: decimal("height"), // in inches
-  weight: decimal("weight"), // in pounds
+  height: decimal("height").default(null), // in inches
+  weight: decimal("weight").default(null), // in pounds
   pedigree: text("pedigree"),
   narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),
