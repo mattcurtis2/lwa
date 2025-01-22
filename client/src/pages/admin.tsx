@@ -20,7 +20,7 @@ import DogCard from "@/components/cards/dog-card"; // Import the DogCard compone
 import LitterForm from "@/components/forms/litter-form"; // Import LitterForm
 import { format } from 'date-fns'; // Import for date formatting
 import { Switch } from "@/components/ui/switch"; // Import Switch component
-
+import { FileUpload } from "@/components/ui/file-upload";
 
 interface ContentField {
   key: string;
@@ -159,32 +159,6 @@ export default function Admin() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadRes.ok) throw new Error("Failed to upload image");
-      const { url } = await uploadRes.json();
-
-      handleContentChange(key, url);
-      updateSiteContent.mutate({ key, value: url });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-    }
-  };
 
   const reorderDogs = useMutation({
     mutationFn: async ({ dogId, newOrder }: { dogId: number; newOrder: number }) => {
@@ -240,7 +214,7 @@ export default function Admin() {
               {contentFields.map((field) => (
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-4">
                     {field.type === "textarea" ? (
                       <Textarea
                         id={field.key}
@@ -248,21 +222,34 @@ export default function Admin() {
                         onChange={(e) => handleContentChange(field.key, e.target.value)}
                       />
                     ) : field.type === "image" ? (
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload(e, field.key)}
+                      <div className="flex-1">
+                        <FileUpload
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(value) => handleContentChange(field.key, value)}
+                          onFileSelect={async (file) => {
+                            const formData = new FormData();
+                            formData.append("file", file);
+
+                            try {
+                              const uploadRes = await fetch("/api/upload", {
+                                method: "POST",
+                                body: formData,
+                              });
+
+                              if (!uploadRes.ok) throw new Error("Failed to upload image");
+                              const { url } = await uploadRes.json();
+
+                              handleContentChange(field.key, url);
+                              updateSiteContent.mutate({ key: field.key, value: url });
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to upload image",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
                         />
-                        <div className="relative">
-                          <Label>Or Enter Image URL</Label>
-                          <Input
-                            id={field.key}
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            placeholder="https://example.com/image.jpg"
-                          />
-                        </div>
                       </div>
                     ) : (
                       <Input
@@ -272,7 +259,7 @@ export default function Admin() {
                       />
                     )}
                     {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                      <div className="w-40 h-40 rounded overflow-hidden">
+                      <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
                         <img
                           src={pendingContent[field.key] ?? field.value}
                           alt={`${field.label} preview`}
