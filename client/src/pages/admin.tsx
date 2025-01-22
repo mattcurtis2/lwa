@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -37,10 +37,19 @@ export default function Admin() {
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
 
   // Update queries with proper error handling and loading states
-  const { data: siteContent = [], isLoading: isLoadingSiteContent, } = useQuery<SiteContent[]>({
+  const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
     staleTime: 0, // Ensure fresh data
     retry: 1,
+    onSuccess: (data) => {
+      console.log("Site Content Fetched Successfully:", data);
+      // Initialize pendingContent with current values
+      const initialContent: Record<string, string> = {};
+      data.forEach((item) => {
+        initialContent[item.key] = item.value;
+      });
+      setPendingContent(initialContent);
+    },
     onError: (error) => {
       console.error("Failed to fetch site content:", error);
       toast({
@@ -51,6 +60,60 @@ export default function Admin() {
     }
   });
 
+  // Update site content mutation
+  const updateSiteContent = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string }) => {
+      const res = await fetch(`/api/site-content/${key}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value }),
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to update content");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
+      toast({
+        title: "Success",
+        description: "Content updated successfully",
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to update content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update content. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Effect to initialize pendingContent when siteContent changes
+  useEffect(() => {
+    if (siteContent?.length > 0) {
+      const initialContent: Record<string, string> = {};
+      siteContent.forEach((item) => {
+        initialContent[item.key] = item.value;
+      });
+      setPendingContent(initialContent);
+    }
+  }, [siteContent]);
+
+  const handleContentChange = (key: string, value: string) => {
+    setPendingContent((prev) => ({ ...prev, [key]: value }));
+    updateSiteContent.mutate({ key, value });
+  };
+
+  // Debug logging for site content
+  console.log("Current Site Content:", siteContent);
+  console.log("Pending Content:", pendingContent);
+
+  // Other queries...
   const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
   });
@@ -78,57 +141,34 @@ export default function Admin() {
   const updateDogsHero = useMutation({
     mutationFn: async (data: Partial<DogsHero>) => {
       const res = await fetch("/api/dogs-hero", {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to update hero");
+
+      if (!res.ok) {
+        throw new Error("Failed to update Dogs Hero");
+      }
+
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
       toast({
         title: "Success",
-        description: "Hero section updated successfully",
+        description: "Dogs hero updated successfully",
       });
     },
-  });
-
-  const updateSiteContent = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: string }) => {
-      const res = await fetch(`/api/site-content/${key}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value }),
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error("Failed to update content");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
-      toast({
-        title: "Success",
-        description: "Content updated successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Failed to update content:", error);
+    onError: (err) => {
+      console.error("Failed to update Dogs Hero", err);
       toast({
         title: "Error",
-        description: "Failed to update content. Please try again.",
+        description: "Failed to update Dogs hero. Please try again.",
         variant: "destructive",
       });
-    }
+    },
   });
-
-  const handleContentChange = (key: string, value: string) => {
-    setPendingContent((prev) => ({ ...prev, [key]: value }));
-    updateSiteContent.mutate({ key, value });
-  };
-
-  // Debug logging for site content
-  console.log("Site Content Data:", siteContent);
 
   const contentFields: ContentField[] = [
     // Hero Section
@@ -163,12 +203,47 @@ export default function Admin() {
     { key: "products_link", label: "Link", value: pendingContent["products_link"] ?? siteContent.find(c => c.key === "products_link")?.value ?? "", type: "text" },
   ];
 
+  // Fix the DogCard syntax error
+  const renderDogCard = (dog: Dog) => (
+    <DogCard
+      key={dog.id}
+      dog={dog}
+      isAdmin
+      onEdit={() => {
+        setEditItem(dog);
+        setShowForm(true);
+      }}
+      onDelete={async (dog) => {
+        if (!confirm("Are you sure you want to delete this dog?")) return;
+        const res = await fetch(`/api/dogs/${dog.id}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+          toast({
+            title: "Success",
+            description: "Dog deleted successfully",
+          });
+        }
+      }}
+    />
+  );
+
   // Loading state handling
   if (isLoadingSiteContent) {
     return (
       <div className="container mx-auto py-8">
         <h1 className="text-4xl font-bold mb-8">Content Management</h1>
         <p>Loading content...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
+        <p className="text-red-500">Error loading content. Please try refreshing the page.</p>
       </div>
     );
   }
@@ -684,30 +759,7 @@ export default function Admin() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dogs
                       .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-                      .map((dog) => (
-                        <DogCard
-                          key={dog.id}
-                          dog={dog}
-                          isAdmin
-                          onEdit={() => {
-                            setEditItem(dog);
-                            setShowForm(true);
-                          }}
-                          onDelete={async (dog) => {
-                            if (!confirm("Are you sure you want to delete this dog?")) return;
-                            const res = await fetch(`/api/dogs/${dog.id}`, {
-                              method: "DELETE",
-                            });
-                            if (res.ok) {
-                              queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                              toast({
-                                title: "Success",
-                                description: "Dog deleted successfully",
-                              });
-                            }
-                          }}
-                        />
-                      ))}
+                      .map((dog) => renderDogCard(dog))}
                   </div>
                 </div>
               )}
@@ -719,30 +771,7 @@ export default function Admin() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dogs
                       .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
-                      .map((dog) => (
-                        <DogCard
-                          key={dog.id}
-                          dog={dog}
-                          isAdmin
-                          onEdit={() => {
-                            setEditItem(dog);
-                            setShowForm(true);
-                          }}
-                          onDelete={async (dog) => {
-                            if (!confirm("Are you sure you want to delete this dog?")) return;
-                            const res = await fetch(`/api/dogs/${dog.id}`, {
-                              method: "DELETE",
-                            });
-                            if (res.ok) {
-                              queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                              toast({
-                                title: "Success",
-                                description: "Dog deleted successfully",
-                              });
-                            }
-                          }}
-                        />
-                      ))}
+                      .map((dog) => renderDogCard(dog))}
                   </div>
                 </div>
               )}
@@ -754,30 +783,7 @@ export default function Admin() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dogs
                       .filter(dog => dog.outsideBreeder)
-                      .map((dog) => (
-                        <DogCard
-                          key={dog.id}
-                          dog={dog}
-                          isAdmin
-                          onEdit={() => {
-                            setEditItem(dog);
-                            setShowForm(true);
-                          }}
-                          onDelete={async (dog) => {
-                            if (!confirm("Are you sure you want to delete this dog?")) return;
-                            const res = await fetch(`/api/dogs/${dog.id}`, {
-                              method: "DELETE",
-                            });
-                            if (res.ok) {
-                              queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                              toast({
-                                title: "Success",
-                                description: "Dog deleted successfully",
-                              });
-                            }
-                          }}
-                        />
-                      ))}
+                      .map((dog) => renderDogCard(dog))}
                   </div>
                 </div>
               )}
@@ -788,7 +794,7 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Litters Management</CardTitle>
-              <CardDescription>Manage upcoming and current litters</CardDescription>
+              <CardDescription>Manage upcoming and current litters</CardDescription>Manage upcoming and current litters</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
