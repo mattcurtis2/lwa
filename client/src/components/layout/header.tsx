@@ -17,7 +17,7 @@ export default function Header() {
   const logo = siteContent?.find(content => content.key === "logo");
 
   return (
-    <header className="sticky top-0 z-50 shadow-sm" style={{ backgroundColor: '#FDF7EB' }}>
+    <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
@@ -34,41 +34,41 @@ export default function Header() {
 
           <div className="hidden md:flex items-center gap-6">
             <DropdownMenu>
-              <DropdownMenuTrigger className="text-stone-600 hover:text-stone-900 data-[state=open]:text-stone-900">
+              <DropdownMenuTrigger className="text-stone-600 hover:text-stone-900 data-[state=open]:text-stone-900 font-medium">
                 Colorado Mountain Dogs
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="end" 
-                className="w-48"
+                className="w-56 bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl"
                 sideOffset={8}
               >
                 <Link href="/dogs">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     About
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dogs/males">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     Males
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dogs/females">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     Females
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dogs/litters/upcoming">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     Upcoming Litters
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dogs/litters/past">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     Past Litters
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dogs/available">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900">
+                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4">
                     Available Dogs
                   </DropdownMenuItem>
                 </Link>
