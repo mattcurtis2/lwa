@@ -374,12 +374,12 @@ export default function Admin() {
           />
 
           {/* Females Section */}
-          {dogs && dogs.filter(dog => dog.gender === 'female').length > 0 && (
+          {dogs && dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
             <div className="mb-8">
               <h2 className="text-3xl font-bold mb-6 text-stone-800">Meet Our Females</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {dogs
-                  .filter(dog => dog.gender === 'female')
+                  .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
                   .map((dog) => (
                     <DogCard
                       key={dog.id}
@@ -415,12 +415,12 @@ export default function Admin() {
           )}
 
           {/* Males Section */}
-          {dogs && dogs.filter(dog => dog.gender === 'male').length > 0 && (
+          {dogs && dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
             <div>
               <h2 className="text-3xl font-bold mb-6 text-stone-800">Meet Our Males</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {dogs
-                  .filter(dog => dog.gender === 'male')
+                  .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
                   .map((dog) => (
                     <DogCard
                       key={dog.id}
