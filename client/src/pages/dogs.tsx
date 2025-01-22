@@ -141,29 +141,21 @@ export default function Dogs({ genderFilter }: DogsProps) {
   return (
     <div className="w-full">
       <div 
-        className={cn(
-          "relative bg-cover bg-center",
-          genderFilter ? "h-[300px]" : "h-[500px]"
-        )}
+        className="relative h-[500px] bg-cover bg-center"
         style={{ backgroundImage: `url(${hero?.imageUrl})` }}
       >
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative container mx-auto px-4 h-full flex items-center justify-between">
           <div className="max-w-2xl text-white">
-            <h1 className={cn(
-              "font-bold mb-4",
-              genderFilter ? "text-4xl" : "text-5xl"
-            )}>
+            <h1 className="text-5xl font-bold mb-4">
               {genderFilter 
                 ? `Our ${genderFilter === 'male' ? 'Male' : 'Female'} Colorado Mountain Dogs`
                 : (hero?.title || "Colorado Mountain Dogs")
               }
             </h1>
-            {!genderFilter && (
-              <p className="text-xl">
-                {hero?.subtitle || "Loyal guardians bred for livestock protection"}
-              </p>
-            )}
+            <p className="text-xl">
+              {hero?.subtitle || "Loyal guardians bred for livestock protection"}
+            </p>
           </div>
           {window.location.pathname.includes('/admin') && (
             <Dialog open={isEditingHero} onOpenChange={setIsEditingHero}>
