@@ -30,7 +30,7 @@ export default function Principles() {
   });
 
   return (
-    <section className="py-16 bg-stone-50">
+    <section className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4">
         <motion.div 
           className="text-center mb-12"
@@ -62,15 +62,20 @@ export default function Principles() {
             >
               <div className="w-full md:w-1/2">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-amber-600/20 group-hover:opacity-0 transition-opacity duration-500" />
+                  <div className="absolute inset-0" style={{ 
+                    background: 'linear-gradient(135deg, rgba(71, 98, 81, 0.2), rgba(71, 98, 81, 0.3))',
+                    opacity: 1,
+                    transition: 'opacity 0.5s'
+                  }} />
                   <img 
                     src={principle.imageUrl} 
                     alt={principle.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#476251]/50 to-transparent" />
                   <motion.div 
-                    className="absolute bottom-0 left-0 w-full h-2 bg-amber-500"
+                    className="absolute bottom-0 left-0 w-full h-2"
+                    style={{ backgroundColor: '#476251' }}
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
@@ -81,14 +86,15 @@ export default function Principles() {
               <div className="w-full md:w-1/2 space-y-4">
                 <div className="relative">
                   <motion.div
-                    className="absolute -left-4 top-1/2 w-2 h-2 bg-amber-500 rounded-full"
+                    className="absolute -left-4 top-1/2 w-2 h-2 rounded-full"
+                    style={{ backgroundColor: '#476251' }}
                     initial={{ scale: 0 }}
                     whileInView={{ scale: 1 }}
                     viewport={{ once: true }}
                   />
                   <h3 className="text-3xl font-bold text-stone-800 pl-4">{principle.title}</h3>
                 </div>
-                <p className="text-lg text-stone-600 leading-relaxed pl-4 border-l-2 border-amber-200">
+                <p className="text-lg text-stone-600 leading-relaxed pl-4" style={{ borderLeft: '2px solid #476251' }}>
                   {principle.description}
                 </p>
               </div>
@@ -129,15 +135,20 @@ export default function Principles() {
                 >
                   <div className="w-full md:w-1/2">
                     <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-amber-600/20 group-hover:opacity-0 transition-opacity duration-500" />
+                      <div className="absolute inset-0" style={{ 
+                        background: 'linear-gradient(135deg, rgba(71, 98, 81, 0.2), rgba(71, 98, 81, 0.3))',
+                        opacity: 1,
+                        transition: 'opacity 0.5s'
+                      }} />
                       <img 
                         src={principle.imageUrl}
                         alt={principle.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#476251]/50 to-transparent" />
                       <motion.div 
-                        className="absolute bottom-0 left-0 w-full h-2 bg-amber-500"
+                        className="absolute bottom-0 left-0 w-full h-2"
+                        style={{ backgroundColor: '#476251' }}
                         initial={{ scaleX: 0 }}
                         whileInView={{ scaleX: 1 }}
                         viewport={{ once: true }}
@@ -148,14 +159,15 @@ export default function Principles() {
                   <div className="w-full md:w-1/2 space-y-4">
                     <div className="relative">
                       <motion.div
-                        className="absolute -left-4 top-1/2 w-2 h-2 bg-amber-500 rounded-full"
+                        className="absolute -left-4 top-1/2 w-2 h-2 rounded-full"
+                        style={{ backgroundColor: '#476251' }}
                         initial={{ scale: 0 }}
                         whileInView={{ scale: 1 }}
                         viewport={{ once: true }}
                       />
                       <h3 className="text-3xl font-bold text-stone-800 pl-4">{principle.title}</h3>
                     </div>
-                    <p className="text-lg text-stone-600 leading-relaxed pl-4 border-l-2 border-amber-200">
+                    <p className="text-lg text-stone-600 leading-relaxed pl-4" style={{ borderLeft: '2px solid #476251' }}>
                       {principle.description}
                     </p>
                   </div>
