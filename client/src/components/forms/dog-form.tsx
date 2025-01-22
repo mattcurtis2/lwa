@@ -177,7 +177,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
         const formattedValues = {
           ...values,
-          birthDate: dateString,
+          birthDate: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T12:00:00.000Z`,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
