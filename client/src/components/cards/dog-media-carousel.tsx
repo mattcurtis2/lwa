@@ -23,16 +23,35 @@ export default function DogMediaCarousel({
 
   if (!media || media.length === 0) return null;
 
-  const handlePrevious = () => {
+  const handlePrevious = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     const newIndex = currentIndex === 0 ? media.length - 1 : currentIndex - 1;
     setInternalIndex(newIndex);
     onSlideChange?.(newIndex);
   };
 
-  const handleNext = () => {
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     const newIndex = currentIndex === media.length - 1 ? 0 : currentIndex + 1;
     setInternalIndex(newIndex);
     onSlideChange?.(newIndex);
+  };
+
+  const handleDotClick = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setInternalIndex(index);
+    onSlideChange?.(index);
+  };
+
+  const handleMediaClick = (e: React.MouseEvent) => {
+    // Only stop propagation if it's a video being clicked
+    if ((e.target as HTMLElement).tagName === 'VIDEO') {
+      e.stopPropagation();
+      e.preventDefault();
+    }
   };
 
   const currentMedia = media[currentIndex];
@@ -47,6 +66,7 @@ export default function DogMediaCarousel({
           loop
           muted
           playsInline
+          onClick={handleMediaClick}
         />
       ) : (
         <img
@@ -82,10 +102,7 @@ export default function DogMediaCarousel({
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === currentIndex ? "bg-white" : "bg-white/50"
                 }`}
-                onClick={() => {
-                  setInternalIndex(index);
-                  onSlideChange?.(index);
-                }}
+                onClick={(e) => handleDotClick(e, index)}
               />
             ))}
           </div>
