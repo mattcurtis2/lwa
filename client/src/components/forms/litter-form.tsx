@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,16 +14,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import DogForm from "./dog-form";
+import { formatDisplayDate } from "@/lib/date-utils";
 
 interface LitterFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   litter?: Litter;
-  dogs?: Dog[];
   mode?: 'create' | 'edit' | 'addPuppies';
 }
 
@@ -32,14 +30,18 @@ interface PuppyFormData {
   gender: 'male' | 'female';
   birthDate: string;
   color?: string;
+  description?: string;
 }
 
-export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'create' }: LitterFormProps) {
+export default function LitterForm({ open, onOpenChange, litter, mode = 'create' }: LitterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [showDogForm, setShowDogForm] = useState(false);
   const [puppies, setPuppies] = useState<PuppyFormData[]>([]);
+
+  const { data: dogs } = useQuery<Dog[]>({
+    queryKey: ["/api/dogs"],
+  });
 
   const [formData, setFormData] = useState<Partial<Litter>>({
     dueDate: litter?.dueDate || "",
@@ -64,7 +66,6 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
             motherId: litter?.motherId,
             fatherId: litter?.fatherId,
             litterId: litter?.id,
-            description: '',
           };
 
           const res = await fetch('/api/dogs', {
@@ -73,7 +74,10 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
             body: JSON.stringify(puppyData),
           });
 
-          if (!res.ok) throw new Error('Failed to create puppy');
+          if (!res.ok) {
+            const error = await res.text();
+            throw new Error(error || 'Failed to create puppy');
+          }
         }
 
         queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
@@ -101,10 +105,11 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
         });
       }
       onOpenChange(false);
+      setPuppies([]); // Reset puppies after successful submission
     } catch (error) {
       toast({
         title: "Error",
-        description: `Failed to ${litter ? 'update' : 'create'} litter`,
+        description: error instanceof Error ? error.message : 'Failed to save',
         variant: "destructive",
       });
     } finally {
@@ -117,6 +122,8 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
       name: '',
       gender: 'male',
       birthDate: new Date().toISOString().split('T')[0],
+      color: '',
+      description: '',
     }]);
   };
 
@@ -204,7 +211,12 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
           {mode === 'addPuppies' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <Label>Puppies</Label>
+                <div>
+                  <h3 className="font-medium mb-1">Add Puppies</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Add puppies to {litter?.mother?.name} x {litter?.father?.name}'s litter
+                  </p>
+                </div>
                 <Button type="button" onClick={addPuppy} variant="outline">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Puppy
@@ -214,7 +226,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-4">
                   {puppies.map((puppy, index) => (
-                    <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                    <div key={index} className="space-y-4 p-4 border rounded-lg relative bg-muted/50">
                       <Button
                         type="button"
                         variant="ghost"
@@ -231,6 +243,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
                           value={puppy.name}
                           onChange={(e) => updatePuppy(index, 'name', e.target.value)}
                           placeholder="Puppy name"
+                          required
                         />
                       </div>
 
@@ -238,7 +251,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
                         <Label>Gender</Label>
                         <Select
                           value={puppy.gender}
-                          onValueChange={(value) => updatePuppy(index, 'gender', value)}
+                          onValueChange={(value) => updatePuppy(index, 'gender', value as 'male' | 'female')}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -256,6 +269,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
                           type="date"
                           value={puppy.birthDate}
                           onChange={(e) => updatePuppy(index, 'birthDate', e.target.value)}
+                          required
                         />
                       </div>
 
@@ -267,10 +281,25 @@ export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'c
                           placeholder="Puppy color"
                         />
                       </div>
+
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Input
+                          value={puppy.description || ''}
+                          onChange={(e) => updatePuppy(index, 'description', e.target.value)}
+                          placeholder="Brief description of the puppy"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
               </ScrollArea>
+
+              {puppies.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Click "Add Puppy" to start adding puppies to this litter
+                </div>
+              )}
             </div>
           )}
 
