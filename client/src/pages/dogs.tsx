@@ -75,7 +75,12 @@ export default function Dogs() {
                   {visibleLitter.mother && (
                     <div>
                       <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
-                      <DogCard dog={visibleLitter.mother} />
+                      <DogCard 
+                        dog={{
+                          ...visibleLitter.mother,
+                          media: visibleLitter.mother.media || []
+                        }} 
+                      />
                     </div>
                   )}
 
@@ -83,7 +88,12 @@ export default function Dogs() {
                   {visibleLitter.father && (
                     <div>
                       <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
-                      <DogCard dog={visibleLitter.father} />
+                      <DogCard 
+                        dog={{
+                          ...visibleLitter.father,
+                          media: visibleLitter.father.media || []
+                        }} 
+                      />
                     </div>
                   )}
                 </div>
