@@ -29,15 +29,28 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (_req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime'];
+    const allowedTypes = [
+      // Images and videos
+      'image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime',
+      // Documents
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.google-apps.document',
+      'text/plain',
+      // Spreadsheets
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.google-apps.spreadsheet'
+    ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only images and videos are allowed.'));
+      cb(new Error('Invalid file type. Supported formats: images, videos, PDFs, Word docs, and Google docs.'));
     }
   },
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 25 * 1024 * 1024 // 25MB limit
   }
 });
 
@@ -490,14 +503,21 @@ export function registerRoutes(app: Express): Server {
     res.json(dog[0]);
   });
 
-  // Add file upload endpoint
+  // Add file upload endpoint with updated file types
   app.post("/api/upload", upload.single("file"), (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     const fileUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: fileUrl });
+    const fileType = req.file.mimetype.split('/')[0]; // 'image', 'video', 'application', etc.
+
+    res.json({ 
+      url: fileUrl,
+      type: fileType,
+      originalName: req.file.originalname,
+      mimeType: req.file.mimetype
+    });
   });
 
   // Serve uploaded files statically

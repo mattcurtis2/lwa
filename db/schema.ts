@@ -92,6 +92,16 @@ export const dogs = pgTable("dogs", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const dogDocuments = pgTable("dog_documents", {
+  id: serial("id").primaryKey(),
+  dogId: integer("dog_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // 'health' or 'pedigree'
+  name: text("name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const animalRelations = relations(animals, ({ one }) => ({
   user: one(users, {
     fields: [animals.id],
@@ -108,6 +118,7 @@ export const productRelations = relations(products, ({ one }) => ({
 
 export const dogRelations = relations(dogs, ({ many }) => ({
   media: many(dogMedia),
+  documents: many(dogDocuments),
 }));
 
 export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
@@ -155,6 +166,16 @@ export const selectDogSchema = createSelectSchema(dogs);
 export const insertDogMediaSchema = createInsertSchema(dogMedia);
 export const selectDogMediaSchema = createSelectSchema(dogMedia);
 
+export const dogDocumentsRelations = relations(dogDocuments, ({ one }) => ({
+  dog: one(dogs, {
+    fields: [dogDocuments.dogId],
+    references: [dogs.id],
+  }),
+}));
+
+export const insertDogDocumentSchema = createInsertSchema(dogDocuments);
+export const selectDogDocumentSchema = createSelectSchema(dogDocuments);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type CarouselItem = typeof carouselItems.$inferSelect;
@@ -175,3 +196,5 @@ export type Litter = typeof litters.$inferSelect;
 export type NewLitter = typeof litters.$inferInsert;
 export const insertLitterSchema = createInsertSchema(litters);
 export const selectLitterSchema = createSelectSchema(litters);
+export type DogDocument = typeof dogDocuments.$inferSelect;
+export type NewDogDocument = typeof dogDocuments.$inferInsert;

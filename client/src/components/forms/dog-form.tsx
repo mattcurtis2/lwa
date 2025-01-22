@@ -27,6 +27,7 @@ import {
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FileText, ImageIcon, Upload, Video } from "lucide-react";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -63,7 +64,7 @@ const dogSchema = z.object({
 });
 
 interface DogFormProps {
-  dog?: Dog & { media?: DogMedia[] };
+  dog?: Dog & { media?: DogMedia[]; documents?: DogDocument[] };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -72,6 +73,21 @@ interface MediaInput {
   url: string;
   type: "image" | "video";
   fileName?: string;
+  isNew?: boolean;
+}
+
+interface DogDocument {
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
+}
+
+interface DocumentInput {
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
   isNew?: boolean;
 }
 
@@ -84,6 +100,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
   const [mediaUrl, setMediaUrl] = useState("");
+  const [healthDocuments, setHealthDocuments] = useState<DocumentInput[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<DocumentInput[]>([]);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -107,7 +126,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     },
   });
 
-  // Update useEffect to include new fields
   useEffect(() => {
     if (dog) {
       const media = dog.media?.map(m => ({
@@ -115,6 +133,30 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         type: m.type as "image" | "video",
         isNew: false,
       })) || [];
+
+      const docs = dog.documents || [];
+      const healthDocs = docs
+        .filter(d => d.type === 'health')
+        .map(d => ({
+          url: d.url,
+          type: 'health' as const,
+          name: d.name,
+          mimeType: d.mimeType,
+          isNew: false,
+        }));
+
+      const pedigreeDocs = docs
+        .filter(d => d.type === 'pedigree')
+        .map(d => ({
+          url: d.url,
+          type: 'pedigree' as const,
+          name: d.name,
+          mimeType: d.mimeType,
+          isNew: false,
+        }));
+
+      setHealthDocuments(healthDocs);
+      setPedigreeDocuments(pedigreeDocs);
 
       form.reset({
         name: dog.name,
@@ -287,6 +329,85 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     form.setValue("media", newInputs);
   };
 
+  const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    setIsUploadingDoc(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const data = await res.json();
+      const newDoc = {
+        url: data.url,
+        type,
+        name: file.name,
+        mimeType: file.type,
+        isNew: true,
+      };
+
+      if (type === 'health') {
+        setHealthDocuments(prev => [newDoc, ...prev]);
+      } else {
+        setPedigreeDocuments(prev => [newDoc, ...prev]);
+      }
+
+      toast({
+        title: "Success",
+        description: "Document uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload document",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const removeDocument = (index: number, type: 'health' | 'pedigree') => {
+    if (type === 'health') {
+      setHealthDocuments(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setPedigreeDocuments(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const DocumentList = ({ documents, type }: { documents: DocumentInput[], type: 'health' | 'pedigree' }) => (
+    <div className="space-y-2">
+      {documents.map((doc, index) => (
+        <div
+          key={index}
+          className={`p-3 rounded-lg ${doc.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+        >
+          <div className="flex items-center gap-3">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{doc.name}</p>
+              <p className="text-xs text-muted-foreground">{doc.mimeType}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeDocument(index, type)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -402,7 +523,64 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 )}
               />
 
-              {/* New fields */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel>Pictures & Videos</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddMedia(true)}
+                    disabled={isUploading}
+                  >
+                    Add Media
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {mediaInputs.map((input, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+                    >
+                      <div className="flex gap-4">
+                        <div className="w-20 h-20 relative shrink-0">
+                          {input.type === 'image' ? (
+                            <img
+                              src={input.url}
+                              alt="Preview"
+                              className="w-full h-full object-cover rounded"
+                            />
+                          ) : (
+                            <video
+                              src={input.url}
+                              className="w-full h-full object-cover rounded"
+                              controls
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium mb-1">
+                            {input.fileName || input.url.split('/').pop()}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMediaInput(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+
               <FormField
                 control={form.control}
                 name="narrativeDescription"
@@ -498,6 +676,31 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormControl>
                       <Textarea {...field} placeholder="Health certifications, testing results, etc." />
                     </FormControl>
+                    <div className="mt-4 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) handleDocumentUpload(file, 'health');
+                            };
+                            input.click();
+                          }}
+                          disabled={isUploadingDoc}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isUploadingDoc ? "Uploading..." : "Upload Document"}
+                        </Button>
+                      </div>
+                      <DocumentList documents={healthDocuments} type="health" />
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -512,68 +715,35 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormControl>
                       <Textarea {...field} placeholder="Family history and lineage information" />
                     </FormControl>
+                    <div className="mt-4 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) handleDocumentUpload(file, 'pedigree');
+                            };
+                            input.click();
+                          }}
+                          disabled={isUploadingDoc}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isUploadingDoc ? "Uploading..." : "Upload Document"}
+                        </Button>
+                      </div>
+                      <DocumentList documents={pedigreeDocuments} type="pedigree" />
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <FormLabel>Media</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowAddMedia(true)}
-                    disabled={isUploading}
-                  >
-                    Add Media
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {mediaInputs.map((input, index) => (
-                    <div
-                      key={index}
-                      className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
-                    >
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 relative shrink-0">
-                          {input.type === 'image' ? (
-                            <img
-                              src={input.url}
-                              alt="Preview"
-                              className="w-full h-full object-cover rounded"
-                            />
-                          ) : (
-                            <video
-                              src={input.url}
-                              className="w-full h-full object-cover rounded"
-                              controls
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 max-w-[160px]">
-                          <p className="text-sm font-medium mb-1 truncate">
-                            {input.fileName || input.url.split('/').pop()}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="shrink-0"
-                          onClick={() => removeMediaInput(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="flex gap-4">
                 <Button type="submit" disabled={isUploading}>
