@@ -559,17 +559,18 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium mb-1">
+                          <p className="text-sm font-medium truncate">
                             {input.fileName || input.url.split('/').pop()}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {input.type.charAt(0).toUpperCase() + input.type.slice(1)}
+                          <p className="text-xs text-muted-foreground truncate" title={input.url}>
+                            {input.url}
                           </p>
                         </div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
+                          className="shrink-0"
                           onClick={() => removeMediaInput(index)}
                         >
                           <X className="h-4 w-4" />
