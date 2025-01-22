@@ -36,6 +36,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
+  const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit' | 'addPuppies'>('create');
   const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
@@ -786,167 +787,138 @@ export default function Admin() {
               <CardDescription>Manage upcoming and current litters</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-6">
-                <Button onClick={() => {
-                  setEditLitter(null);
-                  setShowLitterForm(true);
-                }}>
-                  Add New Litter
-                </Button>
-              </div>
-
-              <LitterForm
-                open={showLitterForm}
-                onOpenChange={(open) => {
-                  setShowLitterForm(open);
-                  if (!open) setEditLitter(null);
-                }}
-                litter={editLitter}
-                dogs={dogs}
-              />
-
               <div className="space-y-6">
-                {litters.map((litter) => {
-                  const mother = dogs.find(d => d.id === litter.motherId);
-                  const father = dogs.find(d => d.id === litter.fatherId);
+                <div className="flex justify-between items-center">
+                  <Button onClick={() => {
+                    setEditLitter(null);
+                    setShowLitterForm(true);
+                  }}>
+                    Add New Litter
+                  </Button>
+                </div>
 
-                  return (
-                    <Card key={litter.id} className="relative">
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="text-lg font-semibold">
-                            Expected Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+                <LitterForm
+                  litter={editLitter}
+                  open={showLitterForm}
+                  onOpenChange={(open) => {
+                    setShowLitterForm(open);
+                    if (!open) setEditLitter(null);
+                  }}
+                  mode={litterFormMode}
+                />
+
+                <div className="grid gap-4">
+                  {litters?.map((litter) => {
+                    const mother = dogs.find(dog => dog.id === litter.motherId);
+                    const father = dogs.find(dog => dog.id === litter.fatherId);
+
+                    if (!mother || !father) return null;
+
+                    return (
+                      <Card key={litter.id} className="p-6">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              {mother.name} x {father.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+                            </p>
+
+                            {/* Parent Dog Cards */}
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                                  {mother.profileImageUrl || (mother.media && mother.media[0]?.url) ? (
+                                    <img
+                                      src={mother.profileImageUrl || mother.media[0].url}
+                                      alt={mother.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                                      <span className="text2xl text-pink-500">♀</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-medium">{mother.name}</p>
+                                  <p className="text-sm text-muted-foreground">Mother</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                                  {father.profileImageUrl || (father.media && father.media[0]?.url) ? (
+                                    <img
+                                      src={father.profileImageUrl || father.media[0].url}
+                                      alt={father.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                                      <span className="text-2xl text-blue-500">♂</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-medium">{father.name}</p>
+                                  <p className="text-sm text-muted-foreground">Father</p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={litter.isVisible ?? false}
-                              onCheckedChange={async (checked) => {
+
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setEditLitter(litter);
+                                setShowLitterForm(true);
+                                setLitterFormMode('edit');
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={() => {
+                                setEditLitter(litter);
+                                setShowLitterForm(true);
+                                setLitterFormMode('addPuppies');
+                              }}
+                            >
+                              Add Puppies
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={async () => {
+                                if (!confirm('Are you sure you want to delete this litter?')) return;
+
                                 const res = await fetch(`/api/litters/${litter.id}`, {
-                                  method: 'PUT',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ isVisible: checked }),
+                                  method: 'DELETE',
                                 });
 
                                 if (res.ok) {
                                   queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
                                   toast({
                                     title: "Success",
-                                    description: `Litter ${checked ? 'is now visible' : 'is now hidden'}`,
+                                    description: "Litter deleted successfully",
                                   });
                                 }
                               }}
-                            />
-                            <span className="text-sm text-gray-500">
-                              {litter.isVisible ? 'Visible' : 'Hidden'}
-                            </span>
+                            >
+                              Delete
+                            </Button>
                           </div>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Mother */}
-                          <div>
-                            <h4 className="text-lg font-semibold mb-4">Mother</h4>
-                            {mother && (
-                              <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bggray-100 flex items-center justify-center">
-                                  {mother.profileImageUrl ? (
-                                    <img 
-                                      src={mother.profileImageUrl} 
-                                      alt={mother.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : mother.media && mother.media.length > 0 ? (
-                                    <img 
-                                      src={mother.media[0].url} 
-                                      alt={mother.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <span className="text-2xl">♀</span>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{mother.name}</p>
-                                  <p className="text-sm text-gray-500">
-                                    {mother.registrationName || 'No registration name'}
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Father */}
-                          <div>
-                            <h4 className="text-lg font-semibold mb-4">Father</h4>
-                            {father && (
-                              <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                                  {father.profileImageUrl ? (
-                                    <img 
-                                      src={father.profileImageUrl} 
-                                      alt={father.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : father.media && father.media.length > 0 ? (
-                                    <img 
-                                      src={father.media[0].url} 
-                                      alt={father.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <span className="text-2xl">♂</span>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{father.name}</p>
-                                  <p className="text-sm text-gray-500">
-                                    {father.registrationName || 'No registration name'}
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end gap-2 mt-6">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setEditLitter(litter);
-                              setShowLitterForm(true);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={async () => {
-                              if (!confirm('Are you sure you want to delete this litter?')) return;
-
-                              const res = await fetch(`/api/litters/${litter.id}`, {
-                                method: 'DELETE',
-                              });
-
-                              if (res.ok) {
-                                queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-                                toast({
-                                  title: "Success",
-                                  description: "Litter deleted successfully",
-                                });
-                              }
-                            }}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
-
         </TabsContent>
 
         <TabsContent value="animals">
