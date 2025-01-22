@@ -674,10 +674,15 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Add single litter endpoint with relations
+  //Improved litter routes from edited snippet
   app.get("/api/litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
+
+      if (isNaN(litterId)) {
+        return res.status(400).json({ message: "Invalid litter ID" });
+      }
+
       const litter = await db.query.litters.findFirst({
         where: eq(litters.id, litterId),
         with: {
@@ -686,6 +691,7 @@ export function registerRoutes(app: Express): Server {
               media: {
                 orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
               },
+              documents: true,
             },
           },
           father: {
@@ -693,6 +699,7 @@ export function registerRoutes(app: Express): Server {
               media: {
                 orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
               },
+              documents: true,
             },
           },
         },
@@ -709,6 +716,7 @@ export function registerRoutes(app: Express): Server {
           media: {
             orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
           },
+          documents: true,
         },
         orderBy: (dogs, { asc }) => [asc(dogs.order)],
       });
@@ -725,6 +733,7 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/litters/past", async (_req, res) => {
     try {
+      // First get all litters with their parents
       const allLitters = await db.query.litters.findMany({
         with: {
           mother: {
@@ -744,8 +753,8 @@ export function registerRoutes(app: Express): Server {
         },
       });
 
-      // Get all puppies for all litters
-      const puppiesByLitter = await Promise.all(
+      // For each litter, fetch its puppies
+      const littersWithPuppies = await Promise.all(
         allLitters.map(async (litter) => {
           const puppies = await db.query.dogs.findMany({
             where: eq(dogs.litterId, litter.id),
@@ -755,18 +764,21 @@ export function registerRoutes(app: Express): Server {
               },
             },
           });
-          return { litterId: litter.id, puppies };
+
+          return {
+            ...litter,
+            puppies,
+          };
         })
       );
 
-      // Filter for past litters (has puppies with birth dates)
-      const pastLitters = allLitters.filter(litter => {
-        const litterPuppies = puppiesByLitter.find(p => p.litterId === litter.id)?.puppies || [];
-        return litterPuppies.some(puppy => new Date(puppy.birthDate) < new Date());
-      }).map(litter => ({
-        ...litter,
-        puppies: puppiesByLitter.find(p => p.litterId === litter.id)?.puppies || [],
-      }));
+      // Filter to only include litters that have puppies with birth dates in the past
+      const pastLitters = littersWithPuppies.filter((litter) => {
+        return (
+          litter.puppies.length > 0 &&
+          litter.puppies.some((puppy) => new Date(puppy.birthDate) <= new Date())
+        );
+      });
 
       res.json(pastLitters);
     } catch (error) {
@@ -820,7 +832,7 @@ export function registerRoutes(app: Express): Server {
       res.json({ message: "Deleted successfully" });
     } catch (error) {
       console.error("Error deleting principle:", error);
-      res.status(500).json({ message: "Failedto delete principle" });
+            res.status(500).json({ message: "Failedto delete principle" });
     }
   });
 
