@@ -31,26 +31,60 @@ interface Document {
 }
 
 function DocumentLink({ document }: { document: Document }) {
+  const isImage = document.mimeType.startsWith('image/');
+  const isVideo = document.mimeType.startsWith('video/');
+  const isPdf = document.mimeType === 'application/pdf';
+
   const getIcon = () => {
-    const ext = document.url.split('.').pop()?.toLowerCase();
-    if (ext === 'pdf') return <FileText className="h-5 w-5" />;
-    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext || '')) return <FileImage className="h-5 w-5" />;
-    if (['mp4', 'mov', 'avi'].includes(ext || '')) return <FileVideo className="h-5 w-5" />;
+    if (isPdf) return <FileText className="h-5 w-5" />;
+    if (isImage) return <FileImage className="h-5 w-5" />;
+    if (isVideo) return <FileVideo className="h-5 w-5" />;
     return <File className="h-5 w-5" />;
   };
 
   return (
-    <Button
-      variant="outline"
-      className="flex items-center gap-2 w-full justify-start"
-      asChild
-    >
-      <a href={document.url} target="_blank" rel="noopener noreferrer">
-        {getIcon()}
-        <span className="flex-1 truncate">{document.name}</span>
-        <ExternalLink className="h-4 w-4 shrink-0" />
-      </a>
-    </Button>
+    <div className="border rounded-lg p-4 space-y-3">
+      <div className="flex items-start gap-4">
+        {/* Preview/Thumbnail Section */}
+        <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+          {isImage ? (
+            <img
+              src={document.url}
+              alt={document.name}
+              className="w-full h-full object-cover"
+            />
+          ) : isVideo ? (
+            <video
+              src={document.url}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              {getIcon()}
+            </div>
+          )}
+        </div>
+
+        {/* Document Info & Actions */}
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium truncate">{document.name}</h4>
+          <p className="text-sm text-muted-foreground">
+            {document.mimeType.split('/')[1].toUpperCase()}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            asChild
+          >
+            <a href={document.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Document
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -204,7 +238,7 @@ export default function DogDetail() {
                   {healthDocuments.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="font-semibold">Health Documents</h3>
-                      <div className="grid gap-2">
+                      <div className="grid gap-4">
                         {healthDocuments.map((doc, index) => (
                           <DocumentLink key={index} document={doc} />
                         ))}
@@ -238,7 +272,7 @@ export default function DogDetail() {
                   {pedigreeDocuments.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="font-semibold">Pedigree Documents</h3>
-                      <div className="grid gap-2">
+                      <div className="grid gap-4">
                         {pedigreeDocuments.map((doc, index) => (
                           <DocumentLink key={index} document={doc} />
                         ))}
