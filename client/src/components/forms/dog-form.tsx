@@ -38,7 +38,14 @@ const mediaSchema = z.object({
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   registrationName: z.string().optional(),
-  birthDate: z.string().min(1, "Birth date is required"),
+  birthDate: z.string().refine(
+    (date) => {
+      if (!date) return false;
+      const inputDate = parse(date, 'yyyy-MM-dd', new Date());
+      return isValid(inputDate) && inputDate <= new Date();
+    },
+    "Please enter a valid date that is not in the future"
+  ),
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
@@ -162,23 +169,15 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        // Parse the date and set it to noon UTC to avoid timezone issues
-        const parsedDate = parse(values.birthDate, 'yyyy-MM-dd', new Date());
-        if (!isValid(parsedDate)) {
-          throw new Error("Invalid date format");
-        }
+        // Parse the input date
+        const [year, month, day] = values.birthDate.split('-').map(Number);
 
-        // Set the time to noon UTC to avoid date shifting
-        const utcDate = new Date(Date.UTC(
-          parsedDate.getFullYear(),
-          parsedDate.getMonth(),
-          parsedDate.getDate(),
-          12, 0, 0
-        ));
+        // Create date string with noon UTC time to prevent date shifting
+        const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T12:00:00.000Z`;
 
         const formattedValues = {
           ...values,
-          birthDate: utcDate.toISOString(),
+          birthDate: dateString,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
