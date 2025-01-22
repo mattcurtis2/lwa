@@ -2,12 +2,6 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 import MobileNav from "./mobile-nav";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -33,52 +27,48 @@ export default function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="text-stone-600 hover:text-stone-900 data-[state=open]:text-stone-900 font-medium transition-all duration-200 hover:-translate-y-0.5">
+            <div className="relative group">
+              <a className="text-stone-600 hover:text-stone-900 transition-colors duration-200">
                 Colorado Mountain Dogs
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="end" 
-                className="w-56 bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl"
-                sideOffset={8}
-              >
+              </a>
+              <div className="absolute invisible group-hover:visible bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0">
                 <Link href="/dogs">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     About
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
                 <Link href="/dogs/males">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     Males
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
                 <Link href="/dogs/females">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     Females
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
                 <Link href="/dogs/litters/upcoming">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     Upcoming Litters
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
                 <Link href="/dogs/litters/past">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     Past Litters
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
                 <Link href="/dogs/available">
-                  <DropdownMenuItem className="cursor-pointer text-stone-600 hover:text-stone-900 hover:bg-stone-100 py-3 px-4 transition-all duration-200 hover:pl-6">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-200">
                     Available Dogs
-                  </DropdownMenuItem>
+                  </a>
                 </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+            </div>
             <Link href="/#goats">
-              <a className="text-stone-600 hover:text-stone-900 transition-all duration-200 hover:-translate-y-0.5">Nigerian Dwarfs</a>
+              <a className="text-stone-600 hover:text-stone-900 transition-colors duration-200">Nigerian Dwarfs</a>
             </Link>
             <Link href="/#market">
-              <a className="text-stone-600 hover:text-stone-900 transition-all duration-200 hover:-translate-y-0.5">Farmers Market</a>
+              <a className="text-stone-600 hover:text-stone-900 transition-colors duration-200">Farmers Market</a>
             </Link>
           </div>
 
