@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Dog, DogMedia } from "@db/schema";
 import { useLocation } from "wouter";
-import { formatAge } from "@/lib/date-utils";
-import { formatDisplayDate } from "@/lib/date-utils"; // Added import
+import { formatAge, formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import {
   Card,
   CardContent,
@@ -128,11 +127,11 @@ const BasicInfoSection = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="font-semibold mb-2">Age</h3>
-          <p>{formatAge(new Date(dog.birthDate))}</p>
+          <p>{formatAge(parseApiDate(dog.birthDate))}</p>
         </div>
         <div>
           <h3 className="font-semibold mb-2">Birth Date</h3>
-          <p>{formatDisplayDate(new Date(dog.birthDate))}</p>
+          <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
         </div>
         <div>
           <h3 className="font-semibold mb-2">Breed</h3>

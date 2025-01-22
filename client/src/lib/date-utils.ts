@@ -1,4 +1,4 @@
-import { differenceInDays, differenceInMonths, differenceInYears, format } from "date-fns";
+import { differenceInDays, differenceInMonths, differenceInYears, format, parseISO } from "date-fns";
 
 // Format date for display in a consistent format across the application
 export function formatDisplayDate(date: Date): string {
@@ -10,15 +10,19 @@ export function formatInputDate(date: Date): string {
   return format(date, 'yyyy-MM-dd');
 }
 
-// Format date for API/Database (UTC noon to prevent timezone issues)
-export function formatApiDate(date: Date): string {
-  const utcDate = new Date(Date.UTC(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    12, 0, 0
-  ));
-  return utcDate.toISOString();
+// Format date for API/Database to prevent timezone issues
+export function formatApiDate(dateStr: string): string {
+  // Split the date string into components
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  // Create a UTC date string without time component
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+// Parse API date string to local Date object
+export function parseApiDate(dateStr: string): Date {
+  const date = new Date(dateStr);
+  return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
 }
 
 export function formatAge(birthDate: Date): string {

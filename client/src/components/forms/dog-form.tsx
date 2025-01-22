@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FileText, ImageIcon, Upload, Video } from "lucide-react";
+import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -127,10 +128,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   useEffect(() => {
     if (dog) {
-      const birthDate = new Date(dog.birthDate);
+      const birthDate = parseApiDate(dog.birthDate);
       form.reset({
         ...dog,
-        birthDate: format(birthDate, 'yyyy-MM-dd'),
+        birthDate: formatInputDate(birthDate),
       });
 
       const media = dog.media?.map(m => ({
@@ -169,15 +170,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        // Parse the input date
-        const [year, month, day] = values.birthDate.split('-').map(Number);
-
-        // Create date string with noon UTC time to prevent date shifting
-        const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T12:00:00.000Z`;
+        // Format the date for API submission
+        const formattedDate = formatApiDate(values.birthDate);
 
         const formattedValues = {
           ...values,
-          birthDate: dateString,
+          birthDate: formattedDate,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
