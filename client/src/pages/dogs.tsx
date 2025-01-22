@@ -71,11 +71,17 @@ export default function Dogs() {
                   {/* Mother */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <img
-                        src={visibleLitter.mother.media?.[0]?.url || '/placeholder-dog.jpg'}
-                        alt={visibleLitter.mother.name}
-                        className="w-full h-full object-cover"
-                      />
+                      {visibleLitter.mother.media && visibleLitter.mother.media.length > 0 ? (
+                        <img
+                          src={visibleLitter.mother.media[0].url}
+                          alt={visibleLitter.mother.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <p className="text-gray-500">No image available</p>
+                        </div>
+                      )}
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
                     <p className="text-amber-800">{visibleLitter.mother.name}</p>
@@ -84,11 +90,17 @@ export default function Dogs() {
                   {/* Father */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <img
-                        src={visibleLitter.father.media?.[0]?.url || '/placeholder-dog.jpg'}
-                        alt={visibleLitter.father.name}
-                        className="w-full h-full object-cover"
-                      />
+                      {visibleLitter.father.media && visibleLitter.father.media.length > 0 ? (
+                        <img
+                          src={visibleLitter.father.media[0].url}
+                          alt={visibleLitter.father.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <p className="text-gray-500">No image available</p>
+                        </div>
+                      )}
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Father</h4>
                     <p className="text-amber-800">{visibleLitter.father.name}</p>

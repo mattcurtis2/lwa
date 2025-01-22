@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Animal, Product, SiteContent, CarouselItem, Dog, DogsHero } from "@db/schema";
+import { Animal, Product, SiteContent, CarouselItem, Dog, DogsHero, Litter } from "@db/schema";
 import AnimalCard from "@/components/cards/animal-card";
 import ProductCard from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,9 @@ import DogForm from "@/components/forms/dog-form";
 import { formatAge } from "@/lib/date-utils";
 import DogCard from "@/components/cards/dog-card"; // Import the DogCard component
 import LitterForm from "@/components/forms/litter-form"; // Import LitterForm
+import { format } from 'date-fns'; // Import for date formatting
+import { Switch } from "@/components/ui/switch"; // Import Switch component
+
 
 interface ContentField {
   key: string;
@@ -31,6 +34,8 @@ export default function Admin() {
   const [showLitterForm, setShowLitterForm] = useState(false); // Add state for LitterForm
   const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | Dog | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [editLitter, setEditLitter] = useState<Litter | null>(null); // Add state for editing litters
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -56,6 +61,10 @@ export default function Admin() {
 
   const { data: dogs } = useQuery<Dog[]>({
     queryKey: ["/api/dogs"],
+  });
+
+  const { data: litters } = useQuery<(Litter & { mother: Dog & { media?: any[] }, father: Dog & { media?: any[] } })[]>({ // Fetch litter data
+    queryKey: ["/api/litters"],
   });
 
   const updateSiteContent = useMutation({
@@ -371,6 +380,8 @@ export default function Admin() {
             open={showLitterForm}
             onOpenChange={setShowLitterForm}
             dogs={dogs}
+            editLitter={editLitter}
+            onEditLitterChange={setEditLitter}
           />
 
           {/* Females Section */}
@@ -495,6 +506,125 @@ export default function Admin() {
               </div>
             </div>
           )}
+
+          {/* Upcoming Litters Section */}
+          <div className="mt-12">
+            <h2 className="text-3xl font-bold mb-6 text-stone-800">Upcoming Litters</h2>
+            {litters?.length === 0 ? (
+              <p className="text-muted-foreground">No upcoming litters</p>
+            ) : (
+              <div className="space-y-6">
+                {litters?.map((litter) => (
+                  <Card key={litter.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold">Expected Litter</h3>
+                          <p className="text-muted-foreground">Due Date: {format(new Date(litter.dueDate), 'MMMM d, yyyy')}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditLitter(litter);
+                              setShowLitterForm(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              if (!confirm("Are you sure you want to delete this litter?")) return;
+                              const res = await fetch(`/api/litters/${litter.id}`, {
+                                method: "DELETE",
+                              });
+                              if (res.ok) {
+                                queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
+                                toast({
+                                  title: "Success",
+                                  description: "Litter deleted successfully",
+                                });
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Parents */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+                              {litter.mother?.media?.[0] ? (
+                                <img
+                                  src={litter.mother.media[0].url}
+                                  alt={litter.mother.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="text-pink-500">♀</span>
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-semibold">Mother</p>
+                              <p>{litter.mother?.name}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+                              {litter.father?.media?.[0] ? (
+                                <img
+                                  src={litter.father.media[0].url}
+                                  alt={litter.father.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="text-blue-500">♂</span>
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-semibold">Father</p>
+                              <p>{litter.father?.name}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Visibility Toggle */}
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={litter.isVisible}
+                            onCheckedChange={async (checked) => {
+                              const res = await fetch(`/api/litters/${litter.id}`, {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ isVisible: checked }),
+                              });
+                              if (res.ok) {
+                                queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
+                                toast({
+                                  title: "Success",
+                                  description: "Litter visibility updated",
+                                });
+                              }
+                            }}
+                          />
+                          <Label>Show announcement banner</Label>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="animals">
