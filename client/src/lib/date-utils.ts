@@ -1,4 +1,25 @@
-import { differenceInDays, differenceInMonths, differenceInYears } from "date-fns";
+import { differenceInDays, differenceInMonths, differenceInYears, format } from "date-fns";
+
+// Format date for display in a consistent format across the application
+export function formatDisplayDate(date: Date): string {
+  return format(date, 'MMMM d, yyyy');
+}
+
+// Format date for form inputs
+export function formatInputDate(date: Date): string {
+  return format(date, 'yyyy-MM-dd');
+}
+
+// Format date for API/Database (UTC noon to prevent timezone issues)
+export function formatApiDate(date: Date): string {
+  const utcDate = new Date(Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    12, 0, 0
+  ));
+  return utcDate.toISOString();
+}
 
 export function formatAge(birthDate: Date): string {
   const today = new Date();

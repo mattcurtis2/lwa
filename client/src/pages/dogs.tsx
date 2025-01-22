@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil } from "lucide-react";
 import { useLocation } from "wouter";
+import { formatDisplayDate } from "@/lib/date-utils";
 
 export default function Dogs() {
   const [_, navigate] = useLocation();
@@ -195,7 +196,6 @@ export default function Dogs() {
         </div>
       </div>
 
-      {/* Rest of the component remains unchanged */}
       {visibleLitter && motherDog && fatherDog && (
         <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
           <div className="container mx-auto px-4 py-12">
@@ -207,7 +207,7 @@ export default function Dogs() {
                 New Litter Coming Soon!
               </h2>
               <p className="text-amber-800 mt-2">
-                Expected due date: <span className="font-semibold">{format(new Date(visibleLitter.dueDate), 'MMMM d, yyyy')}</span>
+                Expected due date: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
               </p>
 
               <div className="mt-8 w-full max-w-4xl">

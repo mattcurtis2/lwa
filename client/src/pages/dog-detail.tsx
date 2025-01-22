@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Dog, DogMedia } from "@db/schema";
 import { useLocation } from "wouter";
-import { format } from "date-fns";
 import { formatAge } from "@/lib/date-utils";
+import { formatDisplayDate } from "@/lib/date-utils"; // Added import
 import {
   Card,
   CardContent,
@@ -119,35 +119,35 @@ export default function DogDetail() {
     <span className="text-pink-500">♀</span>
   );
 
-  const BasicInfoSection = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Basic Information</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="font-semibold mb-2">Age</h3>
-            <p>{formatAge(new Date(dog.birthDate))}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2">Birth Date</h3>
-            <p>{format(new Date(dog.birthDate), 'MMMM d, yyyy')}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2">Breed</h3>
-            <p>Colorado Mountain Dog</p>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-2">Gender</h3>
-            <p className="flex items-center gap-1">
-              {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-            </p>
-          </div>
+const BasicInfoSection = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Basic Information</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="font-semibold mb-2">Age</h3>
+          <p>{formatAge(new Date(dog.birthDate))}</p>
         </div>
-      </CardContent>
-    </Card>
-  );
+        <div>
+          <h3 className="font-semibold mb-2">Birth Date</h3>
+          <p>{formatDisplayDate(new Date(dog.birthDate))}</p>
+        </div>
+        <div>
+          <h3 className="font-semibold mb-2">Breed</h3>
+          <p>Colorado Mountain Dog</p>
+        </div>
+        <div>
+          <h3 className="font-semibold mb-2">Gender</h3>
+          <p className="flex items-center gap-1">
+            {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+          </p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
   const StorySection = () => (
     <Card>
