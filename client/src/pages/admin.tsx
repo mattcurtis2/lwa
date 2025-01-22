@@ -172,15 +172,15 @@ export default function Admin() {
 
   const updateContactInfo = useMutation({
     mutationFn: async (info: Partial<ContactInfo>) => {
-      // Ensure required fields are present
-      if (!info.email || !info.phone) {
-        throw new Error("Email and phone are required");
-      }
-
       const res = await fetch("/api/contact-info", {
-        method: contactInfo ? "PUT" : "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(info),
+        body: JSON.stringify({
+          email: info.email?.trim(),
+          phone: info.phone?.trim(),
+          facebook: info.facebook?.trim() || null,
+          instagram: info.instagram?.trim() || null
+        }),
       });
 
       const data = await res.json();
@@ -197,6 +197,7 @@ export default function Admin() {
       });
     },
     onError: (error: Error) => {
+      console.error('Contact info update error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -224,6 +225,20 @@ export default function Admin() {
 
   const handleSaveChanges = async () => {
     try {
+      // Save contact info changes if there are any differences
+      const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
+      if (hasContactChanges) {
+        if (!pendingContactInfo.email?.trim() || !pendingContactInfo.phone?.trim()) {
+          toast({
+            title: "Error",
+            description: "Email and phone are required fields",
+            variant: "destructive",
+          });
+          return;
+        }
+        await updateContactInfo.mutateAsync(pendingContactInfo);
+      }
+
       // Save site content changes
       const contentUpdates = Object.entries(pendingContent)
         .filter(([key, value]) => {
@@ -246,11 +261,6 @@ export default function Admin() {
         await updatePrinciples.mutateAsync(pendingPrinciples);
       }
 
-      // Save contact info changes if there are any differences
-      const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
-      if (hasContactChanges) {
-        await updateContactInfo.mutateAsync(pendingContactInfo);
-      }
 
       setHasUnsavedChanges(false);
     } catch (error) {
@@ -989,7 +999,7 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
-              <CardDescription>Manage contact details displayed on the website</CardDescription>
+              <CardDescription>Manage contact details and social media links</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -997,9 +1007,9 @@ export default function Admin() {
                 <Input
                   id="email"
                   type="email"
-                  value={pendingContactInfo.email ?? ""}
-                  onChange={(e) => handleContactChange("email", e.target.value)}
-                  placeholder="contact@example.com"
+                  value={pendingContactInfo.email ?? ''}
+                  onChange={(e) => handleContactChange('email', e.target.value)}
+                  placeholder="contact@littlewayacres.com"
                 />
               </div>
 
@@ -1008,9 +1018,9 @@ export default function Admin() {
                 <Input
                   id="phone"
                   type="tel"
-                  value={pendingContactInfo.phone ?? ""}
-                  onChange={(e) => handleContactChange("phone", e.target.value)}
-                  placeholder="(123) 456-7890"
+                  value={pendingContactInfo.phone ?? ''}
+                  onChange={(e) => handleContactChange('phone', e.target.value)}
+                  placeholder="(555) 123-4567"
                 />
               </div>
 
@@ -1019,9 +1029,9 @@ export default function Admin() {
                 <Input
                   id="facebook"
                   type="url"
-                  value={pendingContactInfo.facebook ?? ""}
-                  onChange={(e) => handleContactChange("facebook", e.target.value)}
-                  placeholder="https://facebook.com/your-page"
+                  value={pendingContactInfo.facebook ?? ''}
+                  onChange={(e) => handleContactChange('facebook', e.target.value)}
+                  placeholder="https://facebook.com/littlewayacres"
                 />
               </div>
 
@@ -1030,14 +1040,15 @@ export default function Admin() {
                 <Input
                   id="instagram"
                   type="url"
-                  value={pendingContactInfo.instagram ?? ""}
-                  onChange={(e) => handleContactChange("instagram", e.target.value)}
-                  placeholder="https://instagram.com/your-profile"
+                  value={pendingContactInfo.instagram ?? ''}
+                  onChange={(e) => handleContactChange('instagram', e.target.value)}
+                  placeholder="https://instagram.com/littlewayacres"
                 />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
+
       </Tabs>
 
       {hasUnsavedChanges && (
