@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Dog, Litter } from "@db/schema";
+import { 
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface LitterFormProps {
   open: boolean;
@@ -20,7 +25,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [formData, setFormData] = useState<Partial<Litter>>({
     dueDate: litter?.dueDate || "",
     motherId: litter?.motherId || 0,
@@ -65,12 +70,12 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{litter ? 'Edit' : 'Add'} Litter</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{litter ? 'Edit' : 'Add'} Litter</SheetTitle>
+        </SheetHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
           <div className="space-y-2">
             <Label htmlFor="dueDate">Due Date</Label>
             <Input
@@ -123,13 +128,13 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
           <div className="flex items-center space-x-2">
             <Switch
               id="isVisible"
-              checked={formData.isVisible}
+              checked={formData.isVisible ?? false}
               onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isVisible: checked }))}
             />
             <Label htmlFor="isVisible">Show announcement banner</Label>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 mt-8">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
@@ -138,7 +143,7 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
