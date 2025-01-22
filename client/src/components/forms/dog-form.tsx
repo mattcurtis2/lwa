@@ -646,9 +646,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormItem>
                       <FormLabel>Mother</FormLabel>
                       <Select
-                        value={field.value?.toString()}
+                        value={field.value?.toString() || "none"}
                         onValueChange={(value) => {
-                          field.onChange(value ? parseInt(value) : null);
+                          field.onChange(value === "none" ? null : parseInt(value));
                         }}
                       >
                         <FormControl>
@@ -657,7 +657,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {availableMothers.map((mother) => (
                             <SelectItem key={mother.id} value={mother.id.toString()}>
                               {mother.name}
@@ -677,9 +677,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormItem>
                       <FormLabel>Father</FormLabel>
                       <Select
-                        value={field.value?.toString()}
+                        value={field.value?.toString() || "none"}
                         onValueChange={(value) => {
-                          field.onChange(value ? parseInt(value) : null);
+                          field.onChange(value === "none" ? null : parseInt(value));
                         }}
                       >
                         <FormControl>
@@ -688,7 +688,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {availableFathers.map((father) => (
                             <SelectItem key={father.id} value={father.id.toString()}>
                               {father.name}
@@ -708,9 +708,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormItem>
                       <FormLabel>Litter</FormLabel>
                       <Select
-                        value={field.value?.toString()}
+                        value={field.value?.toString() || "none"}
                         onValueChange={(value) => {
-                          field.onChange(value ? parseInt(value) : null);
+                          field.onChange(value === "none" ? null : parseInt(value));
                         }}
                       >
                         <FormControl>
@@ -719,7 +719,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {availableLitters?.map((litter) => (
                             <SelectItem key={litter.id} value={litter.id.toString()}>
                               {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.motherId)?.name} x {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.fatherId)?.name} ({formatDisplayDate(new Date(litter.dueDate))})
