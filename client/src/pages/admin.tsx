@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,10 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import CarouselForm from "@/components/forms/carousel-form";
 import DogForm from "@/components/forms/dog-form";
-import { formatAge, formatDisplayDate } from "@/lib/date-utils";
 import DogCard from "@/components/cards/dog-card";
 import LitterForm from "@/components/forms/litter-form";
-import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 
 interface ContentField {
@@ -37,50 +34,41 @@ export default function Admin() {
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
 
-  // Update queries to use object syntax with proper types
-  const { data: siteContentResponse } = useQuery<{ data: SiteContent[] }>({
+  // Update queries to use direct array responses
+  const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
     queryFn: () => fetch("/api/site-content").then(res => res.json())
   });
 
-  const { data: carouselItemsResponse } = useQuery<{ data: CarouselItem[] }>({
+  const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
     queryFn: () => fetch("/api/carousel").then(res => res.json())
   });
 
-  const { data: dogsResponse } = useQuery<{ data: Dog[] }>({
+  const { data: dogs = [] } = useQuery<Dog[]>({
     queryKey: ["/api/dogs"],
     queryFn: () => fetch("/api/dogs").then(res => res.json())
   });
 
-  const { data: dogsHeroResponse } = useQuery<{ data: DogsHero[] }>({
+  const { data: dogsHero = [] } = useQuery<DogsHero[]>({
     queryKey: ["/api/dogs-hero"],
     queryFn: () => fetch("/api/dogs-hero").then(res => res.json())
   });
 
-  const { data: littersResponse } = useQuery<{ data: Litter[] }>({
+  const { data: litters = [] } = useQuery<Litter[]>({
     queryKey: ["/api/litters"],
     queryFn: () => fetch("/api/litters").then(res => res.json())
   });
 
-  const { data: animalsResponse } = useQuery<{ data: Animal[] }>({
+  const { data: animals = [] } = useQuery<Animal[]>({
     queryKey: ["/api/animals"],
     queryFn: () => fetch("/api/animals").then(res => res.json())
   });
 
-  const { data: productsResponse } = useQuery<{ data: Product[] }>({
+  const { data: products = [] } = useQuery<Product[]>({
     queryKey: ["/api/products"],
     queryFn: () => fetch("/api/products").then(res => res.json())
   });
-
-  // Extract the actual data from the response
-  const siteContent = siteContentResponse?.data || [];
-  const carouselItems = carouselItemsResponse?.data || [];
-  const dogs = dogsResponse?.data || [];
-  const dogsHero = dogsHeroResponse?.data || [];
-  const litters = littersResponse?.data || [];
-  const animals = animalsResponse?.data || [];
-  const products = productsResponse?.data || [];
 
   const contentFields: ContentField[] = [
     // Hero Section
@@ -134,25 +122,6 @@ export default function Admin() {
     },
   });
 
-  const updateDogsHero = useMutation({
-    mutationFn: async (data: Partial<DogsHero>) => {
-      const res = await fetch("/api/dogs-hero", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to update hero");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
-      toast({
-        title: "Success",
-        description: "Hero section updated successfully",
-      });
-    },
-  });
-
   const handleContentChange = (key: string, value: string) => {
     setPendingContent((prev) => ({ ...prev, [key]: value }));
     updateSiteContent.mutate({ key, value });
@@ -193,7 +162,6 @@ export default function Admin() {
                         <FileUpload
                           value={pendingContent[field.key] ?? field.value}
                           onChange={(value) => handleContentChange(field.key, value)}
-                          cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
                           onFileSelect={async (file) => {
                             const formData = new FormData();
                             formData.append("file", file);
@@ -848,7 +816,7 @@ export default function Admin() {
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
+                                    <div className="w-full h-full flexitems-center justify-center">
                                       <span className="text-pink-500">♀</span>
                                     </div>
                                   )}
