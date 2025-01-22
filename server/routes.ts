@@ -420,9 +420,22 @@ export function registerRoutes(app: Express): Server {
 
     try {
       const dog = await db.transaction(async (tx) => {
-        // Update dog data
+        // Get existing dog to preserve order
+        const existingDog = await tx.query.dogs.findFirst({
+          where: eq(dogs.id, dogId),
+        });
+
+        if (!existingDog) {
+          throw new Error("Dog not found");
+        }
+
+        // Update dog data, preserving the existing order
         await tx.update(dogs)
-          .set(dogData)
+          .set({
+            ...dogData,
+            order: existingDog.order, // Preserve existing order
+            updatedAt: new Date()
+          })
           .where(eq(dogs.id, dogId));
 
         // Delete existing media
