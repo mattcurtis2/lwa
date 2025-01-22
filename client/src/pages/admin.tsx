@@ -122,35 +122,35 @@ export default function Admin() {
 
   const contentFields: ContentField[] = [
     // Hero Section
-    { key: "hero_title", label: "Hero Title", value: siteContent?.data.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
-    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.data.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
-    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.data.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
-    { key: "hero_background", label: "Hero Background", value: siteContent?.data.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+    { key: "hero_title", label: "Hero Title", value: siteContent?.data?.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.data?.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
+    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.data?.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_background", label: "Hero Background", value: siteContent?.data?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     // About Section
-    { key: "about_text", label: "About Text", value: siteContent?.data.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_text", label: "Mission Text", value: siteContent?.data.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    { key: "about_text", label: "About Text", value: siteContent?.data?.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "Mission Text", value: siteContent?.data?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
     // Animals Card
-    { key: "animals_title", label: "Title", value: siteContent?.data.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_description", label: "Description", value: siteContent?.data.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Image", value: siteContent?.data.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
-    { key: "animals_link", label: "Link", value: siteContent?.data.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+    { key: "animals_title", label: "Title", value: siteContent?.data?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_description", label: "Description", value: siteContent?.data?.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
+    { key: "animals_image", label: "Image", value: siteContent?.data?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
+    { key: "animals_link", label: "Link", value: siteContent?.data?.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
 
     // Goats Card
-    { key: "goats_title", label: "Title", value: siteContent?.data.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
-    { key: "goats_description", label: "Description", value: siteContent?.data.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
-    { key: "goats_image", label: "Image", value: siteContent?.data.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
-    { key: "goats_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
-    { key: "goats_link", label: "Link", value: siteContent?.data.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+    { key: "goats_title", label: "Title", value: siteContent?.data?.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
+    { key: "goats_description", label: "Description", value: siteContent?.data?.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
+    { key: "goats_image", label: "Image", value: siteContent?.data?.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
+    { key: "goats_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
+    { key: "goats_link", label: "Link", value: siteContent?.data?.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
 
     // Products Card
-    { key: "products_title", label: "Title", value: siteContent?.data.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_description", label: "Description", value: siteContent?.data.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Image", value: siteContent?.data.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
-    { key: "products_link", label: "Link", value: siteContent?.data.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+    { key: "products_title", label: "Title", value: siteContent?.data?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_description", label: "Description", value: siteContent?.data?.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
+    { key: "products_image", label: "Image", value: siteContent?.data?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
+    { key: "products_link", label: "Link", value: siteContent?.data?.find(c => c.key === "products_link")?.value ?? "", type: "text" },
   ];
 
   return (
