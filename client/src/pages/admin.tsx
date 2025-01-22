@@ -258,6 +258,32 @@ export default function Admin() {
     />
   );
 
+  const contentFields: ContentField[] = [
+    // Hero Section
+    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
+    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
+    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+
+    // About Section - Updated to match the landing page
+    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
+    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+
+    // Feature Cards Section
+    // Colorado Mountain Dogs Card
+    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
+
+    // Nigerian Dwarf Goats Card
+    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
+    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
+
+    // Products Card
+    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
+    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent.find(c => c.key === "market_title")?.value ?? "", type: "text" },
+    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
+  ];
+
   if (isLoadingSiteContent || isLoadingPrinciples) {
     return (
       <div className="container mx-auto py-8">
