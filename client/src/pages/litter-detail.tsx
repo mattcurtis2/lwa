@@ -1,12 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
-import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import DogProfile from "@/components/cards/dog-profile";
-import { useState } from "react";
-import LitterForm from "@/components/forms/litter-form";
-import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface LitterWithRelations extends Litter {
@@ -17,7 +13,6 @@ interface LitterWithRelations extends Litter {
 
 export default function LitterDetail() {
   const { id } = useParams();
-  const [isEditingLitter, setIsEditingLitter] = useState(false);
 
   const { data: litter, isLoading: isLoadingLitter } = useQuery<LitterWithRelations>({
     queryKey: [`/api/litters/${id}`],
@@ -69,7 +64,7 @@ export default function LitterDetail() {
               : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
           </h1>
 
-          {puppyCount > 0 ? (
+          {puppyCount > 0 && (
             <div className="space-y-2">
               <p className="text-amber-800 text-lg">
                 {puppyCount} {puppyCount === 1 ? 'puppy' : 'puppies'}
@@ -85,41 +80,37 @@ export default function LitterDetail() {
                 </div>
               </div>
             </div>
-          ) : !isPastDueDate && (
-            <p className="text-amber-800 text-lg mb-6">
-              We're excited to announce this upcoming litter from our breeding program.
-              Please contact us for more information about reserving a puppy.
-            </p>
           )}
 
           {!isPastDueDate && (
-            <Button 
-              onClick={() => setIsEditingLitter(true)}
-              className="bg-amber-600 hover:bg-amber-700 mt-6"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Puppies
-            </Button>
+            <p className="text-amber-800 text-lg mt-4">
+              We're excited to announce this upcoming litter from our breeding program.
+              Please contact us for more information about reserving a puppy.
+            </p>
           )}
         </div>
       </div>
 
       {/* Parents Section */}
-      <div>
+      <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-stone-800 text-center">Parents</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col">
             <h3 className="text-2xl font-bold mb-6 text-stone-800 flex items-center gap-2">
-              Mother <span className="text-pink-500">♀</span>
+              <span className="text-pink-500">♀</span> Mother
             </h3>
-            <DogProfile dog={litter.mother} />
+            <div className="flex-grow">
+              <DogProfile dog={litter.mother} />
+            </div>
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <h3 className="text-2xl font-bold mb-6 text-stone-800 flex items-center gap-2">
-              Father <span className="text-blue-500">♂</span>
+              <span className="text-blue-500">♂</span> Father
             </h3>
-            <DogProfile dog={litter.father} />
+            <div className="flex-grow">
+              <DogProfile dog={litter.father} />
+            </div>
           </div>
         </div>
       </div>
@@ -137,13 +128,6 @@ export default function LitterDetail() {
           </div>
         </div>
       )}
-
-      <LitterForm
-        open={isEditingLitter}
-        onOpenChange={setIsEditingLitter}
-        litter={litter}
-        mode="addPuppies"
-      />
     </div>
   );
 }
