@@ -200,7 +200,7 @@ export default function Admin() {
       console.error('Contact info update error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: "Could not update contact information. All fields are optional - try again or contact support if the issue persists.",
         variant: "destructive",
       });
     }
@@ -855,7 +855,7 @@ export default function Admin() {
                                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
                                   {litter.mother?.media?.[0] ? (
                                     <img
-                                                                            src={litter.mother.media[0].url}
+                                      src={litter.mother.media[0].url}
                                       alt={litter.mother.name}
                                       className="w-full h-full object-cover"
                                     />

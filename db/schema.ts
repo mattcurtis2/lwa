@@ -220,8 +220,8 @@ export type NewPrinciple = typeof principles.$inferInsert;
 
 export const contactInfo = pgTable("contact_info", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
+  email: text("email"),
+  phone: text("phone"),
   facebook: text("facebook"),
   instagram: text("instagram"),
   createdAt: timestamp("created_at").defaultNow(),
