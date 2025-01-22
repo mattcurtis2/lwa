@@ -413,7 +413,22 @@ export function registerRoutes(app: Express): Server {
         documents: true,
       },
     });
-    res.json(allDogs);
+
+    // Set first media image as profile picture if none exists
+    const processedDogs = allDogs.map(dog => {
+      if (!dog.profileImageUrl && dog.media && dog.media.length > 0) {
+        const firstImage = dog.media.find(m => m.type === 'image');
+        if (firstImage) {
+          return {
+            ...dog,
+            profileImageUrl: firstImage.url
+          };
+        }
+      }
+      return dog;
+    });
+
+    res.json(processedDogs);
   });
 
   app.post("/api/dogs", async (req, res) => {
