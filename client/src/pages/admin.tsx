@@ -172,13 +172,22 @@ export default function Admin() {
 
   const updateContactInfo = useMutation({
     mutationFn: async (info: Partial<ContactInfo>) => {
+      // Ensure required fields are present
+      if (!info.email || !info.phone) {
+        throw new Error("Email and phone are required");
+      }
+
       const res = await fetch("/api/contact-info", {
         method: contactInfo ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(info),
       });
-      if (!res.ok) throw new Error("Failed to update contact information");
-      return res.json();
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update contact information");
+      }
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contact-info"] });
@@ -187,6 +196,13 @@ export default function Admin() {
         description: "Contact information updated successfully",
       });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   });
 
   const handleContentChange = (key: string, value: string) => {
@@ -207,35 +223,44 @@ export default function Admin() {
   };
 
   const handleSaveChanges = async () => {
-    // Save site content changes
-    const contentUpdates = Object.entries(pendingContent)
-      .filter(([key, value]) => {
-        const currentContent = siteContent?.find(c => c.key === key);
-        return currentContent && currentContent.value !== value;
-      })
-      .map(([key, value]) => ({ key, value }));
+    try {
+      // Save site content changes
+      const contentUpdates = Object.entries(pendingContent)
+        .filter(([key, value]) => {
+          const currentContent = siteContent?.find(c => c.key === key);
+          return currentContent && currentContent.value !== value;
+        })
+        .map(([key, value]) => ({ key, value }));
 
-    if (contentUpdates.length > 0) {
-      await updateSiteContent.mutateAsync(contentUpdates);
+      if (contentUpdates.length > 0) {
+        await updateSiteContent.mutateAsync(contentUpdates);
+      }
+
+      // Save principles changes if there are any differences
+      const hasPrincipleChanges = pendingPrinciples.some((pendingPrinciple, index) => {
+        const originalPrinciple = principlesData[index];
+        return JSON.stringify(pendingPrinciple) !== JSON.stringify(originalPrinciple);
+      });
+
+      if (hasPrincipleChanges) {
+        await updatePrinciples.mutateAsync(pendingPrinciples);
+      }
+
+      // Save contact info changes if there are any differences
+      const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
+      if (hasContactChanges) {
+        await updateContactInfo.mutateAsync(pendingContactInfo);
+      }
+
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save some changes. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    // Save principles changes if there are any differences
-    const hasPrincipleChanges = pendingPrinciples.some((pendingPrinciple, index) => {
-      const originalPrinciple = principlesData[index];
-      return JSON.stringify(pendingPrinciple) !== JSON.stringify(originalPrinciple);
-    });
-
-    if (hasPrincipleChanges) {
-      await updatePrinciples.mutateAsync(pendingPrinciples);
-    }
-
-    // Save contact info changes if there are any differences
-    const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
-    if (hasContactChanges) {
-      await updateContactInfo.mutateAsync(pendingContactInfo);
-    }
-
-    setHasUnsavedChanges(false);
   };
 
   const handlePrincipleReorder = (result: DropResult) => {
@@ -347,12 +372,6 @@ export default function Admin() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Content Management</h1>
-        {hasUnsavedChanges && (
-          <Button onClick={handleSaveChanges} className="gap-2">
-            <Save className="h-4 w-4" />
-            Save Changes
-          </Button>
-        )}
       </div>
 
       <Tabs defaultValue="home">
@@ -1020,6 +1039,20 @@ export default function Admin() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {hasUnsavedChanges && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            size="lg"
+            onClick={handleSaveChanges}
+            disabled={updateSiteContent.isPending || updatePrinciples.isPending || updateContactInfo.isPending}
+            className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <Save className="w-5 h-5 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
