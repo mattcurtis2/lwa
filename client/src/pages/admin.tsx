@@ -27,7 +27,7 @@ interface ContentField {
   value: string;
 }
 
-function Admin() {
+export default function Admin() {
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
   const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | Dog | null>(null);
@@ -837,5 +837,3 @@ return (
   </div>
 );
 }
-
-export default Admin;
