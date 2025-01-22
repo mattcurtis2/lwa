@@ -797,130 +797,144 @@ export default function Admin() {
 
               <LitterForm
                 open={showLitterForm}
-                onOpenChange={setShowLitterForm}
+                onOpenChange={(open) => {
+                  setShowLitterForm(open);
+                  if (!open) setEditLitter(null);
+                }}
+                litter={editLitter}
                 dogs={dogs}
-                editLitter={editLitter}
-                onEditLitterChange={setEditLitter}
               />
 
-              {/* Upcoming Litters List */}
               <div className="space-y-6">
-                {litters.length === 0 ? (
-                  <p className="text-muted-foreground">No upcoming litters</p>
-                ) : (
-                  <div className="space-y-6">
-                    {litters.map((litter) => (
-                      <Card key={litter.id}>
-                        <CardContent className="pt-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h3 className="text-xl font-bold">Expected Litter</h3>
-                              <p className="text-muted-foreground">Due Date: {formatDisplayDate(new Date(litter.dueDate))}</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setEditLitter(litter);
-                                  setShowLitterForm(true);
-                                }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={async () => {
-                                  if (!confirm("Are you sure you want to delete this litter?")) return;
-                                  const res = await fetch(`/api/litters/${litter.id}`, {
-                                    method: "DELETE",
-                                  });
-                                  if (res.ok) {
-                                    queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
-                                    toast({
-                                      title: "Success",
-                                      description: "Litter deleted successfully",
-                                    });
-                                  }
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </div>
+                {litters.map((litter) => {
+                  const mother = dogs.find(d => d.id === litter.motherId);
+                  const father = dogs.find(d => d.id === litter.fatherId);
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Parents */}
-                            <div className="space-y-4">
+                  return (
+                    <Card key={litter.id} className="relative">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-lg font-semibold">
+                            Expected Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={litter.isVisible ?? false}
+                              onCheckedChange={async (checked) => {
+                                const res = await fetch(`/api/litters/${litter.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ isVisible: checked }),
+                                });
+
+                                if (res.ok) {
+                                  queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+                                  toast({
+                                    title: "Success",
+                                    description: `Litter ${checked ? 'is now visible' : 'is now hidden'}`,
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm text-gray-500">
+                              {litter.isVisible ? 'Visible' : 'Hidden'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Mother */}
+                          <div>
+                            <h4 className="text-lg font-semibold mb-4">Mother</h4>
+                            {mother && (
                               <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-                                  {litter.mother?.media?.[0] ? (
-                                    <img
-                                      src={litter.mother.media[0].url}
-                                      alt={litter.mother.name}
+                                <div                                  className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                  {mother.media && mother.media.length > 0 ? (
+                                    <img 
+                                      src={mother.media[0].url} 
+                                      alt={mother.name}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <span className="text-pink-500">♀</span>
-                                    </div>
+                                    <span className="text-2xl">♀</span>
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-semibold">Mother</p>
-                                  <p>{litter.mother?.name ?? ""}</p>                                </div>
+                                  <p className="font-medium">{mother.name}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {mother.registrationName || 'No registration name'}
+                                  </p>
+                                </div>
                               </div>
+                            )}
+                          </div>
 
+                          {/* Father */}
+                          <div>
+                            <h4 className="text-lg font-semibold mb-4">Father</h4>
+                            {father && (
                               <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-                                  {litter.father?.media?.[0] ? (
-                                    <img
-                                      src={litter.father.media[0].url}
-                                      alt={litter.father.name}
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                  {father.media && father.media.length > 0 ? (
+                                    <img 
+                                      src={father.media[0].url} 
+                                      alt={father.name}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <span className="text-blue-500">♂</span>
-                                    </div>
+                                    <span className="text-2xl">♂</span>
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-semibold">Father</p>
-                                  <p>{litter.father?.name ?? ""}</p>
+                                  <p className="font-medium">{father.name}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {father.registrationName || 'No registration name'}
+                                  </p>
                                 </div>
                               </div>
-                            </div>
-
-                            {/* Visibility Toggle */}
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                checked={litter.isVisible}
-                                onCheckedChange={async (checked) => {
-                                  const res = await fetch(`/api/litters/${litter.id}`, {
-                                    method: "PUT",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ isVisible: checked }),
-                                  });
-                                  if (res.ok) {
-                                    queryClient.invalidateQueries({ queryKey: ["/api/litters"]});
-                                    toast({
-                                      title: "Success",
-                                      description: "Litter visibility updated",
-                                    });
-                                  }
-                                }}
-                              />
-                              <Label>Show announcement banner</Label>
-                            </div>
+                            )}
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                        </div>
+
+                        <div className="flex justify-end gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditLitter(litter);
+                              setShowLitterForm(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              if (!confirm('Are you sure you want to delete this litter?')) return;
+
+                              const res = await fetch(`/api/litters/${litter.id}`, {
+                                method: 'DELETE',
+                              });
+
+                              if (res.ok) {
+                                queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+                                toast({
+                                  title: "Success",
+                                  description: "Litter deleted successfully",
+                                });
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
+
         </TabsContent>
 
         <TabsContent value="animals">
