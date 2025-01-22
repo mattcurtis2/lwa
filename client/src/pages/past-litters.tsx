@@ -4,13 +4,16 @@ import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 
+interface PastLitter extends Litter {
+  mother: Dog & { media?: DogMedia[] };
+  father: Dog & { media?: DogMedia[] };
+  puppies: (Dog & { media?: DogMedia[] })[];
+}
+
 export default function PastLitters() {
   const [_, navigate] = useLocation();
 
-  const { data: litters, isLoading } = useQuery<(Litter & {
-    mother: Dog & { media?: DogMedia[] },
-    father: Dog & { media?: DogMedia[] }
-  })[]>({
+  const { data: litters, isLoading } = useQuery<PastLitter[]>({
     queryKey: ["/api/litters/past"],
   });
 
@@ -73,10 +76,10 @@ export default function PastLitters() {
               <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                 <div>
                   <div className="bg-stone-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-stone-800 text-sm font-semibold mb-3 inline-block">
-                    Born {formatDisplayDate(new Date(litter.dueDate))}
+                    Born {litter.puppies.length > 0 ? formatDisplayDate(new Date(litter.puppies[0].birthDate)) : "N/A"}
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    Click to view details and pictures of this past litter
+                    {litter.puppies.length} {litter.puppies.length === 1 ? 'puppy' : 'puppies'} from this litter
                   </p>
                 </div>
 

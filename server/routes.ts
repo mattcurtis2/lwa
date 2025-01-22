@@ -744,11 +744,29 @@ export function registerRoutes(app: Express): Server {
         },
       });
 
-      // Filter for past litters (due date is in the past)
+      // Get all puppies for all litters
+      const puppiesByLitter = await Promise.all(
+        allLitters.map(async (litter) => {
+          const puppies = await db.query.dogs.findMany({
+            where: eq(dogs.litterId, litter.id),
+            with: {
+              media: {
+                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+              },
+            },
+          });
+          return { litterId: litter.id, puppies };
+        })
+      );
+
+      // Filter for past litters (has puppies with birth dates)
       const pastLitters = allLitters.filter(litter => {
-        const dueDate = new Date(litter.dueDate);
-        return dueDate < new Date();
-      });
+        const litterPuppies = puppiesByLitter.find(p => p.litterId === litter.id)?.puppies || [];
+        return litterPuppies.some(puppy => new Date(puppy.birthDate) < new Date());
+      }).map(litter => ({
+        ...litter,
+        puppies: puppiesByLitter.find(p => p.litterId === litter.id)?.puppies || [],
+      }));
 
       res.json(pastLitters);
     } catch (error) {
@@ -802,7 +820,7 @@ export function registerRoutes(app: Express): Server {
       res.json({ message: "Deleted successfully" });
     } catch (error) {
       console.error("Error deleting principle:", error);
-      res.status(500).json({ message: "Failed to delete principle" });
+      res.status(500).json({ message: "Failedto delete principle" });
     }
   });
 
