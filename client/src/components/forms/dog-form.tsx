@@ -178,7 +178,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         // Ensure date is in YYYY-MM-DD format without time component
         const formattedValues = {
           ...values,
-          birthDate: values.birthDate + 'T00:00:00.000Z',
+          birthDate: values.birthDate,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
