@@ -29,6 +29,7 @@ import { X, Upload, ImageIcon, FileText } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
+import ImageCropper from "@/components/ui/image-cropper";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -106,6 +107,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [pedigreeDocuments, setPedigreeDocuments] = useState<DocumentInput[]>([]);
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState<string>("");
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -385,12 +388,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       }
 
       const data = await res.json();
-      form.setValue("profileImageUrl", data.url);
-
-      toast({
-        title: "Success",
-        description: "Profile picture uploaded successfully",
-      });
+      setCropImageUrl(data.url);
+      setShowCropper(true);
     } catch (error) {
       toast({
         title: "Error",
@@ -399,6 +398,39 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       });
     } finally {
       setIsUploadingProfile(false);
+    }
+  };
+
+  const handleCroppedImage = async (croppedImageUrl: string) => {
+    try {
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'cropped-profile.jpg', { type: 'image/jpeg' });
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload cropped profile picture");
+      }
+
+      const data = await res.json();
+      form.setValue("profileImageUrl", data.url);
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile picture",
+        variant: "destructive",
+      });
     }
   };
 
@@ -444,11 +476,22 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <div className="flex items-center gap-4">
-                      <Avatar className="h-20 w-20">
+                      <Avatar className="h-20 w-20 relative group">
                         <AvatarImage src={field.value} alt="Profile picture" />
                         <AvatarFallback>
                           <ImageIcon className="h-10 w-10 text-muted-foreground" />
                         </AvatarFallback>
+                        {field.value && (
+                          <div 
+                            className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
+                            onClick={() => {
+                              setCropImageUrl(field.value);
+                              setShowCropper(true);
+                            }}
+                          >
+                            <Upload className="h-6 w-6 text-white" />
+                          </div>
+                        )}
                       </Avatar>
                       <Button
                         type="button"
@@ -472,7 +515,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       </Button>
                     </div>
                     <FormDescription>
-                      Upload a profile picture that will be used throughout the site
+                      Upload a profile picture that will be used throughout the site. 
+                      Hover over the image to re-crop it.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -883,6 +927,17 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           </div>
         </SheetContent>
       </Sheet>
+
+      <ImageCropper
+        imageUrl={cropImageUrl}
+        open={showCropper}
+        onOpenChange={setShowCropper}
+        onCropComplete={handleCroppedImage}
+        onSkip={() => {
+          form.setValue("profileImageUrl", cropImageUrl);
+          setShowCropper(false);
+        }}
+      />
     </>
   );
 }
