@@ -179,9 +179,17 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
+        // Log the date for debugging
+        console.log('Form birthDate:', values.birthDate);
+
+        // Ensure we have a valid date string
+        if (!values.birthDate) {
+          throw new Error("Birth date is required");
+        }
+
         const formattedValues = {
           ...values,
-          birthDate: new Date(values.birthDate).toISOString(),
+          birthDate: new Date(values.birthDate + 'T00:00:00Z').toISOString(),
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
@@ -196,6 +204,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           ]
         };
 
+        // Log the formatted date for debugging
+        console.log('Formatted birthDate:', formattedValues.birthDate);
+
         const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
           method: dog ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -203,7 +214,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         });
 
         if (!res.ok) {
-          throw new Error(await res.text());
+          const errorText = await res.text();
+          console.error('API Error:', errorText);
+          throw new Error(errorText);
         }
 
         return res.json();
