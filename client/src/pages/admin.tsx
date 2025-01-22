@@ -64,6 +64,18 @@ export default function Admin() {
     }
   });
 
+  const { data: dogsHero = [] } = useQuery<DogsHero[]>({
+    queryKey: ["/api/dogs-hero"],
+  });
+
+  const { data: dogs = [] } = useQuery<Dog[]>({
+    queryKey: ["/api/dogs"],
+  });
+
+  const { data: litters = [] } = useQuery<Litter[]>({
+    queryKey: ["/api/litters"],
+  });
+
   // Update site content mutation
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
