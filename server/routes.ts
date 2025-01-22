@@ -31,12 +31,12 @@ const upload = multer({
   fileFilter: (_req, file, cb) => {
     const allowedTypes = [
       // Images
-      'image/jpeg', 
-      'image/png', 
-      'image/gif', 
+      'image/jpeg',
+      'image/png',
+      'image/gif',
       'image/webp',
       // Videos
-      'video/mp4', 
+      'video/mp4',
       'video/quicktime',
       'video/x-msvideo',
       'video/x-ms-wmv',
@@ -388,9 +388,9 @@ export function registerRoutes(app: Express): Server {
       }
 
       const hero = await db.update(dogsHero)
-        .set({ 
+        .set({
           imageUrl,
-          updatedAt: new Date() 
+          updatedAt: new Date()
         })
         .where(eq(dogsHero.id, parseInt(req.params.id)))
         .returning();
@@ -700,7 +700,7 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/principles/:id/reorder", async (req, res) => {
     try {
       const principle = await db.update(principles)
-        .set({ 
+        .set({
           order: req.body.order,
           updatedAt: new Date()
         })
@@ -729,6 +729,12 @@ export function registerRoutes(app: Express): Server {
       // Delete existing contact info since we only want one record
       await db.delete(contactInfo);
 
+      // Validate required fields
+      const { email, phone } = req.body;
+      if (!email || !phone) {
+        return res.status(400).json({ message: "Email and phone are required fields" });
+      }
+
       const info = await db.insert(contactInfo)
         .values(req.body)
         .returning();
@@ -741,6 +747,12 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/contact-info", async (req, res) => {
     try {
+      // Validate required fields
+      const { email, phone } = req.body;
+      if (!email || !phone) {
+        return res.status(400).json({ message: "Email and phone are required fields" });
+      }
+
       const existingInfo = await db.query.contactInfo.findFirst();
 
       if (!existingInfo) {
