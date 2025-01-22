@@ -73,6 +73,7 @@ export default function Dogs() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Mother */}
                   <div className="flex flex-col items-center">
+                    {/* Using the mother's primary image from her dog card */}
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
                       {visibleLitter.mother.media && visibleLitter.mother.media.length > 0 ? (
                         <img
@@ -92,6 +93,7 @@ export default function Dogs() {
 
                   {/* Father */}
                   <div className="flex flex-col items-center">
+                    {/* Using the father's primary image from his dog card */}
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
                       {visibleLitter.father.media && visibleLitter.father.media.length > 0 ? (
                         <img
