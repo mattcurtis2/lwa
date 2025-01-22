@@ -61,18 +61,36 @@ export default function Principles() {
               }`}
             >
               <div className="w-full md:w-1/2">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-amber-600/20 group-hover:opacity-0 transition-opacity duration-500" />
                   <img 
                     src={principle.imageUrl} 
                     alt={principle.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <motion.div 
+                    className="absolute bottom-0 left-0 w-full h-2 bg-amber-500"
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                  />
                 </div>
               </div>
               <div className="w-full md:w-1/2 space-y-4">
-                <h3 className="text-3xl font-bold text-stone-800">{principle.title}</h3>
-                <p className="text-lg text-stone-600 leading-relaxed">{principle.description}</p>
+                <div className="relative">
+                  <motion.div
+                    className="absolute -left-4 top-1/2 w-2 h-2 bg-amber-500 rounded-full"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                  />
+                  <h3 className="text-3xl font-bold text-stone-800 pl-4">{principle.title}</h3>
+                </div>
+                <p className="text-lg text-stone-600 leading-relaxed pl-4 border-l-2 border-amber-200">
+                  {principle.description}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -110,18 +128,36 @@ export default function Principles() {
                   }`}
                 >
                   <div className="w-full md:w-1/2">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-amber-600/20 group-hover:opacity-0 transition-opacity duration-500" />
                       <img 
                         src={principle.imageUrl}
                         alt={principle.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <motion.div 
+                        className="absolute bottom-0 left-0 w-full h-2 bg-amber-500"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                      />
                     </div>
                   </div>
                   <div className="w-full md:w-1/2 space-y-4">
-                    <h3 className="text-3xl font-bold text-stone-800">{principle.title}</h3>
-                    <p className="text-lg text-stone-600 leading-relaxed">{principle.description}</p>
+                    <div className="relative">
+                      <motion.div
+                        className="absolute -left-4 top-1/2 w-2 h-2 bg-amber-500 rounded-full"
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                      />
+                      <h3 className="text-3xl font-bold text-stone-800 pl-4">{principle.title}</h3>
+                    </div>
+                    <p className="text-lg text-stone-600 leading-relaxed pl-4 border-l-2 border-amber-200">
+                      {principle.description}
+                    </p>
                   </div>
                 </motion.div>
               ))}
