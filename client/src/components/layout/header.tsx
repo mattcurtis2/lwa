@@ -37,44 +37,44 @@ export default function Header() {
               >
                 Colorado Mountain Dogs
               </button>
-              {isDropdownOpen && (
-                <div 
-                  className="absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0"
-                  onMouseEnter={() => setIsDropdownOpen(true)}
-                  onMouseLeave={() => setIsDropdownOpen(false)}
-                >
-                  <Link href="/dogs" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      About
-                    </a>
-                  </Link>
-                  <Link href="/dogs/males" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Males
-                    </a>
-                  </Link>
-                  <Link href="/dogs/females" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Females
-                    </a>
-                  </Link>
-                  <Link href="/dogs/litters/upcoming" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Upcoming Litters
-                    </a>
-                  </Link>
-                  <Link href="/dogs/litters/past" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Past Litters
-                    </a>
-                  </Link>
-                  <Link href="/dogs/available" onClick={() => setIsDropdownOpen(false)}>
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Available Dogs
-                    </a>
-                  </Link>
-                </div>
-              )}
+              <div 
+                className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
+                  isDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+                onMouseEnter={() => setIsDropdownOpen(true)}
+                onMouseLeave={() => setIsDropdownOpen(false)}
+              >
+                <Link href="/dogs" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    About
+                  </a>
+                </Link>
+                <Link href="/dogs/males" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Males
+                  </a>
+                </Link>
+                <Link href="/dogs/females" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Females
+                  </a>
+                </Link>
+                <Link href="/dogs/litters/upcoming" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Upcoming Litters
+                  </a>
+                </Link>
+                <Link href="/dogs/litters/past" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Past Litters
+                  </a>
+                </Link>
+                <Link href="/dogs/available" onClick={() => setIsDropdownOpen(false)}>
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Available Dogs
+                  </a>
+                </Link>
+              </div>
             </div>
             <Link href="/#goats">
               <a className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1">Nigerian Dwarfs</a>
