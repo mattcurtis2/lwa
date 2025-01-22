@@ -299,19 +299,6 @@ export default function Dogs() {
             </div>
           </div>
         )}
-
-        {dogs?.filter(dog => dog.outsideBreeder).length > 0 && (
-          <div>
-            <h2 className="text-3xl font-bold mb-8 text-stone-800">Breeding Dogs from Outside Farms</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {dogs
-                .filter(dog => dog.outsideBreeder)
-                .map((dog) => (
-                  <DogCard key={dog.id} dog={dog} />
-                ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
