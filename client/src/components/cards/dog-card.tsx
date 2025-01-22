@@ -4,7 +4,6 @@ import { formatAge } from "@/lib/date-utils";
 import { Dog, DogMedia } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
 import { Link } from "wouter";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface DogCardProps {
   dog: Dog & { media?: DogMedia[] };
@@ -56,14 +55,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
             <div className="flex justify-between items-start mb-4">
               <Link href={`/dogs/${dog.id}`}>
                 <div className="cursor-pointer flex items-center gap-3">
-                  {dog.profileImageUrl ? (
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={dog.profileImageUrl} alt={dog.name} />
-                      <AvatarFallback>{genderSymbol}</AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    genderSymbol
-                  )}
+                  {genderSymbol}
                   <div>
                     <h3 className="text-xl font-bold">
                       {dog.name}
@@ -117,14 +109,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
           <Link href={`/dogs/${dog.id}`}>
             <div className="cursor-pointer">
               <div className="mb-4 flex items-center gap-3">
-                {dog.profileImageUrl ? (
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={dog.profileImageUrl} alt={dog.name} />
-                    <AvatarFallback>{genderSymbol}</AvatarFallback>
-                  </Avatar>
-                ) : (
-                  genderSymbol
-                )}
+                {genderSymbol}
                 <div>
                   <h3 className="text-xl font-bold">
                     {dog.name}
