@@ -20,6 +20,27 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
     <span className="text-pink-500">♀</span>
   );
 
+  const handleEditClick = (e: React.MouseEvent, dog: Dog) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onEdit?.(dog);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, dog: Dog) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete?.(dog);
+  };
+
+  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>, dogId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newOrder = parseInt(e.target.value);
+    if (!isNaN(newOrder)) {
+      onOrderChange?.(dogId, newOrder);
+    }
+  };
+
   return (
     <Card className="h-full">
       <Link href={`/dogs/${dog.name}`}>
@@ -43,7 +64,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
                 <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
               </div>
               {onOrderChange && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                   <label htmlFor={`order-${dog.id}`} className="text-sm text-stone-600">
                     Order:
                   </label>
@@ -53,12 +74,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
                     min="0"
                     className="w-20 h-8 px-2 border rounded"
                     value={dog.order}
-                    onChange={(e) => {
-                      const newOrder = parseInt(e.target.value);
-                      if (!isNaN(newOrder)) {
-                        onOrderChange(dog.id, newOrder);
-                      }
-                    }}
+                    onChange={e => handleOrderChange(e, dog.id)}
                   />
                 </div>
               )}
@@ -78,12 +94,18 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
           {isAdmin && (
             <div className="flex gap-2">
               {onEdit && (
-                <Button variant="outline" onClick={() => onEdit(dog)}>
+                <Button
+                  variant="outline"
+                  onClick={(e) => handleEditClick(e, dog)}
+                >
                   Edit
                 </Button>
               )}
               {onDelete && (
-                <Button variant="destructive" onClick={() => onDelete(dog)}>
+                <Button
+                  variant="destructive"
+                  onClick={(e) => handleDeleteClick(e, dog)}
+                >
                   Delete
                 </Button>
               )}
