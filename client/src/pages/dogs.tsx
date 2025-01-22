@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
+import DogCard from "@/components/cards/dog-card";  // Add back the import
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import {
