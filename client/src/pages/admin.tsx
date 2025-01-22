@@ -173,34 +173,29 @@ export default function Admin() {
   const contentFields: ContentField[] = [
     // Hero Section
     { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
-    { key: "hero_subtitle", label: "Hero Subtitle", value: pendingContent["hero_subtitle"] ?? siteContent.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
-    { key: "hero_cta", label: "Hero CTA Text", value: pendingContent["hero_cta"] ?? siteContent.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     // About Section
-    { key: "about_text", label: "About Text", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_text", label: "Mission Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    { key: "about_title", label: "About Section Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
+    { key: "about_text", label: "About Content", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_title", label: "Mission Title", value: pendingContent["mission_title"] ?? siteContent.find(c => c.key === "mission_title")?.value ?? "", type: "text" },
+    { key: "mission_text", label: "Mission Content", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
-    // Animals Card
-    { key: "animals_title", label: "Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_description", label: "Description", value: pendingContent["animals_description"] ?? siteContent.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Image", value: pendingContent["animals_image"] ?? siteContent.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_cta", label: "CTA Text", value: pendingContent["animals_cta"] ?? siteContent.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
-    { key: "animals_link", label: "Link", value: pendingContent["animals_link"] ?? siteContent.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+    // Feature Cards Section
+    // Colorado Mountain Dogs Card
+    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
 
-    // Goats Card
-    { key: "goats_title", label: "Title", value: pendingContent["goats_title"] ?? siteContent.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
-    { key: "goats_description", label: "Description", value: pendingContent["goats_description"] ?? siteContent.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
-    { key: "goats_image", label: "Image", value: pendingContent["goats_image"] ?? siteContent.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
-    { key: "goats_cta", label: "CTA Text", value: pendingContent["goats_cta"] ?? siteContent.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
-    { key: "goats_link", label: "Link", value: pendingContent["goats_link"] ?? siteContent.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+    // Nigerian Dwarf Goats Card
+    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
+    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
 
     // Products Card
-    { key: "products_title", label: "Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_description", label: "Description", value: pendingContent["products_description"] ?? siteContent.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Image", value: pendingContent["products_image"] ?? siteContent.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_cta", label: "CTA Text", value: pendingContent["products_cta"] ?? siteContent.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
-    { key: "products_link", label: "Link", value: pendingContent["products_link"] ?? siteContent.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
+    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent.find(c => c.key === "market_title")?.value ?? "", type: "text" },
+    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
 
   // Fix the DogCard syntax error
@@ -268,7 +263,7 @@ export default function Admin() {
               <CardDescription>Manage the main hero section content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {contentFields.slice(0, 4).map((field) => (
+              {contentFields.slice(0, 3).map((field) => (
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <div className="flex gap-4">
@@ -337,7 +332,7 @@ export default function Admin() {
               <CardDescription>Manage about and mission content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {contentFields.slice(4, 6).map((field) => (
+              {contentFields.slice(3, 7).map((field) => (
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <div className="flex gap-4">
@@ -410,7 +405,7 @@ export default function Admin() {
               {/* Animals Card */}
               <div className="space-y-6 pb-6 border-b">
                 <h3 className="text-lg font-semibold">Animals Card</h3>
-                {contentFields.slice(6, 11).map((field) => (
+                {contentFields.slice(7, 9).map((field) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key}>{field.label}</Label>
                     <div className="flex gap-4">
@@ -475,7 +470,7 @@ export default function Admin() {
               {/* Goats Card */}
               <div className="space-y-6 pb-6 border-b">
                 <h3 className="text-lg font-semibold">Goats Card</h3>
-                {contentFields.slice(11, 16).map((field) => (
+                {contentFields.slice(9, 11).map((field) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key}>{field.label}</Label>
                     <div className="flex gap-4">
@@ -540,7 +535,7 @@ export default function Admin() {
               {/* Products Card */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Products Card</h3>
-                {contentFields.slice(16).map((field) => (
+                {contentFields.slice(11, 15).map((field) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key}>{field.label}</Label>
                     <div className="flex gap-4">
