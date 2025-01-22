@@ -15,8 +15,8 @@ export default function Dogs() {
   });
 
   const { data: litters } = useQuery<(Litter & { 
-    mother: Dog & { media: DogMedia[] }, 
-    father: Dog & { media: DogMedia[] } 
+    mother: Dog & { media?: DogMedia[] }, 
+    father: Dog & { media?: DogMedia[] } 
   })[]>({
     queryKey: ["/api/litters"],
   });
@@ -29,8 +29,8 @@ export default function Dogs() {
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
   // Group dogs by gender
-  const females = dogs?.filter(dog => dog.gender === 'female') || [];
-  const males = dogs?.filter(dog => dog.gender === 'male') || [];
+  const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
+  const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
 
   return (
     <div className="w-full">
@@ -75,19 +75,31 @@ export default function Dogs() {
                   {/* Mother */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <DogMediaCarousel media={visibleLitter.mother.media} />
+                      {visibleLitter.mother?.media && visibleLitter.mother.media.length > 0 ? (
+                        <DogMediaCarousel media={visibleLitter.mother.media} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <span className="text-4xl text-pink-500">♀</span>
+                        </div>
+                      )}
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
-                    <p className="text-amber-800">{visibleLitter.mother.name}</p>
+                    <p className="text-amber-800">{visibleLitter.mother?.name}</p>
                   </div>
 
                   {/* Father */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <DogMediaCarousel media={visibleLitter.father.media} />
+                      {visibleLitter.father?.media && visibleLitter.father.media.length > 0 ? (
+                        <DogMediaCarousel media={visibleLitter.father.media} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <span className="text-4xl text-blue-500">♂</span>
+                        </div>
+                      )}
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Father</h4>
-                    <p className="text-amber-800">{visibleLitter.father.name}</p>
+                    <p className="text-amber-800">{visibleLitter.father?.name}</p>
                   </div>
                 </div>
               </div>
@@ -99,29 +111,25 @@ export default function Dogs() {
       {/* Dogs Grid */}
       <div className="container mx-auto px-4 py-16 space-y-16">
         {/* Females Section */}
-        {females.filter(dog => !dog.outsideBreeder).length > 0 && (
+        {females.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {females
-                .filter(dog => !dog.outsideBreeder)
-                .map((dog) => (
-                  <DogCard key={dog.id} dog={dog} />
-                ))}
+              {females.map((dog) => (
+                <DogCard key={dog.id} dog={dog} />
+              ))}
             </div>
           </div>
         )}
 
         {/* Males Section */}
-        {males.filter(dog => !dog.outsideBreeder).length > 0 && (
+        {males.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {males
-                .filter(dog => !dog.outsideBreeder)
-                .map((dog) => (
-                  <DogCard key={dog.id} dog={dog} />
-                ))}
+              {males.map((dog) => (
+                <DogCard key={dog.id} dog={dog} />
+              ))}
             </div>
           </div>
         )}
