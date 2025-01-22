@@ -205,6 +205,16 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         birthDate: format(parsedDate, 'yyyy-MM-dd'),
         height: values.height ? parseFloat(values.height) : null,
         weight: values.weight ? parseFloat(values.weight) : null,
+        documents: [
+          ...healthDocuments.map(doc => ({
+            ...doc,
+            type: 'health' as const,
+          })),
+          ...pedigreeDocuments.map(doc => ({
+            ...doc,
+            type: 'pedigree' as const,
+          }))
+        ]
       };
 
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
