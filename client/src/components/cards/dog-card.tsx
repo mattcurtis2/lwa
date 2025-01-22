@@ -4,6 +4,7 @@ import { formatAge } from "@/lib/date-utils";
 import { Dog, DogMedia } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
 import { Link } from "wouter";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface DogCardProps {
   dog: Dog & { media?: DogMedia[] };
@@ -37,7 +38,6 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
 
   return (
     <Card className="h-full">
-      {/* Wrap only the media and basic info in the Link */}
       <Link href={`/dogs/${dog.name}`}>
         <div className="cursor-pointer">
           {dog.media && dog.media.length > 0 ? (
@@ -55,14 +55,24 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
           <div>
             <div className="flex justify-between items-start mb-4">
               <Link href={`/dogs/${dog.name}`}>
-                <div className="cursor-pointer">
-                  <h3 className="text-xl font-bold inline-flex items-center gap-1">
-                    {dog.name} {genderSymbol}
-                  </h3>
-                  {dog.registrationName && (
-                    <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+                <div className="cursor-pointer flex items-center gap-3">
+                  {dog.profileImageUrl ? (
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={dog.profileImageUrl} alt={dog.name} />
+                      <AvatarFallback>{genderSymbol}</AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    genderSymbol
                   )}
-                  <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
+                  <div>
+                    <h3 className="text-xl font-bold">
+                      {dog.name}
+                    </h3>
+                    {dog.registrationName && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+                    )}
+                    <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
+                  </div>
                 </div>
               </Link>
               {onOrderChange && (
@@ -106,14 +116,24 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
         ) : (
           <Link href={`/dogs/${dog.name}`}>
             <div className="cursor-pointer">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold inline-flex items-center gap-1">
-                  {dog.name} {genderSymbol}
-                </h3>
-                {dog.registrationName && (
-                  <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+              <div className="mb-4 flex items-center gap-3">
+                {dog.profileImageUrl ? (
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={dog.profileImageUrl} alt={dog.name} />
+                    <AvatarFallback>{genderSymbol}</AvatarFallback>
+                  </Avatar>
+                ) : (
+                  genderSymbol
                 )}
-                <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
+                <div>
+                  <h3 className="text-xl font-bold">
+                    {dog.name}
+                  </h3>
+                  {dog.registrationName && (
+                    <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+                  )}
+                  <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
+                </div>
               </div>
               <p className="text-stone-600 mb-4">{dog.description}</p>
             </div>
