@@ -34,6 +34,7 @@ const mediaSchema = z.object({
 
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  registrationName: z.string().optional(),
   birthDate: z.string().refine((date) => {
     try {
       const parsedDate = parse(date, 'MM/dd/yyyy', new Date());
@@ -76,6 +77,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     resolver: zodResolver(dogSchema),
     defaultValues: {
       name: "",
+      registrationName: "",
       birthDate: format(new Date(), 'MM/dd/yyyy'),
       gender: "male",
       description: "",
@@ -94,6 +96,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
       form.reset({
         name: dog.name,
+        registrationName: dog.registrationName || "",
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         gender: dog.gender,
         description: dog.description ?? "",
@@ -103,6 +106,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     } else {
       form.reset({
         name: "",
+        registrationName: "",
         birthDate: format(new Date(), 'MM/dd/yyyy'),
         gender: "male",
         description: "",
@@ -256,6 +260,20 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="registrationName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Registration Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Optional" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -35,6 +35,9 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
               <h3 className="text-xl font-bold inline-flex items-center gap-1">
                 {dog.name} {genderSymbol}
               </h3>
+              {dog.registrationName && (
+                <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+              )}
               <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
             </div>
             {onOrderChange && (
@@ -63,6 +66,9 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
             <h3 className="text-xl font-bold inline-flex items-center gap-1">
               {dog.name} {genderSymbol}
             </h3>
+            {dog.registrationName && (
+              <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
+            )}
             <span className="text-stone-600 ml-2">• {formatAge(new Date(dog.birthDate))}</span>
           </div>
         )}
