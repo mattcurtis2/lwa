@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
+import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { format } from "date-fns";
 
 export default function Dogs() {
@@ -73,19 +74,8 @@ export default function Dogs() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Mother */}
                   <div className="flex flex-col items-center">
-                    {/* Using the mother's primary image from her dog card */}
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      {visibleLitter.mother.media && visibleLitter.mother.media.length > 0 ? (
-                        <img
-                          src={visibleLitter.mother.media[0].url}
-                          alt={visibleLitter.mother.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <span className="text-4xl text-pink-500">♀</span>
-                        </div>
-                      )}
+                      <DogMediaCarousel media={visibleLitter.mother.media} />
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
                     <p className="text-amber-800">{visibleLitter.mother.name}</p>
@@ -93,19 +83,8 @@ export default function Dogs() {
 
                   {/* Father */}
                   <div className="flex flex-col items-center">
-                    {/* Using the father's primary image from his dog card */}
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      {visibleLitter.father.media && visibleLitter.father.media.length > 0 ? (
-                        <img
-                          src={visibleLitter.father.media[0].url}
-                          alt={visibleLitter.father.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <span className="text-4xl text-blue-500">♂</span>
-                        </div>
-                      )}
+                      <DogMediaCarousel media={visibleLitter.father.media} />
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Father</h4>
                     <p className="text-amber-800">{visibleLitter.father.name}</p>
