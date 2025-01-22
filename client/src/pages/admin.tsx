@@ -334,19 +334,56 @@ export default function Admin() {
                       onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
                     />
                   </div>
-                  <div>
-                    <Label>Background Image URL</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={dogsHero[0].imageUrl}
-                        onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
-                      />
-                      {dogsHero[0].imageUrl && (
-                        <img
-                          src={dogsHero[0].imageUrl}
-                          alt="Hero background"
-                          className="w-10 h-10 object-cover"
+                  <div className="space-y-2">
+                    <Label>Background Image</Label>
+                    <div className="flex gap-4">
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const formData = new FormData();
+                              formData.append("file", file);
+
+                              try {
+                                const uploadRes = await fetch("/api/upload", {
+                                  method: "POST",
+                                  body: formData,
+                                });
+
+                                if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                const { url } = await uploadRes.json();
+
+                                updateDogsHero.mutate({ imageUrl: url });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to upload image",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
                         />
+                        <div className="relative">
+                          <Label>Or Enter Image URL</Label>
+                          <Input
+                            value={dogsHero[0].imageUrl}
+                            onChange={(e) => updateDogsHero.mutate({ imageUrl: e.target.value })}
+                            placeholder="https://example.com/image.jpg"
+                          />
+                        </div>
+                      </div>
+                      {dogsHero[0].imageUrl && (
+                        <div className="w-40 h-40 rounded overflow-hidden">
+                          <img
+                            src={dogsHero[0].imageUrl}
+                            alt="Hero background"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
