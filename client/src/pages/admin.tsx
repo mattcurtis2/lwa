@@ -176,8 +176,8 @@ export default function Admin() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: info.email?.trim(),
-          phone: info.phone?.trim(),
+          email: info.email?.trim() || null,
+          phone: info.phone?.trim() || null,
           facebook: info.facebook?.trim() || null,
           instagram: info.instagram?.trim() || null
         }),
@@ -185,7 +185,7 @@ export default function Admin() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Failed to update contact information");
+        throw new Error(data.message || "Failed to update contact info");
       }
       return data;
     },
@@ -228,14 +228,6 @@ export default function Admin() {
       // Save contact info changes if there are any differences
       const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
       if (hasContactChanges) {
-        if (!pendingContactInfo.email?.trim() || !pendingContactInfo.phone?.trim()) {
-          toast({
-            title: "Error",
-            description: "Email and phone are required fields",
-            variant: "destructive",
-          });
-          return;
-        }
         await updateContactInfo.mutateAsync(pendingContactInfo);
       }
 
@@ -260,7 +252,6 @@ export default function Admin() {
       if (hasPrincipleChanges) {
         await updatePrinciples.mutateAsync(pendingPrinciples);
       }
-
 
       setHasUnsavedChanges(false);
     } catch (error) {
@@ -864,7 +855,7 @@ export default function Admin() {
                                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
                                   {litter.mother?.media?.[0] ? (
                                     <img
-                                      src={litter.mother.media[0].url}
+                                                                            src={litter.mother.media[0].url}
                                       alt={litter.mother.name}
                                       className="w-full h-full object-cover"
                                     />

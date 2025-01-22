@@ -729,12 +729,6 @@ export function registerRoutes(app: Express): Server {
       // Delete existing contact info since we only want one record
       await db.delete(contactInfo);
 
-      // Validate required fields
-      const { email, phone } = req.body;
-      if (!email || !phone) {
-        return res.status(400).json({ message: "Email and phone are required fields" });
-      }
-
       const info = await db.insert(contactInfo)
         .values(req.body)
         .returning();
@@ -747,12 +741,6 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/contact-info", async (req, res) => {
     try {
-      // Validate required fields
-      const { email, phone } = req.body;
-      if (!email || !phone) {
-        return res.status(400).json({ message: "Email and phone are required fields" });
-      }
-
       const existingInfo = await db.query.contactInfo.findFirst();
 
       if (!existingInfo) {
