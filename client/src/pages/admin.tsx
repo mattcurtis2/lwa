@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { SiteContent, Dog, DogsHero, Litter, CarouselItem } from "@db/schema";
+import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
 import { Save } from "lucide-react";
@@ -21,7 +21,6 @@ import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
-
 
 interface ContentField {
   key: string;
@@ -41,13 +40,12 @@ export default function Admin() {
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Update queries with proper error handling and loading states
+  // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
     staleTime: 0,
     retry: 1,
     onSuccess: (data) => {
-      console.log("Site Content Fetched Successfully:", data);
       const initialContent: Record<string, string> = {};
       data.forEach((item) => {
         initialContent[item.key] = item.value;
@@ -76,7 +74,14 @@ export default function Admin() {
     queryKey: ["/api/litters"],
   });
 
-  // Update site content mutation
+  const { data: animals = [] } = useQuery<Animal[]>({
+    queryKey: ["/api/animals"],
+  });
+
+  const { data: products = [] } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
+
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
       const results = await Promise.all(
@@ -112,7 +117,6 @@ export default function Admin() {
     }
   });
 
-  // Effect to initialize pendingContent when siteContent changes
   useEffect(() => {
     if (siteContent?.length > 0) {
       const initialContent: Record<string, string> = {};
@@ -123,13 +127,11 @@ export default function Admin() {
     }
   }, [siteContent]);
 
-  // Handle content change without auto-saving
   const handleContentChange = (key: string, value: string) => {
     setPendingContent(prev => ({ ...prev, [key]: value }));
     setHasUnsavedChanges(true);
   };
 
-  // Save all pending changes
   const handleSaveChanges = () => {
     const updates = Object.entries(pendingContent)
       .filter(([key, value]) => {
@@ -143,7 +145,6 @@ export default function Admin() {
     }
   };
 
-  // Warning when leaving with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
@@ -182,7 +183,6 @@ export default function Admin() {
     { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
 
-  // Fix the DogCard syntax error
   const renderDogCard = (dog: Dog) => (
     <DogCard
       key={dog.id}
@@ -208,7 +208,6 @@ export default function Admin() {
     />
   );
 
-  // Loading state handling
   if (isLoadingSiteContent) {
     return (
       <div className="container mx-auto py-8">
