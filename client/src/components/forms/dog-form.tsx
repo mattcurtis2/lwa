@@ -50,7 +50,6 @@ const dogSchema = z.object({
     required_error: "Please select sex",
   }),
   description: z.string(),
-  // New fields
   healthData: z.string().optional(),
   color: z.string().optional(),
   dewclaws: z.string().optional(),
@@ -112,7 +111,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       birthDate: format(new Date(), 'MM/dd/yyyy'),
       gender: "male",
       description: "",
-      // New fields
       healthData: "",
       color: "",
       dewclaws: "",
@@ -164,7 +162,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
         gender: dog.gender as "male" | "female",
         description: dog.description ?? "",
-        // New fields
         healthData: dog.healthData ?? "",
         color: dog.color ?? "",
         dewclaws: dog.dewclaws ?? "",
@@ -184,7 +181,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         birthDate: format(new Date(), 'MM/dd/yyyy'),
         gender: "male",
         description: "",
-        // New fields
         healthData: "",
         color: "",
         dewclaws: "",
