@@ -47,7 +47,6 @@ function DocumentLink({ document }: { document: Document }) {
   return (
     <div className="border rounded-lg p-4 space-y-3">
       <div className="flex items-start gap-4">
-        {/* Preview/Thumbnail Section */}
         <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
           {isImage ? (
             <img
@@ -67,7 +66,6 @@ function DocumentLink({ document }: { document: Document }) {
           )}
         </div>
 
-        {/* Document Info & Actions */}
         <div className="flex-1 min-w-0">
           <h4 className="font-medium truncate">{document.name}</h4>
           <p className="text-sm text-muted-foreground">
@@ -96,8 +94,8 @@ export default function DogDetail() {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
 
   const { data: dogs } = useQuery<(Dog & {
-    media?: DogMedia[],
-    documents?: Document[]
+    media?: DogMedia[];
+    documents?: Document[];
   })[]>({
     queryKey: ["/api/dogs"],
   });
@@ -112,9 +110,8 @@ export default function DogDetail() {
     );
   }
 
-  // Filter documents by type
-  const healthDocuments = dog.documents?.filter(doc => doc.type === 'health') || [];
-  const pedigreeDocuments = dog.documents?.filter(doc => doc.type === 'pedigree') || [];
+  const healthDocuments = dog.documents?.filter((doc) => doc.type === 'health') || [];
+  const pedigreeDocuments = dog.documents?.filter((doc) => doc.type === 'pedigree') || [];
 
   const genderSymbol = dog.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
@@ -122,10 +119,88 @@ export default function DogDetail() {
     <span className="text-pink-500">♀</span>
   );
 
+  const BasicInfoSection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Basic Information</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-semibold mb-2">Age</h3>
+            <p>{formatAge(new Date(dog.birthDate))}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Birth Date</h3>
+            <p>{format(new Date(dog.birthDate), 'MMMM d, yyyy')}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Breed</h3>
+            <p>Colorado Mountain Dog</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Gender</h3>
+            <p className="flex items-center gap-1">
+              {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const StorySection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Story</CardTitle>
+        <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="prose max-w-none">
+          <p className="text-lg leading-relaxed">
+            {dog.narrativeDescription || dog.description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const PhysicalSection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Physical Characteristics</CardTitle>
+        <CardDescription>Detailed physical attributes and measurements</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-semibold mb-2">Color</h3>
+            <p>{dog.color || "Not specified"}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Fur Length</h3>
+            <p>{dog.furLength || "Not specified"}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Height</h3>
+            <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Weight</h3>
+            <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Dewclaws</h3>
+            <p>{dog.dewclaws || "Not specified"}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold flex items-center gap-2 mb-2">
             {dog.name} {genderSymbol}
@@ -135,169 +210,152 @@ export default function DogDetail() {
           )}
         </div>
 
-        {/* Tabs Section - Now above images */}
-        <Tabs defaultValue="basic" className="w-full">
-          <div className="overflow-x-auto pb-2">
-            <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
-              <TabsTrigger value="basic">Basic Information</TabsTrigger>
-              <TabsTrigger value="story">Story</TabsTrigger>
-              <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
-              <TabsTrigger value="health">Health Information</TabsTrigger>
-              <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="basic" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Age</h3>
-                    <p>{formatAge(new Date(dog.birthDate))}</p>
+        <div className="md:hidden space-y-8"> {/* Mobile Layout */}
+          <BasicInfoSection />
+          <StorySection />
+          <PhysicalSection />
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Information</CardTitle>
+              <CardDescription>Health records and certifications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Birth Date</h3>
-                    <p>{format(new Date(dog.birthDate), 'MMMM d, yyyy')}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Breed</h3>
-                    <p>Colorado Mountain Dog</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Gender</h3>
-                    <p className="flex items-center gap-1">
-                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="story" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Story</CardTitle>
-                <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] w-full rounded-md">
+                )}
+                {healthDocuments.length > 0 && (
                   <div className="space-y-4">
-                    <p className="text-lg leading-relaxed">
-                      {dog.narrativeDescription || dog.description}
-                    </p>
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="physical" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Physical Characteristics</CardTitle>
-                <CardDescription>Detailed physical attributes and measurements</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Color</h3>
-                    <p>{dog.color || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Fur Length</h3>
-                    <p>{dog.furLength || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Height</h3>
-                    <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Weight</h3>
-                    <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Dewclaws</h3>
-                    <p>{dog.dewclaws || "Not specified"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="health" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Health Information</CardTitle>
-                <CardDescription>Health records and certifications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {dog.healthData && (
-                    <div className="prose max-w-none mb-6">
-                      <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+                    <h3 className="font-semibold">Health Documents</h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
+                {!dog.healthData && healthDocuments.length === 0 && (
+                  <p>No health information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pedigree Information</CardTitle>
+              <CardDescription>Family history and lineage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+                  </div>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Pedigree Documents</h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!dog.pedigree && pedigreeDocuments.length === 0 && (
+                  <p>No pedigree information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                  {/* Health Documents Section */}
-                  {healthDocuments.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Health Documents</h3>
-                      <div className="grid gap-4">
-                        {healthDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
-                        ))}
+        <div className="hidden md:block"> {/* Desktop Layout */}
+          <Tabs defaultValue="basic" className="w-full">
+            <div className="overflow-x-auto pb-2">
+              <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
+                <TabsTrigger value="basic">Basic Information</TabsTrigger>
+                <TabsTrigger value="story">Story</TabsTrigger>
+                <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
+                <TabsTrigger value="health">Health Information</TabsTrigger>
+                <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="basic">
+              <BasicInfoSection />
+            </TabsContent>
+            <TabsContent value="story">
+              <StorySection />
+            </TabsContent>
+            <TabsContent value="physical">
+              <PhysicalSection />
+            </TabsContent>
+            <TabsContent value="health">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Health Information</CardTitle>
+                  <CardDescription>Health records and certifications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {dog.healthData && (
+                      <div className="prose max-w-none mb-6">
+                        <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
                       </div>
-                    </div>
-                  )}
-
-                  {!dog.healthData && healthDocuments.length === 0 && (
-                    <p>No health information available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="pedigree" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pedigree Information</CardTitle>
-                <CardDescription>Family history and lineage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {dog.pedigree && (
-                    <div className="prose max-w-none mb-6">
-                      <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
-                    </div>
-                  )}
-
-                  {/* Pedigree Documents Section */}
-                  {pedigreeDocuments.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Pedigree Documents</h3>
-                      <div className="grid gap-4">
-                        {pedigreeDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
-                        ))}
+                    )}
+                    {healthDocuments.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="font-semibold">Health Documents</h3>
+                        <div className="grid gap-4">
+                          {healthDocuments.map((doc, index) => (
+                            <DocumentLink key={index} document={doc} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                    {!dog.healthData && healthDocuments.length === 0 && (
+                      <p>No health information available</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="pedigree">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pedigree Information</CardTitle>
+                  <CardDescription>Family history and lineage</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {dog.pedigree && (
+                      <div className="prose max-w-none mb-6">
+                        <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+                      </div>
+                    )}
+                    {pedigreeDocuments.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="font-semibold">Pedigree Documents</h3>
+                        <div className="grid gap-4">
+                          {pedigreeDocuments.map((doc, index) => (
+                            <DocumentLink key={index} document={doc} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {!dog.pedigree && pedigreeDocuments.length === 0 && (
+                      <p>No pedigree information available</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
 
-                  {!dog.pedigree && pedigreeDocuments.length === 0 && (
-                    <p>No pedigree information available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Pictures & Videos Section - Now below tabs with adjusted size */}
         {dog.media && dog.media.length > 0 && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
@@ -307,8 +365,6 @@ export default function DogDetail() {
               activeIndex={activeMediaIndex}
               onSlideChange={setActiveMediaIndex}
             />
-
-            {/* Image Grid/Collage */}
             <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 px-4">
               {dog.media.map((item, index) => (
                 item.type === 'image' && (
