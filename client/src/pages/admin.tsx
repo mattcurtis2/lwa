@@ -226,6 +226,7 @@ export default function Admin() {
                         <FileUpload
                           value={pendingContent[field.key] ?? field.value}
                           onChange={(value) => handleContentChange(field.key, value)}
+                          cropAspect={field.key === "hero_background" ? 16 / 9 : undefined}
                           onFileSelect={async (file) => {
                             const formData = new FormData();
                             formData.append("file", file);
