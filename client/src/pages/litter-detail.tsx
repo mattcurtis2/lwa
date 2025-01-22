@@ -119,7 +119,7 @@ export default function LitterDetail() {
             </div>
 
             {litter.puppies?.map((puppy, index) => (
-              <div key={puppy.id} className="border-t pt-16 first:border-t-0 first:pt-0">
+              <div key={puppy.id}>
                 <DogDetails dog={puppy} />
               </div>
             ))}
