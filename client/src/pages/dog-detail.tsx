@@ -23,9 +23,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface Document {
+  id?: number;
   type: string;
   url: string;
   name: string;
+  mimeType: string;
 }
 
 function DocumentLink({ document }: { document: Document }) {
@@ -58,8 +60,7 @@ export default function DogDetail() {
 
   const { data: dogs } = useQuery<(Dog & { 
     media?: DogMedia[],
-    healthDocuments?: Document[],
-    pedigreeDocuments?: Document[]
+    documents?: Document[]
   })[]>({
     queryKey: ["/api/dogs"],
   });
@@ -73,6 +74,10 @@ export default function DogDetail() {
       </div>
     );
   }
+
+  // Filter documents by type
+  const healthDocuments = dog.documents?.filter(doc => doc.type === 'health') || [];
+  const pedigreeDocuments = dog.documents?.filter(doc => doc.type === 'pedigree') || [];
 
   const genderSymbol = dog.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
@@ -196,18 +201,18 @@ export default function DogDetail() {
                   )}
 
                   {/* Health Documents Section */}
-                  {dog.healthDocuments && dog.healthDocuments.length > 0 && (
+                  {healthDocuments.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="font-semibold">Health Documents</h3>
                       <div className="grid gap-2">
-                        {dog.healthDocuments.map((doc, index) => (
+                        {healthDocuments.map((doc, index) => (
                           <DocumentLink key={index} document={doc} />
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {!dog.healthData && (!dog.healthDocuments || dog.healthDocuments.length === 0) && (
+                  {!dog.healthData && healthDocuments.length === 0 && (
                     <p>No health information available</p>
                   )}
                 </div>
@@ -230,18 +235,18 @@ export default function DogDetail() {
                   )}
 
                   {/* Pedigree Documents Section */}
-                  {dog.pedigreeDocuments && dog.pedigreeDocuments.length > 0 && (
+                  {pedigreeDocuments.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="font-semibold">Pedigree Documents</h3>
                       <div className="grid gap-2">
-                        {dog.pedigreeDocuments.map((doc, index) => (
+                        {pedigreeDocuments.map((doc, index) => (
                           <DocumentLink key={index} document={doc} />
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {!dog.pedigree && (!dog.pedigreeDocuments || dog.pedigreeDocuments.length === 0) && (
+                  {!dog.pedigree && pedigreeDocuments.length === 0 && (
                     <p>No pedigree information available</p>
                   )}
                 </div>
