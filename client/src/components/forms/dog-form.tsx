@@ -162,14 +162,23 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
+        // Parse the date and set it to noon UTC to avoid timezone issues
         const parsedDate = parse(values.birthDate, 'yyyy-MM-dd', new Date());
         if (!isValid(parsedDate)) {
           throw new Error("Invalid date format");
         }
 
+        // Set the time to noon UTC to avoid date shifting
+        const utcDate = new Date(Date.UTC(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate(),
+          12, 0, 0
+        ));
+
         const formattedValues = {
           ...values,
-          birthDate: parsedDate.toISOString(),
+          birthDate: utcDate.toISOString(),
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
