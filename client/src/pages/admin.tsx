@@ -163,9 +163,9 @@ export default function Admin() {
     { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
-    // About Section
+    // About Section - Updated to match the landing page
     { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
-    { key: "about_text", label: "About Text", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
     // Feature Cards Section
     // Colorado Mountain Dogs Card
@@ -292,7 +292,7 @@ export default function Admin() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>About Section</CardTitle>
-              <CardDescription>Manage about content</CardDescription>
+              <CardDescription>Manage the about section content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {contentFields.slice(3, 5).map((field) => (
