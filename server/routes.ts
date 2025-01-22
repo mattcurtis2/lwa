@@ -731,7 +731,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/litters/past", async (_req, res) => {
+  app.get("/api/litters/list/past", async (_req, res) => {
     try {
       const allLitters = await db.query.litters.findMany({
         with: {
@@ -771,16 +771,8 @@ export function registerRoutes(app: Express): Server {
         })
       );
 
-      // Filter to show litters with due dates in the past (today or earlier)
-      const pastLitters = littersWithPuppies
-        .filter((litter) => {
-          const dueDate = new Date(litter.dueDate);
-          const today = new Date();
-          return dueDate <= today;
-        })
-        .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()); // Sort by most recent first
-
-      res.json(pastLitters);
+      // For now, return all litters to debug the data
+      res.json(littersWithPuppies);
     } catch (error) {
       console.error("Error fetching past litters:", error);
       res.status(500).json({ message: "Failed to fetch past litters" });
@@ -833,7 +825,8 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error deleting principle:", error);
       res.status(500).json({ message: "Failedto delete principle" });
-    }  });
+    }
+  });
 
   app.put("/api/principles/:id/reorder", async (req, res) => {
     try {
@@ -842,7 +835,7 @@ export function registerRoutes(app: Express): Server {
           order: req.body.order,
           updatedAt: new Date()
         })
-        .where(eq(principles.id, parseInt(req.params.id)))
+                .where(eq(principles.id, parseInt(req.params.id)))
         .returning();
       res.json(principle[0]);
     } catch (error) {

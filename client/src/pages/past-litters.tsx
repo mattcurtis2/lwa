@@ -14,7 +14,7 @@ export default function PastLitters() {
   const [_, navigate] = useLocation();
 
   const { data: litters, isLoading } = useQuery<PastLitter[]>({
-    queryKey: ["/api/litters/past"],
+    queryKey: ["/api/litters/list/past"],
   });
 
   // Show loading skeleton
