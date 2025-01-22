@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
-import { Upload } from "lucide-react";
+import { Upload, Crop } from "lucide-react";
 import { Input } from "./input";
 import { Label } from "./label";
 import { ImageCrop } from "./image-crop";
+import { Button } from "./button";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -33,8 +34,9 @@ export function FileUpload({
     setSelectedFile(file);
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
-    setShowCrop(true);
-  }, []);
+    // Do not automatically show crop dialog
+    onFileSelect(file);
+  }, [onFileSelect]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles?.[0]) {
@@ -63,6 +65,19 @@ export function FileUpload({
     onFileSelect(croppedFile);
   };
 
+  const handleCropClick = () => {
+    if (value) {
+      // For existing images, use the current value URL
+      setPreviewUrl(value);
+      setShowCrop(true);
+    } else if (selectedFile) {
+      // For newly uploaded files, use the selected file
+      const fileUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(fileUrl);
+      setShowCrop(true);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div
@@ -88,11 +103,25 @@ export function FileUpload({
 
       <div className="space-y-2">
         {label && <Label>{label}</Label>}
-        <Input
-          value={value || ''}
-          onChange={(e) => onChange?.(e.target.value)}
-          placeholder="https://example.com/image.jpg"
-        />
+        <div className="flex gap-2">
+          <Input
+            value={value || ''}
+            onChange={(e) => onChange?.(e.target.value)}
+            placeholder="https://example.com/image.jpg"
+            className="flex-1"
+          />
+          {(value || selectedFile) && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCropClick}
+              type="button"
+              title="Crop Image"
+            >
+              <Crop className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {showCrop && previewUrl && (
