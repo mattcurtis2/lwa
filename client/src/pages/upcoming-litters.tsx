@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Dog, DogMedia, Litter, DogImage } from "@db/schema";
+import { Dog, DogMedia, Litter } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,8 +9,8 @@ export default function UpcomingLitters() {
   const [_, navigate] = useLocation();
 
   const { data: litters } = useQuery<(Litter & {
-    mother: Dog & { media?: DogMedia[], dogImages?: DogImage[] },
-    father: Dog & { media?: DogMedia[], dogImages?: DogImage[] }
+    mother: Dog & { media?: DogMedia[] },
+    father: Dog & { media?: DogMedia[] }
   })[]>({
     queryKey: ["/api/litters"],
   });
@@ -63,12 +63,6 @@ export default function UpcomingLitters() {
                           alt={litter.mother.name}
                           className="w-full h-full object-cover"
                         />
-                      ) : litter.mother.dogImages && litter.mother.dogImages.length > 0 ? (
-                        <img
-                          src={litter.mother.dogImages[0].url}
-                          alt={litter.mother.name}
-                          className="w-full h-full object-cover"
-                        />
                       ) : litter.mother.media && litter.mother.media.length > 0 ? (
                         <img
                           src={litter.mother.media[0].url}
@@ -92,12 +86,6 @@ export default function UpcomingLitters() {
                       {litter.father.profileImageUrl ? (
                         <img
                           src={litter.father.profileImageUrl}
-                          alt={litter.father.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : litter.father.dogImages && litter.father.dogImages.length > 0 ? (
-                        <img
-                          src={litter.father.dogImages[0].url}
                           alt={litter.father.name}
                           className="w-full h-full object-cover"
                         />
