@@ -217,3 +217,18 @@ export const insertPrincipleSchema = createInsertSchema(principles);
 export const selectPrincipleSchema = createSelectSchema(principles);
 export type Principle = typeof principles.$inferSelect;
 export type NewPrinciple = typeof principles.$inferInsert;
+
+export const contactInfo = pgTable("contact_info", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  facebook: text("facebook"),
+  instagram: text("instagram"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertContactInfoSchema = createInsertSchema(contactInfo);
+export const selectContactInfoSchema = createSelectSchema(contactInfo);
+export type ContactInfo = typeof contactInfo.$inferSelect;
+export type NewContactInfo = typeof contactInfo.$inferInsert;

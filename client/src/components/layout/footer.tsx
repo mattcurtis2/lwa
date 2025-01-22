@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { SiteContent } from "@db/schema";
+import { SiteContent, ContactInfo } from "@db/schema";
 
 export default function Footer() {
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
+  });
+
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ["/api/contact-info"],
   });
 
   const getContent = (key: string) => siteContent?.find(c => c.key === key)?.value;
@@ -21,15 +25,39 @@ export default function Footer() {
 
           <div>
             <h3 className="text-xl font-bold mb-4">Contact</h3>
-            <p className="text-stone-300">Email: info@littlewayacres.com</p>
-            <p className="text-stone-300">Phone: (555) 123-4567</p>
+            {contactInfo ? (
+              <>
+                <p className="text-stone-300">Email: {contactInfo.email}</p>
+                <p className="text-stone-300">Phone: {contactInfo.phone}</p>
+              </>
+            ) : (
+              <p className="text-stone-300">Contact information coming soon</p>
+            )}
           </div>
 
           <div>
             <h3 className="text-xl font-bold mb-4">Follow Us</h3>
             <div className="flex gap-4">
-              <a href="#" className="text-stone-300 hover:text-white">Facebook</a>
-              <a href="#" className="text-stone-300 hover:text-white">Instagram</a>
+              {contactInfo?.facebook && (
+                <a 
+                  href={contactInfo.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="text-stone-300 hover:text-white"
+                >
+                  Facebook
+                </a>
+              )}
+              {contactInfo?.instagram && (
+                <a 
+                  href={contactInfo.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="text-stone-300 hover:text-white"
+                >
+                  Instagram
+                </a>
+              )}
             </div>
           </div>
         </div>

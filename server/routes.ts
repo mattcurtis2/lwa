@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -710,6 +710,56 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error reordering principle:", error);
       res.status(500).json({ message: "Failed to reorder principle" });
+    }
+  });
+
+  // Add contact info routes
+  app.get("/api/contact-info", async (_req, res) => {
+    try {
+      const info = await db.query.contactInfo.findFirst();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ message: "Failed to fetch contact info" });
+    }
+  });
+
+  app.post("/api/contact-info", async (req, res) => {
+    try {
+      // Delete existing contact info since we only want one record
+      await db.delete(contactInfo);
+
+      const info = await db.insert(contactInfo)
+        .values(req.body)
+        .returning();
+      res.json(info[0]);
+    } catch (error) {
+      console.error("Error creating contact info:", error);
+      res.status(500).json({ message: "Failed to create contact info" });
+    }
+  });
+
+  app.put("/api/contact-info", async (req, res) => {
+    try {
+      const existingInfo = await db.query.contactInfo.findFirst();
+
+      if (!existingInfo) {
+        // If no record exists, create one
+        const info = await db.insert(contactInfo)
+          .values(req.body)
+          .returning();
+        res.json(info[0]);
+      } else {
+        // Update existing record
+        const info = await db.update(contactInfo)
+          .set({ ...req.body, updatedAt: new Date() })
+          .where(eq(contactInfo.id, existingInfo.id))
+          .returning();
+        res.json(info[0]);
+      }
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+      res.status(500).json({ message: "Failed to update contact info" });
     }
   });
 

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle } from "@db/schema";
+import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
 import { Save, GripVertical } from "lucide-react";
@@ -41,6 +41,7 @@ export default function Admin() {
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
+  const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
@@ -71,6 +72,10 @@ export default function Admin() {
     queryKey: ["/api/principles"]
   });
 
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ["/api/contact-info"],
+  });
+
   useEffect(() => {
     if (siteContent?.length > 0) {
       const initialContent: Record<string, string> = {};
@@ -88,6 +93,12 @@ export default function Admin() {
       setPendingPrinciples(sortedPrinciples);
     }
   }, [principlesData]);
+
+  useEffect(() => {
+    if (contactInfo) {
+      setPendingContactInfo(contactInfo);
+    }
+  }, [contactInfo]);
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -159,6 +170,25 @@ export default function Admin() {
     }
   });
 
+  const updateContactInfo = useMutation({
+    mutationFn: async (info: Partial<ContactInfo>) => {
+      const res = await fetch("/api/contact-info", {
+        method: contactInfo ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(info),
+      });
+      if (!res.ok) throw new Error("Failed to update contact information");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contact-info"] });
+      toast({
+        title: "Success",
+        description: "Contact information updated successfully",
+      });
+    },
+  });
+
   const handleContentChange = (key: string, value: string) => {
     setPendingContent(prev => ({ ...prev, [key]: value }));
     setHasUnsavedChanges(true);
@@ -168,6 +198,11 @@ export default function Admin() {
     setPendingPrinciples(prev =>
       prev.map(p => p.id === id ? { ...p, [field]: value } : p)
     );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleContactChange = (field: keyof ContactInfo, value: string) => {
+    setPendingContactInfo(prev => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
   };
 
@@ -192,6 +227,12 @@ export default function Admin() {
 
     if (hasPrincipleChanges) {
       await updatePrinciples.mutateAsync(pendingPrinciples);
+    }
+
+    // Save contact info changes if there are any differences
+    const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
+    if (hasContactChanges) {
+      await updateContactInfo.mutateAsync(pendingContactInfo);
     }
 
     setHasUnsavedChanges(false);
@@ -306,6 +347,12 @@ export default function Admin() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Content Management</h1>
+        {hasUnsavedChanges && (
+          <Button onClick={handleSaveChanges} className="gap-2">
+            <Save className="h-4 w-4" />
+            Save Changes
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue="home">
@@ -314,6 +361,7 @@ export default function Admin() {
           <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="animals">Animals</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="contact">Contact</TabsTrigger>
         </TabsList>
 
         <TabsContent value="home">
@@ -799,8 +847,7 @@ export default function Admin() {
                                 </div>
                                 <div>
                                   <p className="font-semibold">Mother</p>
-                                  <p>{litter.mother?.name ?? ""}</p>
-                                </div>
+                                  <p>{litter.mother?.name ?? ""}</p>                                </div>
                               </div>
 
                               <div className="flex items-center gap-4">
@@ -919,20 +966,60 @@ export default function Admin() {
             ))}
           </div>
         </TabsContent>
+        <TabsContent value="contact">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>Manage contact details displayed on the website</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={pendingContactInfo.email ?? ""}
+                  onChange={(e) => handleContactChange("email", e.target.value)}
+                  placeholder="contact@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={pendingContactInfo.phone ?? ""}
+                  onChange={(e) => handleContactChange("phone", e.target.value)}
+                  placeholder="(123) 456-7890"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook URL</Label>
+                <Input
+                  id="facebook"
+                  type="url"
+                  value={pendingContactInfo.facebook ?? ""}
+                  onChange={(e) => handleContactChange("facebook", e.target.value)}
+                  placeholder="https://facebook.com/your-page"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram URL</Label>
+                <Input
+                  id="instagram"
+                  type="url"
+                  value={pendingContactInfo.instagram ?? ""}
+                  onChange={(e) => handleContactChange("instagram", e.target.value)}
+                  placeholder="https://instagram.com/your-profile"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
-      {hasUnsavedChanges && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <Button
-            size="lg"
-            onClick={handleSaveChanges}
-            disabled={updateSiteContent.isPending || updatePrinciples.isPending}
-            className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
-          >
-            <Save className="w-5 h-5 mr-2" />
-            Save Changes
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
