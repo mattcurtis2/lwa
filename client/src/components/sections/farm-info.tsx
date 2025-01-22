@@ -17,7 +17,7 @@ export default function FarmInfo() {
   };
 
   return (
-    <section id="about-farm" className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
+    <section id="about-farm" className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">
