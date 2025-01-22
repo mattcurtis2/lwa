@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product } from "@db/schema";
+import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save } from "lucide-react";
+import { Save, GripVertical } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -21,6 +21,7 @@ import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 interface ContentField {
   key: string;
@@ -39,6 +40,7 @@ export default function Admin() {
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [principles, setPrinciples] = useState<Principle[]>([]);
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
@@ -81,6 +83,15 @@ export default function Admin() {
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
+    queryKey: ["/api/principles"],
+  });
+
+  useEffect(() => {
+    setPrinciples(principlesData);
+  }, [principlesData]);
+
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -208,7 +219,116 @@ export default function Admin() {
     />
   );
 
-  if (isLoadingSiteContent) {
+  const handlePrincipleChange = async (id: number, field: string, value: string) => {
+    try {
+      const res = await fetch(`/api/principles/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      if (!res.ok) throw new Error(`Failed to update principle ${field}`);
+
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      toast({
+        title: "Success",
+        description: "Principle updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating principle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update principle",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeletePrinciple = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this principle?")) return;
+
+    try {
+      const res = await fetch(`/api/principles/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete principle");
+
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      toast({
+        title: "Success",
+        description: "Principle deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting principle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete principle",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddPrinciple = async () => {
+    try {
+      const res = await fetch("/api/principles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "New Principle",
+          description: "Principle description",
+          imageUrl: "",
+          order: principles.length,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to add principle");
+
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      toast({
+        title: "Success",
+        description: "Principle added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding principle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add principle",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePrincipleReorder = async (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(principles);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    try {
+      await Promise.all(
+        items.map((item, index) =>
+          fetch(`/api/principles/${item.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order: index }),
+          })
+        )
+      );
+
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+    } catch (error) {
+      console.error('Error reordering principles:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reorder principles",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoadingSiteContent || isLoadingPrinciples) {
     return (
       <div className="container mx-auto py-8">
         <h1 className="text-4xl font-bold mb-8">Content Management</h1>
@@ -401,6 +521,103 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Principles Section */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Principles</CardTitle>
+              <CardDescription>Manage the principles section content and ordering</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DragDropContext onDragEnd={handlePrincipleReorder}>
+                <Droppable droppableId="principles">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {principles.map((principle, index) => (
+                        <Draggable
+                          key={principle.id}
+                          draggableId={principle.id.toString()}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="p-4 border rounded-lg space-y-4"
+                            >
+                              <div className="flex items-center gap-2">
+                                <GripVertical className="h-5 w-5 text-stone-400" />
+                                <Input
+                                  value={principle.title}
+                                  onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                                  className="font-semibold"
+                                  placeholder="Principle Title"
+                                />
+                              </div>
+                              <Textarea
+                                value={principle.description}
+                                onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                                placeholder="Principle Description"
+                                className="min-h-[100px]"
+                              />
+                              <div className="space-y-2">
+                                <Label>Image</Label>
+                                <FileUpload
+                                  value={principle.imageUrl}
+                                  onFileSelect={async (file) => {
+                                    const formData = new FormData();
+                                    formData.append("file", file);
+
+                                    try {
+                                      const uploadRes = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formData,
+                                      });
+
+                                      if (!uploadRes.ok) throw new Error("Failed to upload image");
+
+                                      const { url } = await uploadRes.json();
+                                      handlePrincipleChange(principle.id, 'imageUrl', url);
+                                    } catch (error) {
+                                      console.error('Error uploading image:', error);
+                                      toast({
+                                        title: "Error",
+                                        description: "Failed to upload image",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
+                                  onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
+                                />
+                              </div>
+                              <div className="flex justify-end">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleDeletePrinciple(principle.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+
+              <Button
+                onClick={handleAddPrinciple}
+                className="w-full"
+              >
+                Add New Principle
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="dogs">
@@ -556,7 +773,7 @@ export default function Admin() {
                             <div className="flex gap-2">
                               <Button
                                 variant="outline"
-                                onClick={()=> {
+                                onClick={() => {
                                   setEditLitter(litter);
                                   setShowLitterForm(true);
                                 }}
