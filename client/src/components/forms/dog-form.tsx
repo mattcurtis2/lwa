@@ -169,9 +169,14 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
+        // Add one day to compensate for timezone offset
+        const date = new Date(values.birthDate);
+        date.setDate(date.getDate() + 1);
+        const adjustedDate = date.toISOString().split('T')[0];
+        
         const formattedValues = {
           ...values,
-          birthDate: values.birthDate,
+          birthDate: adjustedDate,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
