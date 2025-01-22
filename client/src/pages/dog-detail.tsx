@@ -120,60 +120,65 @@ export default function DogDetail() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="max-w-6xl mx-auto">
+    <div className="container mx-auto px-4 py-8 md:py-16">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header Section */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h1 className="text-4xl font-bold flex items-center gap-2 mb-2">
             {dog.name} {genderSymbol}
           </h1>
           {dog.registrationName && (
             <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
           )}
-          <p className="text-lg mt-2">
-            Age: {formatAge(new Date(dog.birthDate))}
-          </p>
-          <div className="prose max-w-none mt-4">
-            <p>{dog.description}</p>
-          </div>
         </div>
 
-        {/* Pictures & Videos Section */}
-        {dog.media && dog.media.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-            <DogMediaCarousel media={dog.media} className="w-full max-w-4xl mx-auto" />
-
-            {/* Image Grid/Collage */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              {dog.media.map((item, index) => (
-                item.type === 'image' && (
-                  <div key={index} className="aspect-square">
-                    <img
-                      src={item.url}
-                      alt={`${dog.name} - photo ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                )
-              ))}
-            </div>
+        {/* Tabs Section - Now above images */}
+        <Tabs defaultValue="basic" className="w-full">
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
+              <TabsTrigger value="basic">Basic Information</TabsTrigger>
+              <TabsTrigger value="story">Story</TabsTrigger>
+              <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
+              <TabsTrigger value="health">Health Information</TabsTrigger>
+              <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+            </TabsList>
           </div>
-        )}
 
-        {/* Details Tabs */}
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
-            <TabsTrigger value="health">Health Information</TabsTrigger>
-            <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="mt-6">
+          <TabsContent value="basic" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>About {dog.name}</CardTitle>
+                <CardTitle>Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-2">Age</h3>
+                    <p>{formatAge(new Date(dog.birthDate))}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Birth Date</h3>
+                    <p>{format(new Date(dog.birthDate), 'MMMM d, yyyy')}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Breed</h3>
+                    <p>Colorado Mountain Dog</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Gender</h3>
+                    <p className="flex items-center gap-1">
+                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="story" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Story</CardTitle>
+                <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px] w-full rounded-md">
@@ -288,6 +293,29 @@ export default function DogDetail() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Pictures & Videos Section - Now below tabs with adjusted size */}
+        {dog.media && dog.media.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
+            <DogMediaCarousel media={dog.media} className="w-full max-w-3xl mx-auto" />
+
+            {/* Image Grid/Collage */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
+              {dog.media.map((item, index) => (
+                item.type === 'image' && (
+                  <div key={index} className="aspect-square">
+                    <img
+                      src={item.url}
+                      alt={`${dog.name} - photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                )
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
