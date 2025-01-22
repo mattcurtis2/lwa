@@ -723,6 +723,40 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get("/api/litters/past", async (_req, res) => {
+    try {
+      const allLitters = await db.query.litters.findMany({
+        with: {
+          mother: {
+            with: {
+              media: {
+                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+              },
+            },
+          },
+          father: {
+            with: {
+              media: {
+                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+              },
+            },
+          },
+        },
+      });
+
+      // Filter for past litters (due date is in the past)
+      const pastLitters = allLitters.filter(litter => {
+        const dueDate = new Date(litter.dueDate);
+        return dueDate < new Date();
+      });
+
+      res.json(pastLitters);
+    } catch (error) {
+      console.error("Error fetching past litters:", error);
+      res.status(500).json({ message: "Failed to fetch past litters" });
+    }
+  });
+
   // Add principles routes
   app.get("/api/principles", async (_req, res) => {
     try {

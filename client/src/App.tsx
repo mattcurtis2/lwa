@@ -9,6 +9,7 @@ import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
 import LitterDetail from "@/pages/litter-detail";
 import UpcomingLitters from "@/pages/upcoming-litters";
+import PastLitters from "@/pages/past-litters";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
@@ -41,6 +42,7 @@ function Router() {
             {() => <Dogs genderFilter="female" />}
           </Route>
           <Route path="/dogs/litters/upcoming" component={UpcomingLitters} />
+          <Route path="/dogs/litters/past" component={PastLitters} />
           <Route path="/dogs/litters/:id" component={LitterDetail} />
           <Route path="/dogs/:id" component={DogDetail} />
           <Route path="/admin" component={Admin} />
