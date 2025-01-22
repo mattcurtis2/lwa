@@ -1,5 +1,5 @@
-import { Dog, DogMedia } from "@db/schema";
 import { useState } from "react";
+import { Dog, DogMedia } from "@db/schema";
 import {
   Card,
   CardContent,
@@ -14,7 +14,8 @@ import {
   FileImage,
   FileVideo,
   File,
-  ExternalLink
+  ExternalLink,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
@@ -93,6 +94,7 @@ function DocumentLink({ document }: { document: Document }) {
 
 export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const healthDocuments = dog.documents?.filter((doc) => doc.type === 'health') || [];
   const pedigreeDocuments = dog.documents?.filter((doc) => doc.type === 'pedigree') || [];
 
@@ -102,32 +104,78 @@ export default function DogDetails({ dog }: DogDetailsProps) {
     <span className="text-pink-500">♀</span>
   );
 
+  const imageMedia = dog.media?.filter(m => m.type === 'image') || [];
+
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-6">
-        <Avatar className="h-24 w-24">
-          <AvatarImage
-            src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
-            alt={dog.name}
-          />
-          <AvatarFallback>
-            {genderSymbol}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-4xl font-bold flex items-center gap-2">
-            {dog.name} {genderSymbol}
-          </h1>
-          {dog.registrationName && (
-            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
-          )}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-6">
+          <Avatar className="h-24 w-24">
+            <AvatarImage
+              src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+              alt={dog.name}
+            />
+            <AvatarFallback>
+              {genderSymbol}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-4xl font-bold flex items-center gap-2">
+              {dog.name} {genderSymbol}
+            </h1>
+            {dog.registrationName && (
+              <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+            )}
+          </div>
         </div>
+
+        {/* Desktop/Tablet Image Thumbnails */}
+        {imageMedia.length > 0 && (
+          <div className="hidden md:flex gap-2 items-center">
+            {imageMedia.map((media, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImage(media.url)}
+                className={cn(
+                  "relative w-16 h-16 rounded-md overflow-hidden transition-transform hover:scale-105",
+                  selectedImage === media.url && "ring-2 ring-primary ring-offset-2"
+                )}
+              >
+                <img
+                  src={media.url}
+                  alt={`${dog.name} - photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Selected Image View */}
+      {selectedImage && (
+        <div className="relative">
+          <div className="aspect-video relative overflow-hidden rounded-lg bg-muted">
+            <img
+              src={selectedImage}
+              alt={dog.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => setSelectedImage(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
           <TabsTrigger value="basic">Basic Information</TabsTrigger>
-          <TabsTrigger value="media">Pictures & Videos</TabsTrigger>
           <TabsTrigger value="story">Story</TabsTrigger>
           <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
           <TabsTrigger value="health">Health Information</TabsTrigger>
@@ -154,46 +202,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="media">
-          {dog.media && dog.media.length > 0 ? (
-            <div>
-              <DogMediaCarousel
-                media={dog.media}
-                className="w-full max-w-2xl mx-auto mb-4"
-                activeIndex={activeMediaIndex}
-                onSlideChange={setActiveMediaIndex}
-              />
-              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {dog.media.map((item, index) => (
-                  item.type === 'image' && (
-                    <button
-                      key={index}
-                      onClick={() => setActiveMediaIndex(index)}
-                      className={cn(
-                        "relative aspect-square group transition-transform hover:scale-105",
-                        activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
-                      )}
-                    >
-                      <img
-                        src={item.url}
-                        alt={`${dog.name} - photo ${index + 1}`}
-                        className="w-full h-full object-cover rounded-md"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
-                    </button>
-                  )
-                ))}
-              </div>
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-6">
-                <p>No media available</p>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
 
         <TabsContent value="story">
@@ -307,6 +315,40 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Mobile Media Gallery */}
+      {dog.media && dog.media.length > 0 && (
+        <div className="md:hidden">
+          <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
+          <DogMediaCarousel
+            media={dog.media}
+            className="w-full max-w-2xl mx-auto mb-4"
+            activeIndex={activeMediaIndex}
+            onSlideChange={setActiveMediaIndex}
+          />
+          <div className="grid grid-cols-4 gap-2">
+            {dog.media.map((item, index) => (
+              item.type === 'image' && (
+                <button
+                  key={index}
+                  onClick={() => setActiveMediaIndex(index)}
+                  className={cn(
+                    "relative aspect-square group transition-transform hover:scale-105",
+                    activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
+                  )}
+                >
+                  <img
+                    src={item.url}
+                    alt={`${dog.name} - photo ${index + 1}`}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+                </button>
+              )
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
