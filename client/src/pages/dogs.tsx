@@ -31,6 +31,10 @@ export default function Dogs() {
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
   const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
 
+  // Debug logging
+  console.log('Visible litter mother media:', visibleLitter?.mother?.media);
+  console.log('Visible litter father media:', visibleLitter?.father?.media);
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -75,12 +79,7 @@ export default function Dogs() {
                   {visibleLitter.mother && (
                     <div>
                       <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
-                      <DogCard 
-                        dog={{
-                          ...visibleLitter.mother,
-                          media: visibleLitter.mother.media || []
-                        }} 
-                      />
+                      <DogCard dog={visibleLitter.mother} />
                     </div>
                   )}
 
@@ -88,12 +87,7 @@ export default function Dogs() {
                   {visibleLitter.father && (
                     <div>
                       <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
-                      <DogCard 
-                        dog={{
-                          ...visibleLitter.father,
-                          media: visibleLitter.father.media || []
-                        }} 
-                      />
+                      <DogCard dog={visibleLitter.father} />
                     </div>
                   )}
                 </div>
