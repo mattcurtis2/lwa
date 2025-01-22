@@ -41,11 +41,12 @@ const dogSchema = z.object({
   birthDate: z.string().refine((date) => {
     try {
       const parsedDate = parse(date, 'MM/dd/yyyy', new Date());
+      // Check if date is valid and not in the future
       return !isNaN(parsedDate.getTime()) && parsedDate <= new Date();
     } catch {
       return false;
     }
-  }, "Please enter a valid date in MM/DD/YYYY format"),
+  }, "Please enter a valid date (MM/DD/YYYY) that is not in the future"),
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
@@ -109,7 +110,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     defaultValues: {
       name: "",
       registrationName: "",
-      birthDate: format(new Date(), 'MM/dd/yyyy'),
+      birthDate: format(new Date(), 'MM/dd/yyyy'), // This will be overridden in useEffect if dog exists
       gender: "male",
       description: "",
       healthData: "",
@@ -158,10 +159,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       setPedigreeDocuments(pedigreeDocs);
       setMediaInputs(media);
 
+      // Parse the date from ISO format to MM/dd/yyyy
+      const birthDate = new Date(dog.birthDate);
+
       form.reset({
         name: dog.name,
         registrationName: dog.registrationName || "",
-        birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
+        birthDate: format(birthDate, 'MM/dd/yyyy'),
         gender: dog.gender as "male" | "female",
         description: dog.description ?? "",
         healthData: dog.healthData ?? "",
@@ -176,10 +180,14 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         outsideBreeder: dog.outsideBreeder ?? false,
       });
     } else {
+      // For new dogs, set a default date in the past (e.g., 2 years ago)
+      const defaultDate = new Date();
+      defaultDate.setFullYear(defaultDate.getFullYear() - 2);
+
       form.reset({
         name: "",
         registrationName: "",
-        birthDate: format(new Date(), 'MM/dd/yyyy'),
+        birthDate: format(defaultDate, 'MM/dd/yyyy'),
         gender: "male",
         description: "",
         healthData: "",
@@ -193,44 +201,50 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         media: [],
         outsideBreeder: false,
       });
-      setMediaInputs([]);
-      setHealthDocuments([]);
-      setPedigreeDocuments([]);
     }
   }, [dog, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
-      const parsedDate = parse(values.birthDate, 'MM/dd/yyyy', new Date());
-      const formattedValues = {
-        ...values,
-        breed: "Colorado Mountain Dog",
-        birthDate: format(parsedDate, 'yyyy-MM-dd'),
-        height: values.height ? parseFloat(values.height) : null,
-        weight: values.weight ? parseFloat(values.weight) : null,
-        documents: [
-          ...healthDocuments.map(doc => ({
-            ...doc,
-            type: 'health' as const,
-          })),
-          ...pedigreeDocuments.map(doc => ({
-            ...doc,
-            type: 'pedigree' as const,
-          }))
-        ]
-      };
+      try {
+        const parsedDate = parse(values.birthDate, 'MM/dd/yyyy', new Date());
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error("Invalid date format");
+        }
 
-      const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
-        method: dog ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedValues),
-      });
+        const formattedValues = {
+          ...values,
+          breed: "Colorado Mountain Dog",
+          birthDate: format(parsedDate, 'yyyy-MM-dd'),
+          height: values.height ? parseFloat(values.height) : null,
+          weight: values.weight ? parseFloat(values.weight) : null,
+          documents: [
+            ...healthDocuments.map(doc => ({
+              ...doc,
+              type: 'health' as const,
+            })),
+            ...pedigreeDocuments.map(doc => ({
+              ...doc,
+              type: 'pedigree' as const,
+            }))
+          ]
+        };
 
-      if (!res.ok) {
-        throw new Error(await res.text());
+        const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
+          method: dog ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formattedValues),
+        });
+
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+
+        return res.json();
+      } catch (error) {
+        console.error('Date parsing error:', error);
+        throw error;
       }
-
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
@@ -589,7 +603,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   ))}
                 </div>
               </div>
-
 
 
               <FormField
