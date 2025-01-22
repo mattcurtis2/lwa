@@ -5,9 +5,13 @@ import { Dog, DogMedia, Litter } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import DogProfile from "@/components/cards/dog-profile";
+import { useState } from "react";
+import LitterForm from "@/components/forms/litter-form";
+import { Plus } from "lucide-react";
 
 export default function LitterDetail() {
   const { id } = useParams();
+  const [isEditingLitter, setIsEditingLitter] = useState(false);
 
   const { data: litter, isLoading: isLoadingLitter } = useQuery<(Litter & {
     mother: Dog & { media?: DogMedia[] },
@@ -34,10 +38,17 @@ export default function LitterDetail() {
           <h1 className="text-4xl font-bold text-amber-900 mb-4">
             Expected {formatDisplayDate(new Date(litter.dueDate))}
           </h1>
-          <p className="text-amber-800 text-lg">
+          <p className="text-amber-800 text-lg mb-6">
             We're excited to announce this upcoming litter from our breeding program.
             Please contact us for more information about reserving a puppy.
           </p>
+          <Button 
+            onClick={() => setIsEditingLitter(true)}
+            className="bg-amber-600 hover:bg-amber-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Puppies
+          </Button>
         </div>
       </div>
 
@@ -56,6 +67,13 @@ export default function LitterDetail() {
           <DogProfile dog={litter.father} />
         </div>
       </div>
+
+      <LitterForm
+        open={isEditingLitter}
+        onOpenChange={setIsEditingLitter}
+        litter={litter}
+        mode="addPuppies"
+      />
     </div>
   );
 }

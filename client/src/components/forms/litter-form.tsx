@@ -7,24 +7,39 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Dog, Litter } from "@db/schema";
+import { Plus, X } from "lucide-react";
 import { 
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import DogForm from "./dog-form";
 
 interface LitterFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   litter?: Litter;
   dogs?: Dog[];
+  mode?: 'create' | 'edit' | 'addPuppies';
 }
 
-export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterFormProps) {
+interface PuppyFormData {
+  name: string;
+  gender: 'male' | 'female';
+  birthDate: string;
+  color?: string;
+}
+
+export default function LitterForm({ open, onOpenChange, litter, dogs, mode = 'create' }: LitterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showDogForm, setShowDogForm] = useState(false);
+  const [puppies, setPuppies] = useState<PuppyFormData[]>([]);
 
   const [formData, setFormData] = useState<Partial<Litter>>({
     dueDate: litter?.dueDate || "",
@@ -41,22 +56,50 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
     setIsLoading(true);
 
     try {
-      const url = litter ? `/api/litters/${litter.id}` : '/api/litters';
-      const method = litter ? 'PUT' : 'POST';
+      if (mode === 'addPuppies' && puppies.length > 0) {
+        // Create puppies
+        for (const puppy of puppies) {
+          const puppyData = {
+            ...puppy,
+            motherId: litter?.motherId,
+            fatherId: litter?.fatherId,
+            litterId: litter?.id,
+            description: '',
+          };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+          const res = await fetch('/api/dogs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(puppyData),
+          });
 
-      if (!res.ok) throw new Error('Failed to save litter');
+          if (!res.ok) throw new Error('Failed to create puppy');
+        }
 
-      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-      toast({
-        title: "Success",
-        description: `Litter ${litter ? 'updated' : 'created'} successfully`,
-      });
+        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+        toast({
+          title: "Success",
+          description: `${puppies.length} puppies added to the litter`,
+        });
+      } else {
+        // Regular litter creation/update
+        const url = litter ? `/api/litters/${litter.id}` : '/api/litters';
+        const method = litter ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        if (!res.ok) throw new Error('Failed to save litter');
+
+        queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+        toast({
+          title: "Success",
+          description: `Litter ${litter ? 'updated' : 'created'} successfully`,
+        });
+      }
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -69,77 +112,174 @@ export default function LitterForm({ open, onOpenChange, litter, dogs }: LitterF
     }
   };
 
+  const addPuppy = () => {
+    setPuppies(prev => [...prev, {
+      name: '',
+      gender: 'male',
+      birthDate: new Date().toISOString().split('T')[0],
+    }]);
+  };
+
+  const removePuppy = (index: number) => {
+    setPuppies(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string) => {
+    setPuppies(prev => prev.map((puppy, i) => 
+      i === index ? { ...puppy, [field]: value } : puppy
+    ));
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{litter ? 'Edit' : 'Add'} Litter</SheetTitle>
+          <SheetTitle>
+            {mode === 'addPuppies' ? 'Add Puppies to Litter' : litter ? 'Edit Litter' : 'Add Litter'}
+          </SheetTitle>
         </SheetHeader>
         <form onSubmit={handleSubmit} className="space-y-6 pt-6">
-          <div className="space-y-2">
-            <Label htmlFor="dueDate">Due Date</Label>
-            <Input
-              id="dueDate"
-              type="date"
-              value={formData.dueDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
-              required
-            />
-          </div>
+          {mode !== 'addPuppies' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">Due Date</Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={formData.dueDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                  required
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="mother">Mother</Label>
-            <Select
-              value={formData.motherId?.toString()}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, motherId: parseInt(value) }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select mother" />
-              </SelectTrigger>
-              <SelectContent>
-                {females.map((dog) => (
-                  <SelectItem key={dog.id} value={dog.id.toString()}>
-                    {dog.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="mother">Mother</Label>
+                <Select
+                  value={formData.motherId?.toString()}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, motherId: parseInt(value) }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select mother" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {females.map((dog) => (
+                      <SelectItem key={dog.id} value={dog.id.toString()}>
+                        {dog.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="father">Father</Label>
-            <Select
-              value={formData.fatherId?.toString()}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, fatherId: parseInt(value) }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select father" />
-              </SelectTrigger>
-              <SelectContent>
-                {males.map((dog) => (
-                  <SelectItem key={dog.id} value={dog.id.toString()}>
-                    {dog.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="father">Father</Label>
+                <Select
+                  value={formData.fatherId?.toString()}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, fatherId: parseInt(value) }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select father" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {males.map((dog) => (
+                      <SelectItem key={dog.id} value={dog.id.toString()}>
+                        {dog.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isVisible"
-              checked={formData.isVisible ?? false}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isVisible: checked }))}
-            />
-            <Label htmlFor="isVisible">Show announcement banner</Label>
-          </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isVisible"
+                  checked={formData.isVisible ?? false}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isVisible: checked }))}
+                />
+                <Label htmlFor="isVisible">Show announcement banner</Label>
+              </div>
+            </>
+          )}
+
+          {mode === 'addPuppies' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label>Puppies</Label>
+                <Button type="button" onClick={addPuppy} variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Puppy
+                </Button>
+              </div>
+
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-4">
+                  {puppies.map((puppy, index) => (
+                    <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-2"
+                        onClick={() => removePuppy(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+
+                      <div className="space-y-2">
+                        <Label>Name</Label>
+                        <Input
+                          value={puppy.name}
+                          onChange={(e) => updatePuppy(index, 'name', e.target.value)}
+                          placeholder="Puppy name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Gender</Label>
+                        <Select
+                          value={puppy.gender}
+                          onValueChange={(value) => updatePuppy(index, 'gender', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Birth Date</Label>
+                        <Input
+                          type="date"
+                          value={puppy.birthDate}
+                          onChange={(e) => updatePuppy(index, 'birthDate', e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Color</Label>
+                        <Input
+                          value={puppy.color || ''}
+                          onChange={(e) => updatePuppy(index, 'color', e.target.value)}
+                          placeholder="Puppy color"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 mt-8">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Save'}
+            <Button type="submit" disabled={isLoading || (mode === 'addPuppies' && puppies.length === 0)}>
+              {isLoading ? 'Saving...' : mode === 'addPuppies' ? 'Add Puppies' : 'Save'}
             </Button>
           </div>
         </form>
