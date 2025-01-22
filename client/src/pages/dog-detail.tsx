@@ -13,12 +13,54 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
+import { 
+  FileText, 
+  FileImage, 
+  FileVideo, 
+  File,
+  ExternalLink 
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+interface Document {
+  type: string;
+  url: string;
+  name: string;
+}
+
+function DocumentLink({ document }: { document: Document }) {
+  const getIcon = () => {
+    const ext = document.url.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') return <FileText className="h-5 w-5" />;
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext || '')) return <FileImage className="h-5 w-5" />;
+    if (['mp4', 'mov', 'avi'].includes(ext || '')) return <FileVideo className="h-5 w-5" />;
+    return <File className="h-5 w-5" />;
+  };
+
+  return (
+    <Button
+      variant="outline"
+      className="flex items-center gap-2 w-full justify-start"
+      asChild
+    >
+      <a href={document.url} target="_blank" rel="noopener noreferrer">
+        {getIcon()}
+        <span className="flex-1 truncate">{document.name}</span>
+        <ExternalLink className="h-4 w-4 shrink-0" />
+      </a>
+    </Button>
+  );
+}
 
 export default function DogDetail() {
   const [location] = useLocation();
   const dogName = location.split("/").pop()?.replace("#", "");
 
-  const { data: dogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
+  const { data: dogs } = useQuery<(Dog & { 
+    media?: DogMedia[],
+    healthDocuments?: Document[],
+    pedigreeDocuments?: Document[]
+  })[]>({
     queryKey: ["/api/dogs"],
   });
 
@@ -52,13 +94,17 @@ export default function DogDetail() {
           <p className="text-lg mt-2">
             Age: {formatAge(new Date(dog.birthDate))}
           </p>
+          <div className="prose max-w-none mt-4">
+            <p>{dog.description}</p>
+          </div>
         </div>
 
-        {/* Media Section */}
+        {/* Pictures & Videos Section */}
         {dog.media && dog.media.length > 0 && (
           <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
             <DogMediaCarousel media={dog.media} className="w-full max-w-4xl mx-auto" />
-            
+
             {/* Image Grid/Collage */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
               {dog.media.map((item, index) => (
@@ -142,10 +188,26 @@ export default function DogDetail() {
                 <CardDescription>Health records and certifications</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="prose max-w-none">
-                  {dog.healthData ? (
-                    <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
-                  ) : (
+                <div className="space-y-6">
+                  {dog.healthData && (
+                    <div className="prose max-w-none mb-6">
+                      <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+                    </div>
+                  )}
+
+                  {/* Health Documents Section */}
+                  {dog.healthDocuments && dog.healthDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Health Documents</h3>
+                      <div className="grid gap-2">
+                        {dog.healthDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {!dog.healthData && (!dog.healthDocuments || dog.healthDocuments.length === 0) && (
                     <p>No health information available</p>
                   )}
                 </div>
@@ -160,10 +222,26 @@ export default function DogDetail() {
                 <CardDescription>Family history and lineage</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="prose max-w-none">
-                  {dog.pedigree ? (
-                    <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
-                  ) : (
+                <div className="space-y-6">
+                  {dog.pedigree && (
+                    <div className="prose max-w-none mb-6">
+                      <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+                    </div>
+                  )}
+
+                  {/* Pedigree Documents Section */}
+                  {dog.pedigreeDocuments && dog.pedigreeDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Pedigree Documents</h3>
+                      <div className="grid gap-2">
+                        {dog.pedigreeDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {!dog.pedigree && (!dog.pedigreeDocuments || dog.pedigreeDocuments.length === 0) && (
                     <p>No pedigree information available</p>
                   )}
                 </div>
