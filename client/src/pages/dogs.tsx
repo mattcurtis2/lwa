@@ -31,10 +31,6 @@ export default function Dogs() {
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
   const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
 
-  // Debug logging
-  console.log('Visible litter mother media:', visibleLitter?.mother?.media);
-  console.log('Visible litter father media:', visibleLitter?.father?.media);
-
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -58,38 +54,39 @@ export default function Dogs() {
       {/* Announcement Banner */}
       {visibleLitter && (
         <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
-          <div className="container mx-auto px-4 py-12">
+          <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col items-center text-center">
-              <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-4">
+              <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold">
                 Exciting News!
               </div>
-              <h2 className="text-3xl font-bold text-amber-900 mb-2">
+              <h2 className="text-3xl font-bold text-amber-900 mt-4">
                 New Litter Coming Soon!
               </h2>
-              <p className="text-amber-800 max-w-2xl mb-6">
-                We're excited to announce an upcoming litter of Colorado Mountain Dog puppies. 
+              <p className="text-amber-800 mt-2">
                 Expected due date: <span className="font-semibold">{format(new Date(visibleLitter.dueDate), 'MMMM d, yyyy')}</span>
               </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {/* Parents Section */}
-              <div className="w-full max-w-4xl mt-8">
-                <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Mother Section */}
-                  {visibleLitter.mother && (
-                    <div>
-                      <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
-                      <DogCard dog={visibleLitter.mother} />
-                    </div>
-                  )}
+      {/* Detailed Litter Information Section */}
+      {visibleLitter && (
+        <div className="bg-white py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl font-bold text-center mb-12">Upcoming Litter Details</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Mother's Section */}
+                <div>
+                  <h3 className="text-2xl font-semibold mb-6 text-center">Mother</h3>
+                  <DogCard dog={visibleLitter.mother} />
+                </div>
 
-                  {/* Father Section */}
-                  {visibleLitter.father && (
-                    <div>
-                      <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
-                      <DogCard dog={visibleLitter.father} />
-                    </div>
-                  )}
+                {/* Father's Section */}
+                <div>
+                  <h3 className="text-2xl font-semibold mb-6 text-center">Father</h3>
+                  <DogCard dog={visibleLitter.father} />
                 </div>
               </div>
             </div>
