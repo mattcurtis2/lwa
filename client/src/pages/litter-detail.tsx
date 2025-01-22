@@ -107,11 +107,15 @@ export default function LitterDetail() {
         {/* Puppies Section */}
         {puppyCount > 0 && (
           <div className="space-y-16">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-stone-800 mb-2">Puppies</h2>
-              <p className="text-muted-foreground">
-                Meet the newest members of our family
-              </p>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t"></div>
+              </div>
+              <div className="relative flex justify-center text-center">
+                <div className="bg-background px-6">
+                  <h2 className="text-3xl font-bold text-stone-800">Puppies</h2>
+                </div>
+              </div>
             </div>
 
             {litter.puppies?.map((puppy, index) => (
