@@ -402,7 +402,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Add dogs routes
+  // Update the GET /api/dogs route to include parent and litter information
   app.get("/api/dogs", async (_req, res) => {
     const allDogs = await db.query.dogs.findMany({
       orderBy: (dogs, { asc }) => [asc(dogs.order)],
@@ -411,6 +411,9 @@ export function registerRoutes(app: Express): Server {
           orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
         },
         documents: true,
+        mother: true,
+        father: true,
+        litter: true,
       },
     });
 
@@ -431,16 +434,14 @@ export function registerRoutes(app: Express): Server {
     res.json(processedDogs);
   });
 
+  // Update the POST /api/dogs route to handle parent and litter information
   app.post("/api/dogs", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
 
     try {
-      // Start a transaction since we need to insert both dog and media
       const dog = await db.transaction(async (tx) => {
-        // Insert dog first
         const [newDog] = await tx.insert(dogs).values(dogData).returning();
 
-        // If there's media, insert all media items
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
             media.map((item: any, index: number) => ({
@@ -452,7 +453,6 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Insert documents if any
         if (documents && documents.length > 0) {
           await tx.insert(dogDocuments).values(
             documents.map((doc: any) => ({
@@ -465,16 +465,18 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Return the newly created dog with its media and documents
-        const dogWithMedia = await tx.query.dogs.findFirst({
+        const dogWithRelations = await tx.query.dogs.findFirst({
           where: eq(dogs.id, newDog.id),
           with: {
             media: true,
             documents: true,
+            mother: true,
+            father: true,
+            litter: true,
           },
         });
 
-        return dogWithMedia;
+        return dogWithRelations;
       });
 
       res.json(dog);
@@ -484,13 +486,13 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Update the PUT /api/dogs/:id route to handle parent and litter information
   app.put("/api/dogs/:id", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
 
     try {
       const dog = await db.transaction(async (tx) => {
-        // Get existing dog to preserve order
         const existingDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
         });
@@ -499,24 +501,20 @@ export function registerRoutes(app: Express): Server {
           throw new Error("Dog not found");
         }
 
-        // Update dog data, preserving the existing order
         await tx.update(dogs)
           .set({
             ...dogData,
-            order: existingDog.order, // Preserve existing order
+            order: existingDog.order,
             updatedAt: new Date()
           })
           .where(eq(dogs.id, dogId));
 
-        // Delete existing media
         await tx.delete(dogMedia)
           .where(eq(dogMedia.dogId, dogId));
 
-        // Delete existing documents
         await tx.delete(dogDocuments)
           .where(eq(dogDocuments.dogId, dogId));
 
-        // Insert new media
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
             media.map((item: any, index: number) => ({
@@ -528,7 +526,6 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Insert new documents
         if (documents && documents.length > 0) {
           await tx.insert(dogDocuments).values(
             documents.map((doc: any) => ({
@@ -541,12 +538,14 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Return updated dog with media and documents
         const updatedDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
           with: {
             media: true,
             documents: true,
+            mother: true,
+            father: true,
+            litter: true,
           },
         });
 

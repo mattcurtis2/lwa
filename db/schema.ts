@@ -77,15 +77,18 @@ export const dogs = pgTable("dogs", {
   gender: text("gender").notNull(),
   birthDate: date("birth_date").notNull(),
   description: text("description"),
-  // New field for profile picture
+  // Add references to parents and litter
+  motherId: integer("mother_id").references(() => dogs.id),
+  fatherId: integer("father_id").references(() => dogs.id),
+  litterId: integer("litter_id").references(() => litters.id),
+  // Rest of existing fields remain unchanged
   profileImageUrl: text("profile_image_url"),
-  // Existing fields
   healthData: text("health_data"),
   color: text("color"),
   dewclaws: text("dewclaws"),
   furLength: text("fur_length"),
-  height: decimal("height", { precision: 5, scale: 2 }).default(null),
-  weight: decimal("weight", { precision: 5, scale: 2 }).default(null),
+  height: decimal("height", { precision: 5, scale: 2 }),
+  weight: decimal("weight", { precision: 5, scale: 2 }),
   pedigree: text("pedigree"),
   narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),
@@ -118,9 +121,24 @@ export const productRelations = relations(products, ({ one }) => ({
   }),
 }));
 
-export const dogRelations = relations(dogs, ({ many }) => ({
+export const dogRelations = relations(dogs, ({ many, one }) => ({
   media: many(dogMedia),
   documents: many(dogDocuments),
+  mother: one(dogs, {
+    fields: [dogs.motherId],
+    references: [dogs.id],
+  }),
+  father: one(dogs, {
+    fields: [dogs.fatherId],
+    references: [dogs.id],
+  }),
+  litter: one(litters, {
+    fields: [dogs.litterId],
+    references: [litters.id],
+  }),
+  // Add inverse relations for offspring
+  motherOf: many(dogs, { relationName: "mother" }),
+  fatherOf: many(dogs, { relationName: "father" }),
 }));
 
 export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
