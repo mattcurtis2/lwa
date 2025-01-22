@@ -7,6 +7,8 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
+import LitterDetail from "@/pages/litter-detail";
+import UpcomingLitters from "@/pages/upcoming-litters";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
@@ -29,13 +31,17 @@ function Router() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
-          <Route path="/dogs" component={Dogs} />
+          <Route path="/dogs">
+            {() => <Dogs />}
+          </Route>
           <Route path="/dogs/males">
             {() => <Dogs genderFilter="male" />}
           </Route>
           <Route path="/dogs/females">
             {() => <Dogs genderFilter="female" />}
           </Route>
+          <Route path="/dogs/litters/upcoming" component={UpcomingLitters} />
+          <Route path="/dogs/litters/:id" component={LitterDetail} />
           <Route path="/dogs/:id" component={DogDetail} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
