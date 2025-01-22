@@ -10,7 +10,7 @@ export default function Dogs() {
     queryKey: ["/api/dogs-hero"],
   });
 
-  const { data: dogs } = useQuery<Dog[]>({
+  const { data: dogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
     queryKey: ["/api/dogs"],
   });
 
@@ -75,13 +75,7 @@ export default function Dogs() {
                   {/* Mother */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      {visibleLitter.mother?.media && visibleLitter.mother.media.length > 0 ? (
-                        <DogMediaCarousel media={visibleLitter.mother.media} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                          <span className="text-4xl text-pink-500">♀</span>
-                        </div>
-                      )}
+                      <DogMediaCarousel media={visibleLitter.mother?.media || []} />
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
                     <p className="text-amber-800">{visibleLitter.mother?.name}</p>
@@ -90,13 +84,7 @@ export default function Dogs() {
                   {/* Father */}
                   <div className="flex flex-col items-center">
                     <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      {visibleLitter.father?.media && visibleLitter.father.media.length > 0 ? (
-                        <DogMediaCarousel media={visibleLitter.father.media} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                          <span className="text-4xl text-blue-500">♂</span>
-                        </div>
-                      )}
+                      <DogMediaCarousel media={visibleLitter.father?.media || []} />
                     </div>
                     <h4 className="text-lg font-semibold text-amber-900">Father</h4>
                     <p className="text-amber-800">{visibleLitter.father?.name}</p>
