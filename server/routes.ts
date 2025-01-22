@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -645,6 +645,71 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error deleting litter:", error);
       res.status(500).json({ message: "Failed to delete litter" });
+    }
+  });
+
+  // Add principles routes
+  app.get("/api/principles", async (_req, res) => {
+    try {
+      const allPrinciples = await db.query.principles.findMany({
+        orderBy: (principles, { asc }) => [asc(principles.order)],
+      });
+      res.json(allPrinciples);
+    } catch (error) {
+      console.error("Error fetching principles:", error);
+      res.status(500).json({ message: "Failed to fetch principles" });
+    }
+  });
+
+  app.post("/api/principles", async (req, res) => {
+    try {
+      const principles = await db.insert(principles)
+        .values(req.body)
+        .returning();
+      res.json(principles[0]);
+    } catch (error) {
+      console.error("Error creating principle:", error);
+      res.status(500).json({ message: "Failed to create principle" });
+    }
+  });
+
+  app.put("/api/principles/:id", async (req, res) => {
+    try {
+      const principle = await db.update(principles)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error updating principle:", error);
+      res.status(500).json({ message: "Failed to update principle" });
+    }
+  });
+
+  app.delete("/api/principles/:id", async (req, res) => {
+    try {
+      await db.delete(principles)
+        .where(eq(principles.id, parseInt(req.params.id)));
+      res.json({ message: "Deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting principle:", error);
+      res.status(500).json({ message: "Failed to delete principle" });
+    }
+  });
+
+  app.put("/api/principles/:id/reorder", async (req, res) => {
+    try {
+      const principle = await db.update(principles)
+        .set({ 
+          order: req.body.order,
+          updatedAt: new Date()
+        })
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error reordering principle:", error);
+      res.status(500).json({ message: "Failed to reorder principle" });
     }
   });
 

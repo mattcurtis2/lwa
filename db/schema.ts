@@ -198,3 +198,22 @@ export const insertLitterSchema = createInsertSchema(litters);
 export const selectLitterSchema = createSelectSchema(litters);
 export type DogDocument = typeof dogDocuments.$inferSelect;
 export type NewDogDocument = typeof dogDocuments.$inferInsert;
+
+export const principles = pgTable("principles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const principleRelations = relations(principles, ({ }) => ({
+  // No relations for now, but defining empty relations object to satisfy type requirements
+}));
+
+export const insertPrincipleSchema = createInsertSchema(principles);
+export const selectPrincipleSchema = createSelectSchema(principles);
+export type Principle = typeof principles.$inferSelect;
+export type NewPrinciple = typeof principles.$inferInsert;
