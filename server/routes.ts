@@ -733,7 +733,6 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/litters/past", async (_req, res) => {
     try {
-      // First get all litters with their parents
       const allLitters = await db.query.litters.findMany({
         with: {
           mother: {
@@ -772,11 +771,14 @@ export function registerRoutes(app: Express): Server {
         })
       );
 
-      // Filter to only include litters with due dates in the past
-      const pastLitters = littersWithPuppies.filter((litter) => {
-        const dueDate = new Date(litter.dueDate);
-        return dueDate <= new Date();
-      });
+      // Filter to show litters with due dates in the past (today or earlier)
+      const pastLitters = littersWithPuppies
+        .filter((litter) => {
+          const dueDate = new Date(litter.dueDate);
+          const today = new Date();
+          return dueDate <= today;
+        })
+        .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime()); // Sort by most recent first
 
       res.json(pastLitters);
     } catch (error) {
@@ -831,8 +833,7 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error deleting principle:", error);
       res.status(500).json({ message: "Failedto delete principle" });
-    }
-  });
+    }  });
 
   app.put("/api/principles/:id/reorder", async (req, res) => {
     try {
