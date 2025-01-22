@@ -44,7 +44,7 @@ export default function Dogs() {
 
       {/* Announcement Banner */}
       <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col items-center text-center">
             <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-4">
               Exciting News!
@@ -52,10 +52,42 @@ export default function Dogs() {
             <h2 className="text-3xl font-bold text-amber-900 mb-2">
               New Litter Coming Soon!
             </h2>
-            <p className="text-amber-800 max-w-2xl">
+            <p className="text-amber-800 max-w-2xl mb-6">
               We're excited to announce an upcoming litter of Colorado Mountain Dog puppies. 
-              Stay tuned for updates and availability information.
+              Expected due date: <span className="font-semibold">February 15, 2025</span>
             </p>
+
+            {/* Parents Section */}
+            <div className="w-full max-w-4xl mt-8">
+              <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Mother */}
+                <div className="flex flex-col items-center">
+                  <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
+                    <img
+                      src="/path-to-mother-image.jpg"
+                      alt="Mother"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
+                  <p className="text-amber-800">Sierra</p>
+                </div>
+
+                {/* Father */}
+                <div className="flex flex-col items-center">
+                  <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
+                    <img
+                      src="/path-to-father-image.jpg"
+                      alt="Father"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-amber-900">Father</h4>
+                  <p className="text-amber-800">Atlas</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
