@@ -3,13 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 import MobileNav from "./mobile-nav";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -35,47 +33,43 @@ export default function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Colorado Mountain Dogs</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid p-4 w-[400px] gap-3">
-                      <Link href="/dogs">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          About
-                        </NavigationMenuLink>
-                      </Link>
-                      <Link href="/dogs/males">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          Males
-                        </NavigationMenuLink>
-                      </Link>
-                      <Link href="/dogs/females">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          Females
-                        </NavigationMenuLink>
-                      </Link>
-                      <Link href="/dogs/litters/upcoming">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          Upcoming Litters
-                        </NavigationMenuLink>
-                      </Link>
-                      <Link href="/dogs/litters/past">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          Past Litters
-                        </NavigationMenuLink>
-                      </Link>
-                      <Link href="/dogs/available">
-                        <NavigationMenuLink className="block px-4 py-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100">
-                          Available Dogs
-                        </NavigationMenuLink>
-                      </Link>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="text-stone-600 hover:text-stone-900">
+                Colorado Mountain Dogs
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <Link href="/dogs">
+                  <DropdownMenuItem className="cursor-pointer">
+                    About
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/dogs/males">
+                  <DropdownMenuItem className="cursor-pointer">
+                    Males
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/dogs/females">
+                  <DropdownMenuItem className="cursor-pointer">
+                    Females
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/dogs/litters/upcoming">
+                  <DropdownMenuItem className="cursor-pointer">
+                    Upcoming Litters
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/dogs/litters/past">
+                  <DropdownMenuItem className="cursor-pointer">
+                    Past Litters
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/dogs/available">
+                  <DropdownMenuItem className="cursor-pointer">
+                    Available Dogs
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/#goats">
               <a className="text-stone-600 hover:text-stone-900">Nigerian Dwarfs</a>
             </Link>
