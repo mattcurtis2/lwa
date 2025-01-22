@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
-import DogCard from "@/components/cards/dog-card";  // Add back the import
+import DogCard from "@/components/cards/dog-card";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import {
@@ -125,6 +125,10 @@ export default function Dogs() {
   const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
   const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
 
+  const navigateToDog = (dogId: number) => {
+    navigate(`/dogs/${dogId}`);
+  };
+
   return (
     <div className="w-full">
       <div 
@@ -197,67 +201,73 @@ export default function Dogs() {
       </div>
 
       {visibleLitter && motherDog && fatherDog && (
-        <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
+        <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200">
           <div className="container mx-auto px-4">
-            <div className="h-[100px] flex items-center justify-between">
-              <div className="flex items-center gap-8">
-                <div>
-                  <div className="inline-block px-3 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-2">
-                    New Litter Coming Soon!
-                  </div>
-                  <p className="text-amber-800">
-                    Expected: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-8">
-                  {/* Mother */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {motherDog.profileImageUrl ? (
-                        <img 
-                          src={motherDog.profileImageUrl} 
-                          alt={motherDog.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : motherDog.media && motherDog.media.length > 0 ? (
-                        <img 
-                          src={motherDog.media[0].url} 
-                          alt={motherDog.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-2xl text-pink-500">♀</span>
-                      )}
+            <div className="h-[100px] flex items-center">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-12">
+                  <div>
+                    <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2 inline-block">
+                      New Litter Coming Soon!
                     </div>
-                    <div>
-                      <p className="font-medium text-amber-900">{motherDog.name}</p>
-                      <p className="text-sm text-amber-700">Mother</p>
-                    </div>
+                    <p className="text-amber-800">
+                      Expected: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
+                    </p>
                   </div>
 
-                  {/* Father */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {fatherDog.profileImageUrl ? (
-                        <img 
-                          src={fatherDog.profileImageUrl} 
-                          alt={fatherDog.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : fatherDog.media && fatherDog.media.length > 0 ? (
-                        <img 
-                          src={fatherDog.media[0].url} 
-                          alt={fatherDog.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-2xl text-blue-500">♂</span>
-                      )}
+                  <div className="flex items-center gap-10">
+                    <div 
+                      className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-105"
+                      onClick={() => navigateToDog(motherDog.id)}
+                    >
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
+                        {motherDog.profileImageUrl ? (
+                          <img 
+                            src={motherDog.profileImageUrl} 
+                            alt={motherDog.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : motherDog.media && motherDog.media.length > 0 ? (
+                          <img 
+                            src={motherDog.media[0].url} 
+                            alt={motherDog.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-3xl text-pink-500">♀</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-amber-900">{motherDog.name}</p>
+                        <p className="text-sm text-amber-700/80">Mother</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-amber-900">{fatherDog.name}</p>
-                      <p className="text-sm text-amber-700">Father</p>
+
+                    <div 
+                      className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-105"
+                      onClick={() => navigateToDog(fatherDog.id)}
+                    >
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
+                        {fatherDog.profileImageUrl ? (
+                          <img 
+                            src={fatherDog.profileImageUrl} 
+                            alt={fatherDog.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : fatherDog.media && fatherDog.media.length > 0 ? (
+                          <img 
+                            src={fatherDog.media[0].url} 
+                            alt={fatherDog.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-3xl text-blue-500">♂</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-amber-900">{fatherDog.name}</p>
+                        <p className="text-sm text-amber-700/80">Father</p>
+                      </div>
                     </div>
                   </div>
                 </div>
