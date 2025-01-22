@@ -772,12 +772,10 @@ export function registerRoutes(app: Express): Server {
         })
       );
 
-      // Filter to only include litters that have puppies with birth dates in the past
+      // Filter to only include litters with due dates in the past
       const pastLitters = littersWithPuppies.filter((litter) => {
-        return (
-          litter.puppies.length > 0 &&
-          litter.puppies.some((puppy) => new Date(puppy.birthDate) <= new Date())
-        );
+        const dueDate = new Date(litter.dueDate);
+        return dueDate <= new Date();
       });
 
       res.json(pastLitters);
@@ -832,7 +830,7 @@ export function registerRoutes(app: Express): Server {
       res.json({ message: "Deleted successfully" });
     } catch (error) {
       console.error("Error deleting principle:", error);
-            res.status(500).json({ message: "Failedto delete principle" });
+      res.status(500).json({ message: "Failedto delete principle" });
     }
   });
 
