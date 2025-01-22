@@ -68,12 +68,7 @@ export default function Admin() {
   });
 
   const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
-    queryKey: ["/api/principles"],
-    onSuccess: (data) => {
-      // Sort principles by order before setting state
-      const sortedPrinciples = [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      setPendingPrinciples(sortedPrinciples);
-    }
+    queryKey: ["/api/principles"]
   });
 
   useEffect(() => {
@@ -85,6 +80,14 @@ export default function Admin() {
       setPendingContent(initialContent);
     }
   }, [siteContent]);
+
+  useEffect(() => {
+    if (principlesData) {
+      // Sort principles by order before setting state
+      const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      setPendingPrinciples(sortedPrinciples);
+    }
+  }, [principlesData]);
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
