@@ -374,38 +374,8 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* About Section */}
+          {/* Principles Section - Moved above About section */}
           <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>About Section</CardTitle>
-              <CardDescription>Manage the about section content</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {contentFields.slice(3, 5).map((field) => (
-                <div key={field.key} className="space-y-2">
-                  <Label htmlFor={field.key}>{field.label}</Label>
-                  <div className="flex gap-4">
-                    {field.type === "textarea" ? (
-                      <Textarea
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    ) : (
-                      <Input
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Principles Section */}
-          <Card className="mt-8">
             <CardHeader>
               <CardTitle>Principles</CardTitle>
               <CardDescription>Manage the principles section content and ordering</CardDescription>
@@ -511,6 +481,36 @@ export default function Admin() {
               >
                 Add New Principle
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* About Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>About Section</CardTitle>
+              <CardDescription>Manage the about section content</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {contentFields.slice(3, 5).map((field) => (
+                <div key={field.key} className="space-y-2">
+                  <Label htmlFor={field.key}>{field.label}</Label>
+                  <div className="flex gap-4">
+                    {field.type === "textarea" ? (
+                      <Textarea
+                        id={field.key}
+                        value={pendingContent[field.key] ?? field.value}
+                        onChange={(e) => handleContentChange(field.key, e.target.value)}
+                      />
+                    ) : (
+                      <Input
+                        id={field.key}
+                        value={pendingContent[field.key] ?? field.value}
+                        onChange={(e) => handleContentChange(field.key, e.target.value)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
@@ -835,7 +835,7 @@ export default function Admin() {
                                     body: JSON.stringify({ isVisible: checked }),
                                   });
                                   if (res.ok) {
-                                    queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
+                                    queryClient.invalidateQueries({ queryKey: ["/api/litters"]});
                                     toast({
                                       title: "Success",
                                       description: "Litter visibility updated",
