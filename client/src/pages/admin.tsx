@@ -40,7 +40,7 @@ export default function Admin() {
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [principles, setPrinciples] = useState<Principle[]>([]);
+  const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
@@ -86,10 +86,13 @@ export default function Admin() {
 
   const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
+    onSuccess: (data) => {
+      setPendingPrinciples(data);
+    }
   });
 
   useEffect(() => {
-    setPrinciples(principlesData);
+   // setPrinciples(principlesData); //This line is removed as principles are now managed in pendingPrinciples
   }, [principlesData]);
 
 
@@ -128,71 +131,107 @@ export default function Admin() {
     }
   });
 
-  useEffect(() => {
-    if (siteContent?.length > 0) {
-      const initialContent: Record<string, string> = {};
-      siteContent.forEach((item) => {
-        initialContent[item.key] = item.value;
+  const updatePrinciples = useMutation({
+    mutationFn: async (principles: Principle[]) => {
+      const results = await Promise.all(
+        principles.map((principle) =>
+          fetch(`/api/principles/${principle.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(principle),
+          }).then(res => {
+            if (!res.ok) throw new Error(`Failed to update principle ${principle.id}`);
+            return res.json();
+          })
+        )
+      );
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      toast({
+        title: "Success",
+        description: "Principles updated successfully",
       });
-      setPendingContent(initialContent);
     }
-  }, [siteContent]);
+  });
 
   const handleContentChange = (key: string, value: string) => {
     setPendingContent(prev => ({ ...prev, [key]: value }));
     setHasUnsavedChanges(true);
   };
 
-  const handleSaveChanges = () => {
-    const updates = Object.entries(pendingContent)
+  const handlePrincipleChange = (id: number, field: string, value: string) => {
+    setPendingPrinciples(prev => 
+      prev.map(p => p.id === id ? { ...p, [field]: value } : p)
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveChanges = async () => {
+    // Save site content changes
+    const contentUpdates = Object.entries(pendingContent)
       .filter(([key, value]) => {
         const currentContent = siteContent.find(c => c.key === key);
         return currentContent && currentContent.value !== value;
       })
       .map(([key, value]) => ({ key, value }));
 
-    if (updates.length > 0) {
-      updateSiteContent.mutate(updates);
+    if (contentUpdates.length > 0) {
+      await updateSiteContent.mutateAsync(contentUpdates);
     }
+
+    // Save principles changes if there are any differences
+    const hasPrincipleChanges = pendingPrinciples.some((pendingPrinciple, index) => {
+      const originalPrinciple = principlesData[index];
+      return JSON.stringify(pendingPrinciple) !== JSON.stringify(originalPrinciple);
+    });
+
+    if (hasPrincipleChanges) {
+      await updatePrinciples.mutateAsync(pendingPrinciples);
+    }
+
+    setHasUnsavedChanges(false);
   };
 
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
+  const handlePrincipleReorder = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(pendingPrinciples);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the order property for all items
+    const reorderedItems = items.map((item, index) => ({
+      ...item,
+      order: index
+    }));
+
+    setPendingPrinciples(reorderedItems);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleAddPrinciple = () => {
+    const newPrinciple: Principle = {
+      id: Date.now(), // Temporary ID that will be replaced when saved
+      title: "New Principle",
+      description: "Principle description",
+      imageUrl: "",
+      order: pendingPrinciples.length,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges]);
+    setPendingPrinciples([...pendingPrinciples, newPrinciple]);
+    setHasUnsavedChanges(true);
+  };
 
-  const contentFields: ContentField[] = [
-    // Hero Section
-    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
-    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
-    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+  const handleDeletePrinciple = (id: number) => {
+    if (!confirm("Are you sure you want to delete this principle?")) return;
 
-    // About Section - Updated to match the landing page
-    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
-    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
-
-    // Feature Cards Section
-    // Colorado Mountain Dogs Card
-    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
-
-    // Nigerian Dwarf Goats Card
-    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
-    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
-
-    // Products Card
-    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
-    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent.find(c => c.key === "market_title")?.value ?? "", type: "text" },
-    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
-  ];
+    setPendingPrinciples(prev => prev.filter(p => p.id !== id));
+    setHasUnsavedChanges(true);
+  };
 
   const renderDogCard = (dog: Dog) => (
     <DogCard
@@ -219,115 +258,6 @@ export default function Admin() {
     />
   );
 
-  const handlePrincipleChange = async (id: number, field: string, value: string) => {
-    try {
-      const res = await fetch(`/api/principles/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: value }),
-      });
-
-      if (!res.ok) throw new Error(`Failed to update principle ${field}`);
-
-      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
-      toast({
-        title: "Success",
-        description: "Principle updated successfully",
-      });
-    } catch (error) {
-      console.error('Error updating principle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update principle",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeletePrinciple = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this principle?")) return;
-
-    try {
-      const res = await fetch(`/api/principles/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Failed to delete principle");
-
-      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
-      toast({
-        title: "Success",
-        description: "Principle deleted successfully",
-      });
-    } catch (error) {
-      console.error('Error deleting principle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete principle",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAddPrinciple = async () => {
-    try {
-      const res = await fetch("/api/principles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: "New Principle",
-          description: "Principle description",
-          imageUrl: "",
-          order: principles.length,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to add principle");
-
-      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
-      toast({
-        title: "Success",
-        description: "Principle added successfully",
-      });
-    } catch (error) {
-      console.error('Error adding principle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add principle",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePrincipleReorder = async (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(principles);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    try {
-      await Promise.all(
-        items.map((item, index) =>
-          fetch(`/api/principles/${item.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ order: index }),
-          })
-        )
-      );
-
-      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
-    } catch (error) {
-      console.error('Error reordering principles:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reorder principles",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (isLoadingSiteContent || isLoadingPrinciples) {
     return (
       <div className="container mx-auto py-8">
@@ -348,7 +278,15 @@ export default function Admin() {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-4xl font-bold mb-8">Content Management</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">Content Management</h1>
+        {hasUnsavedChanges && (
+          <Button onClick={handleSaveChanges} disabled={updateSiteContent.isPending || updatePrinciples.isPending}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        )}
+      </div>
 
       <Tabs defaultValue="home">
         <TabsList>
@@ -533,7 +471,7 @@ export default function Admin() {
                 <Droppable droppableId="principles">
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {principles.map((principle, index) => (
+                      {pendingPrinciples.map((principle, index) => (
                         <Draggable
                           key={principle.id}
                           draggableId={principle.id.toString()}
@@ -544,7 +482,7 @@ export default function Admin() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="p-4 border rounded-lg space-y-4"
+                              className="p-4 border rounded-lg space-y-4 mb-4"
                             >
                               <div className="flex items-center gap-2">
                                 <GripVertical className="h-5 w-5 text-stone-400" />
@@ -612,7 +550,7 @@ export default function Admin() {
 
               <Button
                 onClick={handleAddPrinciple}
-                className="w-full"
+                className="w-full mt-4"
               >
                 Add New Principle
               </Button>
@@ -941,21 +879,6 @@ export default function Admin() {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Floating Save Button */}
-      {hasUnsavedChanges && (
-        <div className="fixed bottom-6 right-6">
-          <Button
-            size="lg"
-            onClick={handleSaveChanges}
-            disabled={updateSiteContent.isPending}
-            className="shadow-lg"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {updateSiteContent.isPending ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
