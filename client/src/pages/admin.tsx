@@ -21,7 +21,7 @@ import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 interface ContentField {
   key: string;
@@ -44,24 +44,7 @@ export default function Admin() {
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
-    queryKey: ["/api/site-content"],
-    staleTime: 0,
-    retry: 1,
-    onSuccess: (data) => {
-      const initialContent: Record<string, string> = {};
-      data.forEach((item) => {
-        initialContent[item.key] = item.value;
-      });
-      setPendingContent(initialContent);
-    },
-    onError: (error) => {
-      console.error("Failed to fetch site content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load site content. Please try again.",
-        variant: "destructive",
-      });
-    }
+    queryKey: ["/api/site-content"]
   });
 
   const { data: dogsHero = [] } = useQuery<DogsHero[]>({
@@ -92,9 +75,14 @@ export default function Admin() {
   });
 
   useEffect(() => {
-   // setPrinciples(principlesData); //This line is removed as principles are now managed in pendingPrinciples
-  }, [principlesData]);
-
+    if (siteContent?.length > 0) {
+      const initialContent: Record<string, string> = {};
+      siteContent.forEach((item) => {
+        initialContent[item.key] = item.value;
+      });
+      setPendingContent(initialContent);
+    }
+  }, [siteContent]);
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -104,7 +92,6 @@ export default function Admin() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value }),
-            credentials: 'include',
           }).then(res => {
             if (!res.ok) throw new Error(`Failed to update ${key}`);
             return res.json();
@@ -119,14 +106,6 @@ export default function Admin() {
       toast({
         title: "Success",
         description: "Content updated successfully",
-      });
-    },
-    onError: (error) => {
-      console.error("Failed to update content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update content. Please try again.",
-        variant: "destructive",
       });
     }
   });
@@ -172,7 +151,7 @@ export default function Admin() {
     // Save site content changes
     const contentUpdates = Object.entries(pendingContent)
       .filter(([key, value]) => {
-        const currentContent = siteContent.find(c => c.key === key);
+        const currentContent = siteContent?.find(c => c.key === key);
         return currentContent && currentContent.value !== value;
       })
       .map(([key, value]) => ({ key, value }));
@@ -194,7 +173,7 @@ export default function Admin() {
     setHasUnsavedChanges(false);
   };
 
-  const handlePrincipleReorder = (result: any) => {
+  const handlePrincipleReorder = (result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(pendingPrinciples);
@@ -212,15 +191,15 @@ export default function Admin() {
   };
 
   const handleAddPrinciple = () => {
-    const newPrinciple: Principle = {
-      id: Date.now(), // Temporary ID that will be replaced when saved
+    const newPrinciple = {
+      id: Date.now(), // Temporary ID
       title: "New Principle",
       description: "Principle description",
       imageUrl: "",
       order: pendingPrinciples.length,
       createdAt: new Date(),
       updatedAt: new Date()
-    };
+    } as Principle;
 
     setPendingPrinciples([...pendingPrinciples, newPrinciple]);
     setHasUnsavedChanges(true);
@@ -260,28 +239,25 @@ export default function Admin() {
 
   const contentFields: ContentField[] = [
     // Hero Section
-    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
-    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
-    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent?.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
+    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent?.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
+    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
-    // About Section - Updated to match the landing page
-    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent.find(c => c.key === "about_title")?.value ?? "", type: "text" },
-    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    // About Section
+    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent?.find(c => c.key === "about_title")?.value ?? "", type: "text" },
+    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
     // Feature Cards Section
-    // Colorado Mountain Dogs Card
-    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
+    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent?.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
 
-    // Nigerian Dwarf Goats Card
-    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
-    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
+    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent?.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
+    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent?.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
 
-    // Products Card
-    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
-    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent.find(c => c.key === "market_title")?.value ?? "", type: "text" },
-    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
+    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent?.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
+    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent?.find(c => c.key === "market_title")?.value ?? "", type: "text" },
+    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent?.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
 
   if (isLoadingSiteContent || isLoadingPrinciples) {
@@ -342,12 +318,29 @@ export default function Admin() {
                       />
                     ) : field.type === "image" ? (
                       <div className="flex-1">
-                        <Input
-                          type="text"
-                          id={field.key}
+                        <FileUpload
                           value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                          placeholder="Enter image URL"
+                          onFileSelect={async (file) => {
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            try {
+                              const uploadRes = await fetch("/api/upload", {
+                                method: "POST",
+                                body: formData,
+                              });
+                              if (!uploadRes.ok) throw new Error("Failed to upload image");
+                              const { url } = await uploadRes.json();
+                              handleContentChange(field.key, url);
+                            } catch (error) {
+                              console.error('Error uploading image:', error);
+                              toast({
+                                title: "Error",
+                                description: "Failed to upload image",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          onChange={(value) => handleContentChange(field.key, value)}
                         />
                       </div>
                     ) : (
@@ -356,15 +349,6 @@ export default function Admin() {
                         value={pendingContent[field.key] ?? field.value}
                         onChange={(e) => handleContentChange(field.key, e.target.value)}
                       />
-                    )}
-                    {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                      <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                        <img
-                          src={pendingContent[field.key] ?? field.value}
-                          alt={`${field.label} preview`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
                     )}
                   </div>
                 </div>
@@ -399,90 +383,6 @@ export default function Admin() {
                   </div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          {/* Feature Cards Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Feature Cards</CardTitle>
-              <CardDescription>Manage the three main feature cards</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Dogs Card */}
-              <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Dogs Card</h3>
-                {contentFields.slice(5, 7).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Goats Card */}
-              <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Goats Card</h3>
-                {contentFields.slice(7, 9).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Products Card */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Products Card</h3>
-                {contentFields.slice(9).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
 
@@ -580,6 +480,90 @@ export default function Admin() {
               >
                 Add New Principle
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Feature Cards Section */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Feature Cards</CardTitle>
+              <CardDescription>Manage the three main feature cards</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Dogs Card */}
+              <div className="space-y-6 pb-6 border-b">
+                <h3 className="text-lg font-semibold">Dogs Card</h3>
+                {contentFields.slice(5, 7).map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <div className="flex gap-4">
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      ) : (
+                        <Input
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Goats Card */}
+              <div className="space-y-6 pb-6 border-b">
+                <h3 className="text-lg font-semibold">Goats Card</h3>
+                {contentFields.slice(7, 9).map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <div className="flex gap-4">
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      ) : (
+                        <Input
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Products Card */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold">Products Card</h3>
+                {contentFields.slice(9).map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <div className="flex gap-4">
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      ) : (
+                        <Input
+                          id={field.key}
+                          value={pendingContent[field.key] ?? field.value}
+                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
