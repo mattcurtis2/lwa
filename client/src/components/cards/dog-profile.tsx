@@ -21,15 +21,18 @@ export default function DogProfile({ dog }: DogProfileProps) {
     return age;
   };
 
-  const profileImage = dog.profileImageUrl || (dog.media && dog.media[0]?.url);
-  const firstImage = dog.media && dog.media[0]?.url;
-
   return (
     <Card className="overflow-hidden">
       <div className="aspect-video relative overflow-hidden bg-muted">
-        {firstImage ? (
+        {dog.profileImageUrl ? (
           <img
-            src={firstImage}
+            src={dog.profileImageUrl}
+            alt={dog.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : dog.media && dog.media.length > 0 ? (
+          <img
+            src={dog.media[0].url}
             alt={dog.name}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -44,7 +47,7 @@ export default function DogProfile({ dog }: DogProfileProps) {
         <div className="flex items-start gap-4">
           <Avatar className="w-16 h-16">
             <AvatarImage 
-              src={profileImage}
+              src={dog.profileImageUrl ? dog.profileImageUrl : dog.media && dog.media.length > 0 ? dog.media[0].url : undefined}
               alt={dog.name}
             />
             <AvatarFallback>
