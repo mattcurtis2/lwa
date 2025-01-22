@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
-import DogCard from "@/components/cards/dog-card";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import {
@@ -198,28 +197,67 @@ export default function Dogs() {
 
       {visibleLitter && motherDog && fatherDog && (
         <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
-          <div className="container mx-auto px-4 py-12">
-            <div className="flex flex-col items-center text-center">
-              <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold">
-                Exciting News!
-              </div>
-              <h2 className="text-3xl font-bold text-amber-900 mt-4">
-                New Litter Coming Soon!
-              </h2>
-              <p className="text-amber-800 mt-2">
-                Expected due date: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
-              </p>
-
-              <div className="mt-8 w-full max-w-4xl">
-                <h3 className="text-2xl font-bold text-amber-900 mb-8">Meet the Parents</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-xl font-semibold text-amber-900 mb-4">Mother</h4>
-                    <DogCard dog={motherDog} />
+          <div className="container mx-auto px-4">
+            <div className="h-[100px] flex items-center justify-between">
+              <div className="flex items-center gap-8">
+                <div>
+                  <div className="inline-block px-3 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-2">
+                    New Litter Coming Soon!
                   </div>
-                  <div>
-                    <h4 className="text-xl font-semibold text-amber-900 mb-4">Father</h4>
-                    <DogCard dog={fatherDog} />
+                  <p className="text-amber-800">
+                    Expected: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-8">
+                  {/* Mother */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {motherDog.profileImageUrl ? (
+                        <img 
+                          src={motherDog.profileImageUrl} 
+                          alt={motherDog.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : motherDog.media && motherDog.media.length > 0 ? (
+                        <img 
+                          src={motherDog.media[0].url} 
+                          alt={motherDog.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl text-pink-500">♀</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-amber-900">{motherDog.name}</p>
+                      <p className="text-sm text-amber-700">Mother</p>
+                    </div>
+                  </div>
+
+                  {/* Father */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {fatherDog.profileImageUrl ? (
+                        <img 
+                          src={fatherDog.profileImageUrl} 
+                          alt={fatherDog.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : fatherDog.media && fatherDog.media.length > 0 ? (
+                        <img 
+                          src={fatherDog.media[0].url} 
+                          alt={fatherDog.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl text-blue-500">♂</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-amber-900">{fatherDog.name}</p>
+                      <p className="text-sm text-amber-700">Father</p>
+                    </div>
                   </div>
                 </div>
               </div>
