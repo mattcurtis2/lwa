@@ -159,6 +159,33 @@ export default function Admin() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Failed to upload image");
+      const { url } = await uploadRes.json();
+
+      handleContentChange(key, url);
+      updateSiteContent.mutate({ key, value: url });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
+
   const reorderDogs = useMutation({
     mutationFn: async ({ dogId, newOrder }: { dogId: number; newOrder: number }) => {
       const res = await fetch(`/api/dogs/${dogId}/reorder`, {
@@ -220,6 +247,23 @@ export default function Admin() {
                         value={pendingContent[field.key] ?? field.value}
                         onChange={(e) => handleContentChange(field.key, e.target.value)}
                       />
+                    ) : field.type === "image" ? (
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, field.key)}
+                        />
+                        <div className="relative">
+                          <Label>Or Enter Image URL</Label>
+                          <Input
+                            id={field.key}
+                            value={pendingContent[field.key] ?? field.value}
+                            onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            placeholder="https://example.com/image.jpg"
+                          />
+                        </div>
+                      </div>
                     ) : (
                       <Input
                         id={field.key}
@@ -228,11 +272,13 @@ export default function Admin() {
                       />
                     )}
                     {field.type === "image" && (pendingContent[field.key] ?? field.value) && (
-                      <img
-                        src={pendingContent[field.key] ?? field.value}
-                        alt={`${field.label} preview`}
-                        className="w-10 h-10 object-contain"
-                      />
+                      <div className="w-40 h-40 rounded overflow-hidden">
+                        <img
+                          src={pendingContent[field.key] ?? field.value}
+                          alt={`${field.label} preview`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
