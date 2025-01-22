@@ -591,6 +591,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               </div>
 
 
+
               <FormField
                 control={form.control}
                 name="narrativeDescription"
@@ -696,7 +697,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           onClick={() => {
                             const input = document.createElement('input');
                             input.type = 'file';
-                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain';
+                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi';
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement).files?.[0];
                               if (file) handleDocumentUpload(file, 'health');
@@ -735,7 +736,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           onClick={() => {
                             const input = document.createElement('input');
                             input.type = 'file';
-                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain';
+                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi';
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement).files?.[0];
                               if (file) handleDocumentUpload(file, 'pedigree');

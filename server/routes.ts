@@ -30,8 +30,16 @@ const upload = multer({
   storage,
   fileFilter: (_req, file, cb) => {
     const allowedTypes = [
-      // Images and videos
-      'image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime',
+      // Images
+      'image/jpeg', 
+      'image/png', 
+      'image/gif', 
+      'image/webp',
+      // Videos
+      'video/mp4', 
+      'video/quicktime',
+      'video/x-msvideo',
+      'video/x-ms-wmv',
       // Documents
       'application/pdf',
       'application/msword',
@@ -50,7 +58,7 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 25 * 1024 * 1024 // 25MB limit
+    fileSize: 50 * 1024 * 1024 // 50MB limit
   }
 });
 
