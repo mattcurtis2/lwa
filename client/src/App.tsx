@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Dogs from "@/pages/dogs";
+import DogDetail from "@/pages/dog-detail";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -17,6 +18,7 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/dogs" component={Dogs} />
+          <Route path="/dogs/:name" component={DogDetail} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>

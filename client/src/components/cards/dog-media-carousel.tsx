@@ -2,12 +2,14 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DogMedia } from "@db/schema";
+import { cn } from "@/lib/utils";
 
 interface DogMediaCarouselProps {
   media: DogMedia[];
+  className?: string;
 }
 
-export default function DogMediaCarousel({ media }: DogMediaCarouselProps) {
+export default function DogMediaCarousel({ media, className }: DogMediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!media || media.length === 0) return null;
@@ -23,7 +25,7 @@ export default function DogMediaCarousel({ media }: DogMediaCarouselProps) {
   const currentMedia = media[currentIndex];
 
   return (
-    <div className="relative aspect-square">
+    <div className={cn("relative aspect-square", className)}>
       {currentMedia.type === 'video' ? (
         <video
           src={currentMedia.url}

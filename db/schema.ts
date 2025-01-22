@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, date, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, date, jsonb, boolean, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
@@ -77,6 +77,15 @@ export const dogs = pgTable("dogs", {
   gender: text("gender").notNull(),
   birthDate: date("birth_date").notNull(),
   description: text("description"),
+  // New fields
+  healthData: text("health_data"),
+  color: text("color"),
+  dewclaws: text("dewclaws"),
+  furLength: text("fur_length"),
+  height: decimal("height"), // in inches
+  weight: decimal("weight"), // in pounds
+  pedigree: text("pedigree"),
+  narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),
   outsideBreeder: boolean("outside_breeder").default(false),
   createdAt: timestamp("created_at").defaultNow(),

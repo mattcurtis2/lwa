@@ -49,6 +49,15 @@ const dogSchema = z.object({
     required_error: "Please select sex",
   }),
   description: z.string(),
+  // New fields
+  healthData: z.string().optional(),
+  color: z.string().optional(),
+  dewclaws: z.string().optional(),
+  furLength: z.string().optional(),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  pedigree: z.string().optional(),
+  narrativeDescription: z.string().optional(),
   media: z.array(mediaSchema),
   outsideBreeder: z.boolean().default(false),
 });
@@ -84,12 +93,21 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       birthDate: format(new Date(), 'MM/dd/yyyy'),
       gender: "male",
       description: "",
+      // New fields
+      healthData: "",
+      color: "",
+      dewclaws: "",
+      furLength: "",
+      height: "",
+      weight: "",
+      pedigree: "",
+      narrativeDescription: "",
       media: [],
       outsideBreeder: false,
     },
   });
 
-  // Reset form when editing a different dog
+  // Update useEffect to include new fields
   useEffect(() => {
     if (dog) {
       const media = dog.media?.map(m => ({
@@ -102,10 +120,19 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         name: dog.name,
         registrationName: dog.registrationName || "",
         birthDate: format(new Date(dog.birthDate), 'MM/dd/yyyy'),
-        gender: dog.gender,
+        gender: dog.gender as "male" | "female",
         description: dog.description ?? "",
+        // New fields
+        healthData: dog.healthData ?? "",
+        color: dog.color ?? "",
+        dewclaws: dog.dewclaws ?? "",
+        furLength: dog.furLength ?? "",
+        height: dog.height?.toString() ?? "",
+        weight: dog.weight?.toString() ?? "",
+        pedigree: dog.pedigree ?? "",
+        narrativeDescription: dog.narrativeDescription ?? "",
         media,
-        outsideBreeder: false,
+        outsideBreeder: dog.outsideBreeder ?? false,
       });
       setMediaInputs(media);
     } else {
@@ -115,6 +142,15 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         birthDate: format(new Date(), 'MM/dd/yyyy'),
         gender: "male",
         description: "",
+        // New fields
+        healthData: "",
+        color: "",
+        dewclaws: "",
+        furLength: "",
+        height: "",
+        weight: "",
+        pedigree: "",
+        narrativeDescription: "",
         media: [],
         outsideBreeder: false,
       });
@@ -129,6 +165,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         ...values,
         breed: "Colorado Mountain Dog",
         birthDate: format(parsedDate, 'yyyy-MM-dd'),
+        height: values.height ? parseFloat(values.height) : null,
+        weight: values.weight ? parseFloat(values.weight) : null,
       };
 
       const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
@@ -360,6 +398,121 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {/* New fields */}
+              <FormField
+                control={form.control}
+                name="narrativeDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Narrative Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Detailed description of the dog's personality, training, and characteristics" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="color"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Color</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., White with brown markings" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Height (inches)</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Weight (lbs)</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="text" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="furLength"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fur Length</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Medium length, double coat" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dewclaws"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dewclaws</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Removed, Natural" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="healthData"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Health Information</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Health certifications, testing results, etc." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="pedigree"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pedigree Information</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Family history and lineage information" />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
