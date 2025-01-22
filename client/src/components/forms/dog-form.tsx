@@ -175,13 +175,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         // Create date string with noon UTC time to prevent date shifting
         const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T12:00:00.000Z`;
 
-        // Create date in local timezone without time component
-        const birthDate = new Date(values.birthDate);
-        birthDate.setUTCHours(12, 0, 0, 0);
-
+        // Ensure date is in YYYY-MM-DD format without time component
         const formattedValues = {
           ...values,
-          birthDate: birthDate.toISOString(),
+          birthDate: values.birthDate + 'T00:00:00.000Z',
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
