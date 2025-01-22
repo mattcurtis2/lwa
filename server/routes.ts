@@ -438,26 +438,12 @@ export function registerRoutes(app: Express): Server {
     const { media, documents, ...dogData } = req.body;
 
     try {
-      // Log incoming data for debugging
-      console.log('Received dog data:', JSON.stringify(dogData));
-
       const dog = await db.transaction(async (tx) => {
-        // Ensure all required fields are present and properly formatted
-        const dogToInsert = {
+        // Create the dog with basic data
+        const [newDog] = await tx.insert(dogs).values({
           ...dogData,
-          // Convert string numbers to actual numbers or null
-          height: dogData.height ? Number(dogData.height) : null,
-          weight: dogData.weight ? Number(dogData.weight) : null,
-          // Ensure IDs are numbers or null
-          motherId: dogData.motherId ? Number(dogData.motherId) : null,
-          fatherId: dogData.fatherId ? Number(dogData.fatherId) : null,
-          litterId: dogData.litterId ? Number(dogData.litterId) : null,
-          // Set default values
-          order: dogData.order || 0,
-          outsideBreeder: dogData.outsideBreeder || false,
-        };
-
-        const [newDog] = await tx.insert(dogs).values(dogToInsert).returning();
+          order: 0,
+        }).returning();
 
         // Handle media if present
         if (media && media.length > 0) {
@@ -506,38 +492,32 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Update the PUT /api/dogs/:id route to handle parent and litter information
+  // Let's also simplify the PUT route for dogs to match our POST route
   app.put("/api/dogs/:id", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
 
     try {
       const dog = await db.transaction(async (tx) => {
-        const existingDog = await tx.query.dogs.findFirst({
-          where: eq(dogs.id, dogId),
-        });
-
-        if (!existingDog) {
-          throw new Error("Dog not found");
-        }
-
+        // Update the dog with basic data
         await tx.update(dogs)
           .set({
             ...dogData,
-            order: existingDog.order,
             updatedAt: new Date()
           })
           .where(eq(dogs.id, dogId));
 
+        // Clear existing media and documents
         await tx.delete(dogMedia)
           .where(eq(dogMedia.dogId, dogId));
 
         await tx.delete(dogDocuments)
           .where(eq(dogDocuments.dogId, dogId));
 
+        // Add new media if present
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
-            media.map((item: any, index: number) => ({
+            media.map((item, index) => ({
               dogId: dogId,
               url: item.url,
               type: item.type,
@@ -546,9 +526,10 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
+        // Add new documents if present
         if (documents && documents.length > 0) {
           await tx.insert(dogDocuments).values(
-            documents.map((doc: any) => ({
+            documents.map(doc => ({
               dogId: dogId,
               url: doc.url,
               type: doc.type,
@@ -558,6 +539,7 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
+        // Return updated dog with relations
         const updatedDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
           with: {
