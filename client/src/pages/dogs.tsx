@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -41,11 +40,29 @@ export default function Dogs() {
     queryKey: ["/api/litters"],
   });
 
+  const uploadImage = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Failed to upload image");
+      return uploadRes.json();
+    }
+  });
+
   const updateHeroImage = useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async ({ url }: { url: string }) => {
       const res = await fetch(`/api/dogs-hero/${heroContent?.[0]?.id}`, {
         method: "PUT",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ imageUrl: url }),
       });
       if (!res.ok) throw new Error("Failed to update hero image");
       return res.json();
@@ -71,22 +88,28 @@ export default function Dogs() {
 
   const handleImageUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
 
-    if (imageFile) {
-      formData.append("image", imageFile);
-    } else if (newHeroImage) {
-      formData.append("imageUrl", newHeroImage);
-    } else {
+    try {
+      if (imageFile) {
+        const uploadResult = await uploadImage.mutateAsync(imageFile);
+        await updateHeroImage.mutateAsync({ url: uploadResult.url });
+      } else if (newHeroImage) {
+        await updateHeroImage.mutateAsync({ url: newHeroImage });
+      } else {
+        toast({
+          title: "Error",
+          description: "Please provide an image file or URL",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading/updating hero image:', error);
       toast({
         title: "Error",
-        description: "Please provide an image file or URL",
+        description: "Failed to update hero image",
         variant: "destructive",
       });
-      return;
     }
-
-    await updateHeroImage.mutate(formData);
   };
 
   useEffect(() => {
@@ -127,9 +150,6 @@ export default function Dogs() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Update Hero Image</DialogTitle>
-                  <DialogDescription>
-                    Upload a new image or provide an image URL for the hero section.
-                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleImageUpload} className="space-y-4">
                   <div>
@@ -161,8 +181,11 @@ export default function Dogs() {
                     />
                   </div>
                   <div className="flex justify-end">
-                    <Button type="submit">
-                      Update Hero Image
+                    <Button 
+                      type="submit"
+                      disabled={(!imageFile && !newHeroImage) || uploadImage.isPending || updateHeroImage.isPending}
+                    >
+                      {uploadImage.isPending || updateHeroImage.isPending ? "Updating..." : "Update Hero Image"}
                     </Button>
                   </div>
                 </form>
@@ -172,7 +195,7 @@ export default function Dogs() {
         </div>
       </div>
 
-      {/* Announcement Banner with Parents */}
+      {/* Rest of the component remains unchanged */}
       {visibleLitter && motherDog && fatherDog && (
         <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
           <div className="container mx-auto px-4 py-12">
@@ -187,7 +210,6 @@ export default function Dogs() {
                 Expected due date: <span className="font-semibold">{format(new Date(visibleLitter.dueDate), 'MMMM d, yyyy')}</span>
               </p>
 
-              {/* Parents Grid in Banner */}
               <div className="mt-8 w-full max-w-4xl">
                 <h3 className="text-2xl font-bold text-amber-900 mb-8">Meet the Parents</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -206,10 +228,7 @@ export default function Dogs() {
         </div>
       )}
 
-
-      {/* Dogs Grid */}
       <div className="container mx-auto px-4 py-16 space-y-16">
-        {/* Females Section */}
         {females.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
@@ -221,7 +240,6 @@ export default function Dogs() {
           </div>
         )}
 
-        {/* Males Section */}
         {males.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
@@ -233,7 +251,6 @@ export default function Dogs() {
           </div>
         )}
 
-        {/* Outside Breeding Dogs Section */}
         {dogs?.filter(dog => dog.outsideBreeder).length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Breeding Dogs from Outside Farms</h2>
