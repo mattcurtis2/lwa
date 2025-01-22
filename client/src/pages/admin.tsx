@@ -70,7 +70,9 @@ export default function Admin() {
   const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
     onSuccess: (data) => {
-      setPendingPrinciples(data);
+      // Sort principles by order before setting state
+      const sortedPrinciples = [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      setPendingPrinciples(sortedPrinciples);
     }
   });
 
@@ -141,7 +143,7 @@ export default function Admin() {
   };
 
   const handlePrincipleChange = (id: number, field: string, value: string) => {
-    setPendingPrinciples(prev => 
+    setPendingPrinciples(prev =>
       prev.map(p => p.id === id ? { ...p, [field]: value } : p)
     );
     setHasUnsavedChanges(true);
