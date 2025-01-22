@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
-import { format } from "date-fns";
+import { format } from 'date-fns';
 
 export default function Dogs() {
   const { data: heroContent } = useQuery<DogsHero[]>({
@@ -26,6 +26,14 @@ export default function Dogs() {
 
   const hero = heroContent?.[0];
   const visibleLitter = litters?.find(litter => litter.isVisible);
+
+  // Debug the data structure
+  console.log('Visible Litter:', {
+    mother: visibleLitter?.mother,
+    motherMedia: visibleLitter?.mother?.media,
+    father: visibleLitter?.father,
+    fatherMedia: visibleLitter?.father?.media
+  });
 
   // Group dogs by gender
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
@@ -80,13 +88,29 @@ export default function Dogs() {
                 {/* Mother's Section */}
                 <div>
                   <h3 className="text-2xl font-semibold mb-6 text-center">Mother</h3>
-                  <DogCard dog={visibleLitter.mother} />
+                  {visibleLitter.mother && (
+                    <DogCard 
+                      key={visibleLitter.mother.id} 
+                      dog={{
+                        ...visibleLitter.mother,
+                        media: visibleLitter.mother.media || []
+                      }} 
+                    />
+                  )}
                 </div>
 
                 {/* Father's Section */}
                 <div>
                   <h3 className="text-2xl font-semibold mb-6 text-center">Father</h3>
-                  <DogCard dog={visibleLitter.father} />
+                  {visibleLitter.father && (
+                    <DogCard 
+                      key={visibleLitter.father.id} 
+                      dog={{
+                        ...visibleLitter.father,
+                        media: visibleLitter.father.media || []
+                      }} 
+                    />
+                  )}
                 </div>
               </div>
             </div>
