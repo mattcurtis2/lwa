@@ -27,17 +27,11 @@ export default function Dogs() {
   const hero = heroContent?.[0];
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  // Debug the data structure
-  console.log('Visible Litter:', {
-    mother: visibleLitter?.mother,
-    motherMedia: visibleLitter?.mother?.media,
-    father: visibleLitter?.father,
-    fatherMedia: visibleLitter?.father?.media
-  });
-
-  // Group dogs by gender
+  // Group dogs by gender and find the parent dogs from the main dogs array
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
   const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
+  const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
+  const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
 
   return (
     <div className="w-full">
@@ -79,7 +73,7 @@ export default function Dogs() {
       )}
 
       {/* Detailed Litter Information Section */}
-      {visibleLitter && (
+      {visibleLitter && motherDog && fatherDog && (
         <div className="bg-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -88,29 +82,13 @@ export default function Dogs() {
                 {/* Mother's Section */}
                 <div>
                   <h3 className="text-2xl font-semibold mb-6 text-center">Mother</h3>
-                  {visibleLitter.mother && (
-                    <DogCard 
-                      key={visibleLitter.mother.id} 
-                      dog={{
-                        ...visibleLitter.mother,
-                        media: visibleLitter.mother.media || []
-                      }} 
-                    />
-                  )}
+                  <DogCard dog={motherDog} />
                 </div>
 
                 {/* Father's Section */}
                 <div>
                   <h3 className="text-2xl font-semibold mb-6 text-center">Father</h3>
-                  {visibleLitter.father && (
-                    <DogCard 
-                      key={visibleLitter.father.id} 
-                      dog={{
-                        ...visibleLitter.father,
-                        media: visibleLitter.father.media || []
-                      }} 
-                    />
-                  )}
+                  <DogCard dog={fatherDog} />
                 </div>
               </div>
             </div>
