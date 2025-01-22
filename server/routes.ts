@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -502,6 +502,71 @@ export function registerRoutes(app: Express): Server {
 
   // Serve uploaded files statically
   app.use('/uploads', express.static(uploadDir));
+
+  // Add litter routes
+  app.get("/api/litters", async (_req, res) => {
+    const allLitters = await db.query.litters.findMany({
+      with: {
+        mother: true,
+        father: true,
+      },
+    });
+    res.json(allLitters);
+  });
+
+  app.post("/api/litters", async (req, res) => {
+    try {
+      const litter = await db.insert(litters)
+        .values(req.body)
+        .returning();
+
+      const litterWithParents = await db.query.litters.findFirst({
+        where: eq(litters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithParents);
+    } catch (error) {
+      console.error("Error creating litter:", error);
+      res.status(500).json({ message: "Failed to create litter" });
+    }
+  });
+
+  app.put("/api/litters/:id", async (req, res) => {
+    try {
+      const litter = await db.update(litters)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(litters.id, parseInt(req.params.id)))
+        .returning();
+
+      const litterWithParents = await db.query.litters.findFirst({
+        where: eq(litters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithParents);
+    } catch (error) {
+      console.error("Error updating litter:", error);
+      res.status(500).json({ message: "Failed to update litter" });
+    }
+  });
+
+  app.delete("/api/litters/:id", async (req, res) => {
+    try {
+      await db.delete(litters)
+        .where(eq(litters.id, parseInt(req.params.id)));
+      res.json({ message: "Deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting litter:", error);
+      res.status(500).json({ message: "Failed to delete litter" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

@@ -17,6 +17,7 @@ import CarouselForm from "@/components/forms/carousel-form";
 import DogForm from "@/components/forms/dog-form";
 import { formatAge } from "@/lib/date-utils";
 import DogCard from "@/components/cards/dog-card"; // Import the DogCard component
+import LitterForm from "@/components/forms/litter-form"; // Import LitterForm
 
 interface ContentField {
   key: string;
@@ -27,6 +28,7 @@ interface ContentField {
 
 export default function Admin() {
   const [showForm, setShowForm] = useState(false);
+  const [showLitterForm, setShowLitterForm] = useState(false); // Add state for LitterForm
   const [editItem, setEditItem] = useState<Animal | Product | CarouselItem | Dog | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const { toast } = useToast();
@@ -351,13 +353,7 @@ export default function Admin() {
             }}>
               Add New Dog
             </Button>
-            <Button onClick={() => {
-              // TODO: Implement litter form functionality
-              toast({
-                title: "Coming Soon",
-                description: "Litter management will be available soon",
-              });
-            }}>
+            <Button onClick={() => setShowLitterForm(true)}>
               Add New Litter
             </Button>
           </div>
@@ -369,6 +365,12 @@ export default function Admin() {
               setShowForm(open);
               if (!open) setEditItem(null);
             }}
+          />
+
+          <LitterForm
+            open={showLitterForm}
+            onOpenChange={setShowLitterForm}
+            dogs={dogs}
           />
 
           {/* Females Section */}

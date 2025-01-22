@@ -107,6 +107,27 @@ export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
   }),
 }));
 
+export const litters = pgTable("litters", {
+  id: serial("id").primaryKey(),
+  dueDate: date("due_date").notNull(),
+  motherId: integer("mother_id").notNull(),
+  fatherId: integer("father_id").notNull(),
+  isVisible: boolean("is_visible").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const litterRelations = relations(litters, ({ one }) => ({
+  mother: one(dogs, {
+    fields: [litters.motherId],
+    references: [dogs.id],
+  }),
+  father: one(dogs, {
+    fields: [litters.fatherId],
+    references: [dogs.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export const insertCarouselItemSchema = createInsertSchema(carouselItems);
@@ -140,3 +161,7 @@ export type Dog = typeof dogs.$inferSelect;
 export type NewDog = typeof dogs.$inferInsert;
 export type DogMedia = typeof dogMedia.$inferSelect;
 export type NewDogMedia = typeof dogMedia.$inferInsert;
+export type Litter = typeof litters.$inferSelect;
+export type NewLitter = typeof litters.$inferInsert;
+export const insertLitterSchema = createInsertSchema(litters);
+export const selectLitterSchema = createSelectSchema(litters);

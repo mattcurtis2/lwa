@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { DogsHero, Dog } from "@db/schema";
+import { DogsHero, Dog, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
+import { format } from "date-fns";
 
 export default function Dogs() {
   const { data: heroContent } = useQuery<DogsHero[]>({
@@ -12,11 +13,16 @@ export default function Dogs() {
     queryKey: ["/api/dogs"],
   });
 
+  const { data: litters } = useQuery<(Litter & { mother: Dog, father: Dog })[]>({
+    queryKey: ["/api/litters"],
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   const hero = heroContent?.[0];
+  const visibleLitter = litters?.find(litter => litter.isVisible);
 
   // Group dogs by gender
   const females = dogs?.filter(dog => dog.gender === 'female') || [];
@@ -43,54 +49,56 @@ export default function Dogs() {
       </div>
 
       {/* Announcement Banner */}
-      <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
-        <div className="container mx-auto px-4 py-12">
-          <div className="flex flex-col items-center text-center">
-            <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-4">
-              Exciting News!
-            </div>
-            <h2 className="text-3xl font-bold text-amber-900 mb-2">
-              New Litter Coming Soon!
-            </h2>
-            <p className="text-amber-800 max-w-2xl mb-6">
-              We're excited to announce an upcoming litter of Colorado Mountain Dog puppies. 
-              Expected due date: <span className="font-semibold">February 15, 2025</span>
-            </p>
+      {visibleLitter && (
+        <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
+          <div className="container mx-auto px-4 py-12">
+            <div className="flex flex-col items-center text-center">
+              <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold mb-4">
+                Exciting News!
+              </div>
+              <h2 className="text-3xl font-bold text-amber-900 mb-2">
+                New Litter Coming Soon!
+              </h2>
+              <p className="text-amber-800 max-w-2xl mb-6">
+                We're excited to announce an upcoming litter of Colorado Mountain Dog puppies. 
+                Expected due date: <span className="font-semibold">{format(new Date(visibleLitter.dueDate), 'MMMM d, yyyy')}</span>
+              </p>
 
-            {/* Parents Section */}
-            <div className="w-full max-w-4xl mt-8">
-              <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Mother */}
-                <div className="flex flex-col items-center">
-                  <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                    <img
-                      src="/path-to-mother-image.jpg"
-                      alt="Mother"
-                      className="w-full h-full object-cover"
-                    />
+              {/* Parents Section */}
+              <div className="w-full max-w-4xl mt-8">
+                <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Mother */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
+                      <img
+                        src={visibleLitter.mother.media?.[0]?.url || '/placeholder-dog.jpg'}
+                        alt={visibleLitter.mother.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
+                    <p className="text-amber-800">{visibleLitter.mother.name}</p>
                   </div>
-                  <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
-                  <p className="text-amber-800">Sierra</p>
-                </div>
 
-                {/* Father */}
-                <div className="flex flex-col items-center">
-                  <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                    <img
-                      src="/path-to-father-image.jpg"
-                      alt="Father"
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Father */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
+                      <img
+                        src={visibleLitter.father.media?.[0]?.url || '/placeholder-dog.jpg'}
+                        alt={visibleLitter.father.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold text-amber-900">Father</h4>
+                    <p className="text-amber-800">{visibleLitter.father.name}</p>
                   </div>
-                  <h4 className="text-lg font-semibold text-amber-900">Father</h4>
-                  <p className="text-amber-800">Atlas</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Dogs Grid */}
       <div className="container mx-auto px-4 py-16 space-y-16">
