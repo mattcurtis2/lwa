@@ -344,12 +344,21 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <div className="mb-6">
+          <div className="mb-6 flex gap-4">
             <Button onClick={() => {
               setEditItem(null);
               setShowForm(true);
             }}>
               Add New Dog
+            </Button>
+            <Button onClick={() => {
+              // TODO: Implement litter form functionality
+              toast({
+                title: "Coming Soon",
+                description: "Litter management will be available soon",
+              });
+            }}>
+              Add New Litter
             </Button>
           </div>
 
