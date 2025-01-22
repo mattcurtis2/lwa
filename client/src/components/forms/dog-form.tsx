@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { format, parse, isValid } from "date-fns";
@@ -30,6 +30,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
 import ImageCropper from "@/components/ui/image-cropper";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -52,6 +59,9 @@ const dogSchema = z.object({
     required_error: "Please select sex",
   }),
   description: z.string(),
+  motherId: z.number().optional().nullable(),
+  fatherId: z.number().optional().nullable(),
+  litterId: z.number().optional().nullable(),
   profileImageUrl: z.string().optional(),
   healthData: z.string().optional(),
   color: z.string().optional(),
@@ -94,6 +104,16 @@ interface DocumentInput {
   isNew?: boolean;
 }
 
+interface Litter {
+  id: number;
+  dueDate: string;
+  motherId: number;
+  fatherId: number;
+}
+
+
+const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
 export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -110,6 +130,19 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string>("");
 
+  // Add queries for available dogs and litters
+  const { data: availableDogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
+    queryKey: ["/api/dogs"],
+  });
+
+  const { data: availableLitters } = useQuery<Litter[]>({
+    queryKey: ["/api/litters"],
+  });
+
+  // Filter available dogs by gender
+  const availableMothers = availableDogs?.filter(d => d.gender === 'female' && d.id !== dog?.id) || [];
+  const availableFathers = availableDogs?.filter(d => d.gender === 'male' && d.id !== dog?.id) || [];
+
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
     defaultValues: {
@@ -118,6 +151,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       birthDate: "",
       gender: "male",
       description: "",
+      motherId: null,
+      fatherId: null,
+      litterId: null,
       profileImageUrl: "",
       healthData: "",
       color: "",
@@ -138,6 +174,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         ...dog,
         birthDate: formatInputDate(birthDate),
+        motherId: dog.motherId || null,
+        fatherId: dog.fatherId || null,
+        litterId: dog.litterId || null,
       });
 
       const media = dog.media?.map(m => ({
@@ -482,7 +521,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           <ImageIcon className="h-10 w-10 text-muted-foreground" />
                         </AvatarFallback>
                         {field.value && (
-                          <div 
+                          <div
                             className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
                             onClick={() => {
                               setCropImageUrl(field.value);
@@ -515,7 +554,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       </Button>
                     </div>
                     <FormDescription>
-                      Upload a profile picture that will be used throughout the site. 
+                      Upload a profile picture that will be used throughout the site.
                       Hover over the image to re-crop it.
                     </FormDescription>
                     <FormMessage />
@@ -598,6 +637,101 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   </FormItem>
                 )}
               />
+
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="motherId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mother</FormLabel>
+                      <Select
+                        value={field.value?.toString()}
+                        onValueChange={(value) => {
+                          field.onChange(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select mother" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {availableMothers.map((mother) => (
+                            <SelectItem key={mother.id} value={mother.id.toString()}>
+                              {mother.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="fatherId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Father</FormLabel>
+                      <Select
+                        value={field.value?.toString()}
+                        onValueChange={(value) => {
+                          field.onChange(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select father" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {availableFathers.map((father) => (
+                            <SelectItem key={father.id} value={father.id.toString()}>
+                              {father.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="litterId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Litter</FormLabel>
+                      <Select
+                        value={field.value?.toString()}
+                        onValueChange={(value) => {
+                          field.onChange(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select litter" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {availableLitters?.map((litter) => (
+                            <SelectItem key={litter.id} value={litter.id.toString()}>
+                              {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.motherId)?.name} x {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.fatherId)?.name} ({formatDisplayDate(new Date(litter.dueDate))})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -879,7 +1013,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           <div className="space-y-6 pt-6">
             <div className="space-y-4">
               <div className="text-sm font-medium leading-none">Media Type</div>
-              <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap-4">
+              <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="image" id="image" />
                   <label htmlFor="image">Image</label>
