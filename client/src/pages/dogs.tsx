@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
-import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { format } from "date-fns";
 
 export default function Dogs() {
@@ -72,22 +71,16 @@ export default function Dogs() {
               <div className="w-full max-w-4xl mt-8">
                 <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Mother */}
-                  <div className="flex flex-col items-center">
-                    <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <DogMediaCarousel media={visibleLitter.mother?.media || []} />
-                    </div>
-                    <h4 className="text-lg font-semibold text-amber-900">Mother</h4>
-                    <p className="text-amber-800">{visibleLitter.mother?.name}</p>
+                  {/* Use DogCard for Mother */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
+                    <DogCard dog={visibleLitter.mother} />
                   </div>
 
-                  {/* Father */}
-                  <div className="flex flex-col items-center">
-                    <div className="w-full aspect-square rounded-lg bg-white shadow-md overflow-hidden mb-4">
-                      <DogMediaCarousel media={visibleLitter.father?.media || []} />
-                    </div>
-                    <h4 className="text-lg font-semibold text-amber-900">Father</h4>
-                    <p className="text-amber-800">{visibleLitter.father?.name}</p>
+                  {/* Use DogCard for Father */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
+                    <DogCard dog={visibleLitter.father} />
                   </div>
                 </div>
               </div>
