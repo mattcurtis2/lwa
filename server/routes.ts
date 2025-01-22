@@ -602,8 +602,20 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/litters", async (_req, res) => {
     const allLitters = await db.query.litters.findMany({
       with: {
-        mother: true,
-        father: true,
+        mother: {
+          with: {
+            media: {
+              orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+            },
+          },
+        },
+        father: {
+          with: {
+            media: {
+              orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+            },
+          },
+        },
       },
     });
     res.json(allLitters);

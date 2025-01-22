@@ -63,7 +63,7 @@ export default function UpcomingLitters() {
                           alt={litter.mother.name}
                           className="w-full h-full object-cover"
                         />
-                      ) : litter.mother.media && litter.mother.media.length > 0 ? (
+                      ) : litter.mother.media && litter.mother.media.length > 0 && litter.mother.media[0].type === 'image' ? (
                         <img
                           src={litter.mother.media[0].url}
                           alt={litter.mother.name}
@@ -89,7 +89,7 @@ export default function UpcomingLitters() {
                           alt={litter.father.name}
                           className="w-full h-full object-cover"
                         />
-                      ) : litter.father.media && litter.father.media.length > 0 ? (
+                      ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === 'image' ? (
                         <img
                           src={litter.father.media[0].url}
                           alt={litter.father.name}
