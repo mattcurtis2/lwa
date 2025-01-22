@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import {
   FileText,
   FileImage,
@@ -16,6 +15,7 @@ import {
   File,
   ExternalLink
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { cn } from "@/lib/utils";
 
@@ -112,14 +112,55 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         )}
       </div>
 
-      <Tabs defaultValue="basic" className="w-full">
+      <Tabs defaultValue="media" className="w-full">
         <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
+          <TabsTrigger value="media">Pictures & Videos</TabsTrigger>
           <TabsTrigger value="basic">Basic Information</TabsTrigger>
           <TabsTrigger value="story">Story</TabsTrigger>
           <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
           <TabsTrigger value="health">Health Information</TabsTrigger>
           <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="media">
+          {dog.media && dog.media.length > 0 ? (
+            <div>
+              <DogMediaCarousel
+                media={dog.media}
+                className="w-full max-w-2xl mx-auto mb-4"
+                activeIndex={activeMediaIndex}
+                onSlideChange={setActiveMediaIndex}
+              />
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {dog.media.map((item, index) => (
+                  item.type === 'image' && (
+                    <button
+                      key={index}
+                      onClick={() => setActiveMediaIndex(index)}
+                      className={cn(
+                        "relative aspect-square group transition-transform hover:scale-105",
+                        activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
+                      )}
+                    >
+                      <img
+                        src={item.url}
+                        alt={`${dog.name} - photo ${index + 1}`}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+                    </button>
+                  )
+                ))}
+              </div>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <p>No media available</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
         <TabsContent value="basic">
           <Card>
@@ -254,39 +295,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {dog.media && dog.media.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-          <DogMediaCarousel
-            media={dog.media}
-            className="w-full max-w-3xl mx-auto mb-4"
-            activeIndex={activeMediaIndex}
-            onSlideChange={setActiveMediaIndex}
-          />
-          <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 px-4">
-            {dog.media.map((item, index) => (
-              item.type === 'image' && (
-                <button
-                  key={index}
-                  onClick={() => setActiveMediaIndex(index)}
-                  className={cn(
-                    "relative aspect-square group transition-transform hover:scale-105",
-                    activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
-                  )}
-                >
-                  <img
-                    src={item.url}
-                    alt={`${dog.name} - photo ${index + 1}`}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
-                </button>
-              )
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
