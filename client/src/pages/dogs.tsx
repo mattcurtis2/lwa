@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { DogsHero, Dog, Litter } from "@db/schema";
+import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
 import { format } from "date-fns";
 
@@ -13,7 +13,10 @@ export default function Dogs() {
     queryKey: ["/api/dogs"],
   });
 
-  const { data: litters } = useQuery<(Litter & { mother: Dog, father: Dog })[]>({
+  const { data: litters } = useQuery<(Litter & { 
+    mother: Dog & { media: DogMedia[] }, 
+    father: Dog & { media: DogMedia[] } 
+  })[]>({
     queryKey: ["/api/litters"],
   });
 
@@ -79,7 +82,7 @@ export default function Dogs() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <p className="text-gray-500">No image available</p>
+                          <span className="text-4xl text-pink-500">♀</span>
                         </div>
                       )}
                     </div>
@@ -98,7 +101,7 @@ export default function Dogs() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <p className="text-gray-500">No image available</p>
+                          <span className="text-4xl text-blue-500">♂</span>
                         </div>
                       )}
                     </div>
