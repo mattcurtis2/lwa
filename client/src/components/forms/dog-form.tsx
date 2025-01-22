@@ -38,11 +38,7 @@ const mediaSchema = z.object({
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   registrationName: z.string().optional(),
-  birthDate: z.string().refine((date) => {
-    if (!date) return false;
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
-    return isValid(parsedDate) && parsedDate <= new Date();
-  }, "Please enter a valid date that is not in the future"),
+  birthDate: z.string().min(1, "Birth date is required"),
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
@@ -106,7 +102,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     defaultValues: {
       name: "",
       registrationName: "",
-      birthDate: format(new Date(), 'yyyy-MM-dd'),
+      birthDate: "",
       gender: "male",
       description: "",
       healthData: "",
@@ -155,33 +151,15 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       setPedigreeDocuments(pedigreeDocs);
       setMediaInputs(media);
 
-      const birthDate = new Date(dog.birthDate);
-
       form.reset({
-        name: dog.name,
-        registrationName: dog.registrationName || "",
-        birthDate: format(birthDate, 'yyyy-MM-dd'),
-        gender: dog.gender as "male" | "female",
-        description: dog.description ?? "",
-        healthData: dog.healthData ?? "",
-        color: dog.color ?? "",
-        dewclaws: dog.dewclaws ?? "",
-        furLength: dog.furLength ?? "",
-        height: dog.height?.toString() ?? "",
-        weight: dog.weight?.toString() ?? "",
-        pedigree: dog.pedigree ?? "",
-        narrativeDescription: dog.narrativeDescription ?? "",
-        media,
-        outsideBreeder: dog.outsideBreeder ?? false,
+        ...dog,
+        birthDate: format(new Date(dog.birthDate), 'yyyy-MM-dd'),
       });
     } else {
-      const defaultDate = new Date();
-      defaultDate.setFullYear(defaultDate.getFullYear() - 2);
-
       form.reset({
         name: "",
         registrationName: "",
-        birthDate: format(defaultDate, 'yyyy-MM-dd'),
+        birthDate: "",
         gender: "male",
         description: "",
         healthData: "",
@@ -201,15 +179,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        const parsedDate = parse(values.birthDate, 'yyyy-MM-dd', new Date());
-        if (!isValid(parsedDate)) {
-          throw new Error("Invalid date format");
-        }
-
         const formattedValues = {
           ...values,
-          breed: "Colorado Mountain Dog",
-          birthDate: format(parsedDate, 'yyyy-MM-dd'),
+          birthDate: new Date(values.birthDate).toISOString(),
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
@@ -236,7 +208,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
         return res.json();
       } catch (error) {
-        console.error('Date handling error:', error);
+        console.error('Form submission error:', error);
         throw error;
       }
     },
@@ -469,15 +441,15 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Birth Date</FormLabel>
                     <FormControl>
-                      <Input 
-                        {...field} 
-                        type="date" 
-                        placeholder="YYYY-MM-DD" 
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          console.log('Selected date:', e.target.value);
+                          field.onChange(e.target.value);
+                        }}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Enter the dog's birth date
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
