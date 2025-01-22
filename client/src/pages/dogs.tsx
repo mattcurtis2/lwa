@@ -76,15 +76,13 @@ export default function Dogs() {
                   <div>
                     <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                      {visibleLitter.mother?.media && visibleLitter.mother.media.length > 0 && (
-                        <DogMediaCarousel media={visibleLitter.mother.media} />
-                      )}
+                      <DogMediaCarousel media={visibleLitter.mother?.media || []} />
                       <div className="p-4">
                         <h5 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                          {visibleLitter.mother.name}
+                          {visibleLitter.mother?.name}
                           <span className="text-pink-500">♀</span>
                         </h5>
-                        {visibleLitter.mother.registrationName && (
+                        {visibleLitter.mother?.registrationName && (
                           <p className="text-sm text-muted-foreground">{visibleLitter.mother.registrationName}</p>
                         )}
                       </div>
@@ -95,15 +93,13 @@ export default function Dogs() {
                   <div>
                     <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                      {visibleLitter.father?.media && visibleLitter.father.media.length > 0 && (
-                        <DogMediaCarousel media={visibleLitter.father.media} />
-                      )}
+                      <DogMediaCarousel media={visibleLitter.father?.media || []} />
                       <div className="p-4">
                         <h5 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                          {visibleLitter.father.name}
+                          {visibleLitter.father?.name}
                           <span className="text-blue-500">♂</span>
                         </h5>
-                        {visibleLitter.father.registrationName && (
+                        {visibleLitter.father?.registrationName && (
                           <p className="text-sm text-muted-foreground">{visibleLitter.father.registrationName}</p>
                         )}
                       </div>
