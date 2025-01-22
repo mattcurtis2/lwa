@@ -848,8 +848,14 @@ export default function Admin() {
                             <h4 className="text-lg font-semibold mb-4">Mother</h4>
                             {mother && (
                               <div className="flex items-center gap-4">
-                                <div                                  className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                                  {mother.media && mother.media.length > 0 ? (
+                                <div className="w-12 h-12 rounded-full overflow-hidden bggray-100 flex items-center justify-center">
+                                  {mother.profileImageUrl ? (
+                                    <img 
+                                      src={mother.profileImageUrl} 
+                                      alt={mother.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : mother.media && mother.media.length > 0 ? (
                                     <img 
                                       src={mother.media[0].url} 
                                       alt={mother.name}
@@ -875,7 +881,13 @@ export default function Admin() {
                             {father && (
                               <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                                  {father.media && father.media.length > 0 ? (
+                                  {father.profileImageUrl ? (
+                                    <img 
+                                      src={father.profileImageUrl} 
+                                      alt={father.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : father.media && father.media.length > 0 ? (
                                     <img 
                                       src={father.media[0].url} 
                                       alt={father.name}
