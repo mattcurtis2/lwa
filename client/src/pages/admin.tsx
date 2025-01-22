@@ -37,14 +37,41 @@ export default function Admin() {
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
 
-  // Fetch site content
-  const { data: siteContent } = useQuery<SiteContent[]>(["/api/site-content"]);
-  const { data: carouselItems } = useQuery<CarouselItem[]>(["/api/carousel"]);
-  const { data: dogs } = useQuery<Dog[]>(["/api/dogs"]);
-  const { data: dogsHero } = useQuery<DogsHero[]>(["/api/dogs-hero"]);
-  const { data: litters } = useQuery<Litter[]>(["/api/litters"]);
-  const { data: animals } = useQuery<Animal[]>(["/api/animals"]);
-  const { data: products } = useQuery<Product[]>(["/api/products"]);
+  // Update queries to use object syntax with proper types
+  const { data: siteContent } = useQuery<{ data: SiteContent[] }, Error>({
+    queryKey: ["/api/site-content"],
+    queryFn: () => fetch("/api/site-content").then(res => res.json())
+  });
+
+  const { data: carouselItems } = useQuery<{ data: CarouselItem[] }, Error>({
+    queryKey: ["/api/carousel"],
+    queryFn: () => fetch("/api/carousel").then(res => res.json())
+  });
+
+  const { data: dogs } = useQuery<{ data: Dog[] }, Error>({
+    queryKey: ["/api/dogs"],
+    queryFn: () => fetch("/api/dogs").then(res => res.json())
+  });
+
+  const { data: dogsHero } = useQuery<{ data: DogsHero[] }, Error>({
+    queryKey: ["/api/dogs-hero"],
+    queryFn: () => fetch("/api/dogs-hero").then(res => res.json())
+  });
+
+  const { data: litters } = useQuery<{ data: Litter[] }, Error>({
+    queryKey: ["/api/litters"],
+    queryFn: () => fetch("/api/litters").then(res => res.json())
+  });
+
+  const { data: animals } = useQuery<{ data: Animal[] }, Error>({
+    queryKey: ["/api/animals"],
+    queryFn: () => fetch("/api/animals").then(res => res.json())
+  });
+
+  const { data: products } = useQuery<{ data: Product[] }, Error>({
+    queryKey: ["/api/products"],
+    queryFn: () => fetch("/api/products").then(res => res.json())
+  });
 
   const updateSiteContent = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
@@ -91,35 +118,35 @@ export default function Admin() {
 
   const contentFields: ContentField[] = [
     // Hero Section
-    { key: "hero_title", label: "Hero Title", value: siteContent?.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
-    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
-    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
-    { key: "hero_background", label: "Hero Background", value: siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+    { key: "hero_title", label: "Hero Title", value: siteContent?.data?.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.data?.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
+    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.data?.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_background", label: "Hero Background", value: siteContent?.data?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     // About Section
-    { key: "about_text", label: "About Text", value: siteContent?.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_text", label: "Mission Text", value: siteContent?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    { key: "about_text", label: "About Text", value: siteContent?.data?.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "Mission Text", value: siteContent?.data?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
     // Animals Card
-    { key: "animals_title", label: "Title", value: siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_description", label: "Description", value: siteContent?.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Image", value: siteContent?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
-    { key: "animals_link", label: "Link", value: siteContent?.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+    { key: "animals_title", label: "Title", value: siteContent?.data?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_description", label: "Description", value: siteContent?.data?.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
+    { key: "animals_image", label: "Image", value: siteContent?.data?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
+    { key: "animals_link", label: "Link", value: siteContent?.data?.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
 
     // Goats Card
-    { key: "goats_title", label: "Title", value: siteContent?.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
-    { key: "goats_description", label: "Description", value: siteContent?.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
-    { key: "goats_image", label: "Image", value: siteContent?.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
-    { key: "goats_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
-    { key: "goats_link", label: "Link", value: siteContent?.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+    { key: "goats_title", label: "Title", value: siteContent?.data?.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
+    { key: "goats_description", label: "Description", value: siteContent?.data?.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
+    { key: "goats_image", label: "Image", value: siteContent?.data?.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
+    { key: "goats_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
+    { key: "goats_link", label: "Link", value: siteContent?.data?.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
 
     // Products Card
-    { key: "products_title", label: "Title", value: siteContent?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_description", label: "Description", value: siteContent?.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Image", value: siteContent?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
-    { key: "products_link", label: "Link", value: siteContent?.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+    { key: "products_title", label: "Title", value: siteContent?.data?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_description", label: "Description", value: siteContent?.data?.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
+    { key: "products_image", label: "Image", value: siteContent?.data?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
+    { key: "products_link", label: "Link", value: siteContent?.data?.find(c => c.key === "products_link")?.value ?? "", type: "text" },
   ];
 
   return (
@@ -505,7 +532,7 @@ export default function Admin() {
               )}
 
               <div className="grid grid-cols-1 gap-6">
-                {carouselItems?.map((item) => (
+                {carouselItems?.data?.map((item) => (
                   <Card key={item.id}>
                     <CardContent className="pt-6 flex gap-4">
                       <div className="w-40 h-40">
@@ -561,19 +588,19 @@ export default function Admin() {
               <CardDescription>Manage the hero content for the dogs page</CardDescription>
             </CardHeader>
             <CardContent>
-              {dogsHero?.[0] && (
+              {dogsHero?.data?.[0] && (
                 <div className="space-y-4">
                   <div>
                     <Label>Title</Label>
                     <Input
-                      value={dogsHero[0].title}
+                      value={dogsHero?.data?.[0].title}
                       onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
                     />
                   </div>
                   <div>
                     <Label>Subtitle</Label>
                     <Input
-                      value={dogsHero[0].subtitle}
+                      value={dogsHero?.data?.[0].subtitle}
                       onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
                     />
                   </div>
@@ -582,14 +609,14 @@ export default function Admin() {
                     <div className="flex gap-4">
                       <div className="flex-1">
                         <FileUpload
-                          value={dogsHero[0].imageUrl}
+                          value={dogsHero?.data?.[0].imageUrl}
                           onChange={(url) => updateDogsHero.mutate({ imageUrl: url })}
                         />
                       </div>
-                      {dogsHero[0].imageUrl && (
+                      {dogsHero?.data?.[0].imageUrl && (
                         <div className="w-40 h-40 rounded overflow-hidden">
                           <img
-                            src={dogsHero[0].imageUrl}
+                            src={dogsHero?.data?.[0].imageUrl}
                             alt="Hero background"
                             className="w-full h-full object-cover"
                           />
@@ -628,11 +655,11 @@ export default function Admin() {
               />
 
               {/* Females Section */}
-              {dogs && dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
+              {dogs?.data && dogs.data.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Females</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dogs
+                    {dogs?.data
                       .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
                       .map((dog) => (
                         <DogCard
@@ -663,11 +690,11 @@ export default function Admin() {
               )}
 
               {/* Males Section */}
-              {dogs && dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
+              {dogs?.data && dogs.data.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Males</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dogs
+                    {dogs?.data
                       .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
                       .map((dog) => (
                         <DogCard
@@ -698,11 +725,11 @@ export default function Admin() {
               )}
 
               {/* Outside Breeders Section */}
-              {dogs && dogs.filter(dog => dog.outsideBreeder).length > 0 && (
+              {dogs?.data && dogs.data.filter(dog => dog.outsideBreeder).length > 0 && (
                 <div>
                   <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dogs
+                    {dogs?.data
                       .filter(dog => dog.outsideBreeder)
                       .map((dog) => (
                         <DogCard
@@ -750,18 +777,18 @@ export default function Admin() {
               <LitterForm
                 open={showLitterForm}
                 onOpenChange={setShowLitterForm}
-                dogs={dogs}
+                dogs={dogs?.data}
                 editLitter={editLitter}
                 onEditLitterChange={setEditLitter}
               />
 
               {/* Upcoming Litters List */}
               <div className="space-y-6">
-                {litters?.length === 0 ? (
+                {litters?.data?.length === 0 ? (
                   <p className="text-muted-foreground">No upcoming litters</p>
                 ) : (
                   <div className="space-y-6">
-                    {litters?.map((litter) => (
+                    {litters?.data?.map((litter) => (
                       <Card key={litter.id}>
                         <CardContent className="pt-6">
                           <div className="flex justify-between items-start mb-4">
@@ -772,7 +799,7 @@ export default function Admin() {
                             <div className="flex gap-2">
                               <Button
                                 variant="outline"
-                                onClick={() => {
+                                onClick={()=> {
                                   setEditLitter(litter);
                                   setShowLitterForm(true);
                                 }}
@@ -895,7 +922,7 @@ export default function Admin() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {animals?.map((animal) => (
+            {animals?.data?.map((animal) => (
               <AnimalCard
                 key={animal.id}
                 animal={animal}
@@ -927,7 +954,7 @@ export default function Admin() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products?.map((product) => (
+            {products?.data?.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
