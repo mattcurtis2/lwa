@@ -794,11 +794,14 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Litters Management</CardTitle>
-              <CardDescription>Manage upcoming and current litters</CardDescription>Manage upcoming and current litters</CardDescription>
+              <CardDescription>Manage upcoming and current litters</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                <Button onClick={() => setShowLitterForm(true)}>
+                <Button onClick={() => {
+                  setEditLitter(null);
+                  setShowLitterForm(true);
+                }}>
                   Add New Litter
                 </Button>
               </div>
