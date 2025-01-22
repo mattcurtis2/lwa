@@ -169,16 +169,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        // Parse the input date
-        const [year, month, day] = values.birthDate.split('-').map(Number);
-
-        // Create date string with noon UTC time to prevent date shifting
-        const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T12:00:00.000Z`;
-
-        // Ensure date is in YYYY-MM-DD format without time component
         const formattedValues = {
           ...values,
-          birthDate: values.birthDate + "T00:00:00.000Z",
+          birthDate: values.birthDate,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
