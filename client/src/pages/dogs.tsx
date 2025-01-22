@@ -53,10 +53,10 @@ export default function Dogs() {
         </div>
       </div>
 
-      {/* Announcement Banner */}
-      {visibleLitter && (
+      {/* Announcement Banner with Parents */}
+      {visibleLitter && motherDog && fatherDog && (
         <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-y border-amber-200">
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-12">
             <div className="flex flex-col items-center text-center">
               <div className="inline-block px-4 py-1 rounded-full bg-amber-200 text-amber-800 text-sm font-semibold">
                 Exciting News!
@@ -67,6 +67,21 @@ export default function Dogs() {
               <p className="text-amber-800 mt-2">
                 Expected due date: <span className="font-semibold">{format(new Date(visibleLitter.dueDate), 'MMMM d, yyyy')}</span>
               </p>
+
+              {/* Parents Grid in Banner */}
+              <div className="mt-8 w-full max-w-4xl">
+                <h3 className="text-2xl font-bold text-amber-900 mb-8">Meet the Parents</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h4 className="text-xl font-semibold text-amber-900 mb-4">Mother</h4>
+                    <DogCard dog={motherDog} />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-semibold text-amber-900 mb-4">Father</h4>
+                    <DogCard dog={fatherDog} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
