@@ -674,6 +674,55 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add single litter endpoint with relations
+  app.get("/api/litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+      const litter = await db.query.litters.findFirst({
+        where: eq(litters.id, litterId),
+        with: {
+          mother: {
+            with: {
+              media: {
+                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+              },
+            },
+          },
+          father: {
+            with: {
+              media: {
+                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+              },
+            },
+          },
+        },
+      });
+
+      if (!litter) {
+        return res.status(404).json({ message: "Litter not found" });
+      }
+
+      // Fetch puppies separately since they're not directly related in the schema
+      const puppies = await db.query.dogs.findMany({
+        where: eq(dogs.litterId, litterId),
+        with: {
+          media: {
+            orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+          },
+        },
+        orderBy: (dogs, { asc }) => [asc(dogs.order)],
+      });
+
+      res.json({
+        ...litter,
+        puppies,
+      });
+    } catch (error) {
+      console.error("Error fetching litter:", error);
+      res.status(500).json({ message: "Failed to fetch litter" });
+    }
+  });
+
   // Add principles routes
   app.get("/api/principles", async (_req, res) => {
     try {
