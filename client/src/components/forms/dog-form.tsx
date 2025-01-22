@@ -19,11 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dog, DogMedia } from "@db/schema";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -410,13 +410,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{dog ? "Edit Dog" : "Add New Dog"}</DialogTitle>
-          </DialogHeader>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{dog ? "Edit Dog" : "Add New Dog"}</SheetTitle>
+          </SheetHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
+            <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 pt-6">
               <FormField
                 control={form.control}
                 name="name"
@@ -746,7 +746,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 )}
               />
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 mt-8">
                 <Button type="submit" disabled={isUploading}>
                   {isUploading ? "Uploading..." : "Save"}
                 </Button>
@@ -756,15 +756,15 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               </div>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
-      <Dialog open={showAddMedia} onOpenChange={setShowAddMedia}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Media</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
+      <Sheet open={showAddMedia} onOpenChange={setShowAddMedia}>
+        <SheetContent side="bottom" className="h-[90vh] sm:h-auto">
+          <SheetHeader>
+            <SheetTitle>Add Media</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-6 pt-6">
             <div className="space-y-4">
               <div className="text-sm font-medium leading-none">Media Type</div>
               <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap-4">
@@ -813,8 +813,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
