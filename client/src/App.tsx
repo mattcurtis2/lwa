@@ -30,7 +30,13 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/dogs" component={Dogs} />
-          <Route path="/dogs/:name" component={DogDetail} />
+          <Route path="/dogs/males">
+            {() => <Dogs genderFilter="male" />}
+          </Route>
+          <Route path="/dogs/females">
+            {() => <Dogs genderFilter="female" />}
+          </Route>
+          <Route path="/dogs/:id" component={DogDetail} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>

@@ -1,5 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
 import { format } from 'date-fns';
@@ -18,7 +17,11 @@ import { Pencil } from "lucide-react";
 import { useLocation } from "wouter";
 import { formatDisplayDate } from "@/lib/date-utils";
 
-export default function Dogs() {
+interface DogsProps {
+  genderFilter?: 'male' | 'female';
+}
+
+export default function Dogs({ genderFilter }: DogsProps) {
   const [_, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -122,6 +125,10 @@ export default function Dogs() {
 
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
   const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
+
+  const shouldShowFemales = !genderFilter || genderFilter === 'female';
+  const shouldShowMales = !genderFilter || genderFilter === 'male';
+
   const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
   const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
 
@@ -139,7 +146,10 @@ export default function Dogs() {
         <div className="relative container mx-auto px-4 h-full flex items-center justify-between">
           <div className="max-w-2xl text-white">
             <h1 className="text-5xl font-bold mb-4">
-              {hero?.title || "Colorado Mountain Dogs"}
+              {genderFilter 
+                ? `Our ${genderFilter === 'male' ? 'Male' : 'Female'} Colorado Mountain Dogs`
+                : (hero?.title || "Colorado Mountain Dogs")
+              }
             </h1>
             <p className="text-xl">
               {hero?.subtitle || "Loyal guardians bred for livestock protection"}
@@ -200,7 +210,7 @@ export default function Dogs() {
         </div>
       </div>
 
-      {visibleLitter && motherDog && fatherDog && (
+      {!genderFilter && visibleLitter && motherDog && fatherDog && (
         <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200">
           <div className="container mx-auto px-4">
             <div className="h-[100px] flex items-center">
@@ -278,7 +288,7 @@ export default function Dogs() {
       )}
 
       <div className="container mx-auto px-4 py-16 space-y-16">
-        {females.length > 0 && (
+        {shouldShowFemales && females.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -289,7 +299,7 @@ export default function Dogs() {
           </div>
         )}
 
-        {males.length > 0 && (
+        {shouldShowMales && males.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
