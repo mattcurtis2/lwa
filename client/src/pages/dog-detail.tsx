@@ -13,14 +13,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
-import { 
-  FileText, 
-  FileImage, 
-  FileVideo, 
+import {
+  FileText,
+  FileImage,
+  FileVideo,
   File,
-  ExternalLink 
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { cn } from "@/lib/utils";
 
 interface Document {
   id?: number;
@@ -91,8 +93,9 @@ function DocumentLink({ document }: { document: Document }) {
 export default function DogDetail() {
   const [location] = useLocation();
   const dogName = location.split("/").pop()?.replace("#", "");
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
 
-  const { data: dogs } = useQuery<(Dog & { 
+  const { data: dogs } = useQuery<(Dog & {
     media?: DogMedia[],
     documents?: Document[]
   })[]>({
@@ -298,19 +301,32 @@ export default function DogDetail() {
         {dog.media && dog.media.length > 0 && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-            <DogMediaCarousel media={dog.media} className="w-full max-w-3xl mx-auto" />
+            <DogMediaCarousel
+              media={dog.media}
+              className="w-full max-w-3xl mx-auto mb-4"
+              activeIndex={activeMediaIndex}
+              onSlideChange={setActiveMediaIndex}
+            />
 
             {/* Image Grid/Collage */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
+            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 px-4">
               {dog.media.map((item, index) => (
                 item.type === 'image' && (
-                  <div key={index} className="aspect-square">
+                  <button
+                    key={index}
+                    onClick={() => setActiveMediaIndex(index)}
+                    className={cn(
+                      "relative aspect-square group transition-transform hover:scale-105",
+                      activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
+                    )}
+                  >
                     <img
                       src={item.url}
                       alt={`${dog.name} - photo ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full object-cover rounded-md"
                     />
-                  </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+                  </button>
                 )
               ))}
             </div>

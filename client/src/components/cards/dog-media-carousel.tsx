@@ -7,19 +7,32 @@ import { cn } from "@/lib/utils";
 interface DogMediaCarouselProps {
   media: DogMedia[];
   className?: string;
+  onSlideChange?: (index: number) => void;
+  activeIndex?: number;
 }
 
-export default function DogMediaCarousel({ media, className }: DogMediaCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+export default function DogMediaCarousel({ 
+  media, 
+  className,
+  onSlideChange,
+  activeIndex: controlledIndex 
+}: DogMediaCarouselProps) {
+  const [internalIndex, setInternalIndex] = useState(0);
+
+  const currentIndex = controlledIndex ?? internalIndex;
 
   if (!media || media.length === 0) return null;
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
+    const newIndex = currentIndex === 0 ? media.length - 1 : currentIndex - 1;
+    setInternalIndex(newIndex);
+    onSlideChange?.(newIndex);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
+    const newIndex = currentIndex === media.length - 1 ? 0 : currentIndex + 1;
+    setInternalIndex(newIndex);
+    onSlideChange?.(newIndex);
   };
 
   const currentMedia = media[currentIndex];
@@ -69,7 +82,10 @@ export default function DogMediaCarousel({ media, className }: DogMediaCarouselP
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === currentIndex ? "bg-white" : "bg-white/50"
                 }`}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => {
+                  setInternalIndex(index);
+                  onSlideChange?.(index);
+                }}
               />
             ))}
           </div>
