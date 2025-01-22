@@ -39,6 +39,7 @@ const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   registrationName: z.string().optional(),
   birthDate: z.string().min(1, "Birth date is required"),
+  testBirthDate: z.string().min(1, "Birth date is required"),
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
@@ -103,6 +104,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       name: "",
       registrationName: "",
       birthDate: "",
+      testBirthDate: "",
       gender: "male",
       description: "",
       healthData: "",
@@ -154,24 +156,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       form.reset({
         ...dog,
         birthDate: format(new Date(dog.birthDate), 'yyyy-MM-dd'),
-      });
-    } else {
-      form.reset({
-        name: "",
-        registrationName: "",
-        birthDate: "",
-        gender: "male",
-        description: "",
-        healthData: "",
-        color: "",
-        dewclaws: "",
-        furLength: "",
-        height: "",
-        weight: "",
-        pedigree: "",
-        narrativeDescription: "",
-        media: [],
-        outsideBreeder: false,
+        testBirthDate: format(new Date(dog.birthDate), 'yyyy-MM-dd'),
       });
     }
   }, [dog, form]);
@@ -179,17 +164,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        // Log the date for debugging
-        console.log('Form birthDate:', values.birthDate);
-
-        // Ensure we have a valid date string
-        if (!values.birthDate) {
-          throw new Error("Birth date is required");
-        }
+        console.log('Original birthDate:', values.birthDate);
+        console.log('Test birthDate:', values.testBirthDate);
 
         const formattedValues = {
           ...values,
-          birthDate: new Date(values.birthDate + 'T00:00:00Z').toISOString(),
+          birthDate: new Date(values.testBirthDate).toISOString(),
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
@@ -204,7 +184,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           ]
         };
 
-        // Log the formatted date for debugging
         console.log('Formatted birthDate:', formattedValues.birthDate);
 
         const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
@@ -452,13 +431,34 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 name="birthDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Birth Date</FormLabel>
+                    <FormLabel>Birth Date (Original)</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
                         {...field}
                         onChange={(e) => {
-                          console.log('Selected date:', e.target.value);
+                          console.log('Original date selected:', e.target.value);
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="testBirthDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Birth Date (Test)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          console.log('Test date selected:', e.target.value);
                           field.onChange(e.target.value);
                         }}
                       />
