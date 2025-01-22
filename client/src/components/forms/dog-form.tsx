@@ -58,7 +58,7 @@ const dogSchema = z.object({
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
-  description: z.string(),
+  description: z.string().optional(),
   motherId: z.number().optional().nullable(),
   fatherId: z.number().optional().nullable(),
   litterId: z.number().optional().nullable(),
@@ -71,7 +71,7 @@ const dogSchema = z.object({
   weight: z.string().optional().nullable(),
   pedigree: z.string().optional(),
   narrativeDescription: z.string().optional(),
-  media: z.array(mediaSchema),
+  media: z.array(mediaSchema).optional().default([]),
   outsideBreeder: z.boolean().default(false),
 });
 
@@ -217,11 +217,16 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       try {
         const formattedDate = formatApiDate(values.birthDate);
 
+        // Convert string values to numbers or null for height/weight
         const formattedValues = {
           ...values,
           birthDate: formattedDate,
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
+          // Ensure IDs are properly formatted
+          motherId: values.motherId || null,
+          fatherId: values.fatherId || null,
+          litterId: values.litterId || null,
           documents: [
             ...healthDocuments.map(doc => ({
               ...doc,
@@ -233,6 +238,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
             }))
           ]
         };
+
+        console.log('Submitting dog data:', formattedValues); // Debug log
 
         const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
           method: dog ? "PUT" : "POST",

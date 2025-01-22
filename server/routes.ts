@@ -434,14 +434,32 @@ export function registerRoutes(app: Express): Server {
     res.json(processedDogs);
   });
 
-  // Update the POST /api/dogs route to handle parent and litter information
   app.post("/api/dogs", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
 
     try {
-      const dog = await db.transaction(async (tx) => {
-        const [newDog] = await tx.insert(dogs).values(dogData).returning();
+      // Log incoming data for debugging
+      console.log('Received dog data:', JSON.stringify(dogData));
 
+      const dog = await db.transaction(async (tx) => {
+        // Ensure all required fields are present and properly formatted
+        const dogToInsert = {
+          ...dogData,
+          // Convert string numbers to actual numbers or null
+          height: dogData.height ? Number(dogData.height) : null,
+          weight: dogData.weight ? Number(dogData.weight) : null,
+          // Ensure IDs are numbers or null
+          motherId: dogData.motherId ? Number(dogData.motherId) : null,
+          fatherId: dogData.fatherId ? Number(dogData.fatherId) : null,
+          litterId: dogData.litterId ? Number(dogData.litterId) : null,
+          // Set default values
+          order: dogData.order || 0,
+          outsideBreeder: dogData.outsideBreeder || false,
+        };
+
+        const [newDog] = await tx.insert(dogs).values(dogToInsert).returning();
+
+        // Handle media if present
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
             media.map((item: any, index: number) => ({
@@ -453,6 +471,7 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
+        // Handle documents if present
         if (documents && documents.length > 0) {
           await tx.insert(dogDocuments).values(
             documents.map((doc: any) => ({
@@ -465,6 +484,7 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
+        // Return the created dog with all relations
         const dogWithRelations = await tx.query.dogs.findFirst({
           where: eq(dogs.id, newDog.id),
           with: {
@@ -482,7 +502,7 @@ export function registerRoutes(app: Express): Server {
       res.json(dog);
     } catch (error) {
       console.error("Error creating dog:", error);
-      res.status(500).json({ message: "Failed to create dog" });
+      res.status(500).json({ message: "Failed to create dog", error: error.message });
     }
   });
 
