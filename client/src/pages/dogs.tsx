@@ -1,10 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
 import { format } from 'date-fns';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Pencil } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Dogs() {
+  const [_, navigate] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isEditingHero, setIsEditingHero] = useState(false);
+  const [newHeroImage, setNewHeroImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const { data: heroContent } = useQuery<DogsHero[]>({
     queryKey: ["/api/dogs-hero"],
   });
@@ -20,6 +41,54 @@ export default function Dogs() {
     queryKey: ["/api/litters"],
   });
 
+  const updateHeroImage = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const res = await fetch(`/api/dogs-hero/${heroContent?.[0]?.id}`, {
+        method: "PUT",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to update hero image");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
+      setIsEditingHero(false);
+      setNewHeroImage("");
+      setImageFile(null);
+      toast({
+        title: "Success",
+        description: "Hero image updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update hero image",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleImageUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData();
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    } else if (newHeroImage) {
+      formData.append("imageUrl", newHeroImage);
+    } else {
+      toast({
+        title: "Error",
+        description: "Please provide an image file or URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await updateHeroImage.mutate(formData);
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -27,7 +96,6 @@ export default function Dogs() {
   const hero = heroContent?.[0];
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  // Group dogs by gender and find the parent dogs from the main dogs array
   const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
   const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
   const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
@@ -35,13 +103,12 @@ export default function Dogs() {
 
   return (
     <div className="w-full">
-      {/* Hero Section */}
       <div 
         className="relative h-[500px] bg-cover bg-center"
         style={{ backgroundImage: `url(${hero?.imageUrl})` }}
       >
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative container mx-auto px-4 h-full flex items-center">
+        <div className="relative container mx-auto px-4 h-full flex items-center justify-between">
           <div className="max-w-2xl text-white">
             <h1 className="text-5xl font-bold mb-4">
               {hero?.title || "Colorado Mountain Dogs"}
@@ -50,6 +117,58 @@ export default function Dogs() {
               {hero?.subtitle || "Loyal guardians bred for livestock protection"}
             </p>
           </div>
+          {window.location.pathname.includes('/admin') && (
+            <Dialog open={isEditingHero} onOpenChange={setIsEditingHero}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="bg-white/90 hover:bg-white">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Update Hero Image</DialogTitle>
+                  <DialogDescription>
+                    Upload a new image or provide an image URL for the hero section.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleImageUpload} className="space-y-4">
+                  <div>
+                    <Label htmlFor="file">Upload Image</Label>
+                    <Input
+                      id="file"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setImageFile(file);
+                          setNewHeroImage("");
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="relative">
+                    <Label htmlFor="url">Or Enter Image URL</Label>
+                    <Input
+                      id="url"
+                      type="url"
+                      placeholder="https://example.com/image.jpg"
+                      value={newHeroImage}
+                      onChange={(e) => {
+                        setNewHeroImage(e.target.value);
+                        setImageFile(null);
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="submit">
+                      Update Hero Image
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
 

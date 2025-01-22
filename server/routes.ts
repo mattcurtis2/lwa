@@ -374,13 +374,32 @@ export function registerRoutes(app: Express): Server {
     res.json(hero);
   });
 
-  app.put("/api/dogs-hero/:id", async (req, res) => {
-    const hero = await db.update(dogsHero)
-      .set({ ...req.body, updatedAt: new Date() })
-      .where(eq(dogsHero.id, parseInt(req.params.id)))
-      .returning();
+  app.put("/api/dogs-hero/:id", upload.single('image'), async (req, res) => {
+    try {
+      let imageUrl = req.body.imageUrl; // For direct URL updates
 
-    res.json(hero[0]);
+      // If a file was uploaded, use its path
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ message: "No image URL or file provided" });
+      }
+
+      const hero = await db.update(dogsHero)
+        .set({ 
+          imageUrl,
+          updatedAt: new Date() 
+        })
+        .where(eq(dogsHero.id, parseInt(req.params.id)))
+        .returning();
+
+      res.json(hero[0]);
+    } catch (error) {
+      console.error("Error updating hero image:", error);
+      res.status(500).json({ message: "Failed to update hero image" });
+    }
   });
 
   // Add dogs routes
