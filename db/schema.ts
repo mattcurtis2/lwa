@@ -77,13 +77,15 @@ export const dogs = pgTable("dogs", {
   gender: text("gender").notNull(),
   birthDate: date("birth_date").notNull(),
   description: text("description"),
-  // New fields
+  // New field for profile picture
+  profileImageUrl: text("profile_image_url"),
+  // Existing fields
   healthData: text("health_data"),
   color: text("color"),
   dewclaws: text("dewclaws"),
   furLength: text("fur_length"),
-  height: decimal("height").default(null), // in inches
-  weight: decimal("weight").default(null), // in pounds
+  height: decimal("height", { precision: 5, scale: 2 }).default(null),
+  weight: decimal("weight", { precision: 5, scale: 2 }).default(null),
   pedigree: text("pedigree"),
   narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),

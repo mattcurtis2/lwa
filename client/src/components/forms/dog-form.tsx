@@ -25,9 +25,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Upload, ImageIcon } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FileText, ImageIcon, Upload, Video } from "lucide-react";
 import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
 
 const mediaSchema = z.object({
@@ -51,6 +51,7 @@ const dogSchema = z.object({
     required_error: "Please select sex",
   }),
   description: z.string(),
+  profileImageUrl: z.string().optional(),
   healthData: z.string().optional(),
   color: z.string().optional(),
   dewclaws: z.string().optional(),
@@ -104,6 +105,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [healthDocuments, setHealthDocuments] = useState<DocumentInput[]>([]);
   const [pedigreeDocuments, setPedigreeDocuments] = useState<DocumentInput[]>([]);
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -113,6 +115,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       birthDate: "",
       gender: "male",
       description: "",
+      profileImageUrl: "",
       healthData: "",
       color: "",
       dewclaws: "",
@@ -170,7 +173,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        // Format the date for API submission
         const formattedDate = formatApiDate(values.birthDate);
 
         const formattedValues = {
@@ -367,6 +369,39 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     }
   };
 
+  const handleProfilePictureUpload = async (file: File) => {
+    setIsUploadingProfile(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload profile picture");
+      }
+
+      const data = await res.json();
+      form.setValue("profileImageUrl", data.url);
+
+      toast({
+        title: "Success",
+        description: "Profile picture uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingProfile(false);
+    }
+  };
+
   const DocumentList = ({ documents, type }: { documents: DocumentInput[], type: 'health' | 'pedigree' }) => (
     <div className="space-y-2">
       {documents.map((doc, index) => (
@@ -402,6 +437,47 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           </SheetHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 pt-6">
+              <FormField
+                control={form.control}
+                name="profileImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Picture</FormLabel>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-20 w-20">
+                        <AvatarImage src={field.value} alt="Profile picture" />
+                        <AvatarFallback>
+                          <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isUploadingProfile}
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.onchange = (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (file) {
+                              handleProfilePictureUpload(file);
+                            }
+                          };
+                          input.click();
+                        }}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {isUploadingProfile ? "Uploading..." : "Upload Profile Picture"}
+                      </Button>
+                    </div>
+                    <FormDescription>
+                      Upload a profile picture that will be used throughout the site
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="name"
@@ -571,6 +647,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   ))}
                 </div>
               </div>
+
 
 
               <FormField
