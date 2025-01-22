@@ -12,9 +12,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Dog, DogMedia } from "@db/schema";
 import {
   Dialog,
@@ -23,7 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { X, Upload } from "lucide-react";
+import { X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const mediaSchema = z.object({
@@ -48,6 +50,7 @@ const dogSchema = z.object({
   }),
   description: z.string(),
   media: z.array(mediaSchema),
+  outsideBreeder: z.boolean().default(false),
 });
 
 interface DogFormProps {
@@ -82,6 +85,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       gender: "male",
       description: "",
       media: [],
+      outsideBreeder: false,
     },
   });
 
@@ -101,6 +105,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         gender: dog.gender,
         description: dog.description ?? "",
         media,
+        outsideBreeder: false,
       });
       setMediaInputs(media);
     } else {
@@ -111,6 +116,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         gender: "male",
         description: "",
         media: [],
+        outsideBreeder: false,
       });
       setMediaInputs([]);
     }
@@ -333,6 +339,27 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <Textarea {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="outsideBreeder"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Outside Breeder</FormLabel>
+                      <FormDescription>
+                        Mark this if the dog is from an outside breeding program
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />

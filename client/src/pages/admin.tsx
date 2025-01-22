@@ -455,6 +455,46 @@ export default function Admin() {
             </div>
           )}
 
+          {/* Outside Breeding Dogs Section */}
+          {dogs && dogs.filter(dog => dog.outsideBreeder).length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-3xl font-bold mb-6 text-stone-800">Breeding Dogs from Outside Farms</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {dogs
+                  .filter(dog => dog.outsideBreeder)
+                  .map((dog) => (
+                    <DogCard
+                      key={dog.id}
+                      dog={dog}
+                      isAdmin
+                      onEdit={() => {
+                        setEditItem(dog);
+                        setShowForm(true);
+                      }}
+                      onDelete={async (dog) => {
+                        if (!confirm("Are you sure you want to delete this dog?")) return;
+                        const res = await fetch(`/api/dogs/${dog.id}`, {
+                          method: "DELETE",
+                        });
+                        if (res.ok) {
+                          queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                          toast({
+                            title: "Success",
+                            description: "Dog deleted successfully",
+                          });
+                        }
+                      }}
+                      onOrderChange={async (dogId, newOrder) => {
+                        await reorderDogs.mutateAsync({
+                          dogId,
+                          newOrder
+                        });
+                      }}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="animals">
