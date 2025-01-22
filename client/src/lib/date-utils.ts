@@ -18,11 +18,8 @@ export function formatAge(birthDate: Date): string {
     return `${years} ${years === 1 ? 'year' : 'years'} old`;
   }
 
-  // Display months and days if available
+  // Display only months if at least 1 month old
   if (months > 0) {
-    if (days > 0) {
-      return `${months} ${months === 1 ? 'month' : 'months'}, ${days} ${days === 1 ? 'day' : 'days'} old`;
-    }
     return `${months} ${months === 1 ? 'month' : 'months'} old`;
   }
 
