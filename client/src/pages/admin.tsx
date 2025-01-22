@@ -287,12 +287,7 @@ export default function Admin() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Content Management</h1>
-        {hasUnsavedChanges && (
-          <Button onClick={handleSaveChanges} disabled={updateSiteContent.isPending || updatePrinciples.isPending}>
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
-        )}
+        {/*Removed Save button here to replace it with FAB*/}
       </div>
 
       <Tabs defaultValue="home">
@@ -432,33 +427,46 @@ export default function Admin() {
                               />
                               <div className="space-y-2">
                                 <Label>Image</Label>
-                                <FileUpload
-                                  value={principle.imageUrl}
-                                  onFileSelect={async (file) => {
-                                    const formData = new FormData();
-                                    formData.append("file", file);
+                                <div className="flex gap-4 items-start">
+                                  <div className="flex-1">
+                                    <FileUpload
+                                      value={principle.imageUrl}
+                                      onFileSelect={async (file) => {
+                                        const formData = new FormData();
+                                        formData.append("file", file);
 
-                                    try {
-                                      const uploadRes = await fetch("/api/upload", {
-                                        method: "POST",
-                                        body: formData,
-                                      });
+                                        try {
+                                          const uploadRes = await fetch("/api/upload", {
+                                            method: "POST",
+                                            body: formData,
+                                          });
 
-                                      if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                          if (!uploadRes.ok) throw new Error("Failed to upload image");
 
-                                      const { url } = await uploadRes.json();
-                                      handlePrincipleChange(principle.id, 'imageUrl', url);
-                                    } catch (error) {
-                                      console.error('Error uploading image:', error);
-                                      toast({
-                                        title: "Error",
-                                        description: "Failed to upload image",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  }}
-                                  onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
-                                />
+                                          const { url } = await uploadRes.json();
+                                          handlePrincipleChange(principle.id, 'imageUrl', url);
+                                        } catch (error) {
+                                          console.error('Error uploading image:', error);
+                                          toast({
+                                            title: "Error",
+                                            description: "Failed to upload image",
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                      onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
+                                    />
+                                  </div>
+                                  {principle.imageUrl && (
+                                    <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                      <img
+                                        src={principle.imageUrl}
+                                        alt={principle.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex justify-end">
                                 <Button
