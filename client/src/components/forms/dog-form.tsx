@@ -39,7 +39,6 @@ const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   registrationName: z.string().optional(),
   birthDate: z.string().min(1, "Birth date is required"),
-  testBirthDate: z.string().min(1, "Birth date is required"),
   gender: z.enum(["male", "female"], {
     required_error: "Please select sex",
   }),
@@ -104,7 +103,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       name: "",
       registrationName: "",
       birthDate: "",
-      testBirthDate: "",
       gender: "male",
       description: "",
       healthData: "",
@@ -122,6 +120,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
   useEffect(() => {
     if (dog) {
+      const birthDate = new Date(dog.birthDate);
+      form.reset({
+        ...dog,
+        birthDate: format(birthDate, 'yyyy-MM-dd'),
+      });
+
       const media = dog.media?.map(m => ({
         url: m.url,
         type: m.type as "image" | "video",
@@ -152,24 +156,20 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       setHealthDocuments(healthDocs);
       setPedigreeDocuments(pedigreeDocs);
       setMediaInputs(media);
-
-      form.reset({
-        ...dog,
-        birthDate: format(new Date(dog.birthDate), 'yyyy-MM-dd'),
-        testBirthDate: format(new Date(dog.birthDate), 'yyyy-MM-dd'),
-      });
     }
   }, [dog, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
       try {
-        console.log('Original birthDate:', values.birthDate);
-        console.log('Test birthDate:', values.testBirthDate);
+        const parsedDate = parse(values.birthDate, 'yyyy-MM-dd', new Date());
+        if (!isValid(parsedDate)) {
+          throw new Error("Invalid date format");
+        }
 
         const formattedValues = {
           ...values,
-          birthDate: new Date(values.testBirthDate).toISOString(),
+          birthDate: parsedDate.toISOString(),
           height: values.height ? parseFloat(values.height) : null,
           weight: values.weight ? parseFloat(values.weight) : null,
           documents: [
@@ -183,8 +183,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
             }))
           ]
         };
-
-        console.log('Formatted birthDate:', formattedValues.birthDate);
 
         const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
           method: dog ? "PUT" : "POST",
@@ -431,34 +429,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 name="birthDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Birth Date (Original)</FormLabel>
+                    <FormLabel>Birth Date</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
                         {...field}
                         onChange={(e) => {
-                          console.log('Original date selected:', e.target.value);
-                          field.onChange(e.target.value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="testBirthDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Birth Date (Test)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        onChange={(e) => {
-                          console.log('Test date selected:', e.target.value);
                           field.onChange(e.target.value);
                         }}
                       />
