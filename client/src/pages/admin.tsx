@@ -118,16 +118,27 @@ export default function Admin() {
   const updatePrinciples = useMutation({
     mutationFn: async (principles: Principle[]) => {
       const results = await Promise.all(
-        principles.map((principle) =>
-          fetch(`/api/principles/${principle.id}`, {
+        principles.map((principle) => {
+          // Create a new object with only the fields we want to update
+          const updatedPrinciple = {
+            id: principle.id,
+            title: principle.title,
+            description: principle.description,
+            imageUrl: principle.imageUrl,
+            order: principle.order,
+            updatedAt: new Date().toISOString()
+          };
+
+          return fetch(`/api/principles/${principle.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(principle),
-          }).then(res => {
-            if (!res.ok) throw new Error(`Failed to update principle ${principle.id}`);
-            return res.json();
-          })
-        )
+            body: JSON.stringify(updatedPrinciple),
+          }).then(async (res) => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || `Failed to update principle ${principle.id}`);
+            return data;
+          });
+        })
       );
       return results;
     },
@@ -136,6 +147,14 @@ export default function Admin() {
       toast({
         title: "Success",
         description: "Principles updated successfully",
+      });
+      setHasUnsavedChanges(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update principles",
+        variant: "destructive",
       });
     }
   });
@@ -287,7 +306,6 @@ export default function Admin() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Content Management</h1>
-        {/*Removed Save button here to replace it with FAB*/}
       </div>
 
       <Tabs defaultValue="home">
@@ -908,7 +926,7 @@ export default function Admin() {
             size="lg"
             onClick={handleSaveChanges}
             disabled={updateSiteContent.isPending || updatePrinciples.isPending}
-            className="rounded-full shadow-lg"
+            className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
           >
             <Save className="w-5 h-5 mr-2" />
             Save Changes
