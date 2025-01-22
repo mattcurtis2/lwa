@@ -60,38 +60,41 @@ export default function LitterDetail() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
       {/* Litter Header */}
-      <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 rounded-lg border border-amber-200 p-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-block bg-amber-200/80 backdrop-blur-sm px-4 py-1 rounded-full text-amber-800 text-sm font-semibold mb-4">
-            {isPastDueDate ? 'Born Litter' : 'Upcoming Litter'}
-          </div>
+      <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 rounded-lg border border-amber-200">
+        <div className="max-w-3xl mx-auto py-6 px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <div className="inline-block bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2">
+                {isPastDueDate ? 'Born Litter' : 'Upcoming Litter'}
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-amber-900">
+                {isPastDueDate
+                  ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
+                  : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
+              </h1>
+            </div>
 
-          <h1 className="text-4xl font-bold text-amber-900 mb-4">
-            {isPastDueDate
-              ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
-              : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
-          </h1>
-
-          {puppyCount > 0 && (
-            <div className="space-y-2">
-              <p className="text-amber-800 text-lg">
-                {puppyCount} {puppyCount === 1 ? 'puppy' : 'puppies'}
-              </p>
-              <div className="flex items-center justify-center gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-blue-500">♂</span>
-                  <span className="text-lg font-semibold text-gray-700">{maleCount}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-pink-500">♀</span>
-                  <span className="text-lg font-semibold text-gray-700">{femaleCount}</span>
+            {puppyCount > 0 && (
+              <div className="flex flex-col items-center sm:items-end">
+                <p className="text-amber-800 text-lg mb-1">
+                  {puppyCount} {puppyCount === 1 ? 'puppy' : 'puppies'}
+                </p>
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-blue-500">♂</span>
+                    <span className="text-lg font-semibold text-gray-700">{maleCount}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-pink-500">♀</span>
+                    <span className="text-lg font-semibold text-gray-700">{femaleCount}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {!isPastDueDate && (
-            <p className="text-amber-800 text-lg mt-4">
+            <p className="text-amber-800 text-center sm:text-left mt-4 text-sm sm:text-base">
               We're excited to announce this upcoming litter from our breeding program.
               Please contact us for more information about reserving a puppy.
             </p>
