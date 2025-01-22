@@ -28,6 +28,10 @@ interface ContentField {
   type: 'text' | 'textarea' | 'image';
 }
 
+interface ApiResponse<T> {
+  data: T[];
+}
+
 export default function Admin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -38,37 +42,37 @@ export default function Admin() {
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
 
   // Update queries to use object syntax with proper types
-  const { data: siteContent } = useQuery<{ data: SiteContent[] }, Error>({
+  const { data: siteContent } = useQuery<ApiResponse<SiteContent>, Error>({
     queryKey: ["/api/site-content"],
     queryFn: () => fetch("/api/site-content").then(res => res.json())
   });
 
-  const { data: carouselItems } = useQuery<{ data: CarouselItem[] }, Error>({
+  const { data: carouselItems } = useQuery<ApiResponse<CarouselItem>, Error>({
     queryKey: ["/api/carousel"],
     queryFn: () => fetch("/api/carousel").then(res => res.json())
   });
 
-  const { data: dogs } = useQuery<{ data: Dog[] }, Error>({
+  const { data: dogs } = useQuery<ApiResponse<Dog>, Error>({
     queryKey: ["/api/dogs"],
     queryFn: () => fetch("/api/dogs").then(res => res.json())
   });
 
-  const { data: dogsHero } = useQuery<{ data: DogsHero[] }, Error>({
+  const { data: dogsHero } = useQuery<ApiResponse<DogsHero>, Error>({
     queryKey: ["/api/dogs-hero"],
     queryFn: () => fetch("/api/dogs-hero").then(res => res.json())
   });
 
-  const { data: litters } = useQuery<{ data: Litter[] }, Error>({
+  const { data: litters } = useQuery<ApiResponse<Litter>, Error>({
     queryKey: ["/api/litters"],
     queryFn: () => fetch("/api/litters").then(res => res.json())
   });
 
-  const { data: animals } = useQuery<{ data: Animal[] }, Error>({
+  const { data: animals } = useQuery<ApiResponse<Animal>, Error>({
     queryKey: ["/api/animals"],
     queryFn: () => fetch("/api/animals").then(res => res.json())
   });
 
-  const { data: products } = useQuery<{ data: Product[] }, Error>({
+  const { data: products } = useQuery<ApiResponse<Product>, Error>({
     queryKey: ["/api/products"],
     queryFn: () => fetch("/api/products").then(res => res.json())
   });
@@ -118,35 +122,35 @@ export default function Admin() {
 
   const contentFields: ContentField[] = [
     // Hero Section
-    { key: "hero_title", label: "Hero Title", value: siteContent?.data?.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
-    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.data?.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
-    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.data?.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
-    { key: "hero_background", label: "Hero Background", value: siteContent?.data?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+    { key: "hero_title", label: "Hero Title", value: siteContent?.data.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.data.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
+    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.data.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_background", label: "Hero Background", value: siteContent?.data.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     // About Section
-    { key: "about_text", label: "About Text", value: siteContent?.data?.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_text", label: "Mission Text", value: siteContent?.data?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    { key: "about_text", label: "About Text", value: siteContent?.data.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "Mission Text", value: siteContent?.data.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
     // Animals Card
-    { key: "animals_title", label: "Title", value: siteContent?.data?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_description", label: "Description", value: siteContent?.data?.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Image", value: siteContent?.data?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
-    { key: "animals_link", label: "Link", value: siteContent?.data?.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+    { key: "animals_title", label: "Title", value: siteContent?.data.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_description", label: "Description", value: siteContent?.data.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
+    { key: "animals_image", label: "Image", value: siteContent?.data.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
+    { key: "animals_link", label: "Link", value: siteContent?.data.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
 
     // Goats Card
-    { key: "goats_title", label: "Title", value: siteContent?.data?.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
-    { key: "goats_description", label: "Description", value: siteContent?.data?.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
-    { key: "goats_image", label: "Image", value: siteContent?.data?.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
-    { key: "goats_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
-    { key: "goats_link", label: "Link", value: siteContent?.data?.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+    { key: "goats_title", label: "Title", value: siteContent?.data.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
+    { key: "goats_description", label: "Description", value: siteContent?.data.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
+    { key: "goats_image", label: "Image", value: siteContent?.data.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
+    { key: "goats_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
+    { key: "goats_link", label: "Link", value: siteContent?.data.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
 
     // Products Card
-    { key: "products_title", label: "Title", value: siteContent?.data?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_description", label: "Description", value: siteContent?.data?.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Image", value: siteContent?.data?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_cta", label: "CTA Text", value: siteContent?.data?.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
-    { key: "products_link", label: "Link", value: siteContent?.data?.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+    { key: "products_title", label: "Title", value: siteContent?.data.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_description", label: "Description", value: siteContent?.data.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
+    { key: "products_image", label: "Image", value: siteContent?.data.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_cta", label: "CTA Text", value: siteContent?.data.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
+    { key: "products_link", label: "Link", value: siteContent?.data.find(c => c.key === "products_link")?.value ?? "", type: "text" },
   ];
 
   return (
@@ -593,14 +597,14 @@ export default function Admin() {
                   <div>
                     <Label>Title</Label>
                     <Input
-                      value={dogsHero?.data?.[0].title}
+                      value={dogsHero?.data?.[0].title ?? ""}
                       onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
                     />
                   </div>
                   <div>
                     <Label>Subtitle</Label>
                     <Input
-                      value={dogsHero?.data?.[0].subtitle}
+                      value={dogsHero?.data?.[0].subtitle ?? ""}
                       onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
                     />
                   </div>
@@ -609,7 +613,7 @@ export default function Admin() {
                     <div className="flex gap-4">
                       <div className="flex-1">
                         <FileUpload
-                          value={dogsHero?.data?.[0].imageUrl}
+                          value={dogsHero?.data?.[0].imageUrl ?? ""}
                           onChange={(url) => updateDogsHero.mutate({ imageUrl: url })}
                         />
                       </div>
@@ -846,7 +850,7 @@ export default function Admin() {
                                 </div>
                                 <div>
                                   <p className="font-semibold">Mother</p>
-                                  <p>{litter.mother?.name}</p>
+                                  <p>{litter.mother?.name ?? ""}</p>
                                 </div>
                               </div>
 
@@ -866,7 +870,7 @@ export default function Admin() {
                                 </div>
                                 <div>
                                   <p className="font-semibold">Father</p>
-                                  <p>{litter.father?.name}</p>
+                                  <p>{litter.father?.name ?? ""}</p>
                                 </div>
                               </div>
                             </div>
