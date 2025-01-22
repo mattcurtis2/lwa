@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Textarea } from "@/components/ui/textarea";
+import { FileUpload } from "@/components/ui/file-upload";
 
 interface LitterFormProps {
   open: boolean;
@@ -29,17 +30,27 @@ interface LitterFormProps {
 interface PuppyFormData {
   name: string;
   registrationName?: string;
-  breed: string;
   gender: 'male' | 'female';
   birthDate: string;
   color?: string;
   description?: string;
   narrativeDescription?: string;
   healthData?: string;
-  height?: string;
-  weight?: string;
+  height?: string | null;
+  weight?: string | null;
   furLength?: string;
   outsideBreeder?: boolean;
+  // Pedigree information
+  siresSire?: string;
+  siresDam?: string;
+  damsSire?: string;
+  damsDam?: string;
+  // Files
+  profileImageUrl?: string;
+  pedigreeUrl?: string;
+  healthClearancesUrl?: string;
+  registrationUrl?: string;
+  media?: { type: 'image' | 'video'; url: string }[];
 }
 
 export default function LitterForm({ open, onOpenChange, litter, mode = 'create' }: LitterFormProps) {
@@ -70,18 +81,21 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
       if (mode === 'addPuppies' && puppies.length > 0) {
         // Create puppies
         for (const puppy of puppies) {
-          const puppyData = {
+          // Convert string numbers to actual numbers or null
+          const processedPuppy = {
             ...puppy,
             motherId: litter?.motherId,
             fatherId: litter?.fatherId,
             litterId: litter?.id,
-            breed: 'Colorado Mountain Dog', // Default breed for puppies
+            height: puppy.height ? Number(puppy.height) : null,
+            weight: puppy.weight ? Number(puppy.weight) : null,
+            media: puppy.media || [],
           };
 
           const res = await fetch('/api/dogs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(puppyData),
+            body: JSON.stringify(processedPuppy),
           });
 
           if (!res.ok) {
@@ -130,7 +144,6 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   const addPuppy = () => {
     setPuppies(prev => [...prev, {
       name: '',
-      breed: 'Colorado Mountain Dog',
       gender: 'male',
       birthDate: new Date().toISOString().split('T')[0],
       registrationName: '',
@@ -142,6 +155,11 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
       weight: '',
       furLength: '',
       outsideBreeder: false,
+      siresSire: '',
+      siresDam: '',
+      damsSire: '',
+      damsDam: '',
+      media: [],
     }]);
   };
 
@@ -149,10 +167,44 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
     setPuppies(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string | boolean) => {
+  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string | boolean | { type: 'image' | 'video'; url: string }[]) => {
     setPuppies(prev => prev.map((puppy, i) => 
       i === index ? { ...puppy, [field]: value } : puppy
     ));
+  };
+
+  const handleFileUpload = async (file: File, puppyIndex: number, field: keyof PuppyFormData) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Failed to upload file");
+
+      const { url } = await uploadRes.json();
+
+      if (field === 'media') {
+        // Handle media array
+        updatePuppy(puppyIndex, 'media', [
+          ...(puppies[puppyIndex].media || []),
+          { type: 'image', url }
+        ]);
+      } else {
+        // Handle single file fields
+        updatePuppy(puppyIndex, field as keyof PuppyFormData, url);
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload file",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -255,6 +307,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                         <X className="h-4 w-4" />
                       </Button>
 
+                      {/* Basic Information */}
                       <div className="space-y-2">
                         <Label>Name</Label>
                         <Input
@@ -271,15 +324,6 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                           value={puppy.registrationName}
                           onChange={(e) => updatePuppy(index, 'registrationName', e.target.value)}
                           placeholder="Registration name (optional)"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Breed</Label>
-                        <Input
-                          value={puppy.breed}
-                          onChange={(e) => updatePuppy(index, 'breed', e.target.value)}
-                          placeholder="Breed"
                         />
                       </div>
 
@@ -309,6 +353,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                         />
                       </div>
 
+                      {/* Physical Characteristics */}
                       <div className="space-y-2">
                         <Label>Color</Label>
                         <Input
@@ -324,6 +369,8 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                           value={puppy.height || ''}
                           onChange={(e) => updatePuppy(index, 'height', e.target.value)}
                           placeholder="Height in inches"
+                          type="number"
+                          step="0.1"
                         />
                       </div>
 
@@ -333,6 +380,8 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                           value={puppy.weight || ''}
                           onChange={(e) => updatePuppy(index, 'weight', e.target.value)}
                           placeholder="Weight in pounds"
+                          type="number"
+                          step="0.1"
                         />
                       </div>
 
@@ -345,6 +394,44 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                         />
                       </div>
 
+                      {/* Pedigree Information */}
+                      <div className="space-y-2">
+                        <Label>Sire's Sire</Label>
+                        <Input
+                          value={puppy.siresSire || ''}
+                          onChange={(e) => updatePuppy(index, 'siresSire', e.target.value)}
+                          placeholder="Paternal grandfather"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Sire's Dam</Label>
+                        <Input
+                          value={puppy.siresDam || ''}
+                          onChange={(e) => updatePuppy(index, 'siresDam', e.target.value)}
+                          placeholder="Paternal grandmother"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Dam's Sire</Label>
+                        <Input
+                          value={puppy.damsSire || ''}
+                          onChange={(e) => updatePuppy(index, 'damsSire', e.target.value)}
+                          placeholder="Maternal grandfather"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Dam's Dam</Label>
+                        <Input
+                          value={puppy.damsDam || ''}
+                          onChange={(e) => updatePuppy(index, 'damsDam', e.target.value)}
+                          placeholder="Maternal grandmother"
+                        />
+                      </div>
+
+                      {/* Descriptions */}
                       <div className="space-y-2">
                         <Label>Description</Label>
                         <Textarea
@@ -371,6 +458,66 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                           placeholder="Health information and records"
                         />
                       </div>
+
+                      {/* File Uploads */}
+                      <div className="space-y-2">
+                        <Label>Profile Image</Label>
+                        <FileUpload
+                          value={puppy.profileImageUrl}
+                          onFileSelect={(file) => handleFileUpload(file, index, 'profileImageUrl')}
+                          onChange={(value) => updatePuppy(index, 'profileImageUrl', value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Pedigree Document</Label>
+                        <FileUpload
+                          value={puppy.pedigreeUrl}
+                          onFileSelect={(file) => handleFileUpload(file, index, 'pedigreeUrl')}
+                          onChange={(value) => updatePuppy(index, 'pedigreeUrl', value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Health Clearances</Label>
+                        <FileUpload
+                          value={puppy.healthClearancesUrl}
+                          onFileSelect={(file) => handleFileUpload(file, index, 'healthClearancesUrl')}
+                          onChange={(value) => updatePuppy(index, 'healthClearancesUrl', value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Registration Documents</Label>
+                        <FileUpload
+                          value={puppy.registrationUrl}
+                          onFileSelect={(file) => handleFileUpload(file, index, 'registrationUrl')}
+                          onChange={(value) => updatePuppy(index, 'registrationUrl', value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Additional Photos/Videos</Label>
+                        <FileUpload
+                          value=""
+                          onFileSelect={(file) => handleFileUpload(file, index, 'media')}
+                          onChange={() => {}} // Media is handled in handleFileUpload
+                        />
+                        {puppy.media && puppy.media.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {puppy.media.map((item, mediaIndex) => (
+                              <div key={mediaIndex} className="relative aspect-square">
+                                <img
+                                  src={item.url}
+                                  alt={`Media ${mediaIndex + 1}`}
+                                  className="w-full h-full object-cover rounded-md"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="space-y-2">
                         <Label>Outside Breeder?</Label>
                         <Switch
