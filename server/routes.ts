@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -78,8 +78,8 @@ export function registerRoutes(app: Express): Server {
     });
 
     if (!adminUser) {
-      const defaultPassword = process.env.NODE_ENV === 'production' ? 
-        process.env.ADMIN_PASSWORD?.replace(/\s+/g, '') || 'AustenAlcott' : 
+      const defaultPassword = process.env.NODE_ENV === 'production' ?
+        process.env.ADMIN_PASSWORD?.replace(/\s+/g, '') || 'AustenAlcott' :
         'AustenAlcott';
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       await db.insert(users).values({
@@ -383,13 +383,14 @@ export function registerRoutes(app: Express): Server {
         media: {
           orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
         },
+        documents: true,
       },
     });
     res.json(allDogs);
   });
 
   app.post("/api/dogs", async (req, res) => {
-    const { media, ...dogData } = req.body;
+    const { media, documents, ...dogData } = req.body;
 
     try {
       // Start a transaction since we need to insert both dog and media
@@ -409,11 +410,25 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Return the newly created dog with its media
+        // Insert documents if any
+        if (documents && documents.length > 0) {
+          await tx.insert(dogDocuments).values(
+            documents.map((doc: any) => ({
+              dogId: newDog.id,
+              url: doc.url,
+              type: doc.type,
+              name: doc.name,
+              mimeType: doc.mimeType
+            }))
+          );
+        }
+
+        // Return the newly created dog with its media and documents
         const dogWithMedia = await tx.query.dogs.findFirst({
           where: eq(dogs.id, newDog.id),
           with: {
             media: true,
+            documents: true,
           },
         });
 
@@ -428,7 +443,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.put("/api/dogs/:id", async (req, res) => {
-    const { media, ...dogData } = req.body;
+    const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
 
     try {
@@ -455,6 +470,10 @@ export function registerRoutes(app: Express): Server {
         await tx.delete(dogMedia)
           .where(eq(dogMedia.dogId, dogId));
 
+        // Delete existing documents
+        await tx.delete(dogDocuments)
+          .where(eq(dogDocuments.dogId, dogId));
+
         // Insert new media
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
@@ -467,11 +486,25 @@ export function registerRoutes(app: Express): Server {
           );
         }
 
-        // Return updated dog with media
+        // Insert new documents
+        if (documents && documents.length > 0) {
+          await tx.insert(dogDocuments).values(
+            documents.map((doc: any) => ({
+              dogId: dogId,
+              url: doc.url,
+              type: doc.type,
+              name: doc.name,
+              mimeType: doc.mimeType
+            }))
+          );
+        }
+
+        // Return updated dog with media and documents
         const updatedDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
           with: {
             media: true,
+            documents: true,
           },
         });
 
@@ -493,9 +526,9 @@ export function registerRoutes(app: Express): Server {
   // Add reorder endpoint for dogs
   app.put("/api/dogs/:id/reorder", async (req, res) => {
     const dog = await db.update(dogs)
-      .set({ 
+      .set({
         order: req.body.order,
-        updatedAt: new Date() 
+        updatedAt: new Date()
       })
       .where(eq(dogs.id, parseInt(req.params.id)))
       .returning();
@@ -512,7 +545,7 @@ export function registerRoutes(app: Express): Server {
     const fileUrl = `/uploads/${req.file.filename}`;
     const fileType = req.file.mimetype.split('/')[0]; // 'image', 'video', 'application', etc.
 
-    res.json({ 
+    res.json({
       url: fileUrl,
       type: fileType,
       originalName: req.file.originalname,

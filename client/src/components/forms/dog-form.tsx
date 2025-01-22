@@ -62,6 +62,14 @@ const dogSchema = z.object({
   outsideBreeder: z.boolean().default(false),
 });
 
+interface DogDocument {
+  id?: number;
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
+}
+
 interface DogFormProps {
   dog?: Dog & { media?: DogMedia[]; documents?: DogDocument[] };
   open: boolean;
@@ -73,13 +81,6 @@ interface MediaInput {
   type: "image" | "video";
   fileName?: string;
   isNew?: boolean;
-}
-
-interface DogDocument {
-  url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
 }
 
 interface DocumentInput {
@@ -155,6 +156,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
       setHealthDocuments(healthDocs);
       setPedigreeDocuments(pedigreeDocs);
+      setMediaInputs(media);
 
       form.reset({
         name: dog.name,
@@ -173,7 +175,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         media,
         outsideBreeder: dog.outsideBreeder ?? false,
       });
-      setMediaInputs(media);
     } else {
       form.reset({
         name: "",
@@ -193,6 +194,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         outsideBreeder: false,
       });
       setMediaInputs([]);
+      setHealthDocuments([]);
+      setPedigreeDocuments([]);
     }
   }, [dog, form]);
 
