@@ -17,6 +17,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface LitterFormProps {
   open: boolean;
@@ -27,10 +28,18 @@ interface LitterFormProps {
 
 interface PuppyFormData {
   name: string;
+  registrationName?: string;
+  breed: string;
   gender: 'male' | 'female';
   birthDate: string;
   color?: string;
   description?: string;
+  narrativeDescription?: string;
+  healthData?: string;
+  height?: string;
+  weight?: string;
+  furLength?: string;
+  outsideBreeder?: boolean;
 }
 
 export default function LitterForm({ open, onOpenChange, litter, mode = 'create' }: LitterFormProps) {
@@ -66,6 +75,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
             motherId: litter?.motherId,
             fatherId: litter?.fatherId,
             litterId: litter?.id,
+            breed: 'Colorado Mountain Dog', // Default breed for puppies
           };
 
           const res = await fetch('/api/dogs', {
@@ -120,10 +130,18 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   const addPuppy = () => {
     setPuppies(prev => [...prev, {
       name: '',
+      breed: 'Colorado Mountain Dog',
       gender: 'male',
       birthDate: new Date().toISOString().split('T')[0],
+      registrationName: '',
       color: '',
       description: '',
+      narrativeDescription: '',
+      healthData: '',
+      height: '',
+      weight: '',
+      furLength: '',
+      outsideBreeder: false,
     }]);
   };
 
@@ -131,7 +149,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
     setPuppies(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string) => {
+  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string | boolean) => {
     setPuppies(prev => prev.map((puppy, i) => 
       i === index ? { ...puppy, [field]: value } : puppy
     ));
@@ -248,6 +266,24 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                       </div>
 
                       <div className="space-y-2">
+                        <Label>Registration Name</Label>
+                        <Input
+                          value={puppy.registrationName}
+                          onChange={(e) => updatePuppy(index, 'registrationName', e.target.value)}
+                          placeholder="Registration name (optional)"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Breed</Label>
+                        <Input
+                          value={puppy.breed}
+                          onChange={(e) => updatePuppy(index, 'breed', e.target.value)}
+                          placeholder="Breed"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
                         <Label>Gender</Label>
                         <Select
                           value={puppy.gender}
@@ -283,11 +319,63 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Description</Label>
+                        <Label>Height (inches)</Label>
                         <Input
+                          value={puppy.height || ''}
+                          onChange={(e) => updatePuppy(index, 'height', e.target.value)}
+                          placeholder="Height in inches"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Weight (lbs)</Label>
+                        <Input
+                          value={puppy.weight || ''}
+                          onChange={(e) => updatePuppy(index, 'weight', e.target.value)}
+                          placeholder="Weight in pounds"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Fur Length</Label>
+                        <Input
+                          value={puppy.furLength || ''}
+                          onChange={(e) => updatePuppy(index, 'furLength', e.target.value)}
+                          placeholder="Fur length"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
                           value={puppy.description || ''}
                           onChange={(e) => updatePuppy(index, 'description', e.target.value)}
                           placeholder="Brief description of the puppy"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Detailed Description</Label>
+                        <Textarea
+                          value={puppy.narrativeDescription || ''}
+                          onChange={(e) => updatePuppy(index, 'narrativeDescription', e.target.value)}
+                          placeholder="Detailed description of the puppy"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Health Information</Label>
+                        <Textarea
+                          value={puppy.healthData || ''}
+                          onChange={(e) => updatePuppy(index, 'healthData', e.target.value)}
+                          placeholder="Health information and records"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Outside Breeder?</Label>
+                        <Switch
+                          checked={puppy.outsideBreeder}
+                          onCheckedChange={(value) => updatePuppy(index, 'outsideBreeder', value)}
                         />
                       </div>
                     </div>
