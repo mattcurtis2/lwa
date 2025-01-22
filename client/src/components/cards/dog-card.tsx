@@ -38,7 +38,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
 
   return (
     <Card className="h-full">
-      <Link href={`/dogs/${dog.name}`}>
+      <Link href={`/dogs/${dog.id}`}>
         <div className="cursor-pointer">
           {dog.media && dog.media.length > 0 ? (
             <DogMediaCarousel media={dog.media} />
@@ -54,7 +54,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
         {isAdmin ? (
           <div>
             <div className="flex justify-between items-start mb-4">
-              <Link href={`/dogs/${dog.name}`}>
+              <Link href={`/dogs/${dog.id}`}>
                 <div className="cursor-pointer flex items-center gap-3">
                   {dog.profileImageUrl ? (
                     <Avatar className="h-10 w-10">
@@ -91,7 +91,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
                 </div>
               )}
             </div>
-            <Link href={`/dogs/${dog.name}`}>
+            <Link href={`/dogs/${dog.id}`}>
               <p className="text-stone-600 mb-4 cursor-pointer">{dog.description}</p>
             </Link>
             <div className="flex gap-2">
@@ -114,7 +114,7 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
             </div>
           </div>
         ) : (
-          <Link href={`/dogs/${dog.name}`}>
+          <Link href={`/dogs/${dog.id}`}>
             <div className="cursor-pointer">
               <div className="mb-4 flex items-center gap-3">
                 {dog.profileImageUrl ? (

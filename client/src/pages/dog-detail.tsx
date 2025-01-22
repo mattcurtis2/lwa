@@ -89,7 +89,7 @@ function DocumentLink({ document }: { document: Document }) {
 
 export default function DogDetail() {
   const [location] = useLocation();
-  const dogName = location.split("/").pop()?.replace("#", "");
+  const dogId = parseInt(location.split("/").pop() || "0", 10);
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
 
   const { data: dogs } = useQuery<(Dog & {
@@ -99,7 +99,7 @@ export default function DogDetail() {
     queryKey: ["/api/dogs"],
   });
 
-  const dog = dogs?.find((d) => d.name.toLowerCase() === dogName?.toLowerCase());
+  const dog = dogs?.find((d) => d.id === dogId);
 
   if (!dog) {
     return (
