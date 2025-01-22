@@ -14,8 +14,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import CarouselForm from "@/components/forms/carousel-form";
 import DogForm from "@/components/forms/dog-form";
+import { formatDisplayDate } from "@/lib/date-utils";
 import DogCard from "@/components/cards/dog-card";
 import LitterForm from "@/components/forms/litter-form";
+import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 
 interface ContentField {
@@ -37,37 +39,49 @@ export default function Admin() {
   // Update queries to use direct array responses
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
-    queryFn: () => fetch("/api/site-content").then(res => res.json())
   });
 
   const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
-    queryFn: () => fetch("/api/carousel").then(res => res.json())
   });
 
   const { data: dogs = [] } = useQuery<Dog[]>({
     queryKey: ["/api/dogs"],
-    queryFn: () => fetch("/api/dogs").then(res => res.json())
   });
 
   const { data: dogsHero = [] } = useQuery<DogsHero[]>({
     queryKey: ["/api/dogs-hero"],
-    queryFn: () => fetch("/api/dogs-hero").then(res => res.json())
   });
 
   const { data: litters = [] } = useQuery<Litter[]>({
     queryKey: ["/api/litters"],
-    queryFn: () => fetch("/api/litters").then(res => res.json())
   });
 
   const { data: animals = [] } = useQuery<Animal[]>({
     queryKey: ["/api/animals"],
-    queryFn: () => fetch("/api/animals").then(res => res.json())
   });
 
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ["/api/products"],
-    queryFn: () => fetch("/api/products").then(res => res.json())
+  });
+
+  const updateDogsHero = useMutation({
+    mutationFn: async (data: Partial<DogsHero>) => {
+      const res = await fetch("/api/dogs-hero", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update hero");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
+      toast({
+        title: "Success",
+        description: "Hero section updated successfully",
+      });
+    },
   });
 
   const contentFields: ContentField[] = [
@@ -814,9 +828,9 @@ export default function Admin() {
                                       src={litter.mother.media[0].url}
                                       alt={litter.mother.name}
                                       className="w-full h-full object-cover"
-                                    />
+                                         />
                                   ) : (
-                                    <div className="w-full h-full flexitems-center justify-center">
+                                    <div className="w-full h-full flex items-center justify-center">
                                       <span className="text-pink-500">♀</span>
                                     </div>
                                   )}
