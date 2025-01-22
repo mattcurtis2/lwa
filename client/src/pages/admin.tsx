@@ -172,7 +172,7 @@ export default function Admin() {
 
   const contentFields: ContentField[] = [
     // Hero Section
-    { key: "hero_title", label: "Hero Title", value: pendingContent["hero_title"] ?? siteContent.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
     { key: "hero_subtitle", label: "Hero Subtitle", value: pendingContent["hero_subtitle"] ?? siteContent.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
     { key: "hero_cta", label: "Hero CTA Text", value: pendingContent["hero_cta"] ?? siteContent.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
