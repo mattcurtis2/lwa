@@ -36,9 +36,19 @@ export default function Admin() {
   const [editLitter, setEditLitter] = useState<Litter | null>(null);
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
 
-  // Update queries to use direct array responses
-  const { data: siteContent = [] } = useQuery<SiteContent[]>({
+  // Update queries with proper error handling and loading states
+  const { data: siteContent = [], isLoading: isLoadingSiteContent, } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
+    staleTime: 0, // Ensure fresh data
+    retry: 1,
+    onError: (error) => {
+      console.error("Failed to fetch site content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load site content. Please try again.",
+        variant: "destructive",
+      });
+    }
   });
 
   const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
@@ -84,45 +94,13 @@ export default function Admin() {
     },
   });
 
-  const contentFields: ContentField[] = [
-    // Hero Section
-    { key: "hero_title", label: "Hero Title", value: siteContent.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
-    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
-    { key: "hero_cta", label: "Hero CTA Text", value: siteContent.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
-    { key: "hero_background", label: "Hero Background", value: siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
-
-    // About Section
-    { key: "about_text", label: "About Text", value: siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
-    { key: "mission_text", label: "Mission Text", value: siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
-
-    // Animals Card
-    { key: "animals_title", label: "Title", value: siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_description", label: "Description", value: siteContent.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Image", value: siteContent.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_cta", label: "CTA Text", value: siteContent.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
-    { key: "animals_link", label: "Link", value: siteContent.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
-
-    // Goats Card
-    { key: "goats_title", label: "Title", value: siteContent.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
-    { key: "goats_description", label: "Description", value: siteContent.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
-    { key: "goats_image", label: "Image", value: siteContent.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
-    { key: "goats_cta", label: "CTA Text", value: siteContent.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
-    { key: "goats_link", label: "Link", value: siteContent.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
-
-    // Products Card
-    { key: "products_title", label: "Title", value: siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_description", label: "Description", value: siteContent.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Image", value: siteContent.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_cta", label: "CTA Text", value: siteContent.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
-    { key: "products_link", label: "Link", value: siteContent.find(c => c.key === "products_link")?.value ?? "", type: "text" },
-  ];
-
   const updateSiteContent = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
       const res = await fetch(`/api/site-content/${key}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value }),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error("Failed to update content");
       return res.json();
@@ -134,12 +112,66 @@ export default function Admin() {
         description: "Content updated successfully",
       });
     },
+    onError: (error) => {
+      console.error("Failed to update content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update content. Please try again.",
+        variant: "destructive",
+      });
+    }
   });
 
   const handleContentChange = (key: string, value: string) => {
     setPendingContent((prev) => ({ ...prev, [key]: value }));
     updateSiteContent.mutate({ key, value });
   };
+
+  // Debug logging for site content
+  console.log("Site Content Data:", siteContent);
+
+  const contentFields: ContentField[] = [
+    // Hero Section
+    { key: "hero_title", label: "Hero Title", value: pendingContent["hero_title"] ?? siteContent.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_subtitle", label: "Hero Subtitle", value: pendingContent["hero_subtitle"] ?? siteContent.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
+    { key: "hero_cta", label: "Hero CTA Text", value: pendingContent["hero_cta"] ?? siteContent.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+
+    // About Section
+    { key: "about_text", label: "About Text", value: pendingContent["about_text"] ?? siteContent.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "Mission Text", value: pendingContent["mission_text"] ?? siteContent.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+
+    // Animals Card
+    { key: "animals_title", label: "Title", value: pendingContent["animals_title"] ?? siteContent.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_description", label: "Description", value: pendingContent["animals_description"] ?? siteContent.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
+    { key: "animals_image", label: "Image", value: pendingContent["animals_image"] ?? siteContent.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_cta", label: "CTA Text", value: pendingContent["animals_cta"] ?? siteContent.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
+    { key: "animals_link", label: "Link", value: pendingContent["animals_link"] ?? siteContent.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+
+    // Goats Card
+    { key: "goats_title", label: "Title", value: pendingContent["goats_title"] ?? siteContent.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
+    { key: "goats_description", label: "Description", value: pendingContent["goats_description"] ?? siteContent.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
+    { key: "goats_image", label: "Image", value: pendingContent["goats_image"] ?? siteContent.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
+    { key: "goats_cta", label: "CTA Text", value: pendingContent["goats_cta"] ?? siteContent.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
+    { key: "goats_link", label: "Link", value: pendingContent["goats_link"] ?? siteContent.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+
+    // Products Card
+    { key: "products_title", label: "Title", value: pendingContent["products_title"] ?? siteContent.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_description", label: "Description", value: pendingContent["products_description"] ?? siteContent.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
+    { key: "products_image", label: "Image", value: pendingContent["products_image"] ?? siteContent.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_cta", label: "CTA Text", value: pendingContent["products_cta"] ?? siteContent.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
+    { key: "products_link", label: "Link", value: pendingContent["products_link"] ?? siteContent.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+  ];
+
+  // Loading state handling
+  if (isLoadingSiteContent) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
+        <p>Loading content...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -828,7 +860,7 @@ export default function Admin() {
                                       src={litter.mother.media[0].url}
                                       alt={litter.mother.name}
                                       className="w-full h-full object-cover"
-                                         />
+                                    />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                       <span className="text-pink-500">♀</span>
