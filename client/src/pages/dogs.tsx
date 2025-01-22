@@ -39,9 +39,9 @@ export default function Dogs({ genderFilter }: DogsProps) {
     queryKey: ["/api/dogs"],
   });
 
-  const { data: litters } = useQuery<(Litter & { 
-    mother: Dog & { media?: DogMedia[] }, 
-    father: Dog & { media?: DogMedia[] } 
+  const { data: litters } = useQuery<(Litter & {
+    mother: Dog & { media?: DogMedia[] },
+    father: Dog & { media?: DogMedia[] }
   })[]>({
     queryKey: ["/api/litters"],
   });
@@ -140,7 +140,7 @@ export default function Dogs({ genderFilter }: DogsProps) {
 
   return (
     <div className="w-full">
-      <div 
+      <div
         className="relative h-[500px] bg-cover bg-center"
         style={{ backgroundImage: `url(${hero?.imageUrl})` }}
       >
@@ -148,10 +148,7 @@ export default function Dogs({ genderFilter }: DogsProps) {
         <div className="relative container mx-auto px-4 h-full flex items-center justify-between">
           <div className="max-w-2xl text-white">
             <h1 className="text-5xl font-bold mb-4">
-              {genderFilter 
-                ? `Our ${genderFilter === 'male' ? 'Male' : 'Female'} Colorado Mountain Dogs`
-                : (hero?.title || "Colorado Mountain Dogs")
-              }
+              {hero?.title || "Colorado Mountain Dogs"}
             </h1>
             <p className="text-xl">
               {hero?.subtitle || "Loyal guardians bred for livestock protection"}
@@ -198,7 +195,7 @@ export default function Dogs({ genderFilter }: DogsProps) {
                     />
                   </div>
                   <div className="flex justify-end">
-                    <Button 
+                    <Button
                       type="submit"
                       disabled={(!imageFile && !newHeroImage) || uploadImage.isPending || updateHeroImage.isPending}
                     >
@@ -228,20 +225,20 @@ export default function Dogs({ genderFilter }: DogsProps) {
                   </div>
 
                   <div className="flex items-center gap-10">
-                    <div 
+                    <div
                       className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-105"
                       onClick={() => navigateToDog(motherDog.id)}
                     >
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
                         {motherDog.profileImageUrl ? (
-                          <img 
-                            src={motherDog.profileImageUrl} 
+                          <img
+                            src={motherDog.profileImageUrl}
                             alt={motherDog.name}
                             className="w-full h-full object-cover"
                           />
                         ) : motherDog.media && motherDog.media.length > 0 ? (
-                          <img 
-                            src={motherDog.media[0].url} 
+                          <img
+                            src={motherDog.media[0].url}
                             alt={motherDog.name}
                             className="w-full h-full object-cover"
                           />
@@ -255,20 +252,20 @@ export default function Dogs({ genderFilter }: DogsProps) {
                       </div>
                     </div>
 
-                    <div 
+                    <div
                       className="flex items-center gap-3 cursor-pointer transition-transform hover:scale-105"
                       onClick={() => navigateToDog(fatherDog.id)}
                     >
                       <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
                         {fatherDog.profileImageUrl ? (
-                          <img 
-                            src={fatherDog.profileImageUrl} 
+                          <img
+                            src={fatherDog.profileImageUrl}
                             alt={fatherDog.name}
                             className="w-full h-full object-cover"
                           />
                         ) : fatherDog.media && fatherDog.media.length > 0 ? (
-                          <img 
-                            src={fatherDog.media[0].url} 
+                          <img
+                            src={fatherDog.media[0].url}
                             alt={fatherDog.name}
                             className="w-full h-full object-cover"
                           />
