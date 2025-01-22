@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { DogsHero, Dog, DogMedia, Litter } from "@db/schema";
 import DogCard from "@/components/cards/dog-card";
+import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { format } from "date-fns";
 
 export default function Dogs() {
@@ -71,16 +72,42 @@ export default function Dogs() {
               <div className="w-full max-w-4xl mt-8">
                 <h3 className="text-xl font-semibold text-amber-900 mb-6">Meet the Parents</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Use DogCard for Mother */}
+                  {/* Mother Section */}
                   <div>
                     <h4 className="text-lg font-semibold text-amber-900 mb-4">Mother</h4>
-                    <DogCard dog={visibleLitter.mother} />
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      {visibleLitter.mother?.media && visibleLitter.mother.media.length > 0 && (
+                        <DogMediaCarousel media={visibleLitter.mother.media} />
+                      )}
+                      <div className="p-4">
+                        <h5 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                          {visibleLitter.mother.name}
+                          <span className="text-pink-500">♀</span>
+                        </h5>
+                        {visibleLitter.mother.registrationName && (
+                          <p className="text-sm text-muted-foreground">{visibleLitter.mother.registrationName}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Use DogCard for Father */}
+                  {/* Father Section */}
                   <div>
                     <h4 className="text-lg font-semibold text-amber-900 mb-4">Father</h4>
-                    <DogCard dog={visibleLitter.father} />
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      {visibleLitter.father?.media && visibleLitter.father.media.length > 0 && (
+                        <DogMediaCarousel media={visibleLitter.father.media} />
+                      )}
+                      <div className="p-4">
+                        <h5 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                          {visibleLitter.father.name}
+                          <span className="text-blue-500">♂</span>
+                        </h5>
+                        {visibleLitter.father.registrationName && (
+                          <p className="text-sm text-muted-foreground">{visibleLitter.father.registrationName}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
