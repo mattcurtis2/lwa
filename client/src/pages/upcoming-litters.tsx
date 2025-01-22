@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Dog, DogMedia, Litter } from "@db/schema";
+import { Dog, DogMedia, Litter, DogImage } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function UpcomingLitters() {
   const [_, navigate] = useLocation();
-  
+
   const { data: litters } = useQuery<(Litter & {
-    mother: Dog & { media?: DogMedia[] },
-    father: Dog & { media?: DogMedia[] }
+    mother: Dog & { media?: DogMedia[], dogImages?: DogImage[] },
+    father: Dog & { media?: DogMedia[], dogImages?: DogImage[] }
   })[]>({
     queryKey: ["/api/litters"],
   });
@@ -63,6 +63,12 @@ export default function UpcomingLitters() {
                           alt={litter.mother.name}
                           className="w-full h-full object-cover"
                         />
+                      ) : litter.mother.dogImages && litter.mother.dogImages.length > 0 ? (
+                        <img
+                          src={litter.mother.dogImages[0].url}
+                          alt={litter.mother.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : litter.mother.media && litter.mother.media.length > 0 ? (
                         <img
                           src={litter.mother.media[0].url}
@@ -70,7 +76,9 @@ export default function UpcomingLitters() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-3xl text-pink-500">♀</span>
+                        <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                          <span className="text-3xl text-pink-500">♀</span>
+                        </div>
                       )}
                     </div>
                     <div>
@@ -87,6 +95,12 @@ export default function UpcomingLitters() {
                           alt={litter.father.name}
                           className="w-full h-full object-cover"
                         />
+                      ) : litter.father.dogImages && litter.father.dogImages.length > 0 ? (
+                        <img
+                          src={litter.father.dogImages[0].url}
+                          alt={litter.father.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : litter.father.media && litter.father.media.length > 0 ? (
                         <img
                           src={litter.father.media[0].url}
@@ -94,7 +108,9 @@ export default function UpcomingLitters() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-3xl text-blue-500">♂</span>
+                        <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                          <span className="text-3xl text-blue-500">♂</span>
+                        </div>
                       )}
                     </div>
                     <div>
