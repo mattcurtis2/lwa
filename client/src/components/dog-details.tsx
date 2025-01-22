@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   FileText,
   FileImage,
@@ -103,24 +104,57 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold flex items-center gap-2 mb-2">
-          {dog.name} {genderSymbol}
-        </h1>
-        {dog.registrationName && (
-          <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
-        )}
+      <div className="flex items-center gap-6">
+        <Avatar className="h-24 w-24">
+          <AvatarImage
+            src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            alt={dog.name}
+          />
+          <AvatarFallback>
+            {genderSymbol}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-4xl font-bold flex items-center gap-2">
+            {dog.name} {genderSymbol}
+          </h1>
+          {dog.registrationName && (
+            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+          )}
+        </div>
       </div>
 
-      <Tabs defaultValue="media" className="w-full">
+      <Tabs defaultValue="basic" className="w-full">
         <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
-          <TabsTrigger value="media">Pictures & Videos</TabsTrigger>
           <TabsTrigger value="basic">Basic Information</TabsTrigger>
+          <TabsTrigger value="media">Pictures & Videos</TabsTrigger>
           <TabsTrigger value="story">Story</TabsTrigger>
           <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
           <TabsTrigger value="health">Health Information</TabsTrigger>
           <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="basic">
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Breed</h3>
+                  <p>Colorado Mountain Dog</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Gender</h3>
+                  <p className="flex items-center gap-1">
+                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="media">
           {dog.media && dog.media.length > 0 ? (
@@ -160,28 +194,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-
-        <TabsContent value="basic">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Breed</h3>
-                  <p>Colorado Mountain Dog</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Gender</h3>
-                  <p className="flex items-center gap-1">
-                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="story">

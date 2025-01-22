@@ -3,7 +3,6 @@ import { useParams } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import DogDetails from "@/components/dog-details";
 
 interface Document {
@@ -128,32 +127,14 @@ export default function LitterDetail() {
             </div>
             <div className="relative flex justify-center text-center">
               <div className="bg-background px-6">
-                <h2 className="text-3xl font-bold text-stone-800 mb-2">Parents</h2>
-                <p className="text-muted-foreground">
-                  The proud mother and father
-                </p>
+                <h2 className="text-3xl font-bold text-stone-800">Parents</h2>
               </div>
             </div>
           </div>
 
           <div className="space-y-16">
-            {/* Mother */}
-            <div>
-              <div className="mb-8 flex items-center gap-2 justify-center">
-                <span className="text-2xl text-pink-500">♀</span>
-                <h3 className="text-2xl font-semibold">Mother</h3>
-              </div>
-              <DogDetails dog={litter.mother} />
-            </div>
-
-            {/* Father */}
-            <div>
-              <div className="mb-8 flex items-center gap-2 justify-center">
-                <span className="text-2xl text-blue-500">♂</span>
-                <h3 className="text-2xl font-semibold">Father</h3>
-              </div>
-              <DogDetails dog={litter.father} />
-            </div>
+            <DogDetails dog={litter.mother} />
+            <DogDetails dog={litter.father} />
           </div>
         </div>
       </div>
