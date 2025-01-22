@@ -21,10 +21,106 @@ import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 
-// ... (keep all the interfaces and types)
+interface ContentField {
+  key: string;
+  label: string;
+  value: string;
+  type: 'text' | 'textarea' | 'image';
+}
 
 export default function Admin() {
-  // ... (keep all the state and hooks)
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [showLitterForm, setShowLitterForm] = useState(false);
+  const [editItem, setEditItem] = useState<Dog | Animal | Product | CarouselItem | null>(null);
+  const [editLitter, setEditLitter] = useState<Litter | null>(null);
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+
+  // Fetch site content
+  const { data: siteContent } = useQuery<SiteContent[]>(["/api/site-content"]);
+  const { data: carouselItems } = useQuery<CarouselItem[]>(["/api/carousel"]);
+  const { data: dogs } = useQuery<Dog[]>(["/api/dogs"]);
+  const { data: dogsHero } = useQuery<DogsHero[]>(["/api/dogs-hero"]);
+  const { data: litters } = useQuery<Litter[]>(["/api/litters"]);
+  const { data: animals } = useQuery<Animal[]>(["/api/animals"]);
+  const { data: products } = useQuery<Product[]>(["/api/products"]);
+
+  const updateSiteContent = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string }) => {
+      const res = await fetch(`/api/site-content/${key}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value }),
+      });
+      if (!res.ok) throw new Error("Failed to update content");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
+      toast({
+        title: "Success",
+        description: "Content updated successfully",
+      });
+    },
+  });
+
+  const updateDogsHero = useMutation({
+    mutationFn: async (data: Partial<DogsHero>) => {
+      const res = await fetch("/api/dogs-hero", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update hero");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs-hero"] });
+      toast({
+        title: "Success",
+        description: "Hero section updated successfully",
+      });
+    },
+  });
+
+  const handleContentChange = (key: string, value: string) => {
+    setPendingContent((prev) => ({ ...prev, [key]: value }));
+    updateSiteContent.mutate({ key, value });
+  };
+
+  const contentFields: ContentField[] = [
+    // Hero Section
+    { key: "hero_title", label: "Hero Title", value: siteContent?.find(c => c.key === "hero_title")?.value ?? "", type: "text" },
+    { key: "hero_subtitle", label: "Hero Subtitle", value: siteContent?.find(c => c.key === "hero_subtitle")?.value ?? "", type: "text" },
+    { key: "hero_cta", label: "Hero CTA Text", value: siteContent?.find(c => c.key === "hero_cta")?.value ?? "", type: "text" },
+    { key: "hero_background", label: "Hero Background", value: siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+
+    // About Section
+    { key: "about_text", label: "About Text", value: siteContent?.find(c => c.key === "about_text")?.value ?? "", type: "textarea" },
+    { key: "mission_text", label: "Mission Text", value: siteContent?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+
+    // Animals Card
+    { key: "animals_title", label: "Title", value: siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
+    { key: "animals_description", label: "Description", value: siteContent?.find(c => c.key === "animals_description")?.value ?? "", type: "textarea" },
+    { key: "animals_image", label: "Image", value: siteContent?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "animals_cta")?.value ?? "", type: "text" },
+    { key: "animals_link", label: "Link", value: siteContent?.find(c => c.key === "animals_link")?.value ?? "", type: "text" },
+
+    // Goats Card
+    { key: "goats_title", label: "Title", value: siteContent?.find(c => c.key === "goats_title")?.value ?? "", type: "text" },
+    { key: "goats_description", label: "Description", value: siteContent?.find(c => c.key === "goats_description")?.value ?? "", type: "textarea" },
+    { key: "goats_image", label: "Image", value: siteContent?.find(c => c.key === "goats_image")?.value ?? "", type: "image" },
+    { key: "goats_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "goats_cta")?.value ?? "", type: "text" },
+    { key: "goats_link", label: "Link", value: siteContent?.find(c => c.key === "goats_link")?.value ?? "", type: "text" },
+
+    // Products Card
+    { key: "products_title", label: "Title", value: siteContent?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
+    { key: "products_description", label: "Description", value: siteContent?.find(c => c.key === "products_description")?.value ?? "", type: "textarea" },
+    { key: "products_image", label: "Image", value: siteContent?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_cta", label: "CTA Text", value: siteContent?.find(c => c.key === "products_cta")?.value ?? "", type: "text" },
+    { key: "products_link", label: "Link", value: siteContent?.find(c => c.key === "products_link")?.value ?? "", type: "text" },
+  ];
 
   return (
     <div className="container mx-auto py-8">
