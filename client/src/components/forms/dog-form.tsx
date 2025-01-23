@@ -652,27 +652,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
         <div className="space-y-4">
           <FormField
             control={form.control}
-            name="puppy"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Puppy</FormLabel>
-                  <FormDescription>
-                    Mark this if the dog is a puppy
-                  </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
@@ -887,6 +866,27 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                     <FormLabel className="text-base">Outside Breeder</FormLabel>
                     <FormDescription>
                       Mark this if the dog is from an outside breeding program
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="puppy"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Puppy</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog is a puppy
                     </FormDescription>
                   </div>
                   <FormControl>
