@@ -74,13 +74,11 @@ const dogSchema = z.object({
   weight: z.string().optional().nullable(),
   pedigree: z.string().optional(),
   narrativeDescription: z.string().optional(),
-  media: z.array(mediaSchema),
+  media: z.array(mediaSchema).optional(),
   outsideBreeder: z.boolean().default(false),
   puppy: z.boolean().default(false),
   available: z.boolean().default(false),
-  price: z.string().optional().transform((val) =>
-    val ? parseInt(val) : null
-  ),
+  price: z.string().optional(),
 });
 
 interface DogDocument {
@@ -104,22 +102,12 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-interface DocumentInput {
-  url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
-  isNew?: boolean;
-}
-
 interface Litter {
   id: number;
   dueDate: string;
   motherId: number;
   fatherId: number;
 }
-
-const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
 export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const queryClient = useQueryClient();
@@ -130,8 +118,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
   const [mediaUrl, setMediaUrl] = useState("");
-  const [healthDocuments, setHealthDocuments] = useState<DocumentInput[]>([]);
-  const [pedigreeDocuments, setPedigreeDocuments] = useState<DocumentInput[]>([]);
+  const [healthDocuments, setHealthDocuments] = useState<DogDocument[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<DogDocument[]>([]);
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
@@ -185,6 +173,14 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         motherId: dog.motherId || null,
         fatherId: dog.fatherId || null,
         litterId: dog.litterId || null,
+        height: dog.height?.toString() || "",
+        weight: dog.weight?.toString() || "",
+        price: dog.price?.toString() || "",
+        media: dog.media?.map(m => ({
+          url: m.url,
+          type: m.type as "image" | "video",
+          fileName: m.fileName,
+        })) || [],
       });
 
       const media = dog.media?.map(m => ({
@@ -193,72 +189,48 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         isNew: false,
       })) || [];
 
-      const docs = dog.documents || [];
-      const healthDocs = docs
-        .filter(d => d.type === 'health')
-        .map(d => ({
-          url: d.url,
-          type: 'health' as const,
-          name: d.name,
-          mimeType: d.mimeType,
-          isNew: false,
-        }));
-
-      const pedigreeDocs = docs
-        .filter(d => d.type === 'pedigree')
-        .map(d => ({
-          url: d.url,
-          type: 'pedigree' as const,
-          name: d.name,
-          mimeType: d.mimeType,
-          isNew: false,
-        }));
-
-      setHealthDocuments(healthDocs);
-      setPedigreeDocuments(pedigreeDocs);
       setMediaInputs(media);
+
+      if (dog.documents) {
+        setHealthDocuments(dog.documents.filter(d => d.type === 'health'));
+        setPedigreeDocuments(dog.documents.filter(d => d.type === 'pedigree'));
+      }
     }
   }, [dog, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof dogSchema>) => {
-      try {
-        const formattedDate = formatApiDate(values.birthDate);
+      const formattedDate = formatApiDate(values.birthDate);
+      const formattedValues = {
+        ...values,
+        birthDate: formattedDate,
+        height: values.height ? parseFloat(values.height) : null,
+        weight: values.weight ? parseFloat(values.weight) : null,
+        price: values.price ? parseInt(values.price) : null,
+        documents: [
+          ...healthDocuments.map(doc => ({
+            ...doc,
+            type: 'health' as const,
+          })),
+          ...pedigreeDocuments.map(doc => ({
+            ...doc,
+            type: 'pedigree' as const,
+          }))
+        ]
+      };
 
-        const formattedValues = {
-          ...values,
-          birthDate: formattedDate,
-          height: values.height ? parseFloat(values.height) : null,
-          weight: values.weight ? parseFloat(values.weight) : null,
-          documents: [
-            ...healthDocuments.map(doc => ({
-              ...doc,
-              type: 'health' as const,
-            })),
-            ...pedigreeDocuments.map(doc => ({
-              ...doc,
-              type: 'pedigree' as const,
-            }))
-          ]
-        };
+      const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
+        method: dog ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formattedValues),
+      });
 
-        const res = await fetch(dog ? `/api/dogs/${dog.id}` : "/api/dogs", {
-          method: dog ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formattedValues),
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error('API Error:', errorText);
-          throw new Error(errorText);
-        }
-
-        return res.json();
-      } catch (error) {
-        console.error('Form submission error:', error);
-        throw error;
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText);
       }
+
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
@@ -276,6 +248,54 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       });
     },
   });
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(mediaInputs);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setMediaInputs(items);
+    form.setValue("media", items);
+  };
+
+  const handleAddMedia = () => {
+    if (inputMethod === "url") {
+      if (!mediaUrl) {
+        toast({
+          title: "Error",
+          description: "Please enter a URL",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newMedia = {
+        url: mediaUrl,
+        type: mediaType,
+        fileName: mediaUrl.split('/').pop() || '',
+        isNew: true,
+      };
+
+      const newInputs = [newMedia, ...mediaInputs];
+      setMediaInputs(newInputs);
+      form.setValue("media", newInputs);
+      setShowAddMedia(false);
+      setMediaUrl("");
+    } else {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = mediaType === 'image' ? 'image/*' : 'video/*';
+      fileInput.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          handleFileUpload(file);
+        }
+      };
+      fileInput.click();
+    }
+  };
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
@@ -322,49 +342,73 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     }
   };
 
-  const handleAddMedia = () => {
-    if (inputMethod === "url") {
-      if (!mediaUrl) {
-        toast({
-          title: "Error",
-          description: "Please enter a URL",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const newMedia = {
-        url: mediaUrl,
-        type: mediaType,
-        fileName: mediaUrl.split('/').pop(),
-        isNew: true,
-      };
-
-      const newInputs = [newMedia, ...mediaInputs];
-      setMediaInputs(newInputs);
-      form.setValue("media", newInputs);
-      setShowAddMedia(false);
-      setMediaUrl("");
-    } else {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = mediaType === 'image' ? 'image/*' : 'video/*';
-      fileInput.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file) {
-          handleFileUpload(file);
-        }
-      };
-      fileInput.click();
-    }
-  };
-
   const removeMediaInput = (index: number) => {
     const newInputs = [...mediaInputs];
     newInputs.splice(index, 1);
     setMediaInputs(newInputs);
     form.setValue("media", newInputs);
   };
+
+  const handleProfilePictureUpload = async (file: File) => {
+    setIsUploadingProfile(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload profile picture");
+      }
+
+      const data = await res.json();
+      setCropImageUrl(data.url);
+      setShowCropper(true);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingProfile(false);
+    }
+  };
+
+  const handleCroppedImage = async (croppedImageUrl: string) => {
+    form.setValue("profileImageUrl", croppedImageUrl);
+    setShowCropper(false);
+  };
+
+  const DocumentList = ({ documents, type }: { documents: DogDocument[], type: 'health' | 'pedigree' }) => (
+    <div className="space-y-2">
+      {documents.map((doc, index) => (
+        <div
+          key={index}
+          className={`p-3 rounded-lg ${doc.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+        >
+          <div className="flex items-center gap-3">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{doc.name}</p>
+              <p className="text-xs text-muted-foreground">{doc.mimeType}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeDocument(index, type)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
     setIsUploadingDoc(true);
@@ -419,104 +463,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     }
   };
 
-  const handleProfilePictureUpload = async (file: File) => {
-    setIsUploadingProfile(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to upload profile picture");
-      }
-
-      const data = await res.json();
-      setCropImageUrl(data.url);
-      setShowCropper(true);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload profile picture",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploadingProfile(false);
-    }
-  };
-
-  const handleCroppedImage = async (croppedImageUrl: string) => {
-    try {
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'cropped-profile.jpg', { type: 'image/jpeg' });
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to upload cropped profile picture");
-      }
-
-      const data = await res.json();
-      form.setValue("profileImageUrl", data.url);
-
-      toast({
-        title: "Success",
-        description: "Profile picture updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile picture",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const DocumentList = ({ documents, type }: { documents: DocumentInput[], type: 'health' | 'pedigree' }) => (
-    <div className="space-y-2">
-      {documents.map((doc, index) => (
-        <div
-          key={index}
-          className={`p-3 rounded-lg ${doc.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
-        >
-          <div className="flex items-center gap-3">
-            <FileText className="h-5 w-5 text-muted-foreground" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{doc.name}</p>
-              <p className="text-xs text-muted-foreground">{doc.mimeType}</p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => removeDocument(index, type)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-
-    const items = Array.from(mediaInputs);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setMediaInputs(items);
-    form.setValue("media", items);
-  };
+  const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   return (
     <>
@@ -615,13 +562,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Birth Date</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                        }}
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -634,123 +575,32 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <label htmlFor="male" className="flex items-center gap-1">
-                          Male <span className="text-blue-500">♂</span>
-                        </label>
+                    <FormControl>
+                      <div>
+                        <RadioGroup
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="male" id="male" />
+                            <label htmlFor="male" className="flex items-center gap-1">
+                              Male <span className="text-blue-500">♂</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="female" id="female" />
+                            <label htmlFor="female" className="flex items-center gap-1">
+                              Female <span className="text-pink-500">♀</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <label htmlFor="female" className="flex items-center gap-1">
-                          Female <span className="text-pink-500">♀</span>
-                        </label>
-                      </div>
-                    </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="motherId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mother</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select mother" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableMothers.map((mother) => (
-                            <SelectItem key={mother.id} value={mother.id.toString()}>
-                              {mother.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="fatherId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Father</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select father" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableFathers.map((father) => (
-                            <SelectItem key={father.id} value={father.id.toString()}>
-                              {father.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="litterId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Litter</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select litter" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableLitters?.map((litter) => (
-                            <SelectItem key={litter.id} value={litter.id.toString()}>
-                              {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.motherId)?.name} x {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.fatherId)?.name} ({formatDisplayDate(new Date(litter.dueDate))})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
 
               <FormField
                 control={form.control}
@@ -835,13 +685,11 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price</FormLabel>
+                      <FormLabel>Price (Optional)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          step="1"
-                          min="0"
-                          placeholder="Enter price (optional)"
+                          placeholder="Enter price"
                           {...field}
                           onChange={(e) => {
                             const value = e.target.value.replace(/\D/g, '');
@@ -918,10 +766,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                                       <p className="text-sm font-medium truncate">
                                         {input.fileName || input.url.split("/").pop()}
                                       </p>
-                                      <p
-                                        className="text-xs text-muted-foreground truncate"
-                                        title={input.url}
-                                      >
+                                      <p className="text-xs text-muted-foreground truncate">
                                         {input.url}
                                       </p>
                                     </div>
@@ -946,7 +791,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   </DragDropContext>
                 </div>
               </div>
-
 
               <FormField
                 control={form.control}
@@ -1025,7 +869,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dewclaws</FormLabel>
-                    <FormControl>                    <Input {...field} placeholder="e.g., Removed, Natural" />
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Removed, Natural" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1039,9 +884,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Health Information</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Health certifications, testing results, etc." 
+                      <Textarea
+                        {...field}
+                        placeholder="Health certifications, testing results, etc."
                       />
                     </FormControl>
                     <div className="mt-4 space-y-4">
@@ -1148,9 +993,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           <div className="space-y-6 pt-6">
             <div className="space-y-4">
               <div className="text-sm font-medium leading-none">Media Type</div>
-              <RadioGroup 
-                value={mediaType} 
-                onValueChange={(value) => setMediaType(value as "image" | "video")} 
+              <RadioGroup
+                value={mediaType}
+                onValueChange={(value) => setMediaType(value as "image" | "video")}
                 className="flex gap-4"
               >
                 <div className="flex items-center space-x-2">
@@ -1166,9 +1011,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
             <div className="space-y-4">
               <div className="text-sm font-medium leading-none">Input Method</div>
-              <RadioGroup 
-                value={inputMethod} 
-                onValueChange={(value) => setInputMethod(value as "url" | "upload")} 
+              <RadioGroup
+                value={inputMethod}
+                onValueChange={(value) => setInputMethod(value as "url" | "upload")}
                 className="flex gap-4"
               >
                 <div className="flex items-center space-x-2">
@@ -1180,26 +1025,26 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <label htmlFor="upload">Upload</label>
                 </div>
               </RadioGroup>
-            </div>
 
-            {inputMethod === "url" && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium leading-none">Media URL</div>
-                <Input
-                  value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder={`Enter ${mediaType} URL`}
-                />
+              {inputMethod === "url" && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium leading-none">Media URL</div>
+                  <Input
+                    value={mediaUrl}
+                    onChange={(e) => setMediaUrl(e.target.value)}
+                    placeholder={`Enter ${mediaType} URL`}
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <Button onClick={handleAddMedia} disabled={isUploading}>
+                  {isUploading ? "Uploading..." : "Add Media"}
+                </Button>
+                <Button variant="outline" onClick={() => setShowAddMedia(false)}>
+                  Cancel
+                </Button>
               </div>
-            )}
-
-            <div className="flex gap-4">
-              <Button onClick={handleAddMedia} disabled={isUploading}>
-                {isUploading ? "Uploading..." : "Add Media"}
-              </Button>
-              <Button variant="outline" onClick={() => setShowAddMedia(false)}>
-                Cancel
-              </Button>
             </div>
           </div>
         </SheetContent>
