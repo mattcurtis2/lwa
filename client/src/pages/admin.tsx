@@ -393,10 +393,16 @@ export default function Admin() {
 
       const { puppies, mother, father, ...litterData } = editLitter;
 
-      // Format dates for the litter
+      // Ensure dueDate is a valid date before converting to ISO string
+      const dueDate = new Date(litterData.dueDate);
+      if (isNaN(dueDate.getTime())) {
+        throw new Error('Invalid due date');
+      }
+
+      // Format the litter data, ensuring date is valid
       const formattedLitter = {
         ...litterData,
-        dueDate: new Date(litterData.dueDate).toISOString(),
+        dueDate: dueDate.toISOString(),
       };
 
       // Create a separate array for existing and new puppies
@@ -404,53 +410,32 @@ export default function Admin() {
       const newPuppies = puppies?.filter(p => !p.id) || [];
 
       // Process existing puppies
-      const processedPuppies = existingPuppies.map(puppy => ({
-        id: puppy.id,
-        name: puppy.name,
-        gender: puppy.gender,
-        birthDate: new Date(puppy.birthDate).toISOString(),
-        description: puppy.description || '',
-        color: puppy.color || '',
-        height: puppy.height ? parseFloat(puppy.height.toString()) : null,
-        weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
-        price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
-        puppy: true,
-        motherId: formattedLitter.motherId,
-        fatherId: formattedLitter.fatherId,
-        litterId: formattedLitter.id,
-        breed: puppy.breed || '',
-        profileImageUrl: puppy.profileImageUrl || '',
-      }));
-
-      // Create new puppies first if any
-      for (const newPuppy of newPuppies) {
-        try {
-          const res = await fetch('/api/dogs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...newPuppy,
-              puppy: true,
-              motherId: formattedLitter.motherId,
-              fatherId: formattedLitter.fatherId,
-              litterId: formattedLitter.id,
-              birthDate: new Date(newPuppy.birthDate).toISOString(),
-            }),
-          });
-
-          if (!res.ok) {
-            throw new Error(await res.text());
-          }
-
-          const createdPuppy = await res.json();
-          processedPuppies.push(createdPuppy);
-        } catch (error) {
-          console.error('Error creating puppy:', error);
-          throw new Error('Failed to create puppy');
+      const processedPuppies = existingPuppies.map(puppy => {
+        const birthDate = new Date(puppy.birthDate);
+        if (isNaN(birthDate.getTime())) {
+          throw new Error('Invalid birth date for puppy');
         }
-      }
 
-      // Update the litter with all puppies
+        return {
+          id: puppy.id,
+          name: puppy.name,
+          gender: puppy.gender,
+          birthDate: birthDate.toISOString(),
+          description: puppy.description || '',
+          color: puppy.color || '',
+          height: puppy.height ? parseFloat(puppy.height.toString()) : null,
+          weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
+          price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
+          puppy: true,
+          motherId: formattedLitter.motherId,
+          fatherId: formattedLitter.fatherId,
+          litterId: formattedLitter.id,
+          breed: puppy.breed || '',
+          profileImageUrl: puppy.profileImageUrl || '',
+        };
+      });
+
+      // Update the litter with processed data
       const res = await fetch(`/api/litters/${formattedLitter.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -465,7 +450,7 @@ export default function Admin() {
         throw new Error(error || 'Failed to update litter');
       }
 
-      // Invalidate both queries to refresh the data
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
 
@@ -841,7 +826,7 @@ export default function Admin() {
                                 >
                                   Delete
                                 </Button>
-                              </div>
+                                </div>
                             </div>
                           )}
                         </Draggable>
