@@ -57,17 +57,17 @@ const dogSchema = z.object({
   profileImageUrl: z.string().optional(),
   healthData: z.string().optional(),
   color: z.string().optional(),
-  dewclaws: z.string().optional(),
+  dewclaws: z.string().optional().nullable(),
   furLength: z.string().optional(),
   height: z.string().optional().nullable(),
   weight: z.string().optional().nullable(),
-  pedigree: z.string().optional(),
+  pedigree: z.string().optional().nullable(),
   narrativeDescription: z.string().optional(),
   media: z.array(mediaSchema).optional().default([]),
   outsideBreeder: z.boolean().optional().default(false),
   puppy: z.boolean().optional().default(false),
   available: z.boolean().optional().default(false),
-  price: z.string().optional().transform((val) => val ? parseFloat(val) : null),
+  price: z.string().optional().nullable().transform((val) => val ? parseFloat(val) : null),
 });
 
 interface DogDocument {
