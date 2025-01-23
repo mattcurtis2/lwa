@@ -3,8 +3,6 @@ import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 
 interface ImageCropProps {
   imageUrl: string;
@@ -16,20 +14,20 @@ interface ImageCropProps {
 
 export function ImageCrop({ 
   imageUrl, 
-  aspect,
+  aspect = 1,
   circularCrop = false,
   onCropComplete,
   onCancel 
 }: ImageCropProps) {
+  // Initialize a perfect circular crop area
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 80,
-    height: aspect ? 80 : 60, // Different default height for free-form
+    width: 80, // Slightly smaller initial size for better visibility
+    height: 80,
     x: 10,
     y: 10,
   });
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
-  const [lockAspectRatio, setLockAspectRatio] = useState(!!aspect);
 
   const getCroppedImg = async (image: HTMLImageElement, crop: Crop) => {
     const canvas = document.createElement('canvas');
@@ -101,35 +99,23 @@ export function ImageCrop({
     <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="max-w-screen-lg">
         <DialogHeader>
-          <DialogTitle>Crop Image</DialogTitle>
+          <DialogTitle>Crop Profile Picture</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="aspect-ratio"
-                checked={lockAspectRatio}
-                onCheckedChange={setLockAspectRatio}
-              />
-              <Label htmlFor="aspect-ratio">Lock aspect ratio (square)</Label>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <ReactCrop
-              crop={crop}
-              onChange={(c) => setCrop(c)}
-              aspect={lockAspectRatio ? 1 : undefined}
-              circularCrop={circularCrop}
-              className={circularCrop ? "rounded-full overflow-hidden" : ""}
-            >
-              <img
-                ref={(ref) => setImageRef(ref)}
-                src={imageUrl}
-                alt="Crop preview"
-                style={{ maxHeight: '70vh' }}
-              />
-            </ReactCrop>
-          </div>
+        <div className="flex justify-center">
+          <ReactCrop
+            crop={crop}
+            onChange={(c) => setCrop(c)}
+            aspect={aspect}
+            circularCrop={circularCrop}
+            className={circularCrop ? "rounded-full overflow-hidden" : ""}
+          >
+            <img
+              ref={(ref) => setImageRef(ref)}
+              src={imageUrl}
+              alt="Crop preview"
+              style={{ maxHeight: '70vh' }}
+            />
+          </ReactCrop>
         </div>
         <DialogFooter>
           <Button onClick={onCancel} variant="outline">

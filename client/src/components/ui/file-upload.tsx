@@ -207,15 +207,9 @@ export function FileUpload({
         <ImageCrop
           imageUrl={previewUrl}
           aspect={cropAspect}
+          open={showCrop}
+          onOpenChange={setShowCrop}
           onCropComplete={handleCropComplete}
-          onCancel={() => {
-            setShowCrop(false);
-            // Clean up the preview URL if we're canceling without saving
-            if (!value) {
-              URL.revokeObjectURL(previewUrl);
-              setPreviewUrl(null);
-            }
-          }}
         />
       )}
     </div>
