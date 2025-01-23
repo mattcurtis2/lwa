@@ -40,6 +40,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -873,14 +874,93 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel>Pictures & Videos</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAddMedia(true)}
-              disabled={isUploading}
-            >
-              Add Media
-            </Button>
+            <Dialog open={showAddMedia} onOpenChange={setShowAddMedia}>
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isUploading}
+                >
+                  Add Media
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Media</DialogTitle>
+                  <DialogDescription>
+                    Upload images or videos to your dog's profile
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    <div className="space-y-2">
+                      <Label>Media Type</Label>
+                      <RadioGroup
+                        value={mediaType}
+                        onValueChange={(value) => setMediaType(value as "image" | "video")}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="image" id="image" />
+                          <Label htmlFor="image">Image</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="video" id="video" />
+                          <Label htmlFor="video">Video</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Upload Method</Label>
+                    <RadioGroup
+                      value={inputMethod}
+                      onValueChange={(value) => setInputMethod(value as "url" | "upload")}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="upload" id="upload" />
+                        <Label htmlFor="upload">Upload File</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="url" id="url" />
+                        <Label htmlFor="url">URL</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {inputMethod === "url" && (
+                    <div className="space-y-2">
+                      <Label>URL</Label>
+                      <Input
+                        type="url"
+                        placeholder="Enter media URL"
+                        value={mediaUrl}
+                        onChange={(e) => setMediaUrl(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAddMedia(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleAddMedia}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? "Uploading..." : "Add Media"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -956,7 +1036,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
 
         {!isPuppy && (
-          <div className="space-y-4">
+          <div className="space-y-44">
             <FormField
               control={form.control}
               name="outsideBreeder"
