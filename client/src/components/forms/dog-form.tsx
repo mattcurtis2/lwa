@@ -37,6 +37,7 @@ import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { Label } from "@/components/ui/label"; // Added import for Label component
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
