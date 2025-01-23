@@ -819,6 +819,20 @@ export default function DogForm({
         <div className="space-y-4">
           <FormField
             control={form.control}
+            name="breed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Breed</FormLabel>
+                <FormControl>
+                  <Input {...field} defaultValue="Colorado Mountain Dogs" readOnly />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="color"
             render={({ field }) => (
               <FormItem>
@@ -903,10 +917,10 @@ export default function DogForm({
                     placeholder="Health certifications, testing results, etc."
                   />
                   <div className="space-y-2">
-                    <Label>Health Documents & Media</Label>
+                    <Label>Health Documents</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'health')}
-                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     />
                     {healthDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
@@ -934,7 +948,7 @@ export default function DogForm({
           name="pedigree"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pedigree</FormLabel>
+              <FormLabel>Pedigree Information</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   <Textarea
@@ -942,10 +956,10 @@ export default function DogForm({
                     placeholder="Pedigree information and lineage details"
                   />
                   <div className="space-y-2">
-                    <Label>Pedigree Documents & Media</Label>
+                    <Label>Pedigree Documents</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
-                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     />
                     {pedigreeDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
