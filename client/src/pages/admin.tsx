@@ -620,16 +620,15 @@ export default function Admin() {
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
-      motherId: Number(litter.motherId),
-      fatherId: Number(litter.fatherId),
+      motherId: litter.motherId,
+      fatherId: litter.fatherId,
       mother,
       father,
       birthDate: new Date().toISOString().split('T')[0],
-      gender: 'male',
+      gender: 'male', // Default gender
       available: false,
       breed: "Colorado Mountain Dogs",
-      outsideBreeder: false,
-      fromLitter: true
+      outsideBreeder: false
     });
     setShowDogForm(true);
   };
@@ -1397,7 +1396,6 @@ export default function Admin() {
                     mode={selectedDog?.id ? 'edit' : 'create'}
                     onSubmit={handleDogFormClose}
                     onCancel={handleDogFormClose}
-                    fromLitter={selectedDog?.fromLitter}
                   />
                 </div>
               </SheetContent>

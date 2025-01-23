@@ -105,7 +105,6 @@ export default function DogForm({
   fromLitter = false
 }: DogFormProps) {
   const { toast } = useToast();
-
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showAddMedia, setShowAddMedia] = useState(false);
@@ -132,9 +131,9 @@ export default function DogForm({
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: defaultValues?.gender || "male",
       description: defaultValues?.description || "",
-      motherId: defaultValues?.motherId ? Number(defaultValues.motherId) : null,
-      fatherId: defaultValues?.fatherId ? Number(defaultValues.fatherId) : null,
-      litterId: defaultValues?.litterId ? Number(defaultValues.litterId) : null,
+      motherId: defaultValues?.motherId || null,
+      fatherId: defaultValues?.fatherId || null,
+      litterId: defaultValues?.litterId || null,
       profileImageUrl: defaultValues?.profileImageUrl || "",
       healthData: defaultValues?.healthData || "",
       color: defaultValues?.color || "",
@@ -152,27 +151,6 @@ export default function DogForm({
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
     },
   });
-
-  // Log when form opens and prop values
-  useEffect(() => {
-    console.log("Form Props:", {
-      defaultValues,
-      fromLitter,
-      motherId: defaultValues?.motherId,
-      fatherId: defaultValues?.fatherId,
-      litterId: defaultValues?.litterId
-    });
-  }, [defaultValues, fromLitter]);
-
-  // Log form values when they change
-  useEffect(() => {
-    const formValues = form.getValues();
-    console.log("Current Form Values:", {
-      motherId: formValues.motherId,
-      fatherId: formValues.fatherId,
-      litterId: formValues.litterId
-    });
-  }, [form.watch('motherId'), form.watch('fatherId'), form.watch('litterId')]);
 
   // Only fetch parents if not opening from litter
   useEffect(() => {
@@ -453,12 +431,6 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     try {
-      console.log("Parent and Litter IDs:", {
-        motherId: values.motherId,
-        fatherId: values.fatherId,
-        litterId: values.litterId
-      });
-      
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) || null : null,
@@ -704,8 +676,7 @@ export default function DogForm({
           )}
         />
 
-        {/* Parent fields are only shown when NOT from litter */}
-        {!fromLitter && (
+        {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
           <div className="space-y-6">
             <FormField
               control={form.control}
