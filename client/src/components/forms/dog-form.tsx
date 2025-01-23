@@ -131,6 +131,7 @@ export default function DogForm({
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: defaultValues?.gender || "male",
       description: defaultValues?.description || "",
+      // Use the values passed from the litter or defaultValues
       motherId: defaultValues?.motherId || null,
       fatherId: defaultValues?.fatherId || null,
       litterId: defaultValues?.litterId || null,
@@ -152,9 +153,9 @@ export default function DogForm({
     },
   });
 
-  // Only fetch parents if not opening from litter
+  // Only fetch parents if not opening from litter and if we don't have parent IDs
   useEffect(() => {
-    if (!fromLitter) {
+    if (!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId) {
       const fetchParents = async () => {
         const response = await fetch('/api/dogs');
         const dogs = await response.json();
@@ -167,11 +168,11 @@ export default function DogForm({
       };
       fetchParents();
     }
-  }, [fromLitter]);
+  }, [fromLitter, defaultValues]);
 
-  // Only fetch litters if not opening from litter
+  // Only fetch litters if not opening from litter and if we don't have a litter ID
   useEffect(() => {
-    if (!fromLitter) {
+    if (!fromLitter && !defaultValues?.litterId) {
       const fetchLitters = async () => {
         const motherId = form.getValues('motherId');
         const fatherId = form.getValues('fatherId');
@@ -187,7 +188,7 @@ export default function DogForm({
       };
       fetchLitters();
     }
-  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter]);
+  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter, defaultValues]);
 
   useEffect(() => {
     if (dog) {
