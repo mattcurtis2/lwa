@@ -588,7 +588,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            aspect={16/9}
           />
         )}
 
