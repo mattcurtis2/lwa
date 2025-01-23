@@ -390,7 +390,7 @@ export default function DogForm({
       motherId: values.motherId ? parseInt(values.motherId.toString()) : null,
       fatherId: values.fatherId ? parseInt(values.fatherId.toString()) : null,
       litterId: values.litterId ? parseInt(values.litterId.toString()) : null,
-      puppy: isPuppy,
+      puppy: isPuppy || values.puppy, 
       media: mediaInputs.map(m => ({
         url: m.url,
         type: m.type,

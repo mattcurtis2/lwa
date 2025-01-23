@@ -282,6 +282,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 litterId: litter?.id,
                 motherId: litter?.motherId,
                 fatherId: litter?.fatherId,
+                puppy: true, // Ensure puppy flag is set
               };
 
               console.log('LitterForm - Submitting puppy data:', submissionData);
