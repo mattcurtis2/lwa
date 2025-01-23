@@ -816,6 +816,51 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               Cancel
             </Button>
           )}
+          {dog?.id && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="destructive">
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Dog</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete {dog.name}? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/dogs/${dog.id}`, {
+                          method: "DELETE",
+                        });
+                        if (!res.ok) throw new Error("Failed to delete dog");
+                        toast({
+                          title: "Success",
+                          description: "Dog deleted successfully",
+                        });
+                        onCancel?.();
+                      } catch (error) {
+                        console.error('Error deleting dog:', error);
+                        toast({
+                          title: "Error",
+                          description: "Failed to delete dog",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button type="submit" className="ml-auto">
             {dog ? "Update" : "Save"}
           </Button>
