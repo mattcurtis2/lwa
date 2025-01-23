@@ -113,7 +113,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction 
-                        onClick={() => handleDeleteClick(dog)}
+                        onClick={() => onDelete(dog)}
                         className="bg-red-600 hover:bg-red-700"
                       >
                         Delete
