@@ -768,6 +768,7 @@ export default function Admin() {
               <CardDescription>Manage the main hero section content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Content fields rendering section */}
               {contentFields.slice(0, 3).map((field) => (
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
@@ -807,9 +808,9 @@ export default function Admin() {
                         {(pendingContent[field.key] || field.value) && (
                           <div className="w-40 h-40 rounded-lg overflow-hidden border">
                             <img
-                              src={pendingContent[key] || field.value}
+                              src={pendingContent[field.key] || field.value}
                               alt={field.label}
-                              className="w-full hfull h-full object-cover"
+                              className="w-full h-full object-cover"
                             />
                           </div>
                         )}
@@ -1757,16 +1758,14 @@ export default function Admin() {
                   fatherId: editLitter?.fatherId,
                   litterId: editLitter?.id,
                   puppy: true
-                };
+                                };
 
-                if (editItem?.id) {
+                if(editItem?.id) {
                   // Update existing puppy
                   const res = await fetch(`/api/dogs/${editItem.id}`, {                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(processedValues),
-                  });
-
-                  if (!res.ok) throw new Error('Failed to update puppy');
+                  });if (!res.ok) throw new Error('Failed to update puppy');
                 } else {
                   // Create new puppy
                   const res = await fetch('/api/dogs', {
