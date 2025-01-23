@@ -819,11 +819,10 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                     placeholder="Health certifications, testing results, etc."
                   />
                   <div className="space-y-2">
-                    <Label>Health Documents</Label>
+                    <Label>Health Documents & Media</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'health')}
-                      accept=".pdf,.doc,.docx"
-                      label="Upload health documents"
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
                     />
                     {healthDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
@@ -859,11 +858,10 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                     placeholder="Pedigree information and lineage details"
                   />
                   <div className="space-y-2">
-                    <Label>Pedigree Documents</Label>
+                    <Label>Pedigree Documents & Media</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
-                      accept=".pdf,.doc,.docx"
-                      label="Upload pedigree documents"
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
                     />
                     {pedigreeDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
