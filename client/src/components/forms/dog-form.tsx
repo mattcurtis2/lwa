@@ -814,6 +814,23 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="pedigree"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pedigree</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Pedigree information and lineage details"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel>Pictures & Videos</FormLabel>
