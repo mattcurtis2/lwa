@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import {
   Form,
   FormControl,
@@ -28,7 +27,6 @@ import { useEffect, useState } from "react";
 import { X, Upload, ImageIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
 import ImageCropper from "@/components/ui/image-cropper";
 
 const mediaSchema = z.object({
@@ -70,10 +68,13 @@ interface DogFormProps {
 
 export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showAddMedia, setShowAddMedia] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string>("");
-  const [mediaInputs, setMediaInputs] = useState<Array<{ url: string; type: "image" | "video" }>>([]);
+  const [mediaInputs, setMediaInputs] = useState<Array<{ url: string; type: "image" | "video"; fileName?: string }>>([]);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
@@ -135,6 +136,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     setCropImageUrl("");
   };
 
+  const removeMediaInput = (index: number) => {
+    const newInputs = [...mediaInputs];
+    newInputs.splice(index, 1);
+    setMediaInputs(newInputs);
+    form.setValue("media", newInputs);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
@@ -144,6 +152,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => console.log(data))} className="space-y-6 pt-6">
+            {/* Form fields here */}
             <FormField
               control={form.control}
               name="name"
@@ -211,164 +220,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               )}
             />
 
-            {/* Add other form fields here as needed */}
-            <FormField
-              control={form.control}
-              name="registrationName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Registration Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Optional" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="birthDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Birth Date</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sex</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <label htmlFor="male" className="flex items-center gap-1">
-                          Male <span className="text-blue-500">♂</span>
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <label htmlFor="female" className="flex items-center gap-1">
-                          Female <span className="text-pink-500">♀</span>
-                        </label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="outsideBreeder"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Outside Breeder</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog is from an outside breeding program
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="puppy"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Puppy</FormLabel>
-                      <FormDescription>
-                        Mark this if the dog is a puppy
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="available"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Available</FormLabel>
-                      <FormDescription>
-                        Mark this if the dog is available for purchase
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="Enter price (optional)"
-                        {...field}
-                        value={field.value || ''}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Set a price if the dog is available for sale
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Media section */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <FormLabel>Pictures & Videos</FormLabel>
@@ -385,7 +237,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 {mediaInputs.map((input, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
+                    className="p-4 rounded-lg bg-muted"
                   >
                     <div className="flex gap-4">
                       <div className="w-20 h-20 relative shrink-0">
@@ -425,166 +277,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 ))}
               </div>
             </div>
-            <FormField
-              control={form.control}
-              name="narrativeDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Narrative Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Detailed description of the dog's personality, training, and characteristics" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Color</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., White with brown markings" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Height (inches)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="text" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight (lbs)</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="text" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="furLength"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fur Length</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., Medium length, double coat" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="dewclaws"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dewclaws</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., Removed, Natural" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="healthData"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Health Information</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Health certifications, testing results, etc." />
-                  </FormControl>
-                  <div className="mt-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const input = document.createElement('input');
-                          input.type = 'file';
-                          input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi';
-                          input.onchange = (e) => {
-                            const file = (e.target as HTMLInputElement).files?.[0];
-                            if (file) handleDocumentUpload(file, 'health');
-                          };
-                          input.click();
-                        }}
-                        disabled={isUploadingDoc}
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {isUploadingDoc ? "Uploading..." : "Upload Document"}
-                      </Button>
-                    </div>
-                    <DocumentList documents={healthDocuments} type="health" />
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="pedigree"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pedigree Information</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Family history and lineage information" />
-                  </FormControl>
-                  <div className="mt-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={isUploadingDoc}
-                        onClick={() => {
-                          const input = document.createElement('input');
-                          input.type = 'file';
-                          input.accept = '.pdf,image/*';
-                          input.onchange = (e) => {
-                            const file = (e.target as HTMLInputElement).files?.[0];
-                            if (file) {
-                              handleDocumentUpload(file, 'pedigree');
-                            }
-                          };
-                          input.click();
-                        }}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        {isUploadingDoc ? "Uploading..." : "Upload Document"}
-                      </Button>
-                    </div>
-                    <DocumentList documents={pedigreeDocuments} type="pedigree" />
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <div className="flex gap-4 mt-8">
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Saving..." : dog ? "Save Changes" : "Add Dog"}
+              <Button type="submit">
+                {dog ? "Save Changes" : "Add Dog"}
               </Button>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
