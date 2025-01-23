@@ -27,10 +27,6 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
     onEdit?.(dog);
   };
 
-  const handleDeleteClick = (dog: Dog) => {
-    onDelete?.(dog);
-  };
-
   const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>, dogId: number) => {
     const newOrder = parseInt(e.target.value);
     if (!isNaN(newOrder)) {
