@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect } from "react";
-import { X, ImageIcon } from "lucide-react";
+import { X, ImageIcon, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -120,105 +120,106 @@ export default function DogForm({
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [formValues, setFormValues] = useState<any>(null);
 
   const dogSchema = createDogSchema(isPuppy);
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
-    defaultValues: {
-      name: defaultValues?.name || "",
-      registrationName: defaultValues?.registrationName || "",
-      birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
-      gender: defaultValues?.gender || "male",
-      description: defaultValues?.description || "",
-      // Use the values passed from the litter or defaultValues
-      motherId: defaultValues?.motherId || null,
-      fatherId: defaultValues?.fatherId || null,
-      litterId: defaultValues?.litterId || null,
-      profileImageUrl: defaultValues?.profileImageUrl || "",
-      healthData: defaultValues?.healthData || "",
-      color: defaultValues?.color || "",
-      dewclaws: defaultValues?.dewclaws || "",
-      furLength: defaultValues?.furLength || "",
-      height: defaultValues?.height || "",
-      weight: defaultValues?.weight || "",
-      pedigree: defaultValues?.pedigree || "",
-      narrativeDescription: defaultValues?.narrativeDescription || "",
-      media: defaultValues?.media || [],
-      outsideBreeder: defaultValues?.outsideBreeder || false,
-      puppy: defaultValues?.puppy || isPuppy,
-      available: defaultValues?.available || false,
-      price: defaultValues?.price || "",
-      breed: defaultValues?.breed || "Colorado Mountain Dogs",
-    },
+    defaultValues: formValues,
   });
 
-  // Only fetch parents if not opening from litter and if we don't have parent IDs
   useEffect(() => {
-    if (!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId) {
-      const fetchParents = async () => {
-        const response = await fetch('/api/dogs');
-        const dogs = await response.json();
+    const initializeForm = async () => {
+      setIsLoading(true);
+      try {
+        if (!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId) {
+          const response = await fetch('/api/dogs');
+          const dogs = await response.json();
+          setAvailableMothers(dogs.filter((d: Dog) => d.gender === 'female'));
+          setAvailableFathers(dogs.filter((d: Dog) => d.gender === 'male'));
+        }
 
-        const mothers = dogs.filter((d: Dog) => d.gender === 'female');
-        const fathers = dogs.filter((d: Dog) => d.gender === 'male');
+        const initialValues = {
+          name: defaultValues?.name || "",
+          registrationName: defaultValues?.registrationName || "",
+          birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
+          gender: defaultValues?.gender || "male",
+          description: defaultValues?.description || "",
+          motherId: defaultValues?.motherId || null,
+          fatherId: defaultValues?.fatherId || null,
+          litterId: defaultValues?.litterId || null,
+          profileImageUrl: defaultValues?.profileImageUrl || "",
+          healthData: defaultValues?.healthData || "",
+          color: defaultValues?.color || "",
+          dewclaws: defaultValues?.dewclaws || "",
+          furLength: defaultValues?.furLength || "",
+          height: defaultValues?.height || "",
+          weight: defaultValues?.weight || "",
+          pedigree: defaultValues?.pedigree || "",
+          narrativeDescription: defaultValues?.narrativeDescription || "",
+          media: defaultValues?.media || [],
+          outsideBreeder: defaultValues?.outsideBreeder || false,
+          puppy: defaultValues?.puppy || isPuppy,
+          available: defaultValues?.available || false,
+          price: defaultValues?.price || "",
+          breed: defaultValues?.breed || "Colorado Mountain Dogs",
+        };
 
-        setAvailableMothers(mothers);
-        setAvailableFathers(fathers);
-      };
-      fetchParents();
-    }
-  }, [fromLitter, defaultValues]);
+        setFormValues(initialValues);
+        form.reset(initialValues);
 
-  // Only fetch litters if not opening from litter and if we don't have a litter ID
-  useEffect(() => {
-    if (!fromLitter && !defaultValues?.litterId) {
-      const fetchLitters = async () => {
-        const motherId = form.getValues('motherId');
-        const fatherId = form.getValues('fatherId');
-
-        if (motherId && fatherId) {
-          const response = await fetch('/api/litters');
-          const allLitters = await response.json();
+        if (!fromLitter && defaultValues?.motherId && defaultValues?.fatherId) {
+          const littersResponse = await fetch('/api/litters');
+          const allLitters = await littersResponse.json();
           const filteredLitters = allLitters.filter(
-            (l: any) => l.motherId === motherId && l.fatherId === fatherId
+            (l: any) => l.motherId === defaultValues.motherId && l.fatherId === defaultValues.fatherId
           );
           setAvailableLitters(filteredLitters);
         }
-      };
-      fetchLitters();
-    }
-  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter, defaultValues]);
+      } catch (error) {
+        console.error('Error initializing form:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load form data",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeForm();
+  }, [defaultValues, fromLitter, isPuppy]);
 
   useEffect(() => {
-    if (dog) {
-      const birthDate = parseApiDate(dog.birthDate);
-      form.reset({
-        ...dog,
-        birthDate: formatInputDate(birthDate),
-        motherId: dog.motherId || null,
-        fatherId: dog.fatherId || null,
-        litterId: dog.litterId || null,
-        height: dog.height?.toString() || "",
-        weight: dog.weight?.toString() || "",
-        price: dog.price?.toString() || "",
-        media: dog.media?.map(m => ({
-          url: m.url,
-          type: m.type as "image" | "video",
-          fileName: m.fileName,
-        })) || [],
-      });
+    const updateLitters = async () => {
+      if (!fromLitter && !defaultValues?.litterId) {
+        const motherId = form.getValues('motherId');
+        const fatherIf = form.getValues('fatherId');
 
-      const media = dog.media?.map(m => ({
-        url: m.url,
-        type: m.type as "image" | "video",
-        fileName: m.fileName,
-        isNew: false,
-      })) || [];
+        if (motherId && fatherIf) {
+          const response = await fetch('/api/litters');
+          const allLitters = await response.json();
+          const filteredLitters = allLitters.filter(
+            (l: any) => l.motherId === motherId && l.fatherId === fatherIf
+          );
+          setAvailableLitters(filteredLitters);
+        }
+      }
+    };
 
-      setMediaInputs(media);
-    }
-  }, [dog, form]);
+    updateLitters();
+  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter, defaultValues]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
