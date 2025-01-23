@@ -18,9 +18,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState } from "react";
-import { X, ImageIcon, Loader2 } from "lucide-react";
+import { X, ImageIcon, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDropzone } from 'react-dropzone';
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FileUpload } from "@/components/ui/file-upload";
+import { ImageCrop } from "@/components/ui/image-crop";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
