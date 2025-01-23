@@ -588,7 +588,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            aspect={1}
+            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
             circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
           />
         )}
