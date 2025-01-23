@@ -22,7 +22,6 @@ import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -665,7 +664,7 @@ export default function Admin() {
               className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
               onClick={() => mother && handleEditDog(mother)}
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                 {mother?.profileImageUrl ? (
                   <img
                     src={mother.profileImageUrl}
@@ -689,7 +688,7 @@ export default function Admin() {
               className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
               onClick={() => father && handleEditDog(father)}
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                 {father?.profileImageUrl ? (
                   <img
                     src={father.profileImageUrl}
@@ -750,7 +749,6 @@ export default function Admin() {
               </div>
             </div>
           )}
-
           <div className="flex justify-end mt-4">
             <Button
               onClick={() => {
@@ -1379,47 +1377,23 @@ export default function Admin() {
           </Card>
 
           {/* Dog Form Sheet */}
-          <Sheet open={showForm} onOpenChange={setShowForm}>
-            <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>{editItem ? "Edit Dog" : "Add New Dog"}</SheetTitle>
-              </SheetHeader>
-              {showForm && (
-                <DogForm
-                  dog={editItem as Dog}
-                  isPuppy={false}
-                  onSubmit={async (values) => {
-                    try {
-                      const res = await fetch(editItem ? `/api/dogs/${editItem.id}` : "/api/dogs", {
-                        method: editItem ? "PUT" : "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(values),
-                      });
-
-                      if (!res.ok) {
-                        throw new Error(await res.text());
-                      }
-
-                      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
-                      toast({
-                        title: "Success",
-                        description: `Dog ${editItem ? "updated" : "created"} successfully`,
-                      });
-                      setShowForm(false);
-                    } catch (error) {
-                      console.error('Error saving dog:', error);
-                      toast({
-                        title: "Error",
-                        description: error.message || "Failed to save dog",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  onCancel={() => setShowForm(false)}
-                />
-              )}
-            </SheetContent>
-          </Sheet>
+          {showDogForm && (
+            <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+              <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <DogForm
+                    dog={selectedDog as Dog}
+                    mode={selectedDog?.id ? 'edit' : 'create'}
+                    onSubmit={handleDogFormClose}
+                    onCancel={handleDogFormClose}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
 
           <Card>
             <CardHeader>
@@ -1766,7 +1740,8 @@ export default function Admin() {
             isPuppy={true}
             defaultValues={{
               name: editItem?.name || '',
-              gender: editItem?.gender as 'male' | 'female' || 'male',              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+              gender: editItem?.gender as 'male' | 'female' || 'male',
+              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
               breed: editItem?.breed || 'Colorado Mountain Dog',
               color: editItem?.color || '',
               description: editItem?.description || '',
@@ -1774,8 +1749,7 @@ export default function Admin() {
               healthData: editItem?.healthData || '',
               height: editItem?.height?.toString() || '',
               weight: editItem?.weight?.toString() || '',
-              furLength: editItem?.furLength || '',
-              registrationName: editItem?.registrationName || '',
+              furLength: editItem?.furLength || '',              registrationName: editItem?.registrationName || '',
               profileImageUrl: editItem?.profileImageUrl || '',
               media: editItem?.media || [],
               outsideBreeder: Boolean(editItem?.outsideBreeder),
@@ -1837,12 +1811,21 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
       {showDogForm && (
-        <DogForm
-          open={showDogForm}
-          onOpenChange={handleDogFormClose}
-          dog={selectedDog as Dog}
-          mode={selectedDog?.id ? 'edit' : 'create'}
-        />
+        <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <DogForm
+                dog={selectedDog as Dog}
+                mode={selectedDog?.id ? 'edit' : 'create'}
+                onSubmit={handleDogFormClose}
+                onCancel={handleDogFormClose}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );
