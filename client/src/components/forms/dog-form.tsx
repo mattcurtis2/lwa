@@ -4,6 +4,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -28,6 +29,13 @@ import { ImageCrop } from "@/components/ui/image-crop";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import type { DropResult } from "react-beautiful-dnd";
+
+interface MediaInput {
+  url: string;
+  type: "image" | "video";
+  fileName?: string;
+  isNew?: boolean;
+}
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -1172,11 +1180,4 @@ export default function DogForm({
       </form>
     </Form>
   );
-}
-
-interface MediaInput {
-  url: string;
-  type: "image" | "video";
-  fileName?: string;
-  isNew?: boolean;
 }
