@@ -41,6 +41,9 @@ function Router() {
           <Route path="/dogs/females">
             {() => <Dogs genderFilter="female" />}
           </Route>
+          <Route path="/dogs/available">
+            {() => <Dogs showAvailable={true} />}
+          </Route>
           <Route path="/dogs/litters/upcoming" component={UpcomingLitters} />
           <Route path="/dogs/litters/past" component={PastLitters} />
           <Route path="/dogs/litters/:id" component={LitterDetail} />
