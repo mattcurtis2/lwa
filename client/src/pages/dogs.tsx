@@ -56,24 +56,24 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
         <div 
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
-          className="bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 border-y border-emerald-200 cursor-pointer hover:bg-gradient-to-br hover:from-emerald-100 hover:via-emerald-200 hover:to-emerald-100 transition-colors"
+          className="bg-gradient-to-br from-stone-100 via-stone-200 to-stone-100 border-y border-stone-300 cursor-pointer hover:bg-gradient-to-br hover:from-stone-200 hover:via-stone-300 hover:to-stone-200 transition-colors"
         >
           <div className="container mx-auto px-4">
             <div className="h-[100px] flex items-center">
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-12">
                   <div>
-                    <div className="bg-emerald-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-emerald-800 text-sm font-semibold mb-2 inline-block">
+                    <div className="bg-stone-300/80 backdrop-blur-sm px-3 py-1 rounded-full text-stone-800 text-sm font-semibold mb-2 inline-block">
                       New Litter Coming Soon!
                     </div>
-                    <p className="text-emerald-800">
+                    <p className="text-stone-800">
                       Expected: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
                     </p>
                   </div>
 
                   <div className="flex items-center gap-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-emerald-200">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-stone-300">
                         {motherDog.profileImageUrl ? (
                           <img
                             src={motherDog.profileImageUrl}
@@ -87,17 +87,19 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-3xl text-pink-500">♀</span>
+                          <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                            <span className="text-3xl text-pink-500">♀</span>
+                          </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-emerald-900">{motherDog.name}</p>
-                        <p className="text-sm text-emerald-700/80">Mother</p>
+                        <p className="font-medium text-stone-900">{motherDog.name}</p>
+                        <p className="text-sm text-stone-700/80">Mother</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-emerald-200">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-stone-300">
                         {fatherDog.profileImageUrl ? (
                           <img
                             src={fatherDog.profileImageUrl}
@@ -111,12 +113,14 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-3xl text-blue-500">♂</span>
+                          <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-3xl text-blue-500">♂</span>
+                          </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-emerald-900">{fatherDog.name}</p>
-                        <p className="text-sm text-emerald-700/80">Father</p>
+                        <p className="font-medium text-stone-900">{fatherDog.name}</p>
+                        <p className="text-sm text-stone-700/80">Father</p>
                       </div>
                     </div>
                   </div>
