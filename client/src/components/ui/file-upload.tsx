@@ -6,6 +6,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { ImageCrop } from "./image-crop";
 import { Button } from "./button";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -30,10 +31,13 @@ export function FileUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
 
   // Initialize preview URL from value prop
   useEffect(() => {
-    setPreviewUrl(value || null);
+    if (value) {
+      setPreviewUrl(value);
+    }
   }, [value]);
 
   const handleFile = useCallback(async (file: File) => {
@@ -41,18 +45,28 @@ export function FileUpload({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      console.error('Invalid file type:', file.type);
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive"
+      });
       return;
     }
 
     setSelectedFile(file);
+
+    // Create preview immediately before upload
+    const tempPreview = URL.createObjectURL(file);
+    setPreviewUrl(tempPreview);
+
+    // Show crop dialog immediately after file selection
+    setShowCrop(true);
+
+  }, [toast]);
+
+  const handleUpload = async (file: File) => {
     setIsUploading(true);
-
     try {
-      // Create temporary preview URL
-      const tempPreview = URL.createObjectURL(file);
-      setPreviewUrl(tempPreview);
-
       const formData = new FormData();
       formData.append("file", file);
 
@@ -62,28 +76,30 @@ export function FileUpload({
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+        throw new Error(await response.text() || 'Upload failed');
       }
 
       const data = await response.json();
-
-      // Cleanup temporary preview URL
-      URL.revokeObjectURL(tempPreview);
-
-      // Update preview with server URL
       setPreviewUrl(data.url);
       onChange?.(data.url);
       onFileSelect(file);
 
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
     } catch (error) {
       console.error("Error uploading file:", error);
-      setPreviewUrl(null);
-      onChange?.('');
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload profile picture",
+        variant: "destructive",
+      });
+      // Don't clear preview on upload error - keep the local preview
     } finally {
       setIsUploading(false);
     }
-  }, [onFileSelect, onChange]);
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -105,24 +121,21 @@ export function FileUpload({
     try {
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-      const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+      const croppedFile = new File([blob], selectedFile.name, { type: selectedFile.type });
 
-      // Cleanup URLs
+      // Only clean up the cropped preview URL
       URL.revokeObjectURL(croppedImageUrl);
-      if (previewUrl && !previewUrl.startsWith('/')) {
-        URL.revokeObjectURL(previewUrl);
-      }
 
-      await handleFile(croppedFile);
+      // Upload the cropped file
+      await handleUpload(croppedFile);
       setShowCrop(false);
     } catch (error) {
       console.error("Error processing cropped image:", error);
-    }
-  };
-
-  const handleCropClick = () => {
-    if (previewUrl) {
-      setShowCrop(true);
+      toast({
+        title: "Error",
+        description: "Failed to process cropped image",
+        variant: "destructive",
+      });
     }
   };
 
@@ -170,7 +183,7 @@ export function FileUpload({
             <Button
               variant="outline"
               size="icon"
-              onClick={handleCropClick}
+              onClick={() => setShowCrop(true)}
               type="button"
               title="Crop Image"
             >
