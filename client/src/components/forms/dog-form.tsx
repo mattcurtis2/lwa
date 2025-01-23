@@ -522,7 +522,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               </FormDescription>
               <div className="flex items-center gap-4">
                 <div
-                  className="relative h-24 w-24 cursor-pointer"
+                  className="relative h-24 w-32 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
@@ -530,7 +530,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                     }
                   }}
                 >
-                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
+                  <div className="absolute inset-0 border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
                     {field.value ? (
                       <img
                         src={field.value}
@@ -588,8 +588,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            aspect={1}
-            circularCrop
+            aspect={16/9}
           />
         )}
 
@@ -977,7 +976,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="relative group aspect-square rounded-lg overflow-hidden bg-muted"
+                          className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
                         >
                           {input.type === 'image' ? (
                             <img
@@ -1024,7 +1023,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
           <div className="space-y-4">
             <FormField              control={form.control}
               name="outsideBreeder"
-              render={({ field }) => (
+              render={({ field}) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Outside Breeder</FormLabel>
