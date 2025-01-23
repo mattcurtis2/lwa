@@ -375,14 +375,45 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
   // In the form's onSubmit handler, convert string values to numbers
   const onSubmitWrapper = async (values: any) => {
-    const processedValues = {
-      ...values,
-      height: values.height ? parseFloat(values.height) || null : null,
-      weight: values.weight ? parseFloat(values.weight) || null : null,
-      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
-    };
+    try {
+      const processedValues = {
+        ...values,
+        height: values.height ? parseFloat(values.height) || null : null,
+        weight: values.weight ? parseFloat(values.weight) || null : null,
+        price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+      };
 
-    await onSubmit(processedValues);
+      const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
+      const method = dog?.id ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(processedValues),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save dog');
+      }
+
+      toast({
+        title: "Success",
+        description: `Dog ${dog?.id ? 'updated' : 'created'} successfully`,
+      });
+
+      if (onSubmit) {
+        await onSubmit(processedValues);
+      }
+    } catch (error) {
+      console.error('Error saving dog:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to save dog',
+        variant: "destructive",
+      });
+    }
   };
 
   return (
