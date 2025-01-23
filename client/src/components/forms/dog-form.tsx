@@ -676,7 +676,7 @@ export default function DogForm({
           )}
         />
 
-        {!fromLitter && (
+        {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
           <div className="space-y-6">
             <FormField
               control={form.control}
