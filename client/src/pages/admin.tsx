@@ -39,6 +39,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
+  const [showPuppyForm, setShowPuppyForm] = useState(false); // Moved here
   const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
   const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
   const [editLitter, setEditLitter] = useState<Litter & { 
@@ -50,6 +51,7 @@ export default function Admin() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
   const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
+
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
@@ -830,7 +832,7 @@ export default function Admin() {
                             onChange={(value) => handleContentChange(field.key, value)}
                           />
                           {(pendingContent[field.key] || field.value) && (
-                            <div className="w40 h-40 rounded-lg overflow-hidden border">
+                            <div className="w-40 h-40 rounded-lg overflow-hidden border">
                               <img
                                 src={pendingContent[field.key] || field.value}
                                 alt={field.label}
@@ -1243,51 +1245,65 @@ export default function Admin() {
 
                             {/* Add New Puppy Form */}
                             <div className="border-t pt-4 mt-4">
-                              <h4 className="font-medium mb-4">Add New Puppy</h4>
-                              <DogForm
-                                onSubmit={async (values) => {
-                                  const newPuppy = {
-                                    ...values,
-                                    puppy: true,
-                                    motherId: editLitter?.motherId,
-                                    fatherId: editLitter?.fatherId,
-                                    litterId: editLitter?.id,
-                                  };
+                              <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-medium">Add New Puppy</h4>
+                                <Button 
+                                  variant="outline"
+                                  onClick={() => setShowPuppyForm(prev => !prev)}
+                                >
+                                  {showPuppyForm ? "Cancel" : "Add Puppy"}
+                                </Button>
+                              </div>
 
-                                  try {
-                                    const res = await fetch('/api/dogs', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify(newPuppy),
-                                    });
+                              {showPuppyForm && (
+                                <DogForm
+                                  onSubmit={async (values) => {
+                                    const newPuppy = {
+                                      ...values,
+                                      puppy: true,
+                                      motherId: editLitter?.motherId,
+                                      fatherId: editLitter?.fatherId,
+                                      litterId: editLitter?.id,
+                                    };
 
-                                    if (!res.ok) throw new Error('Failed to add puppy');
+                                    try {
+                                      const res = await fetch('/api/dogs', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(newPuppy),
+                                      });
 
-                                    const puppy = await res.json();
-                                    setEditLitter(prev => ({
-                                      ...prev!,
-                                      puppies: [...(prev!.puppies || []), puppy],
-                                    }));
+                                      if (!res.ok) throw new Error('Failed to add puppy');
 
-                                    toast({
-                                      title: 'Success',
-                                      description: 'Puppy added to litter',
-                                    });
-                                  } catch (error) {
-                                    console.error('Error adding puppy:', error);
-                                    toast({
-                                      title: 'Error',
-                                      description: 'Failed to add puppy',
-                                      variant: 'destructive',
-                                    });
-                                  }
-                                }}
-                                defaultValues={{
-                                  breed: editLitter?.mother?.breed || '',
-                                  birthDate: new Date().toISOString().split('T')[0],
-                                }}
-                              />
+                                      const puppy = await res.json();
+                                      setEditLitter(prev => ({
+                                        ...prev!,
+                                        puppies: [...(prev!.puppies || []), puppy],
+                                      }));
+
+                                      setShowPuppyForm(false); // Hide form after successful addition
+
+                                      toast({
+                                        title: 'Success',
+                                        description: 'Puppy added to litter',
+                                      });
+                                    } catch (error) {
+                                      console.error('Error adding puppy:', error);
+                                      toast({
+                                        title: 'Error',
+                                        description: 'Failed to add puppy',
+                                        variant: 'destructive',
+                                      });
+                                    }
+                                  }}
+                                  defaultValues={{
+                                    breed: editLitter?.mother?.breed || '',
+                                    birthDate: new Date().toISOString().split('T')[0],
+                                  }}
+                                />
+                              )}
                             </div>
+
                           </div>
                         )}
                       </div>
@@ -1341,7 +1357,7 @@ export default function Admin() {
                                     />
                                   ) : (
                                     <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                                      <span className="text2xl text-pink-500">♀</span>
+                                      <span className="text-2xl text-pink-500">♀</span>
                                     </div>
                                   )}
                                 </div>
