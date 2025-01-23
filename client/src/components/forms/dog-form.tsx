@@ -407,9 +407,12 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     try {
       const processedValues = {
         ...values,
-        height: values.height ? parseFloat(values.height) || null : null,
-        weight: values.weight ? parseFloat(values.weight) || null : null,
-        price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+        height: values.height ? (parseFloat(values.height) || null) : null,
+        weight: values.weight ? (parseFloat(values.weight) || null) : null,
+        price: values.price ? (parseInt(values.price.replace(/\D/g, ''), 10) || null) : null,
+        motherId: values.motherId || null,
+        fatherId: values.fatherId || null,
+        litterId: values.litterId || null,
       };
 
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
