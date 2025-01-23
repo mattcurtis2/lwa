@@ -26,16 +26,31 @@ export default function UpcomingLitters() {
     setShowDogForm(true);
   };
 
-  const handleAddPuppy = (litter: Litter, e: React.MouseEvent) => {
+  const handleAddPuppy = (litter: Litter & { mother: Dog, father: Dog }, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent litter navigation
+
+    // Create a new puppy with parent information
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
+      breed: litter.mother.breed || "Colorado Mountain Dog", // Inherit breed from mother
       birthDate: new Date().toISOString().split('T')[0],
       gender: 'male', // Default gender
       available: false,
+      outsideBreeder: false,
+      // Additional information
+      height: null,
+      weight: null,
+      color: '',
+      description: '',
+      narrativeDescription: '',
+      healthData: '',
+      registrationName: '',
+      profileImageUrl: '',
+      // Set the order to be after existing puppies
+      order: 0
     });
     setShowDogForm(true);
   };
@@ -207,7 +222,7 @@ export default function UpcomingLitters() {
           onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
-          fromLitter={true} // Add this prop when opening from litter
+          fromLitter={true}
         />
       )}
     </>
