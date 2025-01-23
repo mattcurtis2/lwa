@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
 import {
   Card,
@@ -15,13 +15,23 @@ import {
   FileVideo,
   File,
   ExternalLink,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
+import React from "react";
 
 interface Document {
   id?: number;
@@ -32,7 +42,7 @@ interface Document {
 }
 
 interface DogDetailsProps {
-  dog: Dog & { 
+  dog: Dog & {
     media?: DogMedia[];
     documents?: Document[];
   };
@@ -96,9 +106,10 @@ function DocumentLink({ document }: { document: Document }) {
 
 export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const healthDocuments = dog.documents?.filter((doc) => doc.type === 'health') || [];
   const pedigreeDocuments = dog.documents?.filter((doc) => doc.type === 'pedigree') || [];
+  const imageMedia = dog.media?.filter(m => m.type === 'image') || [];
 
   const genderSymbol = dog.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
@@ -106,7 +117,34 @@ export default function DogDetails({ dog }: DogDetailsProps) {
     <span className="text-pink-500">♀</span>
   );
 
-  const imageMedia = dog.media?.filter(m => m.type === 'image') || [];
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (isMediaDialogOpen) {
+      if (e.key === 'ArrowLeft') {
+        setActiveMediaIndex((prev) =>
+          prev === 0 ? imageMedia.length - 1 : prev - 1
+        );
+      } else if (e.key === 'ArrowRight') {
+        setActiveMediaIndex((prev) =>
+          prev === imageMedia.length - 1 ? 0 : prev + 1
+        );
+      } else if (e.key === 'Escape') {
+        setIsMediaDialogOpen(false);
+      }
+    }
+  };
+
+  // Add keyboard event listeners
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isMediaDialogOpen]);
+
+  const handleThumbnailClick = (index: number) => {
+    setActiveMediaIndex(index);
+    setIsMediaDialogOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -137,10 +175,10 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             {imageMedia.map((media, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedImage(media.url)}
+                onClick={() => handleThumbnailClick(index)}
                 className={cn(
                   "relative w-16 h-16 rounded-md overflow-hidden transition-transform hover:scale-105",
-                  selectedImage === media.url && "ring-2 ring-primary ring-offset-2"
+                  activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
                 )}
               >
                 <img
@@ -154,26 +192,63 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         )}
       </div>
 
-      {/* Selected Image View */}
-      {selectedImage && (
-        <div className="relative">
-          <div className="aspect-video relative overflow-hidden rounded-lg bg-muted">
-            <img
-              src={selectedImage}
-              alt={dog.name}
-              className="w-full h-full object-contain"
-            />
+      {/* Media Dialog */}
+      <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
+        <DialogContent className="max-w-4xl w-full h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>{dog.name}'s Gallery</DialogTitle>
+            <DialogDescription>
+              Use arrow keys or buttons to navigate
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative flex items-center justify-center h-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 z-10"
+              onClick={() => setActiveMediaIndex((prev) =>
+                prev === 0 ? imageMedia.length - 1 : prev - 1
+              )}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+
+            <div className="w-full h-full flex items-center justify-center">
+              <img
+                src={imageMedia[activeMediaIndex]?.url}
+                alt={`${dog.name} - photo ${activeMediaIndex + 1}`}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 z-10"
+              onClick={() => setActiveMediaIndex((prev) =>
+                prev === imageMedia.length - 1 ? 0 : prev + 1
+              )}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+              {imageMedia.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveMediaIndex(index)}
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    index === activeMediaIndex
+                      ? "bg-primary"
+                      : "bg-muted hover:bg-muted-foreground/50"
+                  )}
+                />
+              ))}
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={() => setSelectedImage(null)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
@@ -326,21 +401,15 @@ export default function DogDetails({ dog }: DogDetailsProps) {
       {dog.media && dog.media.length > 0 && (
         <div className="md:hidden">
           <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-          <DogMediaCarousel
-            media={dog.media}
-            className="w-full max-w-2xl mx-auto mb-4"
-            activeIndex={activeMediaIndex}
-            onSlideChange={setActiveMediaIndex}
-          />
           <div className="grid grid-cols-4 gap-2">
             {dog.media.map((item, index) => (
               item.type === 'image' && (
                 <button
                   key={index}
-                  onClick={() => setActiveMediaIndex(index)}
+                  onClick={() => handleThumbnailClick(index)}
                   className={cn(
                     "relative aspect-square group transition-transform hover:scale-105",
-                    activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
+                    activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
                   )}
                 >
                   <img
