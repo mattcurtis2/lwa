@@ -25,8 +25,6 @@ import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useQueryClient } from "@tanstack/react-query";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -34,6 +32,7 @@ const mediaSchema = z.object({
   fileName: z.string().optional(),
 });
 
+// Create schema with optional fields for puppies
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
     name: z.string().min(1, "Name is required"),
@@ -67,10 +66,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
 interface DogFormProps {
   dog?: Dog & { media?: DogMedia[] };
   isPuppy?: boolean;
-  mode?: 'create' | 'edit';
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit?: (values: any) => Promise<void>;
+  onSubmit: (values: any) => Promise<void>;
   onCancel?: () => void;
   defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
 }
@@ -82,16 +78,7 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-interface DogDocument {
-  id?: number;
-  url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
-  isNew?: boolean;
-}
-
-export default function DogForm({ dog, isPuppy = false, mode = 'create', open, onOpenChange, defaultValues }: DogFormProps) {
+export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -105,7 +92,7 @@ export default function DogForm({ dog, isPuppy = false, mode = 'create', open, o
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string>("");
-  const queryClient = useQueryClient();
+
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -386,459 +373,432 @@ export default function DogForm({ dog, isPuppy = false, mode = 'create', open, o
 
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-  const handleSubmit = async (values: z.infer<typeof dogSchema>) => {
-    try {
-      const url = mode === 'edit' ? `/api/dogs/${dog?.id}` : '/api/dogs';
-      const method = mode === 'edit' ? 'PUT' : 'POST';
+  // In the form's onSubmit handler, convert string values to numbers
+  const onSubmitWrapper = async (values: any) => {
+    const processedValues = {
+      ...values,
+      height: values.height ? parseFloat(values.height) || null : null,
+      weight: values.weight ? parseFloat(values.weight) || null : null,
+      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+    };
 
-      const processedValues = {
-        ...values,
-        height: values.height ? parseFloat(values.height) || null : null,
-        weight: values.weight ? parseFloat(values.weight) || null : null,
-        price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(processedValues),
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-
-      toast({
-        title: "Success",
-        description: `Dog ${mode === 'edit' ? 'updated' : 'created'} successfully`,
-      });
-
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to save dog',
-        variant: "destructive",
-      });
-    }
+    await onSubmit(processedValues);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>
-            {mode === 'edit' ? 'Edit Dog' : 'Add New Dog'}
-          </SheetTitle>
-        </SheetHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="breed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Breed</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Optional" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="breed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Breed</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Optional" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="birthDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Birth Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Birth Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sex</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id="male" />
-                          <label htmlFor="male" className="flex items-center gap-1">
-                            Male <span className="text-blue-500">♂</span>
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id="female" />
-                          <label htmlFor="female" className="flex items-center gap-1">
-                            Female <span className="text-pink-500">♀</span>
-                          </label>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="profileImageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Profile Picture</FormLabel>
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-20 w-20 relative group">
-                        <AvatarImage src={field.value} alt="Profile picture" />
-                        <AvatarFallback>
-                          <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          const input = document.createElement('input');
-                          input.type = 'file';
-                          input.accept = 'image/*';
-                          input.onchange = (e) => {
-                            const file = (e.target as HTMLInputElement).files?.[0];
-                            if (file) {
-                              handleProfilePictureUpload(file);
-                            }
-                          };
-                          input.click();
-                        }}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Profile Picture
-                      </Button>
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sex</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="male" id="male" />
+                      <label htmlFor="male" className="flex items-center gap-1">
+                        Male <span className="text-blue-500">♂</span>
+                      </label>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="female" id="female" />
+                      <label htmlFor="female" className="flex items-center gap-1">
+                        Female <span className="text-pink-500">♀</span>
+                      </label>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <FormLabel>Pictures & Videos</FormLabel>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="profileImageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Profile Picture</FormLabel>
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-20 w-20 relative group">
+                    <AvatarImage src={field.value} alt="Profile picture" />
+                    <AvatarFallback>
+                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                    </AvatarFallback>
+                  </Avatar>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setShowAddMedia(true)}
-                    disabled={isUploading}
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          handleProfilePictureUpload(file);
+                        }
+                      };
+                      input.click();
+                    }}
                   >
-                    Add Media
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Profile Picture
                   </Button>
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <StrictModeDroppable droppableId="droppable-media-list">
-                    {(provided) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="space-y-2"
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <FormLabel>Pictures & Videos</FormLabel>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddMedia(true)}
+                disabled={isUploading}
+              >
+                Add Media
+              </Button>
+            </div>
+
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <StrictModeDroppable droppableId="droppable-media-list">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-2"
+                  >
+                    {mediaInputs.map((input, index) => (
+                      <Draggable
+                        key={input.url}
+                        draggableId={input.url}
+                        index={index}
                       >
-                        {mediaInputs.map((input, index) => (
-                          <Draggable
-                            key={input.url}
-                            draggableId={input.url}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={cn(
-                                  "p-4 rounded-lg",
-                                  input.isNew
-                                    ? "bg-primary/5 border border-primary/20"
-                                    : "bg-muted"
-                                )}
-                              >
-                                <div className="flex gap-4">
-                                  <div className="w-20 h-20 relative shrink-0">
-                                    {input.type === "image" ? (
-                                      <img
-                                        src={input.url}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover rounded"
-                                      />
-                                    ) : (
-                                      <video
-                                        src={input.url}
-                                        className="w-full h-full object-cover rounded"
-                                        controls
-                                      />
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">
-                                      {input.fileName || input.url.split("/").pop()}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground truncate">
-                                      {input.url}
-                                    </p>
-                                  </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="shrink-0"
-                                    onClick={() => removeMediaInput(index)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={cn(
+                              "p-4 rounded-lg",
+                              input.isNew
+                                ? "bg-primary/5 border border-primary/20"
+                                : "bg-muted"
                             )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </StrictModeDroppable>
-                </DragDropContext>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                          >
+                            <div className="flex gap-4">
+                              <div className="w-20 h-20 relative shrink-0">
+                                {input.type === "image" ? (
+                                  <img
+                                    src={input.url}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover rounded"
+                                  />
+                                ) : (
+                                  <video
+                                    src={input.url}
+                                    className="w-full h-full object-cover rounded"
+                                    controls
+                                  />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {input.fileName || input.url.split("/").pop()}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {input.url}
+                                </p>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0"
+                                onClick={() => removeMediaInput(index)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
                 )}
-              />
+              </StrictModeDroppable>
+            </DragDropContext>
+          </div>
+        </div>
 
-              <FormField
-                control={form.control}
-                name="narrativeDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Narrative Description</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., White with brown markings" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="narrativeDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Narrative Description</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Height (inches)</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="text" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., White with brown markings" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
-                  name="weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Weight (lbs)</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="text" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="furLength"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fur Length</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., Medium length, double coat" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dewclaws"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dewclaws</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., Removed, Natural" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="healthData"
+              name="height"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Health Information</FormLabel>
+                  <FormLabel>Height (inches)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Health certifications, testing results, etc."
-                    />
+                    <Input {...field} type="text" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {!isPuppy && (
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="outsideBreeder"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Outside Breeder</FormLabel>
-                        <FormDescription>
-                          Mark this if the dog is from an outside breeding program
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-                <FormField
-                  control={form.control}
-                  name="available"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Available</FormLabel>
-                        <FormDescription>
-                          Mark this if the dog is available
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (Optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Enter price"
-                          {...field}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '');
-                            field.onChange(value);
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Set a price if the dog is available for sale (whole dollars only)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          <FormField
+            control={form.control}
+            name="furLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fur Length</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Medium length, double coat" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
+          />
 
-            <div className="flex justify-between pt-6">
-              { /*onCancel && (
-                <Button type="button" variant="outline" onClick={onCancel}>
-                  Cancel
-                </Button>
-              )*/ }
-              <Button type="submit" className="ml-auto">
-                {dog ? "Update" : "Save"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </SheetContent>
-    </Sheet>
+          <FormField
+            control={form.control}
+            name="dewclaws"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dewclaws</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Removed, Natural" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="healthData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Health Information</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Health certifications, testing results, etc."
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {!isPuppy && (
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="outsideBreeder"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Outside Breeder</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog is from an outside breeding program
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="available"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Available</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog is available
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Enter price"
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Set a price if the dog is available for sale (whole dollars only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <div className="flex justify-between pt-6">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" className="ml-auto">
+            {dog ? "Update" : "Save"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
+}
+
+interface DogDocument {
+  id?: number;
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
+  isNew?: boolean;
 }
