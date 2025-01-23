@@ -95,28 +95,12 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                 </Button>
               )}
               {onDelete && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Delete</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Dog</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete {dog.name}? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={() => onDelete(dog)}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button 
+                  variant="destructive"
+                  onClick={() => onDelete(dog)}
+                >
+                  Delete
+                </Button>
               )}
             </div>
           </div>
