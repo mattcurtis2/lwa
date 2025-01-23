@@ -389,12 +389,22 @@ export default function Admin() {
 
   const handleUpdateLitter = async () => {
     try {
-      const { puppies, ...litterData } = editLitter || {};
+      const { puppies, mother, father, ...litterData } = editLitter || {};
       const processedPuppies = puppies?.map(puppy => ({
-        ...puppy,
+        id: puppy.id,
+        name: puppy.name,
+        gender: puppy.gender,
+        birthDate: puppy.birthDate,
+        description: puppy.description,
+        color: puppy.color,
         height: puppy.height ? parseFloat(puppy.height.toString()) : null,
         weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
         price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
+        puppy: true,
+        motherId: litterData.motherId,
+        fatherId: litterData.fatherId,
+        litterId: litterData.id,
+        breed: puppy.breed,
       }));
 
       const res = await fetch(`/api/litters/${editLitter?.id}`, {
@@ -406,7 +416,10 @@ export default function Admin() {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to update litter');
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || 'Failed to update litter');
+      }
 
       queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
       toast({
@@ -417,7 +430,7 @@ export default function Admin() {
       console.error('Error updating litter:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update litter',
+        description: error.message || 'Failed to update litter',
         variant: 'destructive',
       });
     }
@@ -1092,15 +1105,15 @@ export default function Admin() {
                 </div>
 
                 <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
-                  <SheetContent className="w-[95vw] sm:max-w-[90vw] overflow-y-auto">
+                  <SheetContent className="w-[95vw] sm:max-w-[1200px] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>
                         {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
                       </SheetTitle>
                     </SheetHeader>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                    <div className="grid grid-cols-2 gap-8 h-full mt-6">
                       {/* Litter Form Section */}
-                      <div className="space-y-6">
+                      <div className="space-y-6 pr-8 border-r">
                         <div className="space-y-4">
                           <div className="grid gap-4">
                             <div className="space-y-2">
@@ -1178,7 +1191,7 @@ export default function Admin() {
                               <div className="grid gap-4">
                                 {editLitter.puppies.map((puppy, index) => (
                                   <div
-                                    key={puppy.id}
+                                    key={puppy.id || index}
                                     className="flex items-center justify-between p-4 rounded-lg border"
                                   >
                                     <div>
@@ -1206,34 +1219,36 @@ export default function Admin() {
                             </div>
                           )}
 
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-between pt-4">
                             <Button variant="outline" onClick={() => setShowLitterForm(false)}>
                               Cancel
                             </Button>
-                            <Button onClick={() => {
-                              if (litterFormMode === 'create') {
-                                handleCreateLitter();
-                              } else {
-                                handleUpdateLitter();
-                              }
-                            }}>
-                              {litterFormMode === 'create' ? 'Create Litter' : 'Update Litter'}
-                            </Button>
-                            {litterFormMode === 'edit' && (
-                              <Button
-                                variant="outline"
-                                onClick={() => setShowPuppyForm(prev => !prev)}
-                              >
-                                {showPuppyForm ? "Cancel Adding Puppy" : "Add New Puppy"}
+                            <div className="space-x-2">
+                              <Button onClick={() => {
+                                if (litterFormMode === 'create') {
+                                  handleCreateLitter();
+                                } else {
+                                  handleUpdateLitter();
+                                }
+                              }}>
+                                {litterFormMode === 'create' ? 'Create Litter' : 'Update Litter'}
                               </Button>
-                            )}
+                              {litterFormMode === 'edit' && (
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setShowPuppyForm(prev => !prev)}
+                                >
+                                  {showPuppyForm ? "Cancel Adding" : "Add Puppy"}
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Puppy Form Section */}
-                      {showPuppyForm && (
-                        <div className="border-l pl-6">
+                      <div className={showPuppyForm ? "block" : "hidden"}>
+                        <div className="space-y-4">
                           <h3 className="text-lg font-medium mb-4">Add New Puppy</h3>
                           <DogForm
                             isPuppy={true}
@@ -1254,12 +1269,14 @@ export default function Admin() {
                                 if (!res.ok) throw new Error(await res.text());
 
                                 const puppy = await res.json();
+
+                                // Update the local state with the new puppy
                                 setEditLitter(prev => ({
                                   ...prev!,
                                   puppies: [...(prev!.puppies || []), puppy],
                                 }));
 
-                                // After adding the puppy, update the litter
+                                // Update the litter in the backend
                                 await handleUpdateLitter();
 
                                 setShowPuppyForm(false);
@@ -1283,7 +1300,7 @@ export default function Admin() {
                             }}
                           />
                         </div>
-                      )}
+                      </div>
                     </div>
                   </SheetContent>
                 </Sheet>
