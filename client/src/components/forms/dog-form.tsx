@@ -431,6 +431,12 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     try {
+      console.log("Parent and Litter IDs:", {
+        motherId: values.motherId,
+        fatherId: values.fatherId,
+        litterId: values.litterId
+      });
+      
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) || null : null,
