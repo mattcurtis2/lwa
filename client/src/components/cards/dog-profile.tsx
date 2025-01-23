@@ -46,8 +46,8 @@ export default function DogProfile({ dog }: DogProfileProps) {
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="w-16 h-16">
-            <AvatarImage 
-              src={dog.profileImageUrl ? dog.profileImageUrl : dog.media && dog.media.length > 0 ? dog.media[0].url : undefined}
+            <AvatarImage
+              src={dog.profileImageUrl || (dog.media?.length > 0 ? dog.media[0].url : undefined)}
               alt={dog.name}
             />
             <AvatarFallback>
