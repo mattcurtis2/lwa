@@ -1491,27 +1491,34 @@ export default function Admin() {
                             {editItem ? 'Edit Puppy' : 'Add New Puppy'}
                           </h3>
                           <DogForm
-                            defaultValues={editItem ? {
-                              ...editItem,
-                              // Ensure date is in correct format
-                              birthDate: editItem.birthDate ? new Date(editItem.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                              // Ensure all required fields are present
-                              breed: editItem.breed || 'Colorado Mountain Dog',
-                              color: editItem.color || '',
-                              height: editItem.height || '',
-                              weight: editItem.weight || '',
-                              price: editItem.price || '',
-                              description: editItem.description || '',
-                              registrationName: editItem.registrationName || '',
-                              puppy: true,
-                              motherId: editLitter?.motherId,
-                              fatherId: editLitter?.fatherId,
-                              litterId: editLitter?.id,
-                            } : {
-                              name: '',
-                              gender: 'male',
-                              birthDate: new Date().toISOString().split('T')[0],
-                              breed: 'Colorado Mountain Dog',
+                            defaultValues={{
+                              // First spread all existing puppy data
+                              ...(editItem ? {
+                                name: editItem.name,
+                                gender: editItem.gender,
+                                breed: editItem.breed || 'Colorado Mountain Dog',
+                                color: editItem.color || '',
+                                height: editItem.height || '',
+                                weight: editItem.weight || '',
+                                price: editItem.price || '',
+                                description: editItem.description || '',
+                                registrationName: editItem.registrationName || '',
+                                // Ensure date is in correct format for date input
+                                birthDate: editItem.birthDate ? new Date(editItem.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                              } : {
+                                // Default values for new puppy
+                                name: '',
+                                gender: 'male',
+                                birthDate: new Date().toISOString().split('T')[0],
+                                breed: 'Colorado Mountain Dog',
+                                color: '',
+                                height: '',
+                                weight: '',
+                                price: '',
+                                description: '',
+                                registrationName: '',
+                              }),
+                              // Always include these properties
                               puppy: true,
                               motherId: editLitter?.motherId,
                               fatherId: editLitter?.fatherId,
