@@ -474,7 +474,11 @@ export default function Admin() {
   const renderPuppyCard = (puppy: Dog, index: number) => (
     <div
       key={puppy.id || index}
-      className="flex items-center justify-between p-4 rounded-lg border"
+      className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
+      onClick={() => {
+        setEditItem(puppy);
+        setShowPuppyForm(true);
+      }}
     >
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
@@ -506,7 +510,8 @@ export default function Admin() {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent opening the edit form
           if (!confirm('Are you sure you want to remove this puppy?')) return;
           setEditLitter(prev => ({
             ...prev!,
@@ -1390,11 +1395,60 @@ export default function Admin() {
                           </div>
 
                           {editLitter?.puppies && editLitter.puppies.length > 0 && (
-                            <div className="space-y-4">
-                              <h3 className="font-medium">Current Puppies</h3>
+                            <div className="space-y-4 mt-8">
+                              <h3 className="text-lg font-medium">Current Puppies</h3>
                               <div className="grid gap-4">
                                 {editLitter.puppies.map((puppy, index) => (
-                                  renderPuppyCard(puppy, index)
+                                  <div
+                                    key={puppy.id || index}
+                                    className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
+                                    onClick={() => {
+                                      setEditItem(puppy);
+                                      setShowPuppyForm(true);
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                                        {puppy.profileImageUrl ? (
+                                          <img
+                                            src={puppy.profileImageUrl}
+                                            alt={puppy.name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className={`w-full h-full flex items-center justify-center ${
+                                            puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                                          }`}>
+                                            <span className={`text-xl ${
+                                              puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                                            }`}>
+                                              {puppy.gender === 'female' ? '♀' : '♂'}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <p className="font-medium">{puppy.name}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          {puppy.gender} • {puppy.color || 'No color set'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Prevent opening the edit form
+                                        if (!confirm('Are you sure you want to remove this puppy?')) return;
+                                        setEditLitter(prev => ({
+                                          ...prev!,
+                                          puppies: prev!.puppies!.filter((_, i) => i !== index),
+                                        }));
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 ))}
                               </div>
                             </div>
@@ -1403,28 +1457,24 @@ export default function Admin() {
                           <div className="flex justify-between pt-4">
                             <Button variant="outline" onClick={() => {
                               setShowLitterForm(false);
-                              setShowPuppyForm(false); // Ensure puppy form is closed when closing litter form
+                              setShowPuppyForm(false);
+                              setEditItem(null); // Reset edit item when closing
                             }}>
                               Cancel
                             </Button>
                             <div className="space-x-2">
-                              <Button onClick={() => {
-                                if (litterFormMode === 'create') {
-                                  handleCreateLitter();
-                                } else {
-                                  handleUpdateLitter();
-                                }
-                              }}>
-                                {litterFormMode === 'create' ? 'Create Litter' : 'Update Litter'}
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setEditItem(null); // Clear any existing edit state
+                                  setShowPuppyForm(true);
+                                }}
+                              >
+                                Add Puppy
                               </Button>
-                              {litterFormMode === 'edit' && (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setShowPuppyForm(prev => !prev)}
-                                >
-                                  {showPuppyForm ? "Cancel Adding" : "Add Puppy"}
-                                </Button>
-                              )}
+                              <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
+                                Save Litter
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -1432,61 +1482,73 @@ export default function Admin() {
 
                       {/* Puppy Form Section */}
                       <div className={`transition-opacity duration-300 ${
-                        showPuppyForm 
-                          ? 'opacity-100' 
+                        showPuppyForm
+                          ? 'opacity-100'
                           : 'opacity-0 pointer-events-none absolute -right-full'
                       }`}>
                         <div className="space-y-4">
-                          <h3 className="text-lg font-medium mb-4">Add New Puppy</h3>
+                          <h3 className="text-lg font-medium mb-4">
+                            {editItem ? 'Edit Puppy' : 'Add New Puppy'}
+                          </h3>
                           <DogForm
-                            isPuppy={true}
-                            onSubmit={async (values) => {
+                            defaultValues={editItem || {
+                              name: '',
+                              gender: 'male',
+                              birthDate: new Date().toISOString(),
+                              breed: 'Colorado Mountain Dog',
+                              puppy: true,
+                              motherId: editLitter?.motherId,
+                              fatherId: editLitter?.fatherId,
+                              litterId: editLitter?.id,
+                            }}
+                            onSubmit={async (data) => {
                               try {
-                                const res = await fetch('/api/dogs', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    ...values,
+                                if (!editLitter) return;
+
+                                let updatedPuppies = [...(editLitter.puppies || [])];
+
+                                if (editItem) {
+                                  // Update existing puppy
+                                  const puppyIndex = updatedPuppies.findIndex(p => p.id === editItem.id);
+                                  if (puppyIndex !== -1) {
+                                    updatedPuppies[puppyIndex] = { ...updatedPuppies[puppyIndex], ...data };
+                                  }
+                                } else {
+                                  // Add new puppy
+                                  updatedPuppies.push({
+                                    ...data,
+                                    id: Date.now(), // Temporary ID for new puppies
                                     puppy: true,
-                                    motherId: editLitter?.motherId,
-                                    fatherId: editLitter?.fatherId,
-                                    litterId: editLitter?.id,
-                                  }),
-                                });
+                                    motherId: editLitter.motherId,
+                                    fatherId: editLitter.fatherId,
+                                    litterId: editLitter.id,
+                                  });
+                                }
 
-                                if (!res.ok) throw new Error(await res.text());
-
-                                const puppy = await res.json();
-
-                                // Update the local state with the new puppy
                                 setEditLitter(prev => ({
                                   ...prev!,
-                                  puppies: [...(prev!.puppies || []), puppy],
+                                  puppies: updatedPuppies,
                                 }));
 
                                 // Update the litter in the backend
                                 await handleUpdateLitter();
 
-                                // Close the puppy form after successful save
+                                // Reset form state
                                 setShowPuppyForm(false);
+                                setEditItem(null);
 
                                 toast({
                                   title: 'Success',
-                                  description: 'Puppy added successfully',
+                                  description: `Puppy ${editItem ? 'updated' : 'added'} successfully`,
                                 });
                               } catch (error) {
-                                console.error('Error adding puppy:', error);
+                                console.error('Error saving puppy:', error);
                                 toast({
                                   title: 'Error',
-                                  description: error instanceof Error ? error.message : 'Failed to add puppy',
+                                  description: error instanceof Error ? error.message : 'Failed to save puppy',
                                   variant: 'destructive',
                                 });
                               }
-                            }}
-                            onCancel={() => setShowPuppyForm(false)}
-                            defaultValues={{
-                              breed: editLitter?.mother?.breed || '',
-                              birthDate: editLitter?.dueDate || new Date().toISOString().split('T')[0],
                             }}
                           />
                         </div>
