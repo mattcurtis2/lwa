@@ -454,6 +454,10 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     }
   };
 
+  const [cropImageUrl, setCropImageUrl] = useState("");
+  const [showCropper, setShowCropper] = useState(false);
+
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(async (values) => {
@@ -501,7 +505,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
         } catch (error) {
           console.error('Error saving dog:', error);
           toast({
-            title: "Error", 
+            title: "Error",
             description: error instanceof Error ? error.message : 'Failed to save dog',
             variant: "destructive"
           });
@@ -513,32 +517,72 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
           render={({ field }) => (
             <FormItem>
               <FormLabel>Profile Picture</FormLabel>
+              <FormDescription>
+                Upload a profile picture for the dog
+              </FormDescription>
               <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20 relative group">
-                  <AvatarImage src={field.value} alt="Profile picture" />
-                  <AvatarFallback>
-                    <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) {
-                        handleProfilePictureUpload(file);
-                      }
-                    };
-                    input.click();
-                  }}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Profile Picture
-                </Button>
+                <div className="h-24 w-24 rounded-lg border bg-muted flex items-center justify-center relative overflow-hidden">
+                  {field.value ? (
+                    <img
+                      src={field.value}
+                      alt="Profile preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = async (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (!file) return;
+
+                        const formData = new FormData();
+                        formData.append('file', file);
+
+                        try {
+                          const res = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData,
+                          });
+
+                          if (!res.ok) {
+                            throw new Error('Failed to upload image');
+                          }
+
+                          const data = await res.json();
+                          field.onChange(data.url);
+                        } catch (error) {
+                          toast({
+                            title: 'Error',
+                            description: 'Failed to upload profile picture',
+                            variant: 'destructive',
+                          });
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    {field.value ? 'Change Picture' : 'Upload Picture'}
+                  </Button>
+                  {field.value && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => field.onChange('')}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      Remove Picture
+                    </Button>
+                  )}
+                </div>
               </div>
               <FormMessage />
             </FormItem>
@@ -699,8 +743,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               </FormItem>
             )}
           />
-
-          </div>
+        </div>
 
         <div className="space-y-4">
           <FormField
@@ -995,7 +1038,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             <FormField
               control={form.control}
               name="puppy"
-              render={({ field }) => (
+              render={({field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Puppy</FormLabel>
