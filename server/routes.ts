@@ -764,15 +764,28 @@ export function registerRoutes(app: Express): Server {
             },
           });
 
-          return {
-            ...litter,
-            puppies,
-          };
+          // Only include if there are puppies and at least one puppy has a birth date
+          if (puppies.length > 0 && puppies.some(puppy => puppy.birthDate)) {
+            return {
+              ...litter,
+              puppies,
+            };
+          }
+          return null;
         })
       );
 
-      // For now, return all litters to debug the data
-      res.json(littersWithPuppies);
+      // Filter out null entries (litters without puppies or birth dates)
+      const validLitters = littersWithPuppies.filter(litter => litter !== null);
+
+      // Sort by the first puppy's birth date in descending order (most recent first)
+      const sortedLitters = validLitters.sort((a, b) => {
+        const aDate = new Date(a.puppies[0].birthDate);
+        const bDate = new Date(b.puppies[0].birthDate);
+        return bDate.getTime() - aDate.getTime();
+      });
+
+      res.json(sortedLitters);
     } catch (error) {
       console.error("Error fetching past litters:", error);
       res.status(500).json({ message: "Failed to fetch past litters" });
