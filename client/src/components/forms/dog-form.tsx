@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import {
   Form,
   FormControl,
@@ -64,9 +64,11 @@ const createDogSchema = (isPuppy: boolean = false) => {
 };
 
 interface DogFormProps {
-  dog?: Partial<Dog & { media?: DogMedia[] }>;
+  dog?: Dog & { media?: DogMedia[] };
+  isPuppy?: boolean;
   onSubmit: (values: any) => Promise<void>;
   onCancel?: () => void;
+  defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
 }
 
 interface MediaInput {
@@ -76,7 +78,7 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
+export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -85,10 +87,13 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
   const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
   const [mediaUrl, setMediaUrl] = useState("");
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [healthDocuments, setHealthDocuments] = useState<DogDocument[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<DogDocument[]>([]);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string>("");
 
-  const isPuppy = dog?.puppy || false;
+
   const dogSchema = createDogSchema(isPuppy);
 
   const form = useForm<z.infer<typeof dogSchema>>({
@@ -96,7 +101,7 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
     defaultValues: {
       name: "",
       registrationName: "",
-      birthDate: dog?.birthDate || new Date().toISOString().split('T')[0],
+      birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: "male",
       description: "",
       motherId: null,
@@ -117,21 +122,37 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
       available: false,
       price: "",
       breed: "",
-      ...dog,
+      ...defaultValues,
     },
   });
 
   useEffect(() => {
-    if (dog && dog.media) {
-      const media = dog.media.map(m => ({
+    if (dog) {
+      const birthDate = parseApiDate(dog.birthDate);
+      form.reset({
+        ...dog,
+        birthDate: formatInputDate(birthDate),
+        motherId: dog.motherId || null,
+        fatherId: dog.fatherId || null,
+        litterId: dog.litterId || null,
+        height: dog.height?.toString() || "",
+        weight: dog.weight?.toString() || "",
+        price: dog.price?.toString() || "",
+        media: dog.media?.map(m => ({
+          url: m.url,
+          type: m.type as "image" | "video",
+          fileName: m.fileName,
+        })) || [],
+      });
+
+      const media = dog.media?.map(m => ({
         url: m.url,
         type: m.type as "image" | "video",
         fileName: m.fileName,
         isNew: false,
-      }));
+      })) || [];
 
       setMediaInputs(media);
-      form.setValue("media", media);
     }
   }, [dog, form]);
 
@@ -164,7 +185,7 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
         isNew: true,
       };
 
-      const newInputs = [...mediaInputs, newMedia];
+      const newInputs = [newMedia, ...mediaInputs];
       setMediaInputs(newInputs);
       form.setValue("media", newInputs);
       setShowAddMedia(false);
@@ -203,12 +224,12 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
 
       const newMedia = {
         url: data.url,
-        type: fileType as "image" | "video",
+        type: fileType,
         fileName: file.name,
         isNew: true,
       };
 
-      const newInputs = [...mediaInputs, newMedia];
+      const newInputs = [newMedia, ...mediaInputs];
       setMediaInputs(newInputs);
       form.setValue("media", newInputs);
 
@@ -251,7 +272,8 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
       }
 
       const data = await res.json();
-      form.setValue("profileImageUrl", data.url);
+      setCropImageUrl(data.url);
+      setShowCropper(true);
     } catch (error) {
       toast({
         title: "Error",
@@ -263,17 +285,104 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
     }
   };
 
-  // Submit handler
-  const onSubmitWrapper = async (values: z.infer<typeof dogSchema>) => {
+  const handleCroppedImage = async (croppedImageUrl: string) => {
+    const response = await fetch(croppedImageUrl);
+    const blob = await response.blob();
+    const file = new File([blob], 'profile-picture.jpg', { type: 'image/jpeg' });
+
+    const formData = new FormData();
+    formData.append("file", file);
+
     try {
-      await onSubmit(values);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload cropped image");
+      }
+
+      const { url } = await uploadRes.json();
+      form.setValue("profileImageUrl", url, { shouldValidate: true });
+      setShowCropper(false);
+
+      URL.revokeObjectURL(croppedImageUrl);
     } catch (error) {
+      console.error('Error uploading cropped image:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save dog",
+        description: "Failed to upload cropped image",
         variant: "destructive",
       });
     }
+  };
+
+  const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    setIsUploadingDoc(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const data = await res.json();
+      const newDoc = {
+        url: data.url,
+        type,
+        name: file.name,
+        mimeType: file.type,
+        isNew: true,
+      };
+
+      if (type === 'health') {
+        setHealthDocuments(prev => [newDoc, ...prev]);
+      } else {
+        setPedigreeDocuments(prev => [newDoc, ...prev]);
+      }
+
+      toast({
+        title: "Success",
+        description: "Document uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload document",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const removeDocument = (index: number, type: 'health' | 'pedigree') => {
+    if (type === 'health') {
+      setHealthDocuments(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setPedigreeDocuments(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
+  // In the form's onSubmit handler, convert string values to numbers
+  const onSubmitWrapper = async (values: any) => {
+    const processedValues = {
+      ...values,
+      height: values.height ? parseFloat(values.height) || null : null,
+      weight: values.weight ? parseFloat(values.weight) || null : null,
+      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+    };
+
+    await onSubmit(processedValues);
   };
 
   return (
@@ -392,127 +501,6 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="narrativeDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Narrative Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="color"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Color</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., White with brown markings" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="height"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Height (inches)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Weight (lbs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <FormField
-            control={form.control}
-            name="furLength"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fur Length</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., Medium length, double coat" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="dewclaws"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dewclaws</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., Removed, Natural" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="healthData"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Health Information</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Health certifications, testing results, etc."
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -599,6 +587,127 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
           </div>
         </div>
 
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="narrativeDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Narrative Description</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., White with brown markings" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (inches)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="furLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fur Length</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Medium length, double coat" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dewclaws"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dewclaws</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Removed, Natural" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="healthData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Health Information</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Health certifications, testing results, etc."
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {!isPuppy && (
           <div className="space-y-4">
             <FormField
@@ -660,6 +769,9 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
                       }}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Set a price if the dog is available for sale (whole dollars only)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -674,10 +786,19 @@ export default function DogForm({ dog, onSubmit, onCancel }: DogFormProps) {
             </Button>
           )}
           <Button type="submit" className="ml-auto">
-            {dog?.id ? "Update" : "Save"}
+            {dog ? "Update" : "Save"}
           </Button>
         </div>
       </form>
     </Form>
   );
+}
+
+interface DogDocument {
+  id?: number;
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
+  isNew?: boolean;
 }
