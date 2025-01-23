@@ -39,6 +39,8 @@ export function FileUpload({
     setIsUploading(true);
 
     try {
+      console.log('Starting file upload...', { fileName: file.name, fileType: file.type, fileSize: file.size });
+      
       // Create temporary preview for immediate feedback
       const tempPreview = URL.createObjectURL(file);
       setPreviewUrl(tempPreview);
@@ -46,16 +48,24 @@ export function FileUpload({
       const formData = new FormData();
       formData.append("file", file);
       
+      console.log('Sending request to /api/upload...');
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorText = await response.text();
+        console.error('Upload failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          responseText: errorText
+        });
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Upload successful:', data);
       
       // Clean up temp preview and set actual URL
       URL.revokeObjectURL(tempPreview);
@@ -63,8 +73,12 @@ export function FileUpload({
       onFileSelect(file);
       
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error uploading file:", {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       setPreviewUrl(null);
+      throw error; // Rethrow to be handled by the parent component
     } finally {
       setIsUploading(false);
     }
