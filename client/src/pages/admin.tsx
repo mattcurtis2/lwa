@@ -1397,6 +1397,7 @@ export default function Admin() {
                     mode={selectedDog?.id ? 'edit' : 'create'}
                     onSubmit={handleDogFormClose}
                     onCancel={handleDogFormClose}
+                    fromLitter={selectedDog?.fromLitter}
                   />
                 </div>
               </SheetContent>
