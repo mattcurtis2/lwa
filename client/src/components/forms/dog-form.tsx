@@ -407,12 +407,13 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     try {
       const processedValues = {
         ...values,
-        height: values.height ? (parseFloat(values.height) || null) : null,
-        weight: values.weight ? (parseFloat(values.weight) || null) : null,
-        price: values.price ? (parseInt(values.price.replace(/\D/g, ''), 10) || null) : null,
+        height: values.height ? parseFloat(values.height) || null : null,
+        weight: values.weight ? parseFloat(values.weight) || null : null,
+        price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
         motherId: values.motherId || null,
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
+        breed: "Colorado Mountain Dogs"
       };
 
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
@@ -461,10 +462,10 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               order: index
             }))
           };
-          
+
           const method = dog?.id ? "PUT" : "POST";
           const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
-          
+
           const response = await fetch(url, {
             method,
             headers: {
