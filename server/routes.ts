@@ -643,13 +643,28 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/litters/:id", async (req, res) => {
     try {
+      console.log("Updating litter - Request body:", req.body);
+      console.log("Litter ID:", req.params.id);
+
+      // Validate the incoming data
+      if (!req.body) {
+        console.error("No request body provided");
+        return res.status(400).json({ message: "No data provided" });
+      }
+
+      // Log the data being set
+      const updateData = {
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+      console.log("Update data being set:", updateData);
+
       const litter = await db.update(litters)
-        .set({ 
-          ...req.body,
-          updatedAt: new Date().toISOString()
-        })
+        .set(updateData)
         .where(eq(litters.id, parseInt(req.params.id)))
         .returning();
+
+      console.log("Updated litter result:", litter);
 
       const litterWithParents = await db.query.litters.findFirst({
         where: eq(litters.id, litter[0].id),
@@ -661,8 +676,10 @@ export function registerRoutes(app: Express): Server {
 
       res.json(litterWithParents);
     } catch (error) {
-      console.error("Error updating litter:", error);
-      res.status(500).json({ message: "Failed to update litter" });
+      console.error("Error updating litter - Full error:", error);
+      console.error("Error updating litter - Error message:", error.message);
+      console.error("Error updating litter - Error stack:", error.stack);
+      res.status(500).json({ message: "Failed to update litter", error: error.message });
     }
   });
 
@@ -836,7 +853,7 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/principles/:id", async (req, res) => {
     try {
       await db.delete(principles)
-        .where        .where(eq(principles.id, parseInt(req.params.id)));
+        .where(eq(principles.id, parseInt(req.params.id)));
       res.json({ message: "Deleted successfully" });
     } catch (error) {
       console.error("Error deleting principle:", error);
@@ -851,7 +868,7 @@ export function registerRoutes(app: Express): Server {
           order: req.body.order,
           updatedAt: new Date()
         })
-                .where(eq(principles.id, parseInt(req.params.id)))
+        .where(eq(principles.id, parseInt(req.params.id)))
         .returning();
       res.json(principle[0]);
     } catch (error) {
