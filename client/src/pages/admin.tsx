@@ -478,21 +478,44 @@ export default function Admin() {
       onClick={() => {
         const selectedPuppy = {
           ...puppy,
+          id: puppy.id,
+          name: puppy.name || '',
           birthDate: puppy.birthDate ? new Date(puppy.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           breed: puppy.breed || 'Colorado Mountain Dog',
-          gender: puppy.gender || 'male',
+          gender: (puppy.gender || 'male') as 'male' | 'female',
           color: puppy.color || '',
-          height: puppy.height || '',
-          weight: puppy.weight || '',
-          price: puppy.price || '',
           description: puppy.description || '',
+          narrativeDescription: puppy.narrativeDescription || '',
+          healthData: puppy.healthData || '',
+          height: typeof puppy.height === 'number' ? puppy.height.toString() : '',
+          weight: typeof puppy.weight === 'number' ? puppy.weight.toString() : '',
+          price: typeof puppy.price === 'number' ? puppy.price.toString() : '',
+          furLength: puppy.furLength || '',
           registrationName: puppy.registrationName || '',
           profileImageUrl: puppy.profileImageUrl || '',
-          motherId: editLitter?.motherId,
-          fatherId: editLitter?.fatherId,
-          litterId: editLitter?.id,
-          puppy: true
-        };
+          pedigreeUrl: puppy.pedigreeUrl || '',
+          healthClearancesUrl: puppy.healthClearancesUrl || '',
+          registrationUrl: puppy.registrationUrl || '',
+          temperament: puppy.temperament || '',
+          workingAbility: puppy.workingAbility || '',
+          showHistory: puppy.showHistory || '',
+          breedingHistory: puppy.breedingHistory || '',
+          awards: puppy.awards || '',
+          motherLine: puppy.motherLine || '',
+          fatherLine: puppy.fatherLine || '',
+          dietaryNeeds: puppy.dietaryNeeds || '',
+          exerciseRequirements: puppy.exerciseRequirements || '',
+          trainingStatus: puppy.trainingStatus || '',
+          specialNeeds: puppy.specialNeeds || '',
+          available: Boolean(puppy.available),
+          outsideBreeder: Boolean(puppy.outsideBreeder),
+          media: Array.isArray(puppy.media) ? puppy.media : [],
+          motherId: editLitter?.motherId || null,
+          fatherId: editLitter?.fatherId || null,
+          litterId: editLitter?.id || null,
+          puppy: true,
+          order: typeof puppy.order === 'number' ? puppy.order : 0
+        } as const;
         setEditItem(selectedPuppy);
         setShowPuppyForm(true);
       }}
@@ -786,7 +809,7 @@ export default function Admin() {
                                 <GripVertical className="h-5 w-5 text-stone-400" />
                                 <Input
                                   value={principle.title}
-                                  onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                                  onChange={(e) =>handlePrincipleChange(principle.id, 'title', e.target.value)}
                                   className="font-semibold"
                                   placeholder="Principle Title"
                                 />
@@ -1750,7 +1773,7 @@ export default function Admin() {
             disabled={updateSiteContent.isPending || updatePrinciples.isPending || updateContactInfo.isPending}
             className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
           >
-            <Save className="w-5 h-5 mr-2" />
+            <Save className="h-4 w-4 mr-2" />
             Save Changes
           </Button>
         </div>
