@@ -476,7 +476,24 @@ export default function Admin() {
       key={puppy.id || index}
       className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={() => {
-        setEditItem(puppy);
+        const selectedPuppy = {
+          ...puppy,
+          birthDate: puppy.birthDate ? new Date(puppy.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          breed: puppy.breed || 'Colorado Mountain Dog',
+          gender: puppy.gender || 'male',
+          color: puppy.color || '',
+          height: puppy.height || '',
+          weight: puppy.weight || '',
+          price: puppy.price || '',
+          description: puppy.description || '',
+          registrationName: puppy.registrationName || '',
+          profileImageUrl: puppy.profileImageUrl || '',
+          motherId: editLitter?.motherId,
+          fatherId: editLitter?.fatherId,
+          litterId: editLitter?.id,
+          puppy: true
+        };
+        setEditItem(selectedPuppy);
         setShowPuppyForm(true);
       }}
     >
@@ -1403,7 +1420,28 @@ export default function Admin() {
                                     key={puppy.id || index}
                                     className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
                                     onClick={() => {
-                                      setEditItem(puppy);
+                                      // Ensure we pass the complete puppy data
+                                      const selectedPuppy = {
+                                        ...puppy,
+                                        // Convert dates to the format expected by the form
+                                        birthDate: puppy.birthDate ? new Date(puppy.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                                        // Ensure all fields are present even if null
+                                        breed: puppy.breed || 'Colorado Mountain Dog',
+                                        gender: puppy.gender || 'male',
+                                        color: puppy.color || '',
+                                        height: puppy.height || '',
+                                        weight: puppy.weight || '',
+                                        price: puppy.price || '',
+                                        description: puppy.description || '',
+                                        registrationName: puppy.registrationName || '',
+                                        profileImageUrl: puppy.profileImageUrl || '',
+                                        // Maintain relationships
+                                        motherId: editLitter.motherId,
+                                        fatherId: editLitter.fatherId,
+                                        litterId: editLitter.id,
+                                        puppy: true
+                                      };
+                                      setEditItem(selectedPuppy);
                                       setShowPuppyForm(true);
                                     }}
                                   >
@@ -1458,7 +1496,7 @@ export default function Admin() {
                             <Button variant="outline" onClick={() => {
                               setShowLitterForm(false);
                               setShowPuppyForm(false);
-                              setEditItem(null); // Reset edit item when closing
+                              setEditItem(null);
                             }}>
                               Cancel
                             </Button>
@@ -1466,7 +1504,7 @@ export default function Admin() {
                               <Button
                                 variant="outline"
                                 onClick={() => {
-                                  setEditItem(null); // Clear any existing edit state
+                                  setEditItem(null);
                                   setShowPuppyForm(true);
                                 }}
                               >
@@ -1492,21 +1530,18 @@ export default function Admin() {
                           </h3>
                           <DogForm
                             isPuppy={true}
-                            defaultValues={{
-                              id: editItem?.id,
-                              name: editItem?.name || '',
-                              breed: editItem?.breed || 'Colorado Mountain Dog',
-                              gender: editItem?.gender || 'male',
-                              birthDate: editItem?.birthDate
-                                ? new Date(editItem.birthDate).toISOString().split('T')[0]
-                                : new Date().toISOString().split('T')[0],
-                              description: editItem?.description || '',
-                              color: editItem?.color || '',
-                              height: editItem?.height || '',
-                              weight: editItem?.weight || '',
-                              price: editItem?.price || '',
-                              registrationName: editItem?.registrationName || '',
-                              profileImageUrl: editItem?.profileImageUrl || '',
+                            defaultValues={editItem || {
+                              name: '',
+                              gender: 'male',
+                              birthDate: new Date().toISOString().split('T')[0],
+                              breed: 'Colorado Mountain Dog',
+                              color: '',
+                              height: '',
+                              weight: '',
+                              price: '',
+                              description: '',
+                              registrationName: '',
+                              profileImageUrl: '',
                               puppy: true,
                               motherId: editLitter?.motherId,
                               fatherId: editLitter?.fatherId,
@@ -1550,10 +1585,8 @@ export default function Admin() {
                                   puppies: updatedPuppies,
                                 }));
 
-                                // Update the litter in the backend
                                 await handleUpdateLitter();
 
-                                // Reset form state
                                 setShowPuppyForm(false);
                                 setEditItem(null);
 
@@ -1575,9 +1608,9 @@ export default function Admin() {
                               setEditItem(null);
                             }}
                           />
-
                         </div>
                       </div>
+
                     </div>
                   </SheetContent>
                 </Sheet>
