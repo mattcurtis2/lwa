@@ -34,15 +34,21 @@ export function FileUpload({
     if (!file) return;
     
     setSelectedFile(file);
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewUrl(fileUrl);
+    const formData = new FormData();
+    formData.append("file", file);
     
-    if (file.type.startsWith('image/')) {
-      onFileSelect(file);
-      setShowCrop(false);
-    } else {
-      onFileSelect(file);
-    }
+    fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setPreviewUrl(data.url);
+        onFileSelect(file);
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      });
   }, [onFileSelect]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
