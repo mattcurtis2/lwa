@@ -73,6 +73,10 @@ const dogSchema = z.object({
   narrativeDescription: z.string().optional(),
   media: z.array(mediaSchema),
   outsideBreeder: z.boolean().default(false),
+  // Add new fields
+  puppy: z.boolean().default(false),
+  available: z.boolean().default(false),
+  price: z.string().optional().transform((val) => val ? parseFloat(val) : null),
 });
 
 interface DogDocument {
@@ -165,6 +169,10 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       narrativeDescription: "",
       media: [],
       outsideBreeder: false,
+      // Add new fields
+      puppy: false,
+      available: false,
+      price: "",
     },
   });
 
@@ -768,6 +776,74 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 )}
               />
 
+              {/* Add new fields after the outsideBreeder field */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="puppy"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Puppy</FormLabel>
+                        <FormDescription>
+                          Mark this if the dog is a puppy
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="available"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Available</FormLabel>
+                        <FormDescription>
+                          Mark this if the dog is available
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="Enter price (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Set a price if the dog is available for sale
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <FormLabel>Pictures & Videos</FormLabel>
@@ -960,28 +1036,28 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Pedigree Information</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Family history and lineage information" />
-                    </FormControl>
+                      <Textarea {...field} placeholder="Family history and lineage information" />                    </FormControl>
                     <div className="mt-4 space-y-4">
                       <div className="flex justify-between items-center">
                         <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          disabled={isUploadingDoc}
                           onClick={() => {
                             const input = document.createElement('input');
                             input.type = 'file';
-                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi';
+                            input.accept = '.pdf,image/*';
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) handleDocumentUpload(file, 'pedigree');
+                              if (file) {
+                                handleDocumentUpload(file, 'pedigree');
+                              }
                             };
                             input.click();
                           }}
-                          disabled={isUploadingDoc}
                         >
-                          <Upload className="w-4 h-4 mr-2" />
+                          <Upload className="h-4 w-4 mr-2" />
                           {isUploadingDoc ? "Uploading..." : "Upload Document"}
                         </Button>
                       </div>
@@ -993,8 +1069,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               />
 
               <div className="flex gap-4 mt-8">
-                <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Uploading..." : "Save"}
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Saving..." : dog ? "Save Changes" : "Add Dog"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
@@ -1005,73 +1081,17 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
         </SheetContent>
       </Sheet>
 
-      <Sheet open={showAddMedia} onOpenChange={setShowAddMedia}>
-        <SheetContent side="bottom" className="h-[90vh] sm:h-auto">
-          <SheetHeader>
-            <SheetTitle>Add Media</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-6 pt-6">
-            <div className="space-y-4">
-              <div className="text-sm font-medium leading-none">Media Type</div>
-              <RadioGroup value={mediaType} onValueChange={(value) => setMediaType(value as "image" | "video")} className="flex gap4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="image" id="image" />
-                  <label htmlFor="image">Image</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="video" id="video" />
-                  <label htmlFor="video">Video</label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-4">
-              <div className="text-sm font-medium leading-none">Input Method</div>
-              <RadioGroup value={inputMethod} onValueChange={(value) => setInputMethod(value as "url" | "upload")} className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="url" id="url" />
-                  <label htmlFor="url">URL</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="upload" id="upload" />
-                  <label htmlFor="upload">Upload</label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            {inputMethod === "url" && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium leading-none">Media URL</div>
-                <Input
-                  value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  placeholder={`Enter ${mediaType} URL`}
-                />
-              </div>
-            )}
-
-            <div className="flex gap-4">
-              <Button onClick={handleAddMedia} disabled={isUploading}>
-                {isUploading ? "Uploading..." : "Add Media"}
-              </Button>
-              <Button variant="outline" onClick={() => setShowAddMedia(false)}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <ImageCropper
-        imageUrl={cropImageUrl}
-        open={showCropper}
-        onOpenChange={setShowCropper}
-        onCropComplete={handleCroppedImage}
-        onSkip={() => {
-          form.setValue("profileImageUrl", cropImageUrl);
-          setShowCropper(false);
-        }}
-      />
+      {showCropper && cropImageUrl && (
+        <ImageCropper
+          imageUrl={cropImageUrl}
+          onCrop={handleCroppedImage}
+          onClose={() => {
+            setShowCropper(false);
+            setCropImageUrl("");
+          }}
+          aspectRatio={1}
+        />
+      )}
     </>
   );
 }
