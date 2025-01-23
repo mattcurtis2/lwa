@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical, X } from "lucide-react";
+import { Save, GripVertical, X, Plus, Edit } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -96,6 +96,8 @@ export default function Admin() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
   const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
+  const [showDogForm, setShowDogForm] = useState(false);
+  const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
 
 
   // Data queries
@@ -361,10 +363,7 @@ export default function Admin() {
       key={dog.id}
       dog={dog}
       isAdmin
-      onEdit={() => {
-        setEditItem(dog);
-        setShowForm(true);
-      }}
+      onEdit={() => handleEditDog(dog)}
       onDelete={async (dog) => {
         if (!confirm("Are you sure you want to delete this dog?")) return;
         const res = await fetch(`/api/dogs/${dog.id}`, {
@@ -609,6 +608,30 @@ export default function Admin() {
     </div>
   );
 
+  const handleEditDog = (dog: Dog) => {
+    setSelectedDog(dog);
+    setShowDogForm(true);
+  };
+
+  const handleAddPuppy = (litter: Litter) => {
+    setSelectedDog({
+      puppy: true,
+      litterId: litter.id,
+      motherId: litter.motherId,
+      fatherId: litter.fatherId,
+      birthDate: new Date().toISOString().split('T')[0],
+      gender: 'male', // Default gender
+      available: false,
+    });
+    setShowDogForm(true);
+  };
+
+  const handleDogFormClose = () => {
+    setShowDogForm(false);
+    setSelectedDog(null);
+    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+  };
+
   const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
@@ -617,9 +640,19 @@ export default function Admin() {
     return (
       <Card key={litter.id} className="mb-4">
         <CardHeader>
-          <CardTitle>
-            {mother?.name} x {father?.name}
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>
+              {mother?.name} x {father?.name}
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddPuppy(litter)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Puppy
+            </Button>
+          </div>
           <CardDescription>
             Due Date: {formatDisplayDate(new Date(litter.dueDate))}
           </CardDescription>
@@ -628,7 +661,10 @@ export default function Admin() {
           {/* Parents Section */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             {/* Mother */}
-            <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
+              onClick={() => mother && handleEditDog(mother)}
+            >
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                 {mother?.profileImageUrl ? (
                   <img
@@ -649,7 +685,10 @@ export default function Admin() {
             </div>
 
             {/* Father */}
-            <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
+              onClick={() => father && handleEditDog(father)}
+            >
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                 {father?.profileImageUrl ? (
                   <img
@@ -678,7 +717,8 @@ export default function Admin() {
                 {litterPuppies.map((puppy) => (
                   <div
                     key={puppy.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border"
+                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleEditDog(puppy)}
                   >
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
                       {puppy.profileImageUrl ? (
@@ -769,7 +809,7 @@ export default function Admin() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Content fields rendering section */}
-              {contentFields.slice(0, 3).map((field) => (
+              {contentFields.slice(0, 3).map((field) =>(
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <div className="flex gap-4">
@@ -1707,8 +1747,8 @@ export default function Admin() {
       )}
 
       {/* Puppy Form Dialog */}
-      <Dialog 
-        open={showPuppyForm} 
+      <Dialog
+        open={showPuppyForm}
         onOpenChange={(open) => {
           setShowPuppyForm(open);
           // Don't close the litter form when closing puppy dialog
@@ -1726,8 +1766,7 @@ export default function Admin() {
             isPuppy={true}
             defaultValues={{
               name: editItem?.name || '',
-              gender: editItem?.gender as 'male' | 'female' || 'male',
-              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+              gender: editItem?.gender as 'male' | 'female' || 'male',              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
               breed: editItem?.breed || 'Colorado Mountain Dog',
               color: editItem?.color || '',
               description: editItem?.description || '',
@@ -1797,6 +1836,14 @@ export default function Admin() {
           />
         </DialogContent>
       </Dialog>
+      {showDogForm && (
+        <DogForm
+          open={showDogForm}
+          onOpenChange={handleDogFormClose}
+          dog={selectedDog as Dog}
+          mode={selectedDog?.id ? 'edit' : 'create'}
+        />
+      )}
     </div>
   );
 }
