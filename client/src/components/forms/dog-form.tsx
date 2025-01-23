@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format, parse, isValid } from "date-fns";
+import { format } from "date-fns";
 import {
   Form,
   FormControl,
@@ -77,6 +77,15 @@ interface MediaInput {
   url: string;
   type: "image" | "video";
   fileName?: string;
+  isNew?: boolean;
+}
+
+interface DogDocument {
+  id?: number;
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
   isNew?: boolean;
 }
 
@@ -170,6 +179,39 @@ export default function DogForm({
 
     setMediaInputs(items);
     form.setValue("media", items);
+  };
+
+  const onSubmitWrapper = async (values: any) => {
+    console.log('DogForm - Original form values:', values);
+
+    const processedValues = {
+      ...values,
+      birthDate: values.birthDate,
+      height: values.height ? parseFloat(values.height) || null : null,
+      weight: values.weight ? parseFloat(values.weight) || null : null,
+      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+      motherId: values.motherId ? parseInt(values.motherId.toString()) : null,
+      fatherId: values.fatherId ? parseInt(values.fatherId.toString()) : null,
+      litterId: values.litterId ? parseInt(values.litterId.toString()) : null,
+      puppy: isPuppy || values.puppy,
+      media: mediaInputs.map(m => ({
+        url: m.url,
+        type: m.type,
+        fileName: m.fileName
+      }))
+    };
+
+    console.log('DogForm - Processed values before submission:', processedValues);
+
+    if (customOnSubmit) {
+      try {
+        await customOnSubmit(processedValues);
+        console.log('DogForm - Submission successful');
+      } catch (error) {
+        console.error('DogForm - Error in customOnSubmit:', error);
+        throw error; // Re-throw to ensure the form knows about the error
+      }
+    }
   };
 
   const handleAddMedia = () => {
@@ -376,39 +418,6 @@ export default function DogForm({
     }
   };
 
-  const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
-
-  const onSubmitWrapper = async (values: any) => {
-    console.log('DogForm - Original form values:', values);
-
-    const processedValues = {
-      ...values,
-      birthDate: values.birthDate,
-      height: values.height ? parseFloat(values.height) || null : null,
-      weight: values.weight ? parseFloat(values.weight) || null : null,
-      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
-      motherId: values.motherId ? parseInt(values.motherId.toString()) : null,
-      fatherId: values.fatherId ? parseInt(values.fatherId.toString()) : null,
-      litterId: values.litterId ? parseInt(values.litterId.toString()) : null,
-      puppy: isPuppy || values.puppy, 
-      media: mediaInputs.map(m => ({
-        url: m.url,
-        type: m.type,
-        fileName: m.fileName
-      }))
-    };
-
-    console.log('DogForm - Processed values before submission:', processedValues);
-
-    if (customOnSubmit) {
-      try {
-        await customOnSubmit(processedValues);
-      } catch (error) {
-        console.error('DogForm - Error in customOnSubmit:', error);
-        throw error;
-      }
-    }
-  };
 
   return (
     <Form {...form}>
@@ -817,13 +826,4 @@ export default function DogForm({
       </form>
     </Form>
   );
-}
-
-interface DogDocument {
-  id?: number;
-  url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
-  isNew?: boolean;
 }

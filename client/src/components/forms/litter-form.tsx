@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/ui/file-upload";
-import DogForm from "./dog-form"; // Import the shared dog form component
+import DogForm from "./dog-form";
 
 interface LitterFormProps {
   open: boolean;
@@ -50,14 +50,14 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   };
 
   const handleAddNewPuppy = () => {
+    console.log('LitterForm - Adding new puppy to litter:', litter?.id);
     setSelectedDog({
-      // Pre-fill puppy information
       puppy: true,
       litterId: litter?.id,
       motherId: litter?.motherId,
       fatherId: litter?.fatherId,
       birthDate: new Date().toISOString().split('T')[0],
-      gender: 'male', // Default gender
+      gender: 'male',
       available: false,
     });
     setShowDogForm(true);
@@ -66,7 +66,6 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   const handleDogFormClose = () => {
     setShowDogForm(false);
     setSelectedDog(null);
-    // Refresh the dogs data
     queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
   };
 
@@ -321,6 +320,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 description: error instanceof Error ? error.message : 'Failed to save puppy',
                 variant: "destructive",
               });
+              throw error; // Re-throw to ensure the form knows about the error
             }
           }}
         />
