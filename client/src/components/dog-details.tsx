@@ -217,7 +217,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               <img
                 src={imageMedia[activeMediaIndex]?.url}
                 alt={`${dog.name} - photo ${activeMediaIndex + 1}`}
-                className="max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] w-auto h-auto object-contain rounded-lg"
+                className="max-h-[50vh] max-w-[600px] w-auto h-auto object-contain rounded-lg"
               />
             </div>
 
