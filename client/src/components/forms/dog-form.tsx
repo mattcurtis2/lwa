@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -858,47 +859,88 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 </div>
 
                 <div className="space-y-4">
-                  {mediaInputs.map((input, index) => (
-                    <div
-                      key={index}
-                      className={`p-4 rounded-lg ${input.isNew ? 'bg-primary/5 border border-primary/20' : 'bg-muted'}`}
-                    >
-                      <div className="flex gap-4">
-                        <div className="w-20 h-20 relative shrink-0">
-                          {input.type === 'image' ? (
-                            <img
-                              src={input.url}
-                              alt="Preview"
-                              className="w-full h-full object-cover rounded"
-                            />
-                          ) : (
-                            <video
-                              src={input.url}
-                              className="w-full h-full object-cover rounded"
-                              controls
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {input.fileName || input.url.split('/').pop()}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate" title={input.url}>
-                            {input.url}
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="shrink-0"
-                          onClick={() => removeMediaInput(index)}
+                  <DragDropContext
+                    onDragEnd={(result) => {
+                      if (!result.destination) return;
+
+                      const items = Array.from(mediaInputs);
+                      const [reorderedItem] = items.splice(result.source.index, 1);
+                      items.splice(result.destination.index, 0, reorderedItem);
+
+                      setMediaInputs(items);
+                      form.setValue("media", items);
+                    }}
+                  >
+                    <Droppable droppableId="media-list">
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-2"
                         >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                          {mediaInputs.map((input, index) => (
+                            <Draggable
+                              key={input.url}
+                              draggableId={input.url}
+                              index={index}
+                            >
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={`p-4 rounded-lg ${
+                                    input.isNew
+                                      ? "bg-primary/5 border border-primary/20"
+                                      : "bg-muted"
+                                  }`}
+                                >
+                                  <div className="flex gap-4">
+                                    <div className="w-20 h-20 relative shrink-0">
+                                      {input.type === "image" ? (
+                                        <img
+                                          src={input.url}
+                                          alt="Preview"
+                                          className="w-full h-full object-cover rounded"
+                                        />
+                                      ) : (
+                                        <video
+                                          src={input.url}
+                                          className="w-full h-full object-cover rounded"
+                                          controls
+                                        />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium truncate">
+                                        {input.fileName || input.url.split("/").pop()}
+                                      </p>
+                                      <p
+                                        className="text-xs text-muted-foreground truncate"
+                                        title={input.url}
+                                      >
+                                        {input.url}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="shrink-0"
+                                      onClick={() => removeMediaInput(index)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
                 </div>
               </div>
 
