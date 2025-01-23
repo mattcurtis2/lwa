@@ -34,8 +34,12 @@ export function FileUpload({
     setSelectedFile(file);
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
-    // Do not automatically show crop dialog
-    onFileSelect(file);
+    
+    if (file.type.startsWith('image/')) {
+      setShowCrop(true);
+    } else {
+      onFileSelect(file);
+    }
   }, [onFileSelect]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -123,6 +127,16 @@ export function FileUpload({
           )}
         </div>
       </div>
+
+      {previewUrl && !showCrop && selectedFile?.type.startsWith('image/') && (
+        <div className="mt-2">
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="max-h-48 rounded-lg object-contain"
+          />
+        </div>
+      )}
 
       {showCrop && previewUrl && (
         <ImageCrop
