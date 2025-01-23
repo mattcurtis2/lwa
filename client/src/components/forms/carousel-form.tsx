@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CarouselItem } from "@db/schema";
+import { FileUpload } from "@/components/ui/file-upload";
 
 const carouselItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -61,6 +62,30 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
     },
   });
 
+  const handleImageUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Failed to upload image");
+
+      const { url } = await uploadRes.json();
+      form.setValue("imageUrl", url, { shouldValidate: true });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
@@ -97,11 +122,33 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
+              <FormLabel>Image</FormLabel>
+              <div className="space-y-4">
+                <FormControl>
+                  <div className="space-y-4">
+                    <FileUpload
+                      value={field.value}
+                      onFileSelect={handleImageUpload}
+                      onChange={field.onChange}
+                    />
+                    <div className="- or text-center text-sm text-muted-foreground">or</div>
+                    <Input
+                      placeholder="Enter image URL..."
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                {field.value && (
+                  <div className="w-full aspect-video rounded-lg overflow-hidden border">
+                    <img
+                      src={field.value}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
