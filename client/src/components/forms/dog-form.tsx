@@ -448,11 +448,48 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(async (values) => {
-        const dataToSubmit = {
-          ...values,
-          breed: "Colorado Mountain Dogs"
-        };
-        await onSubmit(dataToSubmit);
+        try {
+          const dataToSubmit = {
+            ...values,
+            breed: "Colorado Mountain Dogs",
+            media: mediaInputs.map((media, index) => ({
+              url: media.url,
+              type: media.type,
+              order: index
+            }))
+          };
+          
+          const method = dog?.id ? "PUT" : "POST";
+          const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
+          
+          const response = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSubmit)
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save dog');
+          }
+
+          toast({
+            title: "Success",
+            description: `Dog ${dog?.id ? 'updated' : 'created'} successfully`,
+          });
+
+          if (onSubmit) {
+            await onSubmit(dataToSubmit);
+          }
+        } catch (error) {
+          console.error('Error saving dog:', error);
+          toast({
+            title: "Error", 
+            description: error instanceof Error ? error.message : 'Failed to save dog',
+            variant: "destructive"
+          });
+        }
       })} className="space-y-6">
         <FormField
           control={form.control}
