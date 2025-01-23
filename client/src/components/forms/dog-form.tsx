@@ -25,6 +25,9 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
+import type { DropResult } from "react-beautiful-dnd";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -1014,8 +1017,7 @@ export default function DogForm({
                 >
                   {mediaInputs.map((input, index) => (
                     <Draggable
-                      key={input.url}
-                      draggableId={input.url}
+                      key={input.url}                      draggableId={input.url}
                       index={index}
                     >
                       {(provided) => (
