@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import {
   Form,
   FormControl,
@@ -32,16 +32,17 @@ const mediaSchema = z.object({
   fileName: z.string().optional(),
 });
 
+// Create schema with optional fields for puppies
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
     name: z.string().min(1, "Name is required"),
     registrationName: z.string().optional(),
-    birthDate: z.string().min(1, "Birth date is required"),
+    birthDate: z.string().optional(),
     gender: z.enum(["male", "female"]),
     description: z.string().optional(),
-    motherId: z.number().nullable(),
-    fatherId: z.number().nullable(),
-    litterId: z.number().nullable(),
+    motherId: z.number().optional().nullable(),
+    fatherId: z.number().optional().nullable(),
+    litterId: z.number().optional().nullable(),
     profileImageUrl: z.string().optional(),
     healthData: z.string().optional(),
     color: z.string().optional(),
@@ -63,13 +64,10 @@ const createDogSchema = (isPuppy: boolean = false) => {
 };
 
 interface DogFormProps {
-  dog?: Partial<Dog & { media?: DogMedia[] }>;
+  dog?: Dog & { media?: DogMedia[] };
   isPuppy?: boolean;
-  mode: 'create' | 'edit';
-  onSubmit?: (values: any) => Promise<void>;
+  onSubmit: (values: any) => Promise<void>;
   onCancel?: () => void;
-  onOpenChange: (open: boolean) => void;
-  open: boolean;
   defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
 }
 
@@ -80,25 +78,7 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-interface DogDocument {
-  id?: number;
-  url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
-  isNew?: boolean;
-}
-
-export default function DogForm({
-  dog,
-  isPuppy = false,
-  mode = 'create',
-  onSubmit: customOnSubmit,
-  onCancel,
-  onOpenChange,
-  open,
-  defaultValues
-}: DogFormProps) {
+export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -116,7 +96,7 @@ export default function DogForm({
 
   const dogSchema = createDogSchema(isPuppy);
 
-  const form = useForm<z.infer<ReturnType<typeof createDogSchema>>>({
+  const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
     defaultValues: {
       name: "",
@@ -124,9 +104,9 @@ export default function DogForm({
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: "male",
       description: "",
-      motherId: defaultValues?.motherId || null,
-      fatherId: defaultValues?.fatherId || null,
-      litterId: defaultValues?.litterId || null,
+      motherId: null,
+      fatherId: null,
+      litterId: null,
       profileImageUrl: "",
       healthData: "",
       color: "",
@@ -148,25 +128,31 @@ export default function DogForm({
 
   useEffect(() => {
     if (dog) {
-      const formattedDog = {
+      const birthDate = parseApiDate(dog.birthDate);
+      form.reset({
         ...dog,
-        birthDate: dog.birthDate ? formatInputDate(new Date(dog.birthDate)) : "",
+        birthDate: formatInputDate(birthDate),
+        motherId: dog.motherId || null,
+        fatherId: dog.fatherId || null,
+        litterId: dog.litterId || null,
         height: dog.height?.toString() || "",
         weight: dog.weight?.toString() || "",
         price: dog.price?.toString() || "",
-      };
-
-      if (dog.media?.length) {
-        const media = dog.media.map(m => ({
+        media: dog.media?.map(m => ({
           url: m.url,
           type: m.type as "image" | "video",
-          fileName: m.fileName || m.url.split('/').pop() || '',
-        }));
-        formattedDog.media = media;
-        setMediaInputs(media.map(m => ({ ...m, isNew: false })));
-      }
+          fileName: m.fileName,
+        })) || [],
+      });
 
-      form.reset(formattedDog);
+      const media = dog.media?.map(m => ({
+        url: m.url,
+        type: m.type as "image" | "video",
+        fileName: m.fileName,
+        isNew: false,
+      })) || [];
+
+      setMediaInputs(media);
     }
   }, [dog, form]);
 
@@ -179,39 +165,6 @@ export default function DogForm({
 
     setMediaInputs(items);
     form.setValue("media", items);
-  };
-
-  const onSubmitWrapper = async (values: any) => {
-    console.log('DogForm - Original form values:', values);
-
-    const processedValues = {
-      ...values,
-      birthDate: values.birthDate,
-      height: values.height ? parseFloat(values.height) || null : null,
-      weight: values.weight ? parseFloat(values.weight) || null : null,
-      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
-      motherId: values.motherId ? parseInt(values.motherId.toString()) : null,
-      fatherId: values.fatherId ? parseInt(values.fatherId.toString()) : null,
-      litterId: values.litterId ? parseInt(values.litterId.toString()) : null,
-      puppy: isPuppy || values.puppy,
-      media: mediaInputs.map(m => ({
-        url: m.url,
-        type: m.type,
-        fileName: m.fileName
-      }))
-    };
-
-    console.log('DogForm - Processed values before submission:', processedValues);
-
-    if (customOnSubmit) {
-      try {
-        await customOnSubmit(processedValues);
-        console.log('DogForm - Submission successful');
-      } catch (error) {
-        console.error('DogForm - Error in customOnSubmit:', error);
-        throw error; // Re-throw to ensure the form knows about the error
-      }
-    }
   };
 
   const handleAddMedia = () => {
@@ -418,6 +371,19 @@ export default function DogForm({
     }
   };
 
+  const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
+  // In the form's onSubmit handler, convert string values to numbers
+  const onSubmitWrapper = async (values: any) => {
+    const processedValues = {
+      ...values,
+      height: values.height ? parseFloat(values.height) || null : null,
+      weight: values.weight ? parseFloat(values.weight) || null : null,
+      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+    };
+
+    await onSubmit(processedValues);
+  };
 
   return (
     <Form {...form}>
@@ -820,10 +786,19 @@ export default function DogForm({
             </Button>
           )}
           <Button type="submit" className="ml-auto">
-            {mode === 'edit' ? "Update" : "Save"}
+            {dog ? "Update" : "Save"}
           </Button>
         </div>
       </form>
     </Form>
   );
+}
+
+interface DogDocument {
+  id?: number;
+  url: string;
+  type: "health" | "pedigree";
+  name: string;
+  mimeType: string;
+  isNew?: boolean;
 }

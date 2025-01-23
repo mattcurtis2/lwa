@@ -7,11 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Dog, Litter } from "@db/schema";
-import { Plus, Edit } from "lucide-react";
+import { Plus, X, Upload, Edit } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
-import DogForm from "./dog-form";
+import { Textarea } from "@/components/ui/textarea";
+import { FileUpload } from "@/components/ui/file-upload";
+import DogForm from "./dog-form"; // Import the shared dog form component
 
 interface LitterFormProps {
   open: boolean;
@@ -47,17 +50,15 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   };
 
   const handleAddNewPuppy = () => {
-    console.log('LitterForm - Starting to add new puppy to litter:', litter?.id);
-    const mother = dogs?.find(d => d.id === litter?.motherId);
     setSelectedDog({
+      // Pre-fill puppy information
       puppy: true,
       litterId: litter?.id,
       motherId: litter?.motherId,
       fatherId: litter?.fatherId,
       birthDate: new Date().toISOString().split('T')[0],
-      gender: 'male',
+      gender: 'male', // Default gender
       available: false,
-      breed: mother?.breed || "Colorado Mountain Dog", // Set default breed from mother
     });
     setShowDogForm(true);
   };
@@ -65,6 +66,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   const handleDogFormClose = () => {
     setShowDogForm(false);
     setSelectedDog(null);
+    // Refresh the dogs data
     queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
   };
 
@@ -260,70 +262,13 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
         </SheetContent>
       </Sheet>
 
+      {/* Dog Form Modal */}
       {showDogForm && (
         <DogForm
           open={showDogForm}
           onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
-          isPuppy={true}
-          defaultValues={selectedDog}
-          onSubmit={async (values) => {
-            try {
-              const url = selectedDog?.id ? `/api/dogs/${selectedDog.id}` : '/api/dogs';
-              const method = selectedDog?.id ? 'PUT' : 'POST';
-
-              const submissionData = {
-                ...values,
-                litterId: litter?.id,
-                motherId: litter?.motherId,
-                fatherId: litter?.fatherId,
-                puppy: true,
-                breed: values.breed || (dogs?.find(d => d.id === litter?.motherId)?.breed || "Colorado Mountain Dog"),
-              };
-
-              console.log('LitterForm - API Request:', {
-                url,
-                method,
-                body: submissionData
-              });
-
-              const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(submissionData),
-                credentials: 'include',
-              });
-
-              if (!res.ok) {
-                const errorText = await res.text();
-                console.error('LitterForm - API Error Response:', {
-                  status: res.status,
-                  statusText: res.statusText,
-                  body: errorText
-                });
-                throw new Error(`Failed to save puppy: ${errorText}`);
-              }
-
-              const responseData = await res.json();
-              console.log('LitterForm - API Success Response:', responseData);
-
-              queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-              toast({
-                title: "Success",
-                description: `Puppy ${selectedDog?.id ? 'updated' : 'created'} successfully`,
-              });
-              handleDogFormClose();
-            } catch (error) {
-              console.error('LitterForm - Error in puppy submission:', error);
-              toast({
-                title: "Error",
-                description: error instanceof Error ? error.message : 'Failed to save puppy',
-                variant: "destructive",
-              });
-              throw error;
-            }
-          }}
         />
       )}
     </>
