@@ -90,7 +90,7 @@ interface DogFormProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   mode?: 'edit' | 'create';
-  fromLitter?: boolean; // New prop to indicate if opened from litter
+  fromLitter?: boolean;
 }
 
 export default function DogForm({
@@ -102,7 +102,7 @@ export default function DogForm({
   open,
   onOpenChange,
   mode = 'create',
-  fromLitter = false // Default to false
+  fromLitter = false
 }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
@@ -152,60 +152,42 @@ export default function DogForm({
     },
   });
 
+  // Only fetch parents if not opening from litter
   useEffect(() => {
-    const fetchParents = async () => {
-      const response = await fetch('/api/dogs');
-      const dogs = await response.json();
+    if (!fromLitter) {
+      const fetchParents = async () => {
+        const response = await fetch('/api/dogs');
+        const dogs = await response.json();
 
-      const mothers = dogs.filter((d: Dog) => d.gender === 'female');
-      const fathers = dogs.filter((d: Dog) => d.gender === 'male');
+        const mothers = dogs.filter((d: Dog) => d.gender === 'female');
+        const fathers = dogs.filter((d: Dog) => d.gender === 'male');
 
-      setAvailableMothers(mothers);
-      setAvailableFathers(fathers);
+        setAvailableMothers(mothers);
+        setAvailableFathers(fathers);
+      };
+      fetchParents();
+    }
+  }, [fromLitter]);
 
-      if (defaultValues?.motherId) {
-        const mother = mothers.find(m => m.id === defaultValues.motherId);
-        if (mother) {
-          form.setValue('motherId', mother.id);
-        }
-      }
-
-      if (defaultValues?.fatherId) {
-        const father = fathers.find(f => f.id === defaultValues.fatherId);
-        if (father) {
-          form.setValue('fatherId', father.id);
-        }
-      }
-    };
-
-    fetchParents();
-  }, [defaultValues?.motherId, defaultValues?.fatherId]);
-
+  // Only fetch litters if not opening from litter
   useEffect(() => {
-    const fetchLitters = async () => {
-      const motherId = form.getValues('motherId');
-      const fatherId = form.getValues('fatherId');
+    if (!fromLitter) {
+      const fetchLitters = async () => {
+        const motherId = form.getValues('motherId');
+        const fatherId = form.getValues('fatherId');
 
-      if (motherId && fatherId) {
-        const response = await fetch('/api/litters');
-        const allLitters = await response.json();
-        const filteredLitters = allLitters.filter(
-          (l: any) => l.motherId === motherId && l.fatherId === fatherId
-        );
-
-        setAvailableLitters(filteredLitters);
-
-        if (defaultValues?.litterId) {
-          const litter = filteredLitters.find(l => l.id === defaultValues.litterId);
-          if (litter) {
-            form.setValue('litterId', litter.id);
-          }
+        if (motherId && fatherId) {
+          const response = await fetch('/api/litters');
+          const allLitters = await response.json();
+          const filteredLitters = allLitters.filter(
+            (l: any) => l.motherId === motherId && l.fatherId === fatherId
+          );
+          setAvailableLitters(filteredLitters);
         }
-      }
-    };
-
-    fetchLitters();
-  }, [form.watch('motherId'), form.watch('fatherId'), defaultValues?.litterId]);
+      };
+      fetchLitters();
+    }
+  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter]);
 
   useEffect(() => {
     if (dog) {
@@ -694,9 +676,8 @@ export default function DogForm({
           )}
         />
 
-        {/* Only show parent/litter fields if not opened from litter */}
         {!fromLitter && (
-          <>
+          <div className="space-y-6">
             <FormField
               control={form.control}
               name="motherId"
@@ -786,7 +767,7 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-          </>
+          </div>
         )}
 
         <div className="space-y-4">
@@ -1074,7 +1055,6 @@ export default function DogForm({
           </DragDropContext>
         </div>
 
-
         {!isPuppy && (
           <div className="space-y-4">
             <FormField
@@ -1173,53 +1153,8 @@ export default function DogForm({
               Cancel
             </Button>
           )}
-          {dog?.id && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="destructive">
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Dog</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete {dog.name}? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={async (e) => {
-                      try {
-                        e.preventDefault();
-                        const res = await fetch(`/api/dogs/${dog.id}`, {
-                          method: "DELETE",
-                        });
-                        if (!res.ok) throw new Error("Failed to delete dog");
-                        toast({
-                          title: "Success",
-                          description: "Dog deleted successfully",
-                        });
-                        onCancel?.();
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: "Failed to delete dog",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
           <Button type="submit" className="ml-auto">
-            {dog ? "Update" : "Save"}
+            {mode === 'edit' ? 'Save Changes' : 'Create Dog'}
           </Button>
         </div>
       </form>
