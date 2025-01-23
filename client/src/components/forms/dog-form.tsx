@@ -131,7 +131,6 @@ export default function DogForm({
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: defaultValues?.gender || "male",
       description: defaultValues?.description || "",
-      // Use the values passed from the litter or defaultValues
       motherId: defaultValues?.motherId || null,
       fatherId: defaultValues?.fatherId || null,
       litterId: defaultValues?.litterId || null,
@@ -153,9 +152,9 @@ export default function DogForm({
     },
   });
 
-  // Only fetch parents if not opening from litter and if we don't have parent IDs
+  // Only fetch parents if not opening from litter
   useEffect(() => {
-    if (!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId) {
+    if (!fromLitter) {
       const fetchParents = async () => {
         const response = await fetch('/api/dogs');
         const dogs = await response.json();
@@ -168,11 +167,11 @@ export default function DogForm({
       };
       fetchParents();
     }
-  }, [fromLitter, defaultValues]);
+  }, [fromLitter]);
 
-  // Only fetch litters if not opening from litter and if we don't have a litter ID
+  // Only fetch litters if not opening from litter
   useEffect(() => {
-    if (!fromLitter && !defaultValues?.litterId) {
+    if (!fromLitter) {
       const fetchLitters = async () => {
         const motherId = form.getValues('motherId');
         const fatherId = form.getValues('fatherId');
@@ -188,7 +187,7 @@ export default function DogForm({
       };
       fetchLitters();
     }
-  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter, defaultValues]);
+  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter]);
 
   useEffect(() => {
     if (dog) {
@@ -677,8 +676,7 @@ export default function DogForm({
           )}
         />
 
-        {/* Only show parent and litter selection when not creating from litter page */}
-        {!fromLitter && (
+        {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
           <div className="space-y-6">
             <FormField
               control={form.control}
@@ -817,6 +815,158 @@ export default function DogForm({
             )}
           />
         </div>
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., White with brown markings" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (inches)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="furLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fur Length</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Medium length, double coat" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dewclaws"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dewclaws</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Removed, Natural" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="healthData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Health Information</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Health certifications, testing results, etc."
+                  />
+                  <div className="space-y-2">
+                    <Label>Health Documents & Media</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
+                    />
+                    {healthDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <span>{doc.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeDocument(index, 'health')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="pedigree"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pedigree</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Pedigree information and lineage details"
+                  />
+                  <div className="space-y-2">
+                    <Label>Pedigree Documents & Media</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*,video/*"
+                    />
+                    {pedigreeDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <span>{doc.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeDocument(index, 'pedigree')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
