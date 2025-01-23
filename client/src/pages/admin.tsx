@@ -389,10 +389,21 @@ export default function Admin() {
 
   const handleUpdateLitter = async () => {
     try {
+      const { puppies, ...litterData } = editLitter || {};
+      const processedPuppies = puppies?.map(puppy => ({
+        ...puppy,
+        height: puppy.height ? parseFloat(puppy.height.toString()) : null,
+        weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
+        price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
+      }));
+
       const res = await fetch(`/api/litters/${editLitter?.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editLitter),
+        body: JSON.stringify({
+          ...litterData,
+          puppies: processedPuppies,
+        }),
       });
 
       if (!res.ok) throw new Error('Failed to update litter');
@@ -812,14 +823,13 @@ export default function Admin() {
                                 });
                               }
                             }}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                          />
+                            onChange={(value) => handleContentChange(field.key, value)}                          />
                           {(pendingContent[field.key] || field.value) && (
                             <div className="w-40 h-40 rounded-lg overflow-hidden border">
                               <img
                                 src={pendingContent[field.key] || field.value}
                                 alt={field.label}
-                                className="w-full h-full objectcover"
+                                className="w-full h-full object-cover"
                               />
                             </div>
                           )}
@@ -1082,263 +1092,198 @@ export default function Admin() {
                 </div>
 
                 <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
-                  <SheetContent side="right" className="w-[600px] overflow-y-auto">
+                  <SheetContent className="w-[95vw] sm:max-w-[90vw] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>
-                        {litterFormMode === 'create' ? 'Add New Litter' : 'Edit Litter'}
+                        {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
                       </SheetTitle>
                     </SheetHeader>
-
-                    <div className="grid gap-6 mt-4">
-                      <div className="space-y-4">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <Label>Mother</Label>
-                            <Select
-                              value={editLitter?.motherId?.toString()}
-                              onValueChange={(value) => {
-                                const selectedDog = dogs.find(d => d.id === parseInt(value));
-                                if (selectedDog) {
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                      {/* Litter Form Section */}
+                      <div className="space-y-6">
+                        <div className="space-y-4">
+                          <div className="grid gap-4">
+                            <div className="space-y-2">
+                              <Label>Mother</Label>
+                              <Select
+                                value={editLitter?.motherId?.toString() || ""}
+                                onValueChange={(value) => {
+                                  const mother = dogs.find(d => d.id === parseInt(value));
                                   setEditLitter(prev => ({
                                     ...prev!,
-                                    motherId: selectedDog.id,
-                                    mother: selectedDog
+                                    motherId: parseInt(value),
+                                    mother,
                                   }));
-                                }
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select mother" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs.filter(dog => dog.gender === 'female').map(dog => (
-                                  <SelectItem key={dog.id} value={dog.id.toString()}>
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-8 h-8 rounded-full overflow-hidden bg-muted">
-                                        {dog.profileImageUrl ? (
-                                          <img
-                                            src={dog.profileImageUrl}
-                                            alt={dog.name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        ) : (
-                                          <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                                            <span className="text-xl text-pink-500">♀</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      {dog.name}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select mother" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dogs
+                                    .filter(d => d.gender === 'female')
+                                    .map(dog => (
+                                      <SelectItem key={dog.id} value={dog.id.toString()}>
+                                        {dog.name}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                          <div className="space-y-2">
-                            <Label>Father</Label>
-                            <Select
-                              value={editLitter?.fatherId?.toString()}
-                              onValueChange={(value) => {
-                                const selectedDog = dogs.find(d => d.id === parseInt(value));
-                                if (selectedDog) {
+                            <div className="space-y-2">
+                              <Label>Father</Label>
+                              <Select
+                                value={editLitter?.fatherId?.toString() || ""}
+                                onValueChange={(value) => {
+                                  const father = dogs.find(d => d.id === parseInt(value));
                                   setEditLitter(prev => ({
                                     ...prev!,
-                                    fatherId: selectedDog.id,
-                                    father: selectedDog
+                                    fatherId: parseInt(value),
+                                    father,
                                   }));
-                                }
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select father" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs.filter(dog => dog.gender === 'male').map(dog => (
-                                  <SelectItem key={dog.id} value={dog.id.toString()}>
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-8 h-8 rounded-full overflow-hidden bg-muted">
-                                        {dog.profileImageUrl ? (
-                                          <img
-                                            src={dog.profileImageUrl}
-                                            alt={dog.name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        ) : (
-                                          <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                            <span className="text-xl text-blue-500">♂</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      {dog.name}
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select father" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dogs
+                                    .filter(d => d.gender === 'male')
+                                    .map(dog => (
+                                      <SelectItem key={dog.id} value={dog.id.toString()}>
+                                        {dog.name}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Due Date</Label>
+                              <Input
+                                type="date"
+                                value={editLitter?.dueDate || ""}
+                                onChange={(e) => setEditLitter(prev => ({
+                                  ...prev!,
+                                  dueDate: e.target.value,
+                                }))}
+                              />
+                            </div>
+                          </div>
+
+                          {editLitter?.puppies && editLitter.puppies.length > 0 && (
+                            <div className="space-y-4">
+                              <h3 className="font-medium">Current Puppies</h3>
+                              <div className="grid gap-4">
+                                {editLitter.puppies.map((puppy, index) => (
+                                  <div
+                                    key={puppy.id}
+                                    className="flex items-center justify-between p-4 rounded-lg border"
+                                  >
+                                    <div>
+                                      <p className="font-medium">{puppy.name}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {puppy.gender} • {puppy.color || 'No color set'}
+                                      </p>
                                     </div>
-                                  </SelectItem>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        if (!confirm('Are you sure you want to remove this puppy?')) return;
+                                        setEditLitter(prev => ({
+                                          ...prev!,
+                                          puppies: prev!.puppies!.filter((_, i) => i !== index),
+                                        }));
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="dueDate">Due Date</Label>
-                            <Input
-                              type="date"
-                              id="dueDate"
-                              value={editLitter?.dueDate}
-                              onChange={(e) => setEditLitter(prev => ({ ...prev!, dueDate: e.target.value }))}
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="isVisible"
-                              checked={editLitter?.isVisible ?? true}
-                              onCheckedChange={(checked) => setEditLitter(prev => ({ ...prev!, isVisible: checked }))}
-                            />
-                            <Label htmlFor="isVisible">Visible to public</Label>
-                          </div>
-                        </div>
-
-                        {(litterFormMode === 'edit' || editLitter?.id) && (
-                          <div className="space-y-4 mt-8">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-medium">Puppies</h3>
-                            </div>
-
-                            {editLitter?.puppies && editLitter.puppies.length > 0 && (
-                              <div className="space-y-2">
-                                <div className="grid gap-2">
-                                  {editLitter.puppies.map((puppy) => (
-                                    <div key={puppy.id} className="p-3 border rounded-lg">
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                          <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
-                                            {puppy.profileImageUrl ? (
-                                              <img
-                                                src={puppy.profileImageUrl}
-                                                alt={puppy.name}
-                                                className="w-full h-full object-cover"
-                                              />
-                                            ) : (
-                                              <div className="w-full h-full bg-stone-100 flex items-center justify-center">
-                                                {puppy.gender === 'female' ? (
-                                                  <span className="text-xl text-pink-500">♀</span>
-                                                ) : (
-                                                  <span className="text-xl text-blue-500">♂</span>
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                          <div>
-                                            <p className="font-medium">{puppy.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                              {puppy.gender === 'female' ? 'Female' : 'Male'} • Born {formatDisplayDate(new Date(puppy.birthDate))}
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => {
-                                            setEditLitter(prev => ({
-                                              ...prev!,
-                                              puppies: prev!.puppies!.filter(p => p.id !== puppy.id)
-                                            }));
-                                          }}
-                                        >
-                                          <X className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
                               </div>
-                            )}
-
-                            <div className="border-t pt-4 mt-4">
-                              <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium">Manage Puppies</h4>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setShowPuppyForm(prev => !prev)}
-                                >
-                                  {showPuppyForm ? "Cancel Adding Puppy" : "Add New Puppy"}
-                                </Button>
-                              </div>
-
-                              {showPuppyForm && (
-                                <DogForm
-                                  isPuppy={true}
-                                  onSubmit={async (values) => {
-                                    const newPuppy = {
-                                      ...values,
-                                      puppy: true,
-                                      motherId: editLitter?.motherId,
-                                      fatherId: editLitter?.fatherId,
-                                      litterId: editLitter?.id,
-                                      // Convert number fields to proper format
-                                      height: values.height ? parseFloat(values.height) : null,
-                                      weight: values.weight ? parseFloat(values.weight) : null,
-                                      price: values.price ? parseInt(values.price) : null,
-                                    };
-
-                                    try {
-                                      const res = await fetch('/api/dogs', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(newPuppy),
-                                      });
-
-                                      if (!res.ok) throw new Error('Failed to add puppy');
-
-                                      const puppy = await res.json();
-                                      setEditLitter(prev => ({
-                                        ...prev!,
-                                        puppies: [...(prev!.puppies || []), puppy],
-                                      }));
-
-                                      setShowPuppyForm(false);
-
-                                      toast({
-                                        title: 'Success',
-                                        description: 'Puppy added to litter',
-                                      });
-                                    } catch (error) {
-                                      console.error('Error adding puppy:', error);
-                                      toast({
-                                        title: 'Error',
-                                        description: 'Failed to add puppy',
-                                        variant: 'destructive',
-                                      });
-                                    }
-                                  }}
-                                  onCancel={() => setShowPuppyForm(false)}
-                                  defaultValues={{
-                                    breed: editLitter?.mother?.breed || '',
-                                    birthDate: editLitter?.dueDate || new Date().toISOString().split('T')[0],
-                                  }}
-                                />
-                              )}
                             </div>
-
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex justify-between">
-                        <Button variant="outline" onClick={() => {
-                          setShowLitterForm(false);
-                          setEditLitter(null);
-                        }}>
-                          Cancel
-                        </Button>
-                        <div className="flex gap-2">
-                          {litterFormMode === 'create' ? (
-                            <Button onClick={handleCreateLitter}>Create Litter</Button>
-                          ) : (
-                            <Button onClick={handleUpdateLitter}>Update Litter</Button>
                           )}
+
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setShowLitterForm(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={() => {
+                              if (litterFormMode === 'create') {
+                                handleCreateLitter();
+                              } else {
+                                handleUpdateLitter();
+                              }
+                            }}>
+                              {litterFormMode === 'create' ? 'Create Litter' : 'Update Litter'}
+                            </Button>
+                            {litterFormMode === 'edit' && (
+                              <Button
+                                variant="outline"
+                                onClick={() => setShowPuppyForm(prev => !prev)}
+                              >
+                                {showPuppyForm ? "Cancel Adding Puppy" : "Add New Puppy"}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Puppy Form Section */}
+                      {showPuppyForm && (
+                        <div className="border-l pl-6">
+                          <h3 className="text-lg font-medium mb-4">Add New Puppy</h3>
+                          <DogForm
+                            isPuppy={true}
+                            onSubmit={async (values) => {
+                              try {
+                                const res = await fetch('/api/dogs', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    ...values,
+                                    puppy: true,
+                                    motherId: editLitter?.motherId,
+                                    fatherId: editLitter?.fatherId,
+                                    litterId: editLitter?.id,
+                                  }),
+                                });
+
+                                if (!res.ok) throw new Error(await res.text());
+
+                                const puppy = await res.json();
+                                setEditLitter(prev => ({
+                                  ...prev!,
+                                  puppies: [...(prev!.puppies || []), puppy],
+                                }));
+
+                                // After adding the puppy, update the litter
+                                await handleUpdateLitter();
+
+                                setShowPuppyForm(false);
+                                toast({
+                                  title: 'Success',
+                                  description: 'Puppy added successfully',
+                                });
+                              } catch (error) {
+                                console.error('Error adding puppy:', error);
+                                toast({
+                                  title: 'Error',
+                                  description: error.message || 'Failed to add puppy',
+                                  variant: 'destructive',
+                                });
+                              }
+                            }}
+                            onCancel={() => setShowPuppyForm(false)}
+                            defaultValues={{
+                              breed: editLitter?.mother?.breed || '',
+                              birthDate: editLitter?.dueDate || new Date().toISOString().split('T')[0],
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </SheetContent>
                 </Sheet>
