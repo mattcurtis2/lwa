@@ -644,7 +644,10 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/litters/:id", async (req, res) => {
     try {
       const litter = await db.update(litters)
-        .set({ ...req.body, updatedAt: new Date() })
+        .set({ 
+          ...req.body,
+          updatedAt: new Date().toISOString()
+        })
         .where(eq(litters.id, parseInt(req.params.id)))
         .returning();
 
@@ -833,7 +836,7 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/principles/:id", async (req, res) => {
     try {
       await db.delete(principles)
-        .where(eq(principles.id, parseInt(req.params.id)));
+        .where        .where(eq(principles.id, parseInt(req.params.id)));
       res.json({ message: "Deleted successfully" });
     } catch (error) {
       console.error("Error deleting principle:", error);
