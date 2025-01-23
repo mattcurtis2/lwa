@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/select";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
+import { cn } from "@/lib/utils";
+
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -117,7 +119,6 @@ interface Litter {
   motherId: number;
   fatherId: number;
 }
-
 
 const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
@@ -510,6 +511,17 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     </div>
   );
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(mediaInputs);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setMediaInputs(items);
+    form.setValue("media", items);
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -866,18 +878,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 </div>
 
                 <div className="space-y-4">
-                  <DragDropContext
-                    onDragEnd={(result: DropResult) => {
-                      if (!result.destination) return;
-
-                      const items = Array.from(mediaInputs);
-                      const [reorderedItem] = items.splice(result.source.index, 1);
-                      items.splice(result.destination.index, 0, reorderedItem);
-
-                      setMediaInputs(items);
-                      form.setValue("media", items);
-                    }}
-                  >
+                  <DragDropContext onDragEnd={handleDragEnd}>
                     <StrictModeDroppable droppableId="droppable-media-list">
                       {(provided) => (
                         <div
@@ -896,11 +897,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`p-4 rounded-lg ${
+                                  className={cn(
+                                    "p-4 rounded-lg",
                                     input.isNew
                                       ? "bg-primary/5 border border-primary/20"
                                       : "bg-muted"
-                                  }`}
+                                  )}
                                 >
                                   <div className="flex gap-4">
                                     <div className="w-20 h-20 relative shrink-0">
@@ -1031,8 +1033,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dewclaws</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., Removed, Natural" />
+                    <FormControl>                    <Input {...field} placeholder="e.g., Removed, Natural" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
