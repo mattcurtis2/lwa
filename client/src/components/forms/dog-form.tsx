@@ -154,27 +154,56 @@ export default function DogForm({
     const fetchParents = async () => {
       const response = await fetch('/api/dogs');
       const dogs = await response.json();
-      setAvailableMothers(dogs.filter((d: Dog) => d.gender === 'female'));
-      setAvailableFathers(dogs.filter((d: Dog) => d.gender === 'male'));
+
+      const mothers = dogs.filter((d: Dog) => d.gender === 'female');
+      const fathers = dogs.filter((d: Dog) => d.gender === 'male');
+
+      setAvailableMothers(mothers);
+      setAvailableFathers(fathers);
+
+      if (defaultValues?.motherId) {
+        const mother = mothers.find(m => m.id === defaultValues.motherId);
+        if (mother) {
+          form.setValue('motherId', mother.id);
+        }
+      }
+
+      if (defaultValues?.fatherId) {
+        const father = fathers.find(f => f.id === defaultValues.fatherId);
+        if (father) {
+          form.setValue('fatherId', father.id);
+        }
+      }
     };
+
     fetchParents();
-  }, []);
+  }, [defaultValues?.motherId, defaultValues?.fatherId]);
 
   useEffect(() => {
     const fetchLitters = async () => {
       const motherId = form.getValues('motherId');
       const fatherId = form.getValues('fatherId');
+
       if (motherId && fatherId) {
         const response = await fetch('/api/litters');
         const allLitters = await response.json();
         const filteredLitters = allLitters.filter(
           (l: any) => l.motherId === motherId && l.fatherId === fatherId
         );
+
         setAvailableLitters(filteredLitters);
+
+        if (defaultValues?.litterId) {
+          const litter = filteredLitters.find(l => l.id === defaultValues.litterId);
+          if (litter) {
+            form.setValue('litterId', litter.id);
+          }
+        }
       }
     };
+
     fetchLitters();
-  }, [form.watch('motherId'), form.watch('fatherId')]);
+  }, [form.watch('motherId'), form.watch('fatherId'), defaultValues?.litterId]);
 
   useEffect(() => {
     if (dog) {
@@ -670,8 +699,11 @@ export default function DogForm({
             <FormItem>
               <FormLabel>Mother</FormLabel>
               <Select
-                value={field.value?.toString()}
-                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                value={field.value?.toString() || ""}
+                onValueChange={(value) => {
+                  const newValue = value === "none" ? null : parseInt(value);
+                  field.onChange(newValue);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select mother" />
@@ -697,8 +729,11 @@ export default function DogForm({
             <FormItem>
               <FormLabel>Father</FormLabel>
               <Select
-                value={field.value?.toString()}
-                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                value={field.value?.toString() || ""}
+                onValueChange={(value) => {
+                  const newValue = value === "none" ? null : parseInt(value);
+                  field.onChange(newValue);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select father" />
@@ -724,8 +759,11 @@ export default function DogForm({
             <FormItem>
               <FormLabel>Litter</FormLabel>
               <Select
-                value={field.value?.toString()}
-                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                value={field.value?.toString() || ""}
+                onValueChange={(value) => {
+                  const newValue = value === "none" ? null : parseInt(value);
+                  field.onChange(newValue);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select litter" />
@@ -1012,7 +1050,8 @@ export default function DogForm({
                               type="button"
                               variant="destructive"
                               size="icon"
-                              className="h-8 w-8"                              onClick={() => removeMediaInput(index)}
+                              className="h-8 w-8"
+                              onClick={() => removeMediaInput(index)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -1032,7 +1071,8 @@ export default function DogForm({
 
         {!isPuppy && (
           <div className="space-y-4">
-            <FormField              control={form.control}
+            <FormField
+              control={form.control}
               name="outsideBreeder"
               render={({ field}) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -1056,7 +1096,8 @@ export default function DogForm({
               control={form.control}
               name="puppy"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">                <div className="space-y-0.5">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
                     <FormLabel className="text-base">Puppy</FormLabel>
                     <FormDescription>
                       Mark this if the dog is a puppy
@@ -1121,7 +1162,8 @@ export default function DogForm({
         )}
 
         <div className="flex justify-between pt-6">
-          {onCancel && (            <Button type="button" variant="outline" onClick={onCancel}>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
           )}
