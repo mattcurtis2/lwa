@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
+import { parseISO } from "date-fns";
 
 interface Document {
   id?: number;
@@ -202,7 +203,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Birth Date</h3>
-                  <p>{formatDisplayDate(new Date(dog.birthDate))}</p>
+                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
                 </div>
               </div>
             </CardContent>
