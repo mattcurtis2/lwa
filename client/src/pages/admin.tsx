@@ -1491,10 +1491,26 @@ export default function Admin() {
                             {editItem ? 'Edit Puppy' : 'Add New Puppy'}
                           </h3>
                           <DogForm
-                            defaultValues={editItem || {
+                            defaultValues={editItem ? {
+                              ...editItem,
+                              // Ensure date is in correct format
+                              birthDate: editItem.birthDate ? new Date(editItem.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                              // Ensure all required fields are present
+                              breed: editItem.breed || 'Colorado Mountain Dog',
+                              color: editItem.color || '',
+                              height: editItem.height || '',
+                              weight: editItem.weight || '',
+                              price: editItem.price || '',
+                              description: editItem.description || '',
+                              registrationName: editItem.registrationName || '',
+                              puppy: true,
+                              motherId: editLitter?.motherId,
+                              fatherId: editLitter?.fatherId,
+                              litterId: editLitter?.id,
+                            } : {
                               name: '',
                               gender: 'male',
-                              birthDate: new Date().toISOString(),
+                              birthDate: new Date().toISOString().split('T')[0],
                               breed: 'Colorado Mountain Dog',
                               puppy: true,
                               motherId: editLitter?.motherId,
@@ -1511,7 +1527,16 @@ export default function Admin() {
                                   // Update existing puppy
                                   const puppyIndex = updatedPuppies.findIndex(p => p.id === editItem.id);
                                   if (puppyIndex !== -1) {
-                                    updatedPuppies[puppyIndex] = { ...updatedPuppies[puppyIndex], ...data };
+                                    updatedPuppies[puppyIndex] = { 
+                                      ...updatedPuppies[puppyIndex], 
+                                      ...data,
+                                      // Ensure we keep the ID and relationships
+                                      id: editItem.id,
+                                      motherId: editLitter.motherId,
+                                      fatherId: editLitter.fatherId,
+                                      litterId: editLitter.id,
+                                      puppy: true
+                                    };
                                   }
                                 } else {
                                   // Add new puppy
