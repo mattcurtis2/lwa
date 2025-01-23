@@ -41,7 +41,6 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { cn } from "@/lib/utils";
 
-
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
   type: z.enum(["image", "video"]),
@@ -138,7 +137,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string>("");
 
-  // Add queries for available dogs and litters
   const { data: availableDogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
     queryKey: ["/api/dogs"],
   });
@@ -147,7 +145,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
     queryKey: ["/api/litters"],
   });
 
-  // Filter available dogs by gender
   const availableMothers = availableDogs?.filter(d => d.gender === 'female' && d.id !== dog?.id) || [];
   const availableFathers = availableDogs?.filter(d => d.gender === 'male' && d.id !== dog?.id) || [];
 
@@ -173,7 +170,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       narrativeDescription: "",
       media: [],
       outsideBreeder: false,
-      // Add new fields
       puppy: false,
       available: false,
       price: "",
@@ -791,7 +787,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 )}
               />
 
-              {/* Add new fields after the outsideBreeder field */}
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -849,7 +844,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           placeholder="Enter price (optional)"
                           {...field}
                           onChange={(e) => {
-                            // Remove any decimal points
                             const value = e.target.value.replace(/\D/g, '');
                             field.onChange(value);
                           }}
@@ -954,7 +948,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
               </div>
 
 
-
               <FormField
                 control={form.control}
                 name="narrativeDescription"
@@ -997,7 +990,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="weight"
@@ -1047,27 +1039,33 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Health Information</FormLabel>
                     <FormControl>
-                      <Textarea {...field}     placeholder="Health certifications, testing results, etc." />
+                      <Textarea 
+                        {...field} 
+                        placeholder="Health certifications, testing results, etc." 
+                      />
                     </FormControl>
                     <div className="mt-4 space-y-4">
-                      <div className="flex justify-between items-center"><FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Health Documents</span>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
+                          disabled={isUploadingDoc}
                           onClick={() => {
                             const input = document.createElement('input');
                             input.type = 'file';
-                            input.accept = '.pdf,.doc,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi';
+                            input.accept = '.pdf,image/*,video/*';
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) handleDocumentUpload(file, 'health');
+                              if (file) {
+                                handleDocumentUpload(file, 'health');
+                              }
                             };
                             input.click();
                           }}
-                          disabled={isUploadingDoc}
                         >
-                          <Upload className="w-4 h-4 mr-2" />
+                          <Upload className="h-4 w-4 mr-2" />
                           {isUploadingDoc ? "Uploading..." : "Upload Document"}
                         </Button>
                       </div>
@@ -1084,15 +1082,17 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Pedigree Information</FormLabel>
-                    <FormControl><Textarea {...field} placeholder="Family history and lineage information" />
+                    <FormControl>
+                      <Textarea {...field} placeholder="Family history and lineage information" />
                     </FormControl>
                     <FormMessage />
                     <div className="mt-4 space-y-4">
                       <div className="flex justify-between items-center">
-                        <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
+                        <span className="text-sm font-medium">Pedigree Documents</span>
                         <Button
                           type="button"
                           variant="outline"
+                          size="sm"
                           disabled={isUploadingDoc}
                           onClick={() => {
                             const input = document.createElement('input');
@@ -1136,10 +1136,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
           open={showCropper}
           onOpenChange={setShowCropper}
           onCropComplete={handleCroppedImage}
-          onSkip={() => {
-            form.setValue("profileImageUrl", cropImageUrl);
-            setShowCropper(false);
-          }}
+          aspectRatio={1}
         />
       )}
 

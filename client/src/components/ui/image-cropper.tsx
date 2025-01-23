@@ -8,7 +8,6 @@ interface ImageCropperProps {
   imageUrl: string;
   aspectRatio?: number;
   onCropComplete: (croppedImageUrl: string) => void;
-  onSkip?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -17,7 +16,6 @@ export default function ImageCropper({
   imageUrl,
   aspectRatio = 1,
   onCropComplete,
-  onSkip,
   open,
   onOpenChange,
 }: ImageCropperProps) {
@@ -72,14 +70,6 @@ export default function ImageCropper({
     const croppedImageUrl = await getCroppedImg();
     if (croppedImageUrl) {
       onCropComplete(croppedImageUrl);
-      onOpenChange(false);
-    }
-  };
-
-  const handleSkip = () => {
-    if (onSkip) {
-      onSkip();
-      onOpenChange(false);
     }
   };
 
@@ -104,11 +94,9 @@ export default function ImageCropper({
             />
           </ReactCrop>
           <div className="flex justify-end gap-4 mt-4">
-            {onSkip && (
-              <Button variant="outline" onClick={handleSkip}>
-                Skip Cropping
-              </Button>
-            )}
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleCropComplete}>
               Apply Crop
             </Button>
