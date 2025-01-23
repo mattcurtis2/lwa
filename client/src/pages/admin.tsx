@@ -1559,20 +1559,9 @@ export default function Admin() {
                           }}>
                             Cancel
                           </Button>
-                          <div className="space-x-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setEditItem(null);
-                                setShowPuppyForm(true);
-                              }}
-                            >
-                              Add Puppy
-                            </Button>
-                            <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
-                              Save Litter
-                            </Button>
-                          </div>
+                          <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
+                            Save Litter
+                          </Button>
                         </div>
                       </div>
                     </div>
