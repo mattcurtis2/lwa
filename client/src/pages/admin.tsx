@@ -614,14 +614,21 @@ export default function Admin() {
   };
 
   const handleAddPuppy = (litter: Litter) => {
+    const mother = dogs.find(d => d.id === litter.motherId);
+    const father = dogs.find(d => d.id === litter.fatherId);
+    
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
+      mother,
+      father,
       birthDate: new Date().toISOString().split('T')[0],
       gender: 'male', // Default gender
       available: false,
+      breed: "Colorado Mountain Dogs",
+      outsideBreeder: false
     });
     setShowDogForm(true);
   };
