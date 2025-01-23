@@ -7,13 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Dog, Litter } from "@db/schema";
-import { Plus, X, Upload, Edit } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
-import { Textarea } from "@/components/ui/textarea";
-import { FileUpload } from "@/components/ui/file-upload";
 import DogForm from "./dog-form";
 
 interface LitterFormProps {
@@ -50,7 +47,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
   };
 
   const handleAddNewPuppy = () => {
-    console.log('LitterForm - Adding new puppy to litter:', litter?.id);
+    console.log('LitterForm - Starting to add new puppy to litter:', litter?.id);
     setSelectedDog({
       puppy: true,
       litterId: litter?.id,
@@ -266,7 +263,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
         <DogForm
           open={showDogForm}
           onOpenChange={handleDogFormClose}
-          dog={selectedDog}
+          dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
           isPuppy={true}
           defaultValues={selectedDog}
@@ -281,17 +278,20 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 litterId: litter?.id,
                 motherId: litter?.motherId,
                 fatherId: litter?.fatherId,
-                puppy: true, // Ensure puppy flag is set
+                puppy: true,
               };
 
-              console.log('LitterForm - Submitting puppy data:', submissionData);
-              console.log('LitterForm - API URL:', url);
-              console.log('LitterForm - Method:', method);
+              console.log('LitterForm - API Request:', {
+                url,
+                method,
+                body: submissionData
+              });
 
               const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(submissionData),
+                credentials: 'include',
               });
 
               if (!res.ok) {
@@ -320,7 +320,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 description: error instanceof Error ? error.message : 'Failed to save puppy',
                 variant: "destructive",
               });
-              throw error; // Re-throw to ensure the form knows about the error
+              throw error;
             }
           }}
         />
