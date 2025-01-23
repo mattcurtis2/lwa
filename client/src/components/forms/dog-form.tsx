@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format, parse, isValid } from "date-fns";
+import { format } from "date-fns";
 import {
   Form,
   FormControl,
@@ -25,7 +25,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
-import { X, Upload, ImageIcon, FileText } from "lucide-react";
+import { X, Upload, ImageIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -37,6 +37,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { isValid, parse } from "date-fns";
+
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -607,9 +609,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <Input
                         type="date"
                         {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -623,123 +622,30 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <label htmlFor="male" className="flex items-center gap-1">
-                          Male <span className="text-blue-500">♂</span>
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <label htmlFor="female" className="flex items-center gap-1">
-                          Female <span className="text-pink-500">♀</span>
-                        </label>
-                      </div>
-                    </RadioGroup>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="male" />
+                          <label htmlFor="male" className="flex items-center gap-1">
+                            Male <span className="text-blue-500">♂</span>
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="female" />
+                          <label htmlFor="female" className="flex items-center gap-1">
+                            Female <span className="text-pink-500">♀</span>
+                          </label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="motherId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mother</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select mother" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableMothers.map((mother) => (
-                            <SelectItem key={mother.id} value={mother.id.toString()}>
-                              {mother.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="fatherId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Father</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select father" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableFathers.map((father) => (
-                            <SelectItem key={father.id} value={father.id.toString()}>
-                              {father.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="litterId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Litter</FormLabel>
-                      <Select
-                        value={field.value?.toString() || "none"}
-                        onValueChange={(value) => {
-                          field.onChange(value === "none" ? null : parseInt(value));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select litter" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {availableLitters?.map((litter) => (
-                            <SelectItem key={litter.id} value={litter.id.toString()}>
-                              {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.motherId)?.name} x {litter.motherId && litter.fatherId && availableDogs && availableDogs.find(dog => dog.id === litter.fatherId)?.name} ({formatDisplayDate(new Date(litter.dueDate))})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
 
               <FormField
                 control={form.control}
@@ -776,7 +682,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 )}
               />
 
-              {/* Add new fields after the outsideBreeder field */}
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -807,7 +712,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Available</FormLabel>
                         <FormDescription>
-                          Mark this if the dog is available
+                          Mark this if the dog is available for purchase
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -833,6 +738,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           min="0"
                           placeholder="Enter price (optional)"
                           {...field}
+                          value={field.value || ''}
                         />
                       </FormControl>
                       <FormDescription>
@@ -901,7 +807,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   ))}
                 </div>
               </div>
-
 
 
               <FormField
@@ -1036,7 +941,8 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Pedigree Information</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Family history and lineage information" />                    </FormControl>
+                      <Textarea {...field} placeholder="Family history and lineage information" />
+                    </FormControl>
                     <div className="mt-4 space-y-4">
                       <div className="flex justify-between items-center">
                         <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
@@ -1083,13 +989,13 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
       {showCropper && cropImageUrl && (
         <ImageCropper
-          imageUrl={cropImageUrl}
-          onCrop={handleCroppedImage}
+          src={cropImageUrl}
+          onComplete={handleCroppedImage}
           onClose={() => {
             setShowCropper(false);
             setCropImageUrl("");
           }}
-          aspectRatio={1}
+          aspect={1}
         />
       )}
     </>
