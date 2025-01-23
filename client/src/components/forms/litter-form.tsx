@@ -267,9 +267,10 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
         <DogForm
           open={showDogForm}
           onOpenChange={handleDogFormClose}
-          dog={selectedDog as Dog}
+          dog={selectedDog}
           mode={selectedDog?.id ? 'edit' : 'create'}
           isPuppy={true}
+          defaultValues={selectedDog}
           onSubmit={async (values) => {
             try {
               const url = selectedDog?.id ? `/api/dogs/${selectedDog.id}` : '/api/dogs';
@@ -278,7 +279,12 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
               const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify({
+                  ...values,
+                  litterId: litter?.id,
+                  motherId: litter?.motherId,
+                  fatherId: litter?.fatherId,
+                }),
               });
 
               if (!res.ok) throw new Error('Failed to save dog');
@@ -286,10 +292,11 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
               queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
               toast({
                 title: "Success",
-                description: `Dog ${selectedDog?.id ? 'updated' : 'created'} successfully`,
+                description: `Puppy ${selectedDog?.id ? 'updated' : 'created'} successfully`,
               });
               handleDogFormClose();
             } catch (error) {
+              console.error('Error saving puppy:', error);
               toast({
                 title: "Error",
                 description: error instanceof Error ? error.message : 'Failed to save',

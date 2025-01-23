@@ -32,17 +32,16 @@ const mediaSchema = z.object({
   fileName: z.string().optional(),
 });
 
-// Create schema with optional fields for puppies
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
     name: z.string().min(1, "Name is required"),
     registrationName: z.string().optional(),
-    birthDate: z.string().optional(),
+    birthDate: z.string().min(1, "Birth date is required"),
     gender: z.enum(["male", "female"]),
     description: z.string().optional(),
-    motherId: z.number().optional().nullable(),
-    fatherId: z.number().optional().nullable(),
-    litterId: z.number().optional().nullable(),
+    motherId: z.number().nullable(),
+    fatherId: z.number().nullable(),
+    litterId: z.number().nullable(),
     profileImageUrl: z.string().optional(),
     healthData: z.string().optional(),
     color: z.string().optional(),
@@ -81,15 +80,15 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-export default function DogForm({ 
-  dog, 
-  isPuppy = false, 
+export default function DogForm({
+  dog,
+  isPuppy = false,
   mode = 'create',
   onSubmit: customOnSubmit,
   onCancel,
   onOpenChange,
   open,
-  defaultValues 
+  defaultValues
 }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
@@ -108,7 +107,7 @@ export default function DogForm({
 
   const dogSchema = createDogSchema(isPuppy);
 
-  const form = useForm<z.infer<typeof dogSchema>>({
+  const form = useForm<z.infer<ReturnType<typeof createDogSchema>>>({
     resolver: zodResolver(dogSchema),
     defaultValues: {
       name: "",
@@ -116,9 +115,9 @@ export default function DogForm({
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: "male",
       description: "",
-      motherId: null,
-      fatherId: null,
-      litterId: null,
+      motherId: defaultValues?.motherId || null,
+      fatherId: defaultValues?.fatherId || null,
+      litterId: defaultValues?.litterId || null,
       profileImageUrl: "",
       healthData: "",
       color: "",
@@ -140,7 +139,6 @@ export default function DogForm({
 
   useEffect(() => {
     if (dog) {
-      // Convert dates and numbers to proper format for form
       const formattedDog = {
         ...dog,
         birthDate: dog.birthDate ? formatInputDate(new Date(dog.birthDate)) : "",
@@ -149,7 +147,6 @@ export default function DogForm({
         price: dog.price?.toString() || "",
       };
 
-      // Only set media if it exists
       if (dog.media?.length) {
         const media = dog.media.map(m => ({
           url: m.url,
@@ -381,13 +378,22 @@ export default function DogForm({
 
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-  // In the form's onSubmit handler, convert string values to numbers
   const onSubmitWrapper = async (values: any) => {
     const processedValues = {
       ...values,
+      birthDate: values.birthDate,
       height: values.height ? parseFloat(values.height) || null : null,
       weight: values.weight ? parseFloat(values.weight) || null : null,
       price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+      motherId: values.motherId ? parseInt(values.motherId.toString()) : null,
+      fatherId: values.fatherId ? parseInt(values.fatherId.toString()) : null,
+      litterId: values.litterId ? parseInt(values.litterId.toString()) : null,
+      puppy: isPuppy,
+      media: mediaInputs.map(m => ({
+        url: m.url,
+        type: m.type,
+        fileName: m.fileName
+      }))
     };
 
     if (customOnSubmit) {
