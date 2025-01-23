@@ -826,7 +826,7 @@ export default function Admin() {
                                 >
                                   Delete
                                 </Button>
-                                </div>
+                              </div>
                             </div>
                           )}
                         </Draggable>
@@ -1313,7 +1313,9 @@ export default function Admin() {
                         {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
                       </SheetTitle>
                     </SheetHeader>
-                    <div className="grid grid-cols-2 gap-8 h-full mt-6">
+                    <div className={`grid gap-8 h-full mt-6 transition-[grid-template-columns] duration-300 ${
+                      showPuppyForm ? 'grid-cols-2' : 'grid-cols-1'
+                    }`}>
                       {/* Litter Form Section */}
                       <div className="space-y-6 pr-8 border-r">
                         <div className="space-y-4">
@@ -1399,7 +1401,10 @@ export default function Admin() {
                           )}
 
                           <div className="flex justify-between pt-4">
-                            <Button variant="outline" onClick={() => setShowLitterForm(false)}>
+                            <Button variant="outline" onClick={() => {
+                              setShowLitterForm(false);
+                              setShowPuppyForm(false); // Ensure puppy form is closed when closing litter form
+                            }}>
                               Cancel
                             </Button>
                             <div className="space-x-2">
@@ -1426,7 +1431,11 @@ export default function Admin() {
                       </div>
 
                       {/* Puppy Form Section */}
-                      <div className={showPuppyForm ? "block" : "hidden"}>
+                      <div className={`transition-opacity duration-300 ${
+                        showPuppyForm 
+                          ? 'opacity-100' 
+                          : 'opacity-0 pointer-events-none absolute -right-full'
+                      }`}>
                         <div className="space-y-4">
                           <h3 className="text-lg font-medium mb-4">Add New Puppy</h3>
                           <DogForm
@@ -1458,7 +1467,9 @@ export default function Admin() {
                                 // Update the litter in the backend
                                 await handleUpdateLitter();
 
+                                // Close the puppy form after successful save
                                 setShowPuppyForm(false);
+
                                 toast({
                                   title: 'Success',
                                   description: 'Puppy added successfully',
@@ -1467,7 +1478,7 @@ export default function Admin() {
                                 console.error('Error adding puppy:', error);
                                 toast({
                                   title: 'Error',
-                                  description: error.message || 'Failed to add puppy',
+                                  description: error instanceof Error ? error.message : 'Failed to add puppy',
                                   variant: 'destructive',
                                 });
                               }
