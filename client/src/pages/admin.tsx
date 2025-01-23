@@ -39,10 +39,10 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
-  const [showPuppyForm, setShowPuppyForm] = useState(false); 
+  const [showPuppyForm, setShowPuppyForm] = useState(false);
   const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
   const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
-  const [editLitter, setEditLitter] = useState<Litter & { 
+  const [editLitter, setEditLitter] = useState<Litter & {
     mother?: Dog;
     father?: Dog;
     puppies?: Dog[];
@@ -291,7 +291,7 @@ export default function Admin() {
 
   const handleAddPrinciple = () => {
     const newPrinciple = {
-      id: Date.now(), 
+      id: Date.now(),
       title: "New Principle",
       description: "Principle description",
       imageUrl: "",
@@ -968,13 +968,14 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          {/* Dogs Management Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Dogs Management</CardTitle>
-              <CardDescription>Add and manage dogs in the kennel</CardDescription>
+              <CardDescription>Manage your dogs</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-6">
+              <div className="mb-4">
                 <Button onClick={() => {
                   setEditItem(null);
                   setShowForm(true);
@@ -983,49 +984,86 @@ export default function Admin() {
                 </Button>
               </div>
 
-              <DogForm
-                dog={editItem as Dog}
-                open={showForm}
-                onOpenChange={(open) => {
-                  setShowForm(open);
-                  if (!open) setEditItem(null);
-                }}
-              />
-
+              {/* Females Section */}
               {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Females</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {dogs
                       .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-                      .map((dog) => renderDogCard(dog))}
+                      .map(renderDogCard)}
                   </div>
                 </div>
               )}
 
+              {/* Males Section */}
               {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Males</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {dogs
                       .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
-                      .map((dog) => renderDogCard(dog))}
+                      .map(renderDogCard)}
                   </div>
                 </div>
               )}
 
+              {/* Outside Breeders Section */}
               {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
                 <div>
                   <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {dogs
                       .filter(dog => dog.outsideBreeder)
-                      .map((dog) => renderDogCard(dog))}
+                      .map(renderDogCard)}
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Dog Form Sheet */}
+          <Sheet open={showForm} onOpenChange={setShowForm}>
+            <SheetContent className="w-[95vw] sm:max-w-[540px] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{editItem ? "Edit Dog" : "Add New Dog"}</SheetTitle>
+              </SheetHeader>
+              {showForm && (
+                <DogForm
+                  dog={editItem as Dog}
+                  isPuppy={false}
+                  onSubmit={async (values) => {
+                    try {
+                      const res = await fetch(editItem ? `/api/dogs/${editItem.id}` : "/api/dogs", {
+                        method: editItem ? "PUT" : "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(values),
+                      });
+
+                      if (!res.ok) {
+                        throw new Error(await res.text());
+                      }
+
+                      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+                      toast({
+                        title: "Success",
+                        description: `Dog ${editItem ? "updated" : "created"} successfully`,
+                      });
+                      setShowForm(false);
+                    } catch (error) {
+                      console.error('Error saving dog:', error);
+                      toast({
+                        title: "Error",
+                        description: error.message || "Failed to save dog",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  onCancel={() => setShowForm(false)}
+                />
+              )}
+            </SheetContent>
+          </Sheet>
 
           <Card>
             <CardHeader>
@@ -1219,7 +1257,7 @@ export default function Admin() {
                             <div className="border-t pt-4 mt-4">
                               <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-medium">Manage Puppies</h4>
-                                <Button 
+                                <Button
                                   variant="outline"
                                   onClick={() => setShowPuppyForm(prev => !prev)}
                                 >
@@ -1258,7 +1296,7 @@ export default function Admin() {
                                         puppies: [...(prev!.puppies || []), puppy],
                                       }));
 
-                                      setShowPuppyForm(false); 
+                                      setShowPuppyForm(false);
 
                                       toast({
                                         title: 'Success',

@@ -35,18 +35,11 @@ const mediaSchema = z.object({
 // Create schema with optional fields for puppies
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
-    name: z.string(),
+    name: z.string().min(1, "Name is required"),
     registrationName: z.string().optional(),
-    birthDate: z.string().refine(
-      (date) => {
-        if (!date) return false;
-        const inputDate = parse(date, 'yyyy-MM-dd', new Date());
-        return isValid(inputDate) && inputDate <= new Date();
-      },
-      "Please enter a valid date that is not in the future"
-    ),
+    birthDate: z.string().optional(),
     gender: z.enum(["male", "female"]),
-    description: z.string(),
+    description: z.string().optional(),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
     litterId: z.number().optional().nullable(),
@@ -55,37 +48,19 @@ const createDogSchema = (isPuppy: boolean = false) => {
     color: z.string().optional(),
     dewclaws: z.string().optional(),
     furLength: z.string().optional(),
-    height: z.number().optional().nullable(),
-    weight: z.number().optional().nullable(),
+    height: z.string().optional().nullable(),
+    weight: z.string().optional().nullable(),
     pedigree: z.string().optional(),
     narrativeDescription: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
     puppy: z.boolean().default(false),
     available: z.boolean().default(false),
-    price: z.number().optional(),
+    price: z.string().optional(),
     breed: z.string().optional(),
   };
 
-  // Make all fields optional for puppies except name, birthDate, and gender
-  if (isPuppy) {
-    return z.object(Object.fromEntries(
-      Object.entries(baseSchema).map(([key, schema]) => {
-        if (key === 'name' || key === 'birthDate' || key === 'gender') {
-          return [key, schema];
-        }
-        // Make the field optional
-        return [key, schema.optional()];
-      })
-    ));
-  }
-
-  // For non-puppies, keep required fields
-  return z.object({
-    ...baseSchema,
-    name: z.string().min(1, "Name is required"),
-    description: z.string().min(1, "Description is required"),
-  });
+  return z.object(baseSchema);
 };
 
 interface DogFormProps {
@@ -398,9 +373,21 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
+  // In the form's onSubmit handler, convert string values to numbers
+  const onSubmitWrapper = async (values: any) => {
+    const processedValues = {
+      ...values,
+      height: values.height ? parseFloat(values.height) || null : null,
+      weight: values.weight ? parseFloat(values.weight) || null : null,
+      price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
+    };
+
+    await onSubmit(processedValues);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -813,4 +800,5 @@ interface DogDocument {
   type: "health" | "pedigree";
   name: string;
   mimeType: string;
+  isNew?: boolean;
 }
