@@ -82,7 +82,6 @@ export default function Principles() {
                     alt={principle.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
               </div>
               <div className="w-full md:w-1/2 space-y-4">
@@ -141,7 +140,6 @@ export default function Principles() {
                         alt={principle.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                     </div>
                   </div>
                   <div className="w-full md:w-1/2 space-y-4">
