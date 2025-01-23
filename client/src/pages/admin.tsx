@@ -625,7 +625,7 @@ export default function Admin() {
       mother,
       father,
       birthDate: new Date().toISOString().split('T')[0],
-      gender: 'male', // Default gender
+      gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
       outsideBreeder: false
@@ -1392,10 +1392,11 @@ export default function Admin() {
                 </SheetHeader>
                 <div className="mt-6">
                   <DogForm
+                    open={showDogForm}
+                    onOpenChange={handleDogFormClose}
                     dog={selectedDog as Dog}
                     mode={selectedDog?.id ? 'edit' : 'create'}
-                    onSubmit={handleDogFormClose}
-                    onCancel={handleDogFormClose}
+                    fromLitter={true}
                   />
                 </div>
               </SheetContent>
