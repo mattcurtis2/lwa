@@ -84,12 +84,24 @@ const createDogSchema = (isPuppy: boolean = false) => {
 interface DogFormProps {
   dog?: Dog & { media?: DogMedia[] };
   isPuppy?: boolean;
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit?: (values: any) => Promise<void>;
   onCancel?: () => void;
   defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  mode?: 'edit' | 'create';
 }
 
-export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
+export default function DogForm({ 
+  dog, 
+  isPuppy = false, 
+  onSubmit, 
+  onCancel, 
+  defaultValues,
+  open,
+  onOpenChange,
+  mode = 'create'
+}: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -115,11 +127,11 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
       name: "",
       registrationName: "",
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
-      gender: "male",
+      gender: defaultValues?.gender || "male",
       description: "",
-      motherId: null,
-      fatherId: null,
-      litterId: null,
+      motherId: defaultValues?.motherId || null,
+      fatherId: defaultValues?.fatherId || null,
+      litterId: defaultValues?.litterId || null,
       profileImageUrl: "",
       healthData: "",
       color: "",
@@ -130,11 +142,11 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
       pedigree: "",
       narrativeDescription: "",
       media: [],
-      outsideBreeder: false,
-      puppy: isPuppy,
-      available: false,
+      outsideBreeder: defaultValues?.outsideBreeder || false,
+      puppy: defaultValues?.puppy || isPuppy,
+      available: defaultValues?.available || false,
       price: "",
-      breed: "",
+      breed: defaultValues?.breed || "Colorado Mountain Dogs",
       ...defaultValues,
     },
   });
@@ -1001,8 +1013,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                               type="button"
                               variant="destructive"
                               size="icon"
-                              className="h-8 w-8"
-                              onClick={() => removeMediaInput(index)}
+                              className="h-8 w-8"                              onClick={() => removeMediaInput(index)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
