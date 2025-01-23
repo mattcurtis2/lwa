@@ -5,6 +5,8 @@ import { Dog, DogMedia } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
 import { Link } from "wouter";
 
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+
 interface DogCardProps {
   dog: Dog & { media?: DogMedia[] };
   isAdmin?: boolean;
@@ -97,12 +99,28 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                 </Button>
               )}
               {onDelete && (
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteClick(dog)}
-                >
-                  Delete
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Dog</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete {dog.name}? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => handleDeleteClick(dog)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           </div>
