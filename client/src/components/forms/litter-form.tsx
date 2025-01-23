@@ -269,6 +269,34 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
           onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
+          isPuppy={true}
+          onSubmit={async (values) => {
+            try {
+              const url = selectedDog?.id ? `/api/dogs/${selectedDog.id}` : '/api/dogs';
+              const method = selectedDog?.id ? 'PUT' : 'POST';
+
+              const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values),
+              });
+
+              if (!res.ok) throw new Error('Failed to save dog');
+
+              queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+              toast({
+                title: "Success",
+                description: `Dog ${selectedDog?.id ? 'updated' : 'created'} successfully`,
+              });
+              handleDogFormClose();
+            } catch (error) {
+              toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : 'Failed to save',
+                variant: "destructive",
+              });
+            }
+          }}
         />
       )}
     </>

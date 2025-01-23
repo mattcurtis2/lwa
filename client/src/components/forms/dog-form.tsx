@@ -64,10 +64,13 @@ const createDogSchema = (isPuppy: boolean = false) => {
 };
 
 interface DogFormProps {
-  dog?: Dog & { media?: DogMedia[] };
+  dog?: Partial<Dog & { media?: DogMedia[] }>;
   isPuppy?: boolean;
-  onSubmit: (values: any) => Promise<void>;
+  mode: 'create' | 'edit';
+  onSubmit?: (values: any) => Promise<void>;
   onCancel?: () => void;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
   defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
 }
 
@@ -78,7 +81,16 @@ interface MediaInput {
   isNew?: boolean;
 }
 
-export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
+export default function DogForm({ 
+  dog, 
+  isPuppy = false, 
+  mode = 'create',
+  onSubmit: customOnSubmit,
+  onCancel,
+  onOpenChange,
+  open,
+  defaultValues 
+}: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -128,31 +140,27 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
   useEffect(() => {
     if (dog) {
-      const birthDate = parseApiDate(dog.birthDate);
-      form.reset({
+      // Convert dates and numbers to proper format for form
+      const formattedDog = {
         ...dog,
-        birthDate: formatInputDate(birthDate),
-        motherId: dog.motherId || null,
-        fatherId: dog.fatherId || null,
-        litterId: dog.litterId || null,
+        birthDate: dog.birthDate ? formatInputDate(new Date(dog.birthDate)) : "",
         height: dog.height?.toString() || "",
         weight: dog.weight?.toString() || "",
         price: dog.price?.toString() || "",
-        media: dog.media?.map(m => ({
+      };
+
+      // Only set media if it exists
+      if (dog.media?.length) {
+        const media = dog.media.map(m => ({
           url: m.url,
           type: m.type as "image" | "video",
-          fileName: m.fileName,
-        })) || [],
-      });
+          fileName: m.fileName || m.url.split('/').pop() || '',
+        }));
+        formattedDog.media = media;
+        setMediaInputs(media.map(m => ({ ...m, isNew: false })));
+      }
 
-      const media = dog.media?.map(m => ({
-        url: m.url,
-        type: m.type as "image" | "video",
-        fileName: m.fileName,
-        isNew: false,
-      })) || [];
-
-      setMediaInputs(media);
+      form.reset(formattedDog);
     }
   }, [dog, form]);
 
@@ -382,7 +390,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
       price: values.price ? parseInt(values.price.replace(/\D/g, ''), 10) || null : null,
     };
 
-    await onSubmit(processedValues);
+    if (customOnSubmit) {
+      await customOnSubmit(processedValues);
+    }
   };
 
   return (
@@ -786,7 +796,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             </Button>
           )}
           <Button type="submit" className="ml-auto">
-            {dog ? "Update" : "Save"}
+            {mode === 'edit' ? "Update" : "Save"}
           </Button>
         </div>
       </form>
