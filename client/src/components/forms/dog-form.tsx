@@ -565,7 +565,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                   <SelectValue placeholder="Select mother" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {availableMothers.map((mother) => (
                     <SelectItem key={mother.id} value={mother.id.toString()}>
                       {mother.name}
@@ -592,7 +592,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                   <SelectValue placeholder="Select father" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {availableFathers.map((father) => (
                     <SelectItem key={father.id} value={father.id.toString()}>
                       {father.name}
@@ -619,7 +619,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                   <SelectValue placeholder="Select litter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {availableLitters.map((litter) => (
                     <SelectItem key={litter.id} value={litter.id.toString()}>
                       {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
