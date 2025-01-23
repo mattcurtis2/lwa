@@ -619,9 +619,9 @@ export default function Admin() {
     
     setSelectedDog({
       puppy: true,
-      litterId: litter.id,
-      motherId: litter.motherId,
-      fatherId: litter.fatherId,
+      litterId: parseInt(litter.id.toString(), 10),
+      motherId: parseInt(litter.motherId.toString(), 10),
+      fatherId: parseInt(litter.fatherId.toString(), 10),
       mother: mother,
       father: father,
       birthDate: new Date().toISOString().split('T')[0],
