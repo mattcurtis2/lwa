@@ -31,15 +31,15 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  const females = dogs?.filter(dog => 
-    dog.gender === 'female' && 
-    !dog.outsideBreeder && 
+  const females = dogs?.filter(dog =>
+    dog.gender === 'female' &&
+    !dog.outsideBreeder &&
     !dog.puppy
   ) || [];
 
-  const males = dogs?.filter(dog => 
-    dog.gender === 'male' && 
-    !dog.outsideBreeder && 
+  const males = dogs?.filter(dog =>
+    dog.gender === 'male' &&
+    !dog.outsideBreeder &&
     !dog.puppy
   ) || [];
 
@@ -51,16 +51,12 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
   const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
 
-  const navigateToDog = (dogId: number) => {
-    navigate(`/dogs/${dogId}`);
-  };
-
   return (
     <div className="w-full">
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
-        <div 
+        <div
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
-          className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 border-y border-amber-200 cursor-pointer hover:bg-gradient-to-br hover:from-amber-100 hover:via-amber-200 hover:to-amber-100 transition-colors"
+          className="bg-gradient-to-br from-amber-100 via-amber-200 to-amber-100 border-y border-amber-200 cursor-pointer hover:bg-gradient-to-br hover:from-amber-50 hover:via-amber-100 hover:to-amber-50 transition-colors"
         >
           <div className="container mx-auto px-4">
             <div className="h-[100px] flex items-center">
