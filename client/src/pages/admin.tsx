@@ -808,8 +808,8 @@ export default function Admin() {
                           <div className="w-40 h-40 rounded-lg overflow-hidden border">
                             <img
                               src={pendingContent[field.key] || field.value}
-                                                            alt={field.label}
-                              className="w-full h-full object-cover"
+                              alt={field.label}
+                              className="w-full hfull h-full object-cover"
                             />
                           </div>
                         )}
@@ -1823,6 +1823,92 @@ export default function Admin() {
           </Button>
         </div>
       )}
+
+      {/* Puppy Form Dialog */}
+      <Dialog open={showPuppyForm} onOpenChange={setShowPuppyForm}>
+        <DialogContent className="max-w-4xl h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editItem ? 'Edit' : 'Add'} Puppy</DialogTitle>
+          </DialogHeader>
+          <DogForm
+            dog={editItem as Dog}
+            isPuppy={true}
+            defaultValues={{
+              name: editItem?.name || '',
+              gender: editItem?.gender as 'male' | 'female' || 'male',
+              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+              breed: editItem?.breed || 'Colorado Mountain Dog',
+              color: editItem?.color || '',
+              description: editItem?.description || '',
+              narrativeDescription: editItem?.narrativeDescription || '',
+              healthData: editItem?.healthData || '',
+              height: editItem?.height?.toString() || '',
+              weight: editItem?.weight?.toString() || '',
+              furLength: editItem?.furLength || '',
+              registrationName: editItem?.registrationName || '',
+              profileImageUrl: editItem?.profileImageUrl || '',
+              media: editItem?.media || [],
+              outsideBreeder: Boolean(editItem?.outsideBreeder),
+              available: Boolean(editItem?.available),
+              price: editItem?.price?.toString() || '',
+              puppy: true,
+              motherId: editLitter?.motherId || null,
+              fatherId: editLitter?.fatherId || null,
+              litterId: editLitter?.id || null
+            }}
+            onSubmit={async (values) => {
+              try {
+                const processedValues = {
+                  ...values,
+                  height: values.height ? parseFloat(values.height) : null,
+                  weight: values.weight ? parseFloat(values.weight) : null,
+                  price: values.price ? parseInt(values.price, 10) : null,
+                  motherId: editLitter?.motherId,
+                  fatherId: editLitter?.fatherId,
+                  litterId: editLitter?.id,
+                  puppy: true
+                };
+
+                if (editItem?.id) {
+                  // Update existing puppy
+                  const res = await fetch(`/api/dogs/${editItem.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(processedValues),
+                  });
+
+                  if (!res.ok) throw new Error('Failed to update puppy');
+                } else {
+                  // Create new puppy
+                  const res = await fetch('/api/dogs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(processedValues),
+                  });
+
+                  if (!res.ok) throw new Error('Failed to create puppy');
+                }
+
+                queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+                toast({
+                  title: 'Success',
+                  description: `Puppy ${editItem ? 'updated' : 'created'} successfully`,
+                });
+                setShowPuppyForm(false);
+              } catch (error) {
+                console.error('Error saving puppy:', error);
+                toast({
+                  title: 'Error',
+                  description: `Failed to ${editItem ? 'update' : 'create'} puppy`,
+                  variant: 'destructive',
+                });
+              }
+            }}
+            onCancel={() => setShowPuppyForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
