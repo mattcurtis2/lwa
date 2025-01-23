@@ -39,7 +39,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
-  const [showPuppyForm, setShowPuppyForm] = useState(false); // Moved here
+  const [showPuppyForm, setShowPuppyForm] = useState(false); 
   const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
   const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
   const [editLitter, setEditLitter] = useState<Litter & { 
@@ -90,7 +90,6 @@ export default function Admin() {
     queryKey: ["/api/carousel"]
   });
 
-
   useEffect(() => {
     if (siteContent?.length > 0) {
       const initialContent: Record<string, string> = {};
@@ -103,7 +102,6 @@ export default function Admin() {
 
   useEffect(() => {
     if (principlesData) {
-      // Sort principles by order before setting state
       const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setPendingPrinciples(sortedPrinciples);
     }
@@ -145,7 +143,6 @@ export default function Admin() {
     mutationFn: async (principles: Principle[]) => {
       const results = await Promise.all(
         principles.map((principle) => {
-          // Create a new object with only the fields we want to update
           const updatedPrinciple = {
             id: principle.id,
             title: principle.title,
@@ -240,13 +237,11 @@ export default function Admin() {
 
   const handleSaveChanges = async () => {
     try {
-      // Save contact info changes if there are any differences
       const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfo);
       if (hasContactChanges) {
         await updateContactInfo.mutateAsync(pendingContactInfo);
       }
 
-      // Save site content changes
       const contentUpdates = Object.entries(pendingContent)
         .filter(([key, value]) => {
           const currentContent = siteContent?.find(c => c.key === key);
@@ -258,7 +253,6 @@ export default function Admin() {
         await updateSiteContent.mutateAsync(contentUpdates);
       }
 
-      // Save principles changes if there are any differences
       const hasPrincipleChanges = pendingPrinciples.some((pendingPrinciple, index) => {
         const originalPrinciple = principlesData[index];
         return JSON.stringify(pendingPrinciple) !== JSON.stringify(originalPrinciple);
@@ -286,7 +280,6 @@ export default function Admin() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // Update the order property for all items
     const reorderedItems = items.map((item, index) => ({
       ...item,
       order: index
@@ -298,7 +291,7 @@ export default function Admin() {
 
   const handleAddPrinciple = () => {
     const newPrinciple = {
-      id: Date.now(), // Temporary ID
+      id: Date.now(), 
       title: "New Principle",
       description: "Principle description",
       imageUrl: "",
@@ -344,16 +337,13 @@ export default function Admin() {
   );
 
   const contentFields: ContentField[] = [
-    // Hero Section
     { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent?.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
     { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent?.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
-    // About Section
     { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent?.find(c => c.key === "about_title")?.value ?? "", type: "text" },
     { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
 
-    // Feature Cards Section
     { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
     { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent?.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
     { key: "animals_image", label: "Dogs Image", value: pendingContent["animals_image"] ?? siteContent?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
@@ -457,7 +447,6 @@ export default function Admin() {
         </TabsList>
 
         <TabsContent value="home">
-          {/* Hero Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Hero Section</CardTitle>
@@ -523,7 +512,6 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* Principles Section - Moved above About section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Principles</CardTitle>
@@ -633,7 +621,6 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* About Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>About Section</CardTitle>
@@ -663,14 +650,12 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* Feature Cards Section */}
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Feature Cards</CardTitle>
               <CardDescription>Manage the three main feature cards</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Dogs Card */}
               <div className="space-y-6 pb-6 border-b">
                 <h3 className="text-lg font-semibold">Dogs Card</h3>
                 {contentFields.slice(5, 8).map((field) => (
@@ -731,7 +716,6 @@ export default function Admin() {
                 ))}
               </div>
 
-              {/* Goats Card */}
               <div className="space-y-6 pb-6 border-b">
                 <h3 className="text-lg font-semibold">Goats Card</h3>
                 {contentFields.slice(8, 11).map((field) => (
@@ -792,7 +776,6 @@ export default function Admin() {
                 ))}
               </div>
 
-              {/* Products Card */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Products Card</h3>
                 {contentFields.slice(11).map((field) => (
@@ -921,7 +904,6 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* Add Dialog for CarouselForm */}
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
@@ -939,7 +921,6 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="dogs">
-          {/* Dogs Hero Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Dogs Hero Section</CardTitle>
@@ -987,7 +968,6 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* Dogs Management Section */}
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>Dogs Management</CardTitle>
@@ -1012,7 +992,6 @@ export default function Admin() {
                 }}
               />
 
-              {/* Females Section */}
               {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Females</h3>
@@ -1024,7 +1003,6 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* Males Section */}
               {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold mb-6">Males</h3>
@@ -1036,7 +1014,6 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* Outside Breeders Section */}
               {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
                 <div>
                   <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
@@ -1050,7 +1027,6 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          {/* Litters Management Section */}
           <Card>
             <CardHeader>
               <CardTitle>Litters Management</CardTitle>
@@ -1077,7 +1053,6 @@ export default function Admin() {
 
                     <div className="grid gap-6 mt-4">
                       <div className="space-y-4">
-                        {/* Parent Selection */}
                         <div className="grid gap-4">
                           <div className="space-y-2">
                             <Label>Mother</Label>
@@ -1185,14 +1160,12 @@ export default function Admin() {
                           </div>
                         </div>
 
-                        {/* Show puppy management if in edit mode or if litter is created */}
                         {(litterFormMode === 'edit' || editLitter?.id) && (
                           <div className="space-y-4 mt-8">
                             <div className="flex items-center justify-between">
                               <h3 className="font-medium">Puppies</h3>
                             </div>
 
-                            {/* Existing Puppies List */}
                             {editLitter?.puppies && editLitter.puppies.length > 0 && (
                               <div className="space-y-2">
                                 <div className="grid gap-2">
@@ -1243,20 +1216,20 @@ export default function Admin() {
                               </div>
                             )}
 
-                            {/* Add New Puppy Form */}
                             <div className="border-t pt-4 mt-4">
                               <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium">Add New Puppy</h4>
+                                <h4 className="font-medium">Manage Puppies</h4>
                                 <Button 
                                   variant="outline"
                                   onClick={() => setShowPuppyForm(prev => !prev)}
                                 >
-                                  {showPuppyForm ? "Cancel" : "Add Puppy"}
+                                  {showPuppyForm ? "Cancel Adding Puppy" : "Add New Puppy"}
                                 </Button>
                               </div>
 
                               {showPuppyForm && (
                                 <DogForm
+                                  isPuppy={true}
                                   onSubmit={async (values) => {
                                     const newPuppy = {
                                       ...values,
@@ -1281,7 +1254,7 @@ export default function Admin() {
                                         puppies: [...(prev!.puppies || []), puppy],
                                       }));
 
-                                      setShowPuppyForm(false); // Hide form after successful addition
+                                      setShowPuppyForm(false); 
 
                                       toast({
                                         title: 'Success',
@@ -1296,9 +1269,10 @@ export default function Admin() {
                                       });
                                     }
                                   }}
+                                  onCancel={() => setShowPuppyForm(false)}
                                   defaultValues={{
                                     breed: editLitter?.mother?.breed || '',
-                                    birthDate: new Date().toISOString().split('T')[0],
+                                    birthDate: editLitter?.dueDate || new Date().toISOString().split('T')[0],
                                   }}
                                 />
                               )}
@@ -1345,7 +1319,6 @@ export default function Admin() {
                               Due Date: {formatDisplayDate(new Date(litter.dueDate))}
                             </p>
 
-                            {/* Parent Dog Cards */}
                             <div className="grid grid-cols-2 gap-4 mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
