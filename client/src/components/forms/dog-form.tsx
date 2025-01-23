@@ -1036,7 +1036,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
 
         {!isPuppy && (
-          <div className="space-y-44">
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="outsideBreeder"
