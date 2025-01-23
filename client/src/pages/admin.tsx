@@ -24,6 +24,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 
 interface ContentField {
   key: string;
@@ -804,8 +805,7 @@ export default function Admin() {
             <CardHeader>
               <CardTitle>Hero Section</CardTitle>
               <CardDescription>Manage the main hero section content</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </CardHeader>            <CardContent className="space-y-6">
               {/* Content fields rendering section */}
               {contentFields.slice(0, 3).map((field) =>(
                 <div key={field.key} className="space-y-2">
@@ -1258,11 +1258,11 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <Dialog open={showForm} onOpenChange={setShowForm}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</DialogTitle>
-              </DialogHeader>
+          <Sheet open={showForm} onOpenChange={setShowForm}>
+            <SheetContent className="max-w-2xl">
+              <SheetHeader>
+                <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+              </SheetHeader>
               <CarouselForm
                 item={editItem as CarouselItem}
                 onClose={() => {
@@ -1270,8 +1270,8 @@ export default function Admin() {
                   setEditItem(null);
                 }}
               />
-            </DialogContent>
-          </Dialog>
+            </SheetContent>
+          </Sheet>
         </TabsContent>
 
         <TabsContent value="dogs">
@@ -1720,96 +1720,80 @@ export default function Admin() {
         </div>
       )}
 
-      {/* Puppy Form Dialog */}
-      <Dialog
-        open={showPuppyForm}
-        onOpenChange={(open) => {
+      {/* Puppy Form Sheet */}
+      {showPuppyForm && (
+        <Sheet open={showPuppyForm} onOpenChange={(open) => {
           setShowPuppyForm(open);
           // Don't close the litter form when closing puppy dialog
-          if (!open) {
-            setEditItem(null);
-          }
-        }}
-      >
-        <DialogContent className="max-w-4xl h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editItem ? 'Edit' : 'Add'} Puppy</DialogTitle>
-          </DialogHeader>
-          <DogForm
-            dog={editItem as Dog}
-            isPuppy={true}
-            defaultValues={{
-              name: editItem?.name || '',
-              gender: editItem?.gender as 'male' | 'female' || 'male',
-              birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
-              breed: editItem?.breed || 'Colorado Mountain Dog',
-              color: editItem?.color || '',
-              description: editItem?.description || '',
-              narrativeDescription: editItem?.narrativeDescription || '',
-              healthData: editItem?.healthData || '',
-              height: editItem?.height?.toString() || '',
-              weight: editItem?.weight?.toString() || '',
-              furLength: editItem?.furLength || '',              registrationName: editItem?.registrationName || '',
-              profileImageUrl: editItem?.profileImageUrl || '',
-              media: editItem?.media || [],
-              outsideBreeder: Boolean(editItem?.outsideBreeder),
-              available: Boolean(editItem?.available),
-              price: editItem?.price?.toString() || '',
-              puppy: true,
-              motherId: editLitter?.motherId || null,
-              fatherId: editLitter?.fatherId || null,
-              litterId: editLitter?.id || null
-            }}
-            onSubmit={async (values) => {
-              try {
-                const processedValues = {
-                  ...values,
-                  height: values.height ? parseFloat(values.height) : null,
-                  weight: values.weight ? parseFloat(values.weight) : null,
-                  price: values.price ? parseInt(values.price, 10) : null,
-                  motherId: editLitter?.motherId,
-                  fatherId: editLitter?.fatherId,
-                  litterId: editLitter?.id,
-                  puppy: true
-                                };
+          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
+        }}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
+            <SheetHeader>
+              <SheetTitle>
+                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <Form
+                isPuppy={true}
+                defaultValues={{
+                  name: editItem?.name || '',
+                  gender: editItem?.gender as 'male' | 'female' || 'male',
+                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+                  breed: editItem?.breed || 'Colorado Mountain Dog',
+                  color: editItem?.color || '',
+                  description: editItem?.description || '',
+                  narrativeDescription: editItem?.narrativeDescription || '',
+                  healthData: editItem?.healthData || '',
+                  height: editItem?.height?.toString() || '',
+                  weight: editItem?.weight?.toString() || '',
+                  furLength: editItem?.furLength || '',
+                  registrationName: editItem?.registrationName || '',
+                  profileImageUrl: editItem?.profileImageUrl || '',
+                  media: editItem?.media || [],
+                  outsideBreeder: Boolean(editItem?.outsideBreeder),
+                  available: Boolean(editItem?.available),
+                  price: editItem?.price?.toString() || '',
+                }}
+                onSubmit={async (values) => {
+                  try {
+                    const processedValues = {
+                      ...values,
+                      height: values.height ? Number(values.height) : null,
+                      weight: values.weight ? Number(values.weight) : null,
+                      price: values.price ? Number(values.price) : null,
+                    };
 
-                if(editItem?.id) {
-                  // Update existing puppy
-                  const res = await fetch(`/api/dogs/${editItem.id}`, {                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(processedValues),
-                  });if (!res.ok) throw new Error('Failed to update puppy');
-                } else {
-                  // Create new puppy
-                  const res = await fetch('/api/dogs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(processedValues),
-                  });
+                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
+                      method: editItem?.id ? 'PUT' : 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(processedValues),
+                    });
 
-                  if (!res.ok) throw new Error('Failed to create puppy');
-                }
+                    if (!res.ok) throw new Error('Failed to save puppy');
 
-                queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-                queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-                toast({
-                  title: 'Success',
-                  description: `Puppy ${editItem ? 'updated' : 'created'} successfully`,
-                });
-                setShowPuppyForm(false);
-              } catch (error) {
-                console.error('Error saving puppy:', error);
-                toast({
-                  title: 'Error',
-                  description: `Failed to ${editItem ? 'update' : 'create'} puppy`,
-                  variant: 'destructive',
-                });
-              }
-            }}
-            onCancel={() => setShowPuppyForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
+                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                    toast({
+                      title: "Success",
+                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
+                    });
+                    setShowPuppyForm(false);
+                  } catch (error) {
+                    console.error('Error saving puppy:', error);
+                    toast({
+                      title: "Error",
+                      description: error instanceof Error ? error.message : 'Failed to save puppy',
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Dog Form Sheet */}
       {showDogForm && (
         <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
           <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
