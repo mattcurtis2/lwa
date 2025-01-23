@@ -473,7 +473,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
             <SheetTitle>{dog ? "Edit Dog" : "Add New Dog"}</SheetTitle>
           </SheetHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 pt-6">
+            <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 pt-6 pb-20">
               <FormField
                 control={form.control}
                 name="profileImageUrl"
