@@ -1491,34 +1491,22 @@ export default function Admin() {
                             {editItem ? 'Edit Puppy' : 'Add New Puppy'}
                           </h3>
                           <DogForm
+                            isPuppy={true}
                             defaultValues={{
-                              // First spread all existing puppy data
-                              ...(editItem ? {
-                                name: editItem.name,
-                                gender: editItem.gender,
-                                breed: editItem.breed || 'Colorado Mountain Dog',
-                                color: editItem.color || '',
-                                height: editItem.height || '',
-                                weight: editItem.weight || '',
-                                price: editItem.price || '',
-                                description: editItem.description || '',
-                                registrationName: editItem.registrationName || '',
-                                // Ensure date is in correct format for date input
-                                birthDate: editItem.birthDate ? new Date(editItem.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                              } : {
-                                // Default values for new puppy
-                                name: '',
-                                gender: 'male',
-                                birthDate: new Date().toISOString().split('T')[0],
-                                breed: 'Colorado Mountain Dog',
-                                color: '',
-                                height: '',
-                                weight: '',
-                                price: '',
-                                description: '',
-                                registrationName: '',
-                              }),
-                              // Always include these properties
+                              id: editItem?.id,
+                              name: editItem?.name || '',
+                              breed: editItem?.breed || 'Colorado Mountain Dog',
+                              gender: editItem?.gender || 'male',
+                              birthDate: editItem?.birthDate
+                                ? new Date(editItem.birthDate).toISOString().split('T')[0]
+                                : new Date().toISOString().split('T')[0],
+                              description: editItem?.description || '',
+                              color: editItem?.color || '',
+                              height: editItem?.height || '',
+                              weight: editItem?.weight || '',
+                              price: editItem?.price || '',
+                              registrationName: editItem?.registrationName || '',
+                              profileImageUrl: editItem?.profileImageUrl || '',
                               puppy: true,
                               motherId: editLitter?.motherId,
                               fatherId: editLitter?.fatherId,
@@ -1534,8 +1522,8 @@ export default function Admin() {
                                   // Update existing puppy
                                   const puppyIndex = updatedPuppies.findIndex(p => p.id === editItem.id);
                                   if (puppyIndex !== -1) {
-                                    updatedPuppies[puppyIndex] = { 
-                                      ...updatedPuppies[puppyIndex], 
+                                    updatedPuppies[puppyIndex] = {
+                                      ...updatedPuppies[puppyIndex],
                                       ...data,
                                       // Ensure we keep the ID and relationships
                                       id: editItem.id,
@@ -1582,7 +1570,12 @@ export default function Admin() {
                                 });
                               }
                             }}
+                            onCancel={() => {
+                              setShowPuppyForm(false);
+                              setEditItem(null);
+                            }}
                           />
+
                         </div>
                       </div>
                     </div>
