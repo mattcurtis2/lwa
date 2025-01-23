@@ -1,10 +1,13 @@
+
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
 import { Upload, Crop } from "lucide-react";
-import { ImageCrop } from "./image-crop";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./dialog";
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
+import ReactCrop, { type Crop as CropType } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -29,6 +32,13 @@ export function FileUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [crop, setCrop] = useState<CropType>({
+    unit: '%',
+    width: 90,
+    height: 90,
+    x: 5,
+    y: 5
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -37,27 +47,38 @@ export function FileUpload({
     }
   }, [value]);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file) return;
+  const getCroppedImg = async (image: HTMLImageElement, crop: CropType) => {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = crop.width!;
+    canvas.height = crop.height!;
+    const ctx = canvas.getContext('2d');
 
-    if (file.type.startsWith('image/')) {
-      setSelectedFile(file);
-      const tempPreview = URL.createObjectURL(file);
-      setPreviewUrl(tempPreview);
-      await handleUpload(file);
-    } else if (file.type.startsWith('video/')) {
-      setSelectedFile(file);
-      const tempPreview = URL.createObjectURL(file);
-      setPreviewUrl(tempPreview);
-      await handleUpload(file);
-    } else {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image or video file",
-        variant: "destructive"
-      });
+    if (!ctx) {
+      throw new Error('No 2d context');
     }
-  }, [toast]);
+
+    ctx.drawImage(
+      image,
+      crop.x! * scaleX,
+      crop.y! * scaleY,
+      crop.width! * scaleX,
+      crop.height! * scaleY,
+      0,
+      0,
+      crop.width!,
+      crop.height!
+    );
+
+    return new Promise<File>((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob || !selectedFile) return;
+        const file = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+        resolve(file);
+      }, 'image/jpeg', 1);
+    });
+  };
 
   const handleUpload = async (file: File) => {
     setIsUploading(true);
@@ -95,6 +116,41 @@ export function FileUpload({
     }
   };
 
+  const handleCropComplete = async (imageRef: HTMLImageElement) => {
+    try {
+      const croppedFile = await getCroppedImg(imageRef, crop);
+      await handleUpload(croppedFile);
+      setShowCrop(false);
+    } catch (error) {
+      console.error("Error cropping image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to crop image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFile = useCallback(async (file: File) => {
+    if (!file) return;
+
+    if (file.type.startsWith('image/')) {
+      setSelectedFile(file);
+      const tempPreview = URL.createObjectURL(file);
+      setPreviewUrl(tempPreview);
+      setShowCrop(true);
+    } else if (file.type.startsWith('video/')) {
+      setSelectedFile(file);
+      await handleUpload(file);
+    } else {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image or video file",
+        variant: "destructive"
+      });
+    }
+  }, [toast]);
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -111,26 +167,6 @@ export function FileUpload({
     maxFiles: 1,
     multiple: false
   });
-
-  const handleCropComplete = async (croppedImageUrl: string) => {
-    if (!selectedFile) return;
-
-    try {
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const croppedFile = new File([blob], selectedFile.name, { type: selectedFile.type });
-      URL.revokeObjectURL(croppedImageUrl);
-      await handleUpload(croppedFile);
-      setShowCrop(false);
-    } catch (error) {
-      console.error("Error processing cropped image:", error);
-      toast({
-        title: "Error",
-        description: "Failed to process cropped image",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="space-y-2">
@@ -181,15 +217,46 @@ export function FileUpload({
         </div>
       )}
 
-      {showCrop && previewUrl && selectedFile?.type.startsWith('image/') && (
-        <ImageCrop
-          imageUrl={previewUrl}
-          aspect={cropAspect}
-          onCropComplete={handleCropComplete}
-          onCancel={() => setShowCrop(false)}
-          circularCrop={false}
-        />
-      )}
+      <Dialog open={showCrop} onOpenChange={setShowCrop}>
+        <DialogContent className="max-w-screen-lg">
+          <DialogHeader>
+            <DialogTitle>Crop Image</DialogTitle>
+          </DialogHeader>
+          {previewUrl && (
+            <div className="flex flex-col gap-4">
+              <ReactCrop
+                crop={crop}
+                onChange={c => setCrop(c)}
+                aspect={cropAspect}
+              >
+                <img
+                  src={previewUrl}
+                  alt="Crop preview"
+                  id="cropImage"
+                  style={{ maxHeight: '70vh' }}
+                  onLoad={(e) => {
+                    const img = e.currentTarget;
+                    handleCropComplete(img);
+                  }}
+                />
+              </ReactCrop>
+              <DialogFooter>
+                <Button onClick={() => setShowCrop(false)} variant="outline">
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const img = document.getElementById('cropImage') as HTMLImageElement;
+                    if (img) handleCropComplete(img);
+                  }}
+                >
+                  Apply Crop
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
