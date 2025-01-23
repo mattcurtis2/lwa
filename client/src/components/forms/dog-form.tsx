@@ -39,6 +39,7 @@ import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/ui/file-upload";
+import { ImageCrop } from "@/components/ui/image-crop";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -99,6 +100,8 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
   const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState("");
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -133,7 +136,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   });
 
   useEffect(() => {
-    // Fetch available mothers and fathers
     const fetchParents = async () => {
       const response = await fetch('/api/dogs');
       const dogs = await response.json();
@@ -144,7 +146,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   }, []);
 
   useEffect(() => {
-    // Fetch litters based on selected mother and father
     const fetchLitters = async () => {
       const motherId = form.getValues('motherId');
       const fatherId = form.getValues('fatherId');
@@ -290,64 +291,56 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     form.setValue("media", newInputs);
   };
 
-  const handleProfilePictureUpload = async (file: File) => {
-    setIsUploadingProfile(true);
-    const formData = new FormData();
-    formData.append("file", file);
+  const handleProfilePictureSelect = async (file: File) => {
+    if (!file) return;
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to upload profile picture");
-      }
-
-      const data = await res.json();
-      setCropImageUrl(data.url);
+      const previewUrl = URL.createObjectURL(file);
+      setCropImageUrl(previewUrl);
       setShowCropper(true);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to upload profile picture",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to load image for cropping',
+        variant: 'destructive',
       });
-    } finally {
-      setIsUploadingProfile(false);
     }
   };
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
-    const response = await fetch(croppedImageUrl);
-    const blob = await response.blob();
-    const file = new File([blob], 'profile-picture.jpg', { type: 'image/jpeg' });
-
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', blob, 'profile-picture.jpg');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
         body: formData,
       });
 
       if (!uploadRes.ok) {
-        throw new Error("Failed to upload cropped image");
+        throw new Error('Failed to upload cropped image');
       }
 
-      const { url } = await uploadRes.json();
-      form.setValue("profileImageUrl", url, { shouldValidate: true });
+      const data = await uploadRes.json();
+      form.setValue("profileImageUrl", data.url);
       setShowCropper(false);
 
       URL.revokeObjectURL(croppedImageUrl);
+      URL.revokeObjectURL(cropImageUrl);
+      setCropImageUrl("");
+
+      toast({
+        title: 'Success',
+        description: 'Profile picture updated successfully',
+      });
     } catch (error) {
       console.error('Error uploading cropped image:', error);
       toast({
-        title: "Error",
-        description: "Failed to upload cropped image",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to upload cropped image',
+        variant: 'destructive',
       });
     }
   };
@@ -454,63 +447,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     }
   };
 
-  const [cropImageUrl, setCropImageUrl] = useState("");
-  const [showCropper, setShowCropper] = useState(false);
-
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(async (values) => {
-        try {
-          const dataToSubmit = {
-            ...values,
-            breed: "Colorado Mountain Dogs",
-            height: values.height ? parseFloat(values.height) || null : null,
-            weight: values.weight ? parseFloat(values.weight) || null : null,
-            price: values.price ? parseFloat(values.price) || null : null,
-            media: mediaInputs.map((media, index) => ({
-              url: media.url,
-              type: media.type,
-              order: index
-            })),
-            documents: [
-              ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
-              ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
-            ]
-          };
-
-          const method = dog?.id ? "PUT" : "POST";
-          const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
-
-          const response = await fetch(url, {
-            method,
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataToSubmit)
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to save dog');
-          }
-
-          toast({
-            title: "Success",
-            description: `Dog ${dog?.id ? 'updated' : 'created'} successfully`,
-          });
-
-          if (onSubmit) {
-            await onSubmit(dataToSubmit);
-          }
-        } catch (error) {
-          console.error('Error saving dog:', error);
-          toast({
-            title: "Error",
-            description: error instanceof Error ? error.message : 'Failed to save dog',
-            variant: "destructive"
-          });
-        }
-      })} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
         <FormField
           control={form.control}
           name="profileImageUrl"
@@ -521,16 +460,20 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                 Upload a profile picture for the dog
               </FormDescription>
               <div className="flex items-center gap-4">
-                <div className="h-24 w-24 rounded-lg border bg-muted flex items-center justify-center relative overflow-hidden">
-                  {field.value ? (
-                    <img
-                      src={field.value}
-                      alt="Profile preview"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                  )}
+                <div className="relative h-24 w-24">
+                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden">
+                    {field.value ? (
+                      <img
+                        src={field.value}
+                        alt="Profile preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Button
@@ -540,31 +483,10 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                       const input = document.createElement('input');
                       input.type = 'file';
                       input.accept = 'image/*';
-                      input.onchange = async (e) => {
+                      input.onchange = (e) => {
                         const file = (e.target as HTMLInputElement).files?.[0];
-                        if (!file) return;
-
-                        const formData = new FormData();
-                        formData.append('file', file);
-
-                        try {
-                          const res = await fetch('/api/upload', {
-                            method: 'POST',
-                            body: formData,
-                          });
-
-                          if (!res.ok) {
-                            throw new Error('Failed to upload image');
-                          }
-
-                          const data = await res.json();
-                          field.onChange(data.url);
-                        } catch (error) {
-                          toast({
-                            title: 'Error',
-                            description: 'Failed to upload profile picture',
-                            variant: 'destructive',
-                          });
+                        if (file) {
+                          handleProfilePictureSelect(file);
                         }
                       };
                       input.click();
@@ -588,6 +510,19 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             </FormItem>
           )}
         />
+
+        {showCropper && cropImageUrl && (
+          <ImageCrop
+            imageUrl={cropImageUrl}
+            onCropComplete={handleCroppedImage}
+            onCancel={() => {
+              setShowCropper(false);
+              setCropImageUrl("");
+            }}
+            aspect={1}
+            circularCrop
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -1105,8 +1040,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
         )}
 
         <div className="flex justify-between pt-6">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
+          {onCancel && (            <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
           )}

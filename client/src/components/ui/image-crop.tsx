@@ -7,19 +7,25 @@ import { Button } from "@/components/ui/button";
 interface ImageCropProps {
   imageUrl: string;
   aspect?: number;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  circularCrop?: boolean;
   onCropComplete: (croppedImageUrl: string) => void;
+  onCancel: () => void;
 }
 
 export function ImageCrop({ 
   imageUrl, 
-  aspect,
-  open,
-  onOpenChange,
-  onCropComplete 
+  aspect = 1,
+  circularCrop = false,
+  onCropComplete,
+  onCancel 
 }: ImageCropProps) {
-  const [crop, setCrop] = useState<Crop>();
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    width: 90,
+    height: 90,
+    x: 5,
+    y: 5,
+  });
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
 
   const getCroppedImg = async (image: HTMLImageElement, crop: Crop) => {
@@ -34,6 +40,7 @@ export function ImageCrop({
       throw new Error('No 2d context');
     }
 
+    // Draw the cropped image
     ctx.drawImage(
       image,
       crop.x * scaleX,
@@ -45,6 +52,21 @@ export function ImageCrop({
       crop.width,
       crop.height
     );
+
+    // If circular crop is enabled, create circular mask
+    if (circularCrop) {
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(
+        crop.width / 2,
+        crop.height / 2,
+        Math.min(crop.width, crop.height) / 2,
+        0,
+        2 * Math.PI,
+        true
+      );
+      ctx.fill();
+    }
 
     return new Promise<string>((resolve, reject) => {
       canvas.toBlob(
@@ -67,23 +89,24 @@ export function ImageCrop({
     try {
       const croppedImageUrl = await getCroppedImg(imageRef, crop);
       onCropComplete(croppedImageUrl);
-      onOpenChange(false);
     } catch (e) {
       console.error('Error cropping image:', e);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="max-w-screen-lg">
         <DialogHeader>
-          <DialogTitle>Crop Image</DialogTitle>
+          <DialogTitle>Crop Profile Picture</DialogTitle>
         </DialogHeader>
         <div className="flex justify-center">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
             aspect={aspect}
+            circularCrop={circularCrop}
+            className={circularCrop ? "rounded-full overflow-hidden" : ""}
           >
             <img
               ref={(ref) => setImageRef(ref)}
@@ -94,7 +117,7 @@ export function ImageCrop({
           </ReactCrop>
         </div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} variant="outline">
+          <Button onClick={onCancel} variant="outline">
             Cancel
           </Button>
           <Button onClick={handleCropComplete} disabled={!crop}>
