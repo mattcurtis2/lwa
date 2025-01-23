@@ -819,7 +819,7 @@ export default function Admin() {
                               <img
                                 src={pendingContent[field.key] || field.value}
                                 alt={field.label}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full objectcover"
                               />
                             </div>
                           )}
@@ -1237,6 +1237,10 @@ export default function Admin() {
                                       motherId: editLitter?.motherId,
                                       fatherId: editLitter?.fatherId,
                                       litterId: editLitter?.id,
+                                      // Convert number fields to proper format
+                                      height: values.height ? parseFloat(values.height) : null,
+                                      weight: values.weight ? parseFloat(values.weight) : null,
+                                      price: values.price ? parseInt(values.price) : null,
                                     };
 
                                     try {
