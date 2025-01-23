@@ -103,7 +103,7 @@ export default function UpcomingLitters() {
         <h1 className="text-3xl font-bold mb-8">Upcoming Litters</h1>
         <div className="grid gap-8">
           {upcomingLitters.map((litter) => (
-            <Card 
+            <Card
               key={litter.id}
               className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
               onClick={() => navigate(`/dogs/litters/${litter.id}`)}
@@ -114,9 +114,9 @@ export default function UpcomingLitters() {
                     <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
                       Expected {formatDisplayDate(new Date(litter.dueDate))}
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={(e) => handleAddPuppy(litter, e)}
                       className="mt-2"
                     >
@@ -129,7 +129,7 @@ export default function UpcomingLitters() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div 
+                    <div
                       className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
                       onClick={(e) => handleEditDog(litter.mother, e)}
                     >
@@ -161,7 +161,7 @@ export default function UpcomingLitters() {
                       </div>
                     </div>
 
-                    <div 
+                    <div
                       className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
                       onClick={(e) => handleEditDog(litter.father, e)}
                     >
@@ -207,6 +207,7 @@ export default function UpcomingLitters() {
           onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
+          fromLitter={true} // Add this prop when opening from litter
         />
       )}
     </>

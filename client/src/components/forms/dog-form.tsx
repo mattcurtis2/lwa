@@ -90,17 +90,19 @@ interface DogFormProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   mode?: 'edit' | 'create';
+  fromLitter?: boolean; // New prop to indicate if opened from litter
 }
 
-export default function DogForm({ 
-  dog, 
-  isPuppy = false, 
-  onSubmit, 
-  onCancel, 
+export default function DogForm({
+  dog,
+  isPuppy = false,
+  onSubmit,
+  onCancel,
   defaultValues,
   open,
   onOpenChange,
-  mode = 'create'
+  mode = 'create',
+  fromLitter = false // Default to false
 }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
@@ -692,95 +694,100 @@ export default function DogForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="motherId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mother</FormLabel>
-              <Select
-                value={field.value?.toString() || ""}
-                onValueChange={(value) => {
-                  const newValue = value === "none" ? null : parseInt(value);
-                  field.onChange(newValue);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select mother" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {availableMothers.map((mother) => (
-                    <SelectItem key={mother.id} value={mother.id.toString()}>
-                      {mother.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Only show parent/litter fields if not opened from litter */}
+        {!fromLitter && (
+          <>
+            <FormField
+              control={form.control}
+              name="motherId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mother</FormLabel>
+                  <Select
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => {
+                      const newValue = value === "none" ? null : parseInt(value);
+                      field.onChange(newValue);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select mother" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {availableMothers.map((mother) => (
+                        <SelectItem key={mother.id} value={mother.id.toString()}>
+                          {mother.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="fatherId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Father</FormLabel>
-              <Select
-                value={field.value?.toString() || ""}
-                onValueChange={(value) => {
-                  const newValue = value === "none" ? null : parseInt(value);
-                  field.onChange(newValue);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select father" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {availableFathers.map((father) => (
-                    <SelectItem key={father.id} value={father.id.toString()}>
-                      {father.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="fatherId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Father</FormLabel>
+                  <Select
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => {
+                      const newValue = value === "none" ? null : parseInt(value);
+                      field.onChange(newValue);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select father" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {availableFathers.map((father) => (
+                        <SelectItem key={father.id} value={father.id.toString()}>
+                          {father.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="litterId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Litter</FormLabel>
-              <Select
-                value={field.value?.toString() || ""}
-                onValueChange={(value) => {
-                  const newValue = value === "none" ? null : parseInt(value);
-                  field.onChange(newValue);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select litter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {availableLitters.map((litter) => (
-                    <SelectItem key={litter.id} value={litter.id.toString()}>
-                      {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="litterId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Litter</FormLabel>
+                  <Select
+                    value={field.value?.toString() || ""}
+                    onValueChange={(value) => {
+                      const newValue = value === "none" ? null : parseInt(value);
+                      field.onChange(newValue);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select litter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {availableLitters.map((litter) => (
+                        <SelectItem key={litter.id} value={litter.id.toString()}>
+                          {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <div className="space-y-4">
           <FormField
@@ -1000,8 +1007,7 @@ export default function DogForm({
                 <p className="text-sm font-medium">
                   Drag & drop files here, or click to select
                 </p>
-                <p className="text-xs">
-                  Supports images and videos up to 10MB
+                <p className="text-xs">                  Supports images and videos up to 10MB
                 </p>
               </div>
             </div>
