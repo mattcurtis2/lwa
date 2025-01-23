@@ -1,22 +1,17 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogForm from "@/components/forms/dog-form";
-import PuppyForm from "@/components/forms/puppy-form";
 import { Plus, Edit } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function UpcomingLitters() {
-  const queryClient = useQueryClient();
   const [_, navigate] = useLocation();
   const [showDogForm, setShowDogForm] = useState(false);
-  const [showPuppyForm, setShowPuppyForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
-  const [selectedLitter, setSelectedLitter] = useState<Litter | null>(null);
 
   const { data: litters, isLoading } = useQuery<(Litter & {
     mother: Dog & { media?: DogMedia[] },
@@ -33,18 +28,21 @@ export default function UpcomingLitters() {
 
   const handleAddPuppy = (litter: Litter, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent litter navigation
-    setSelectedLitter(litter);
-    setShowPuppyForm(true);
+    setSelectedDog({
+      puppy: true,
+      litterId: litter.id,
+      motherId: litter.motherId,
+      fatherId: litter.fatherId,
+      birthDate: new Date().toISOString().split('T')[0],
+      gender: 'male', // Default gender
+      available: false,
+    });
+    setShowDogForm(true);
   };
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
     setSelectedDog(null);
-  };
-
-  const handlePuppyFormClose = () => {
-    setShowPuppyForm(false);
-    setSelectedLitter(null);
   };
 
   // Show loading skeleton
@@ -202,35 +200,14 @@ export default function UpcomingLitters() {
         </div>
       </div>
 
-      {/* Puppy Form Modal */}
-      {showPuppyForm && selectedLitter && (
-        <Dialog open={showPuppyForm} onOpenChange={handlePuppyFormClose}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Puppy</DialogTitle>
-            </DialogHeader>
-            <PuppyForm
-              motherId={selectedLitter.motherId}
-              fatherId={selectedLitter.fatherId}
-              litterId={selectedLitter.id}
-              onOpenChange={handlePuppyFormClose}
-              onSubmit={async () => {
-                handlePuppyFormClose();
-                await queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
-
       {/* Dog Form Modal */}
-      {showDogForm && selectedDog && (
+      {showDogForm && (
         <DogForm
-          dog={selectedDog as Dog}
-          mode="edit"
           open={showDogForm}
           onOpenChange={handleDogFormClose}
-          fromLitter={true}
+          dog={selectedDog as Dog}
+          mode={selectedDog?.id ? 'edit' : 'create'}
+          fromLitter={true} // Add this prop when opening from litter
         />
       )}
     </>
