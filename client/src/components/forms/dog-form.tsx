@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect } from "react";
-import { X, Upload, ImageIcon } from "lucide-react";
+import { X, ImageIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -41,6 +41,9 @@ import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useDropzone } from 'react-dropzone';
+import { Upload } from 'lucide-react';
+
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -448,6 +451,63 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     }
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      'image/*': [],
+      'video/*': []
+    },
+    maxSize: 10485760, // 10MB
+    onDrop: async (acceptedFiles) => {
+      try {
+        for (const file of acceptedFiles) {
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            throw new Error("Failed to upload file");
+          }
+
+          const data = await res.json();
+          const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+
+          const newMedia = {
+            url: data.url,
+            type: fileType,
+            fileName: file.name,
+            isNew: true,
+          };
+
+          setMediaInputs(prev => [newMedia, ...prev]);
+          form.setValue("media", [newMedia, ...form.getValues("media")]);
+        }
+
+        toast({
+          title: "Success",
+          description: `${acceptedFiles.length} file(s) uploaded successfully`,
+        });
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload one or more files",
+          variant: "destructive",
+        });
+      }
+    },
+    onDropRejected: (rejectedFiles) => {
+      toast({
+        title: "Error",
+        description: "Some files were rejected. Please check the file type and size.",
+        variant: "destructive",
+      });
+    }
+  });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -461,7 +521,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                 Upload a profile picture for the dog
               </FormDescription>
               <div className="flex items-center gap-4">
-                <div 
+                <div
                   className="relative h-24 w-24 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
@@ -874,93 +934,28 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel>Pictures & Videos</FormLabel>
-            <Dialog open={showAddMedia} onOpenChange={setShowAddMedia}>
-              <DialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isUploading}
-                >
-                  Add Media
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Media</DialogTitle>
-                  <DialogDescription>
-                    Upload images or videos to your dog's profile
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="space-y-2">
-                      <Label>Media Type</Label>
-                      <RadioGroup
-                        value={mediaType}
-                        onValueChange={(value) => setMediaType(value as "image" | "video")}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="image" id="image" />
-                          <Label htmlFor="image">Image</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="video" id="video" />
-                          <Label htmlFor="video">Video</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
+          </div>
 
-                  <div className="space-y-2">
-                    <Label>Upload Method</Label>
-                    <RadioGroup
-                      value={inputMethod}
-                      onValueChange={(value) => setInputMethod(value as "url" | "upload")}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="upload" id="upload" />
-                        <Label htmlFor="upload">Upload File</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="url" id="url" />
-                        <Label htmlFor="url">URL</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {inputMethod === "url" && (
-                    <div className="space-y-2">
-                      <Label>URL</Label>
-                      <Input
-                        type="url"
-                        placeholder="Enter media URL"
-                        value={mediaUrl}
-                        onChange={(e) => setMediaUrl(e.target.value)}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowAddMedia(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleAddMedia}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? "Uploading..." : "Add Media"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+          <div
+            {...getRootProps()}
+            className={cn(
+              "border-2 border-dashed rounded-lg p-6 transition-colors",
+              isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+              "hover:border-primary hover:bg-primary/5 cursor-pointer"
+            )}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center gap-2 text-center">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <div className="text-muted-foreground">
+                <p className="text-sm font-medium">
+                  Drag & drop files here, or click to select
+                </p>
+                <p className="text-xs">
+                  Supports images and videos up to 10MB
+                </p>
+              </div>
+            </div>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -969,7 +964,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="space-y-2"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                 >
                   {mediaInputs.map((input, index) => (
                     <Draggable
@@ -982,47 +977,37 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={cn(
-                            "p-4 rounded-lg",
-                            input.isNew
-                              ? "bg-primary/5 border border-primary/20"
-                              : "bg-muted"
-                          )}
+                          className="relative group aspect-square rounded-lg overflow-hidden bg-muted"
                         >
-                          <div className="flex gap-4">
-                            <div className="w-20 h-20 relative shrink-0">
-                              {input.type === "image" ? (
-                                <img
-                                  src={input.url}
-                                  alt="Preview"
-                                  className="w-full h-full object-cover rounded"
-                                />
-                              ) : (
-                                <video
-                                  src={input.url}
-                                  className="w-full h-full object-cover rounded"
-                                  controls
-                                />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {input.fileName || input.url.split("/").pop()}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {input.url}
-                              </p>
-                            </div>
+                          {input.type === 'image' ? (
+                            <img
+                              src={input.url}
+                              alt={`Upload ${index + 1}`}
+                              className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                              onClick={() => {
+                                setCropImageUrl(input.url);
+                                setShowCropper(true);
+                              }}
+                            />
+                          ) : (
+                            <video
+                              src={input.url}
+                              className="w-full h-full object-cover"
+                              controls
+                            />
+                          )}
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               type="button"
-                              variant="ghost"
+                              variant="destructive"
                               size="icon"
-                              className="shrink-0"
+                              className="h-8 w-8"
                               onClick={() => removeMediaInput(index)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
                           </div>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                         </div>
                       )}
                     </Draggable>
@@ -1037,8 +1022,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
         {!isPuppy && (
           <div className="space-y-4">
-            <FormField
-              control={form.control}
+            <FormField              control={form.control}
               name="outsideBreeder"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -1061,9 +1045,8 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             <FormField
               control={form.control}
               name="puppy"
-              render={({field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">                <div className="space-y-0.5">
                     <FormLabel className="text-base">Puppy</FormLabel>
                     <FormDescription>
                       Mark this if the dog is a puppy
