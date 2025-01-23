@@ -390,6 +390,13 @@ export default function Admin() {
   const handleUpdateLitter = async () => {
     try {
       const { puppies, mother, father, ...litterData } = editLitter || {};
+
+      // Only proceed if there are actual changes
+      const existingLitter = litters.find(l => l.id === litterData.id);
+      if (!existingLitter) {
+        throw new Error('Litter not found');
+      }
+
       const processedPuppies = puppies?.map(puppy => ({
         id: puppy.id,
         name: puppy.name,
@@ -405,14 +412,30 @@ export default function Admin() {
         fatherId: litterData.fatherId,
         litterId: litterData.id,
         breed: puppy.breed,
+        profileImageUrl: puppy.profileImageUrl,
       }));
 
-      const res = await fetch(`/api/litters/${editLitter?.id}`, {
+      // Only update if there are changes
+      const hasChanges = JSON.stringify(existingLitter) !== JSON.stringify({ ...litterData, puppies: processedPuppies });
+
+      if (!hasChanges) {
+        toast({
+          title: "Success",
+          description: "No changes to update",
+        });
+        return;
+      }
+
+      const res = await fetch(`/api/litters/${litterData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...litterData,
           puppies: processedPuppies,
+          // Ensure dates are in the correct format
+          dueDate: litterData.dueDate,
+          createdAt: litterData.createdAt,
+          updatedAt: new Date().toISOString(),
         }),
       });
 
@@ -423,17 +446,139 @@ export default function Admin() {
 
       queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
       toast({
-        title: 'Success',
-        description: 'Litter updated successfully',
+        title: "Success",
+        description: "Litter updated successfully",
       });
-    } catch (error) {
+
+      // Optionally close the form after successful update
+      setShowLitterForm(false);
+    } catch (error: any) {
       console.error('Error updating litter:', error);
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message || 'Failed to update litter',
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
+  };
+
+  const renderPuppyCard = (puppy: Dog, index: number) => (
+    <div
+      key={puppy.id || index}
+      className="flex items-center justify-between p-4 rounded-lg border"
+    >
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+          {puppy.profileImageUrl ? (
+            <img
+              src={puppy.profileImageUrl}
+              alt={puppy.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`w-full h-full flex items-center justify-center ${
+              puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+            }`}>
+              <span className={`text-xl ${
+                puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+              }`}>
+                {puppy.gender === 'female' ? '♀' : '♂'}
+              </span>
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="font-medium">{puppy.name}</p>
+          <p className="text-sm text-muted-foreground">
+            {puppy.gender} • {puppy.color || 'No color set'}
+          </p>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => {
+          if (!confirm('Are you sure you want to remove this puppy?')) return;
+          setEditLitter(prev => ({
+            ...prev!,
+            puppies: prev!.puppies!.filter((_, i) => i !== index),
+          }));
+        }}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
+  const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
+    const mother = dogs.find(d => d.id === litter.motherId);
+    const father = dogs.find(d => d.id === litter.fatherId);
+    const litterPuppies = dogs.filter(d => d.litterId === litter.id);
+
+    return (
+      <Card key={litter.id} className="mb-4">
+        <CardHeader>
+          <CardTitle>
+            {mother?.name} x {father?.name}
+          </CardTitle>
+          <CardDescription>
+            Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {litterPuppies.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-medium">Puppies</h4>
+              <div className="grid gap-4">
+                {litterPuppies.map((puppy, index) => (
+                  <div
+                    key={puppy.id}
+                    className="flex items-center gap-4 p-4 rounded-lg border"
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                      {puppy.profileImageUrl ? (
+                        <img
+                          src={puppy.profileImageUrl}
+                          alt={puppy.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${
+                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                        }`}>
+                          <span className={`text-xl ${
+                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                          }`}>
+                            {puppy.gender === 'female' ? '♀' : '♂'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{puppy.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {puppy.gender} • {puppy.color || 'No color set'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end mt-4">
+            <Button
+              onClick={() => {
+                setLitterFormMode('edit');
+                setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
+                setShowLitterForm(true);
+              }}
+            >
+              Edit Litter
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
@@ -836,7 +981,8 @@ export default function Admin() {
                                 });
                               }
                             }}
-                            onChange={(value) => handleContentChange(field.key, value)}                          />
+                            onChange={(value) => handleContentChange(field.key, value)}
+                          />
                           {(pendingContent[field.key] || field.value) && (
                             <div className="w-40 h-40 rounded-lg overflow-hidden border">
                               <img
@@ -1190,30 +1336,7 @@ export default function Admin() {
                               <h3 className="font-medium">Current Puppies</h3>
                               <div className="grid gap-4">
                                 {editLitter.puppies.map((puppy, index) => (
-                                  <div
-                                    key={puppy.id || index}
-                                    className="flex items-center justify-between p-4 rounded-lg border"
-                                  >
-                                    <div>
-                                      <p className="font-medium">{puppy.name}</p>
-                                      <p className="text-sm text-muted-foreground">
-                                        {puppy.gender} • {puppy.color || 'No color set'}
-                                      </p>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => {
-                                        if (!confirm('Are you sure you want to remove this puppy?')) return;
-                                        setEditLitter(prev => ({
-                                          ...prev!,
-                                          puppies: prev!.puppies!.filter((_, i) => i !== index),
-                                        }));
-                                      }}
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </div>
+                                  renderPuppyCard(puppy, index)
                                 ))}
                               </div>
                             </div>
@@ -1306,112 +1429,7 @@ export default function Admin() {
                 </Sheet>
 
                 <div className="grid gap-4">
-                  {litters?.map((litter) => {
-                    const mother = dogs.find(dog => dog.id === litter.motherId);
-                    const father = dogs.find(dog => dog.id === litter.fatherId);
-
-                    if (!mother || !father) return null;
-
-                    return (
-                      <Card key={litter.id} className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              {mother.name} x {father.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Due Date: {formatDisplayDate(new Date(litter.dueDate))}
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                                  {mother.profileImageUrl || (mother.media && mother.media[0]?.url) ? (
-                                    <img
-                                      src={mother.profileImageUrl || mother.media[0].url}
-                                      alt={mother.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                                      <span className="text-2xl text-pink-500">♀</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{mother.name}</p>
-                                  <p className="text-sm text-muted-foreground">Mother</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                                  {father.profileImageUrl || (father.media && father.media[0]?.url) ? (
-                                    <img
-                                      src={father.profileImageUrl || father.media[0].url}
-                                      alt={father.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                      <span className="text-2xl text-blue-500">♂</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{father.name}</p>
-                                  <p className="text-sm text-muted-foreground">Father</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setEditLitter(litter);
-                                setShowLitterForm(true);
-                                setLitterFormMode('edit');
-                              }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              onClick={() => {
-                                setEditLitter(litter);
-                                setShowLitterForm(true);
-                                setLitterFormMode('edit');
-                              }}
-                            >
-                              Add Puppies
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={async () => {
-                                if (!confirm('Are you sure you want to delete this litter?')) return;
-
-                                const res = await fetch(`/api/litters/${litter.id}`, {
-                                  method: 'DELETE',
-                                });
-
-                                if (res.ok) {
-                                  queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-                                  toast({
-                                    title: "Success",
-                                    description: "Litter deleted successfully",
-                                  });
-                                }
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                  {litters?.map(renderLitterCard)}
                 </div>
               </div>
             </CardContent>
