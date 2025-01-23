@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import DogMediaCarousel from "@/components/cards/dog-media-carousel";
 import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/date-utils";
 
 interface Document {
   id?: number;
@@ -198,6 +199,10 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p className="flex items-center gap-1">
                     {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
                   </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Birth Date</h3>
+                  <p>{formatDisplayDate(new Date(dog.birthDate))}</p>
                 </div>
               </div>
             </CardContent>
