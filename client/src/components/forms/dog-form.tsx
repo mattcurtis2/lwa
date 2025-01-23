@@ -460,8 +460,16 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                 Upload a profile picture for the dog
               </FormDescription>
               <div className="flex items-center gap-4">
-                <div className="relative h-24 w-24">
-                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden">
+                <div 
+                  className="relative h-24 w-24 cursor-pointer"
+                  onClick={() => {
+                    if (field.value) {
+                      setCropImageUrl(field.value);
+                      setShowCropper(true);
+                    }
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
                     {field.value ? (
                       <img
                         src={field.value}

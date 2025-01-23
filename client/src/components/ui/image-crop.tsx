@@ -19,12 +19,13 @@ export function ImageCrop({
   onCropComplete,
   onCancel 
 }: ImageCropProps) {
+  // Initialize a perfect circular crop area
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 90,
-    height: 90,
-    x: 5,
-    y: 5,
+    width: 80, // Slightly smaller initial size for better visibility
+    height: 80,
+    x: 10,
+    y: 10,
   });
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
 
