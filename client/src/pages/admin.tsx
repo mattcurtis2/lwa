@@ -389,53 +389,74 @@ export default function Admin() {
 
   const handleUpdateLitter = async () => {
     try {
-      const { puppies, mother, father, ...litterData } = editLitter || {};
+      if (!editLitter) return;
 
-      // Only proceed if there are actual changes
-      const existingLitter = litters.find(l => l.id === litterData.id);
-      if (!existingLitter) {
-        throw new Error('Litter not found');
-      }
+      const { puppies, mother, father, ...litterData } = editLitter;
 
-      const processedPuppies = puppies?.map(puppy => ({
+      // Format dates for the litter
+      const formattedLitter = {
+        ...litterData,
+        dueDate: new Date(litterData.dueDate).toISOString(),
+      };
+
+      // Create a separate array for existing and new puppies
+      const existingPuppies = puppies?.filter(p => p.id) || [];
+      const newPuppies = puppies?.filter(p => !p.id) || [];
+
+      // Process existing puppies
+      const processedPuppies = existingPuppies.map(puppy => ({
         id: puppy.id,
         name: puppy.name,
         gender: puppy.gender,
-        birthDate: puppy.birthDate,
-        description: puppy.description,
-        color: puppy.color,
+        birthDate: new Date(puppy.birthDate).toISOString(),
+        description: puppy.description || '',
+        color: puppy.color || '',
         height: puppy.height ? parseFloat(puppy.height.toString()) : null,
         weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
         price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
         puppy: true,
-        motherId: litterData.motherId,
-        fatherId: litterData.fatherId,
-        litterId: litterData.id,
-        breed: puppy.breed,
-        profileImageUrl: puppy.profileImageUrl,
+        motherId: formattedLitter.motherId,
+        fatherId: formattedLitter.fatherId,
+        litterId: formattedLitter.id,
+        breed: puppy.breed || '',
+        profileImageUrl: puppy.profileImageUrl || '',
       }));
 
-      // Only update if there are changes
-      const hasChanges = JSON.stringify(existingLitter) !== JSON.stringify({ ...litterData, puppies: processedPuppies });
+      // Create new puppies first if any
+      for (const newPuppy of newPuppies) {
+        try {
+          const res = await fetch('/api/dogs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...newPuppy,
+              puppy: true,
+              motherId: formattedLitter.motherId,
+              fatherId: formattedLitter.fatherId,
+              litterId: formattedLitter.id,
+              birthDate: new Date(newPuppy.birthDate).toISOString(),
+            }),
+          });
 
-      if (!hasChanges) {
-        toast({
-          title: "Success",
-          description: "No changes to update",
-        });
-        return;
+          if (!res.ok) {
+            throw new Error(await res.text());
+          }
+
+          const createdPuppy = await res.json();
+          processedPuppies.push(createdPuppy);
+        } catch (error) {
+          console.error('Error creating puppy:', error);
+          throw new Error('Failed to create puppy');
+        }
       }
 
-      const res = await fetch(`/api/litters/${litterData.id}`, {
+      // Update the litter with all puppies
+      const res = await fetch(`/api/litters/${formattedLitter.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...litterData,
+          ...formattedLitter,
           puppies: processedPuppies,
-          // Ensure dates are in the correct format
-          dueDate: litterData.dueDate,
-          createdAt: litterData.createdAt,
-          updatedAt: new Date().toISOString(),
         }),
       });
 
@@ -444,14 +465,17 @@ export default function Admin() {
         throw new Error(error || 'Failed to update litter');
       }
 
+      // Invalidate both queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+
       toast({
         title: "Success",
         description: "Litter updated successfully",
       });
 
-      // Optionally close the form after successful update
       setShowLitterForm(false);
+      setShowPuppyForm(false);
     } catch (error: any) {
       console.error('Error updating litter:', error);
       toast({
@@ -526,11 +550,57 @@ export default function Admin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Parents Section */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Mother */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                {mother?.profileImageUrl ? (
+                  <img
+                    src={mother.profileImageUrl}
+                    alt={mother.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                    <span className="text-2xl text-pink-500">♀</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-medium">{mother?.name}</p>
+                <p className="text-sm text-muted-foreground">Mother</p>
+              </div>
+            </div>
+
+            {/* Father */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                {father?.profileImageUrl ? (
+                  <img
+                    src={father.profileImageUrl}
+                    alt={father.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-2xl text-blue-500">♂</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-medium">{father?.name}</p>
+                <p className="text-sm text-muted-foreground">Father</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Puppies Section */}
           {litterPuppies.length > 0 && (
             <div className="space-y-4">
               <h4 className="font-medium">Puppies</h4>
               <div className="grid gap-4">
-                {litterPuppies.map((puppy, index) => (
+                {litterPuppies.map((puppy) => (
                   <div
                     key={puppy.id}
                     className="flex items-center gap-4 p-4 rounded-lg border"
@@ -565,6 +635,7 @@ export default function Admin() {
               </div>
             </div>
           )}
+
           <div className="flex justify-end mt-4">
             <Button
               onClick={() => {
