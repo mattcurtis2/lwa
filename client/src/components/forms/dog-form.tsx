@@ -5,17 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -26,24 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, ImageIcon, Loader2 } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Label } from "@/components/ui/label";
-import { FileUpload } from "@/components/ui/file-upload";
-import { ImageCrop } from "@/components/ui/image-crop";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useDropzone } from 'react-dropzone';
-import { Upload } from 'lucide-react';
-
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -105,7 +82,95 @@ export default function DogForm({
   fromLitter = false
 }: DogFormProps) {
   const { toast } = useToast();
-  const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
+  const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
+  const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
+  const [availableLitters, setAvailableLitters] = useState<any[]>([]);
+  const [isLoadingParents, setIsLoadingParents] = useState(false);
+  const [isLoadingLitters, setIsLoadingLitters] = useState(false);
+  const [hasLoadedParents, setHasLoadedParents] = useState(false);
+
+  const dogSchema = createDogSchema(isPuppy);
+
+  const form = useForm<z.infer<typeof dogSchema>>({
+    resolver: zodResolver(dogSchema),
+    defaultValues: {
+      name: defaultValues?.name || "",
+      registrationName: defaultValues?.registrationName || "",
+      birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
+      gender: defaultValues?.gender || "male",
+      description: defaultValues?.description || "",
+      motherId: defaultValues?.motherId || null,
+      fatherId: defaultValues?.fatherId || null,
+      litterId: defaultValues?.litterId || null,
+      profileImageUrl: defaultValues?.profileImageUrl || "",
+      healthData: defaultValues?.healthData || "",
+      color: defaultValues?.color || "",
+      dewclaws: defaultValues?.dewclaws || "",
+      furLength: defaultValues?.furLength || "",
+      height: defaultValues?.height || "",
+      weight: defaultValues?.weight || "",
+      pedigree: defaultValues?.pedigree || "",
+      narrativeDescription: defaultValues?.narrativeDescription || "",
+      media: defaultValues?.media || [],
+      outsideBreeder: defaultValues?.outsideBreeder || false,
+      puppy: defaultValues?.puppy || isPuppy,
+      available: defaultValues?.available || false,
+      price: defaultValues?.price || "",
+      breed: defaultValues?.breed || "Colorado Mountain Dogs",
+    },
+  });
+
+  const fetchParents = async () => {
+    if (!hasLoadedParents && !fromLitter) {
+      setIsLoadingParents(true);
+      try {
+        const response = await fetch('/api/dogs');
+        const dogs = await response.json();
+        setAvailableMothers(dogs.filter((d: Dog) => d.gender === 'female'));
+        setAvailableFathers(dogs.filter((d: Dog) => d.gender === 'male'));
+        setHasLoadedParents(true);
+      } catch (error) {
+        console.error('Error fetching parents:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load parent options",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingParents(false);
+      }
+    }
+  };
+
+  const fetchLitters = async () => {
+    if (!fromLitter) {
+      setIsLoadingLitters(true);
+      try {
+        const motherId = form.getValues('motherId');
+        const fatherId = form.getValues('fatherId');
+
+        if (motherId && fatherId) {
+          const response = await fetch('/api/litters');
+          const allLitters = await response.json();
+          const filteredLitters = allLitters.filter(
+            (l: any) => l.motherId === motherId && l.fatherId === fatherId
+          );
+          setAvailableLitters(filteredLitters);
+        }
+      } catch (error) {
+        console.error('Error fetching litters:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load litter options",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingLitters(false);
+      }
+    }
+  };
+
+  const [mediaInputs, setMediaInputs] = useState<MediaInput[]>(defaultValues?.media || []);
   const [isUploading, setIsUploading] = useState(false);
   const [showAddMedia, setShowAddMedia] = useState(false);
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
@@ -115,111 +180,9 @@ export default function DogForm({
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [healthDocuments, setHealthDocuments] = useState<any[]>([]);
   const [pedigreeDocuments, setPedigreeDocuments] = useState<any[]>([]);
-  const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
-  const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
-  const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [formValues, setFormValues] = useState<any>(null);
 
-  const dogSchema = createDogSchema(isPuppy);
-
-  const form = useForm<z.infer<typeof dogSchema>>({
-    resolver: zodResolver(dogSchema),
-    defaultValues: formValues,
-  });
-
-  useEffect(() => {
-    const initializeForm = async () => {
-      setIsLoading(true);
-      try {
-        if (!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId) {
-          const response = await fetch('/api/dogs');
-          const dogs = await response.json();
-          setAvailableMothers(dogs.filter((d: Dog) => d.gender === 'female'));
-          setAvailableFathers(dogs.filter((d: Dog) => d.gender === 'male'));
-        }
-
-        const initialValues = {
-          name: defaultValues?.name || "",
-          registrationName: defaultValues?.registrationName || "",
-          birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
-          gender: defaultValues?.gender || "male",
-          description: defaultValues?.description || "",
-          motherId: defaultValues?.motherId || null,
-          fatherId: defaultValues?.fatherId || null,
-          litterId: defaultValues?.litterId || null,
-          profileImageUrl: defaultValues?.profileImageUrl || "",
-          healthData: defaultValues?.healthData || "",
-          color: defaultValues?.color || "",
-          dewclaws: defaultValues?.dewclaws || "",
-          furLength: defaultValues?.furLength || "",
-          height: defaultValues?.height || "",
-          weight: defaultValues?.weight || "",
-          pedigree: defaultValues?.pedigree || "",
-          narrativeDescription: defaultValues?.narrativeDescription || "",
-          media: defaultValues?.media || [],
-          outsideBreeder: defaultValues?.outsideBreeder || false,
-          puppy: defaultValues?.puppy || isPuppy,
-          available: defaultValues?.available || false,
-          price: defaultValues?.price || "",
-          breed: defaultValues?.breed || "Colorado Mountain Dogs",
-        };
-
-        setFormValues(initialValues);
-        form.reset(initialValues);
-
-        if (!fromLitter && defaultValues?.motherId && defaultValues?.fatherId) {
-          const littersResponse = await fetch('/api/litters');
-          const allLitters = await littersResponse.json();
-          const filteredLitters = allLitters.filter(
-            (l: any) => l.motherId === defaultValues.motherId && l.fatherId === defaultValues.fatherId
-          );
-          setAvailableLitters(filteredLitters);
-        }
-      } catch (error) {
-        console.error('Error initializing form:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load form data",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeForm();
-  }, [defaultValues, fromLitter, isPuppy]);
-
-  useEffect(() => {
-    const updateLitters = async () => {
-      if (!fromLitter && !defaultValues?.litterId) {
-        const motherId = form.getValues('motherId');
-        const fatherIf = form.getValues('fatherId');
-
-        if (motherId && fatherIf) {
-          const response = await fetch('/api/litters');
-          const allLitters = await response.json();
-          const filteredLitters = allLitters.filter(
-            (l: any) => l.motherId === motherId && l.fatherId === fatherIf
-          );
-          setAvailableLitters(filteredLitters);
-        }
-      }
-    };
-
-    updateLitters();
-  }, [form.watch('motherId'), form.watch('fatherId'), fromLitter, defaultValues]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -678,7 +641,7 @@ export default function DogForm({
           )}
         />
 
-        {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
+        {!fromLitter && (
           <div className="space-y-6">
             <FormField
               control={form.control}
@@ -691,18 +654,32 @@ export default function DogForm({
                     onValueChange={(value) => {
                       const newValue = value === "none" ? null : parseInt(value);
                       field.onChange(newValue);
+                      if (newValue && form.getValues('fatherId')) {
+                        fetchLitters();
+                      }
+                    }}
+                    onOpenChange={(open) => {
+                      if (open) fetchParents();
                     }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select mother" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableMothers.map((mother) => (
-                        <SelectItem key={mother.id} value={mother.id.toString()}>
-                          {mother.name}
-                        </SelectItem>
-                      ))}
+                      {isLoadingParents ? (
+                        <div className="flex items-center justify-center p-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        <>
+                          <SelectItem value="none">None</SelectItem>
+                          {availableMothers.map((mother) => (
+                            <SelectItem key={mother.id} value={mother.id.toString()}>
+                              {mother.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -721,18 +698,32 @@ export default function DogForm({
                     onValueChange={(value) => {
                       const newValue = value === "none" ? null : parseInt(value);
                       field.onChange(newValue);
+                      if (newValue && form.getValues('motherId')) {
+                        fetchLitters();
+                      }
+                    }}
+                    onOpenChange={(open) => {
+                      if (open) fetchParents();
                     }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select father" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableFathers.map((father) => (
-                        <SelectItem key={father.id} value={father.id.toString()}>
-                          {father.name}
-                        </SelectItem>
-                      ))}
+                      {isLoadingParents ? (
+                        <div className="flex items-center justify-center p-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        <>
+                          <SelectItem value="none">None</SelectItem>
+                          {availableFathers.map((father) => (
+                            <SelectItem key={father.id} value={father.id.toString()}>
+                              {father.name}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -752,17 +743,30 @@ export default function DogForm({
                       const newValue = value === "none" ? null : parseInt(value);
                       field.onChange(newValue);
                     }}
+                    onOpenChange={(open) => {
+                      if (open && form.getValues('motherId') && form.getValues('fatherId')) {
+                        fetchLitters();
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select litter" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableLitters.map((litter) => (
-                        <SelectItem key={litter.id} value={litter.id.toString()}>
-                          {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
-                        </SelectItem>
-                      ))}
+                      {isLoadingLitters ? (
+                        <div className="flex items-center justify-center p-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        <>
+                          <SelectItem value="none">None</SelectItem>
+                          {availableLitters.map((litter) => (
+                            <SelectItem key={litter.id} value={litter.id.toString()}>
+                              {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
