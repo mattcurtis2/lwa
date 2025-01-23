@@ -379,8 +379,39 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
   };
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
-    form.setValue("profileImageUrl", croppedImageUrl);
-    setShowCropper(false);
+    // Convert the cropped image data URL to a File object
+    const response = await fetch(croppedImageUrl);
+    const blob = await response.blob();
+    const file = new File([blob], 'profile-picture.jpg', { type: 'image/jpeg' });
+
+    // Upload the cropped image
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload cropped image");
+      }
+
+      const { url } = await uploadRes.json();
+      form.setValue("profileImageUrl", url, { shouldValidate: true });
+      setShowCropper(false);
+
+      // Clean up the temporary object URL
+      URL.revokeObjectURL(croppedImageUrl);
+    } catch (error) {
+      console.error('Error uploading cropped image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload cropped image",
+        variant: "destructive",
+      });
+    }
   };
 
   const DocumentList = ({ documents, type }: { documents: DogDocument[], type: 'health' | 'pedigree' }) => (
@@ -999,12 +1030,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 className="flex gap-4"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="image" id="image" />
-                  <label htmlFor="image">Image</label>
+                  <RadioGroupItem value="image" id="media-type-image" />
+                  <label htmlFor="media-type-image">Image</label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="video" id="video" />
-                  <label htmlFor="video">Video</label>
+                  <RadioGroupItem value="video" id="media-type-video" />
+                  <label htmlFor="media-type-video">Video</label>
                 </div>
               </RadioGroup>
             </div>
@@ -1017,12 +1048,12 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 className="flex gap-4"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="url" id="url" />
-                  <label htmlFor="url">URL</label>
+                  <RadioGroupItem value="url" id="input-method-url" />
+                  <label htmlFor="input-method-url">URL</label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="upload" id="upload" />
-                  <label htmlFor="upload">Upload</label>
+                  <RadioGroupItem value="upload" id="input-method-upload" />
+                  <label htmlFor="input-method-upload">Upload</label>
                 </div>
               </RadioGroup>
 

@@ -1,7 +1,13 @@
 import { useState, useRef } from 'react';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 interface ImageCropperProps {
@@ -70,39 +76,42 @@ export default function ImageCropper({
     const croppedImageUrl = await getCroppedImg();
     if (croppedImageUrl) {
       onCropComplete(croppedImageUrl);
+      onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Crop Profile Picture</DialogTitle>
-        </DialogHeader>
-        <div className="mt-4">
-          <ReactCrop
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            aspect={aspectRatio}
-            circularCrop
-          >
-            <img
-              ref={imageRef}
-              src={imageUrl}
-              alt="Crop me"
-              className="max-h-[400px] w-auto"
-            />
-          </ReactCrop>
-          <div className="flex justify-end gap-4 mt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCropComplete}>
-              Apply Crop
-            </Button>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[95vw] sm:max-w-2xl">
+        <SheetHeader>
+          <SheetTitle>Crop Profile Picture</SheetTitle>
+        </SheetHeader>
+        <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
+          <div className="flex flex-col items-center gap-4 pb-4">
+            <ReactCrop
+              crop={crop}
+              onChange={(c) => setCrop(c)}
+              aspect={aspectRatio}
+              circularCrop
+            >
+              <img
+                ref={imageRef}
+                src={imageUrl}
+                alt="Crop me"
+                className="max-w-full"
+              />
+            </ReactCrop>
+            <div className="flex justify-end gap-4 w-full">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCropComplete}>
+                Apply Crop
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   );
 }
