@@ -1331,8 +1331,8 @@ export default function Admin() {
             <CardContent>
               <div className="mb-4">
                 <Button onClick={() => {
-                  setEditItem(null);
-                  setShowForm(true);
+                  setSelectedDog(null);
+                  setShowDogForm(true);
                 }}>
                   Add New Dog
                 </Button>
