@@ -616,19 +616,38 @@ export default function Admin() {
   const handleAddPuppy = (litter: Litter) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
-    
+
+    if (!mother || !father) {
+      toast({
+        title: "Error",
+        description: "Could not find mother or father information",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
-      mother,
-      father,
+      breed: mother.breed || "Colorado Mountain Dog",  // Inherit breed from mother
       birthDate: new Date().toISOString().split('T')[0],
       gender: 'male', // Default gender
       available: false,
-      breed: "Colorado Mountain Dogs",
-      outsideBreeder: false
+      outsideBreeder: false,
+      // Additional information
+      height: null,
+      weight: null,
+      color: '',
+      description: '',
+      narrativeDescription: '',
+      healthData: '',
+      registrationName: '',
+      profileImageUrl: '',
+      // Reference the parent dogs
+      mother,
+      father,
     });
     setShowDogForm(true);
   };
