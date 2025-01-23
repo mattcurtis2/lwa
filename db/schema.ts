@@ -77,11 +77,12 @@ export const dogs = pgTable("dogs", {
   gender: text("gender").notNull(),
   birthDate: date("birth_date").notNull(),
   description: text("description"),
-  // Add references to parents and litter
   motherId: integer("mother_id").references(() => dogs.id),
   fatherId: integer("father_id").references(() => dogs.id),
   litterId: integer("litter_id").references(() => litters.id),
-  // Rest of existing fields remain unchanged
+  puppy: boolean("puppy").default(false).notNull(),
+  available: boolean("available").default(false).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }),
   profileImageUrl: text("profile_image_url"),
   healthData: text("health_data"),
   color: text("color"),
@@ -136,7 +137,6 @@ export const dogRelations = relations(dogs, ({ many, one }) => ({
     fields: [dogs.litterId],
     references: [litters.id],
   }),
-  // Add inverse relations for offspring
   motherOf: many(dogs, { relationName: "mother" }),
   fatherOf: many(dogs, { relationName: "father" }),
 }));

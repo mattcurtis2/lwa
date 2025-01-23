@@ -8,12 +8,13 @@ import { Link } from "wouter";
 interface DogCardProps {
   dog: Dog & { media?: DogMedia[] };
   isAdmin?: boolean;
+  showPrice?: boolean;
   onEdit?: (dog: Dog) => void;
   onDelete?: (dog: Dog) => void;
   onOrderChange?: (dogId: number, newOrder: number) => void;
 }
 
-export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange }: DogCardProps) {
+export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onOrderChange }: DogCardProps) {
   const genderSymbol = dog.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
   ) : (
@@ -120,6 +121,13 @@ export default function DogCard({ dog, isAdmin, onEdit, onDelete, onOrderChange 
                   <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
                 </div>
               </div>
+              {showPrice && dog.price && (
+                <div className="mb-4">
+                  <p className="text-lg font-semibold text-green-600">
+                    ${dog.price.toLocaleString()}
+                  </p>
+                </div>
+              )}
               <p className="text-stone-600 mb-4">{dog.description}</p>
             </div>
           </Link>

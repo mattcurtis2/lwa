@@ -21,9 +21,10 @@ import { cn } from "@/lib/utils";
 
 interface DogsProps {
   genderFilter?: 'male' | 'female';
+  showAvailable?: boolean;
 }
 
-export default function Dogs({ genderFilter }: DogsProps) {
+export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const [_, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,8 +126,19 @@ export default function Dogs({ genderFilter }: DogsProps) {
   const hero = heroContent?.[0];
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  const females = dogs?.filter(dog => dog.gender === 'female' && !dog.outsideBreeder) || [];
-  const males = dogs?.filter(dog => dog.gender === 'male' && !dog.outsideBreeder) || [];
+  const females = dogs?.filter(dog => 
+    dog.gender === 'female' && 
+    !dog.outsideBreeder && 
+    !dog.puppy
+  ) || [];
+
+  const males = dogs?.filter(dog => 
+    dog.gender === 'male' && 
+    !dog.outsideBreeder && 
+    !dog.puppy
+  ) || [];
+
+  const availableDogs = dogs?.filter(dog => dog.available) || [];
 
   const shouldShowFemales = !genderFilter || genderFilter === 'female';
   const shouldShowMales = !genderFilter || genderFilter === 'male';
@@ -287,26 +299,41 @@ export default function Dogs({ genderFilter }: DogsProps) {
       )}
 
       <div className="container mx-auto px-4 py-16 space-y-16">
-        {shouldShowFemales && females.length > 0 && (
+        {showAvailable && availableDogs.length > 0 && (
           <div>
-            <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
+            <h2 className="text-3xl font-bold mb-8 text-stone-800">Available Dogs</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {females.map((dog) => (
-                <DogCard key={dog.id} dog={dog} />
+              {availableDogs.map((dog) => (
+                <DogCard key={dog.id} dog={dog} showPrice />
               ))}
             </div>
           </div>
         )}
 
-        {shouldShowMales && males.length > 0 && (
-          <div>
-            <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {males.map((dog) => (
-                <DogCard key={dog.id} dog={dog} />
-              ))}
-            </div>
-          </div>
+        {!showAvailable && (
+          <>
+            {shouldShowFemales && females.length > 0 && (
+              <div>
+                <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {females.map((dog) => (
+                    <DogCard key={dog.id} dog={dog} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {shouldShowMales && males.length > 0 && (
+              <div>
+                <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {males.map((dog) => (
+                    <DogCard key={dog.id} dog={dog} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
