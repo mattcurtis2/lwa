@@ -1,3 +1,4 @@
+
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
@@ -24,7 +25,7 @@ export function FileUpload({
   onChange,
   label,
   className,
-  accept = 'image/*',
+  accept = 'image/*,video/*',
   cropAspect
 }: FileUploadProps) {
   const [showCrop, setShowCrop] = useState(false);
@@ -33,7 +34,6 @@ export function FileUpload({
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
-  // Initialize preview URL from value prop
   useEffect(() => {
     if (value) {
       setPreviewUrl(value);
@@ -43,25 +43,23 @@ export function FileUpload({
   const handleFile = useCallback(async (file: File) => {
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (file.type.startsWith('image/')) {
+      setSelectedFile(file);
+      const tempPreview = URL.createObjectURL(file);
+      setPreviewUrl(tempPreview);
+      setShowCrop(true);
+    } else if (file.type.startsWith('video/')) {
+      setSelectedFile(file);
+      const tempPreview = URL.createObjectURL(file);
+      setPreviewUrl(tempPreview);
+      await handleUpload(file);
+    } else {
       toast({
         title: "Invalid file type",
-        description: "Please select an image file",
+        description: "Please select an image or video file",
         variant: "destructive"
       });
-      return;
     }
-
-    setSelectedFile(file);
-
-    // Create preview immediately before upload
-    const tempPreview = URL.createObjectURL(file);
-    setPreviewUrl(tempPreview);
-
-    // Show crop dialog immediately after file selection
-    setShowCrop(true);
-
   }, [toast]);
 
   const handleUpload = async (file: File) => {
@@ -86,16 +84,15 @@ export function FileUpload({
 
       toast({
         title: "Success",
-        description: "Image uploaded successfully",
+        description: "File uploaded successfully",
       });
     } catch (error) {
       console.error("Error uploading file:", error);
       toast({
         title: "Upload failed",
-        description: error instanceof Error ? error.message : "Failed to upload profile picture",
+        description: error instanceof Error ? error.message : "Failed to upload file",
         variant: "destructive",
       });
-      // Don't clear preview on upload error - keep the local preview
     } finally {
       setIsUploading(false);
     }
@@ -110,7 +107,10 @@ export function FileUpload({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
-    accept: { [accept]: [] },
+    accept: {
+      'image/*': [],
+      'video/*': []
+    },
     maxFiles: 1,
     multiple: false
   });
@@ -122,11 +122,7 @@ export function FileUpload({
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
       const croppedFile = new File([blob], selectedFile.name, { type: selectedFile.type });
-
-      // Only clean up the cropped preview URL
       URL.revokeObjectURL(croppedImageUrl);
-
-      // Upload the cropped file
       await handleUpload(croppedFile);
       setShowCrop(false);
     } catch (error) {
@@ -150,7 +146,7 @@ export function FileUpload({
       <div
         {...getRootProps()}
         className={cn(
-          "border-2 border-dashed rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer",
+          "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
           isDragActive && "border-primary bg-accent",
           isUploading && "opacity-50 pointer-events-none",
           className
@@ -158,13 +154,13 @@ export function FileUpload({
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-          <Upload className="h-8 w-8" />
+          <Upload className="h-10 w-10" />
           <p className="text-sm text-center">
             {isDragActive 
-              ? "Drop the file here" 
+              ? "Drop your file here..."
               : isUploading 
                 ? "Uploading..."
-                : "Drag & drop a file here, or click to select"
+                : "Drag & drop images or videos here, or click to select"
             }
           </p>
         </div>
@@ -179,7 +175,7 @@ export function FileUpload({
             placeholder="https://example.com/image.jpg"
             className="flex-1"
           />
-          {previewUrl && !isUploading && (
+          {previewUrl && !isUploading && selectedFile?.type.startsWith('image/') && (
             <Button
               variant="outline"
               size="icon"
@@ -195,15 +191,23 @@ export function FileUpload({
 
       {previewUrl && !showCrop && (
         <div className="mt-2">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-48 rounded-lg object-contain"
-          />
+          {selectedFile?.type.startsWith('video/') ? (
+            <video
+              src={previewUrl}
+              controls
+              className="max-h-48 rounded-lg"
+            />
+          ) : (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="max-h-48 rounded-lg object-contain"
+            />
+          )}
         </div>
       )}
 
-      {showCrop && previewUrl && (
+      {showCrop && previewUrl && selectedFile?.type.startsWith('image/') && (
         <ImageCrop
           imageUrl={previewUrl}
           aspect={cropAspect}
