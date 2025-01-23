@@ -106,26 +106,6 @@ export default function DogForm({
 }: DogFormProps) {
   const { toast } = useToast();
 
-  // Log when form opens and prop values
-  useEffect(() => {
-    console.log("Form Props:", {
-      defaultValues,
-      fromLitter,
-      motherId: defaultValues?.motherId,
-      fatherId: defaultValues?.fatherId,
-      litterId: defaultValues?.litterId
-    });
-  }, [defaultValues, fromLitter]);
-
-  // Log form values when they change
-  useEffect(() => {
-    const formValues = form.getValues();
-    console.log("Current Form Values:", {
-      motherId: formValues.motherId,
-      fatherId: formValues.fatherId,
-      litterId: formValues.litterId
-    });
-  }, [form.watch('motherId'), form.watch('fatherId'), form.watch('litterId')]);
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showAddMedia, setShowAddMedia] = useState(false);
@@ -172,6 +152,27 @@ export default function DogForm({
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
     },
   });
+
+  // Log when form opens and prop values
+  useEffect(() => {
+    console.log("Form Props:", {
+      defaultValues,
+      fromLitter,
+      motherId: defaultValues?.motherId,
+      fatherId: defaultValues?.fatherId,
+      litterId: defaultValues?.litterId
+    });
+  }, [defaultValues, fromLitter]);
+
+  // Log form values when they change
+  useEffect(() => {
+    const formValues = form.getValues();
+    console.log("Current Form Values:", {
+      motherId: formValues.motherId,
+      fatherId: formValues.fatherId,
+      litterId: formValues.litterId
+    });
+  }, [form.watch('motherId'), form.watch('fatherId'), form.watch('litterId')]);
 
   // Only fetch parents if not opening from litter
   useEffect(() => {
