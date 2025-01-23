@@ -22,6 +22,7 @@ import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface ContentField {
   key: string;
@@ -76,6 +77,11 @@ export default function Admin() {
   const { data: contactInfo } = useQuery<ContactInfo>({
     queryKey: ["/api/contact-info"],
   });
+
+  const { data: carouselItems = [], isLoading: isLoadingCarousel } = useQuery<CarouselItem[]>({
+    queryKey: ["/api/carousel"]
+  });
+
 
   useEffect(() => {
     if (siteContent?.length > 0) {
@@ -355,7 +361,7 @@ export default function Admin() {
     { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent?.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
 
-  if (isLoadingSiteContent || isLoadingPrinciples) {
+  if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
       <div className="container mx-auto py-8">
         <h1 className="text-4xl font-bold mb-8">Content Management</h1>
@@ -382,6 +388,7 @@ export default function Admin() {
       <Tabs defaultValue="home">
         <TabsList>
           <TabsTrigger value="home">Home Page</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel</TabsTrigger>
           <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="animals">Animals</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
@@ -783,6 +790,72 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="carousel">
+          <Card>
+            <CardHeader>
+              <CardTitle>Carousel Management</CardTitle>
+              <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button onClick={() => {
+                  setEditItem(null);
+                  setShowForm(true);
+                }}>
+                  Add Carousel Item
+                </Button>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {carouselItems?.map((item) => (
+                    <Card key={item.id}>
+                      <div className="aspect-video relative">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                        />
+                      </div>
+                      <CardContent className="pt-4">
+                        <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <div className="flex gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditItem(item);
+                              setShowForm(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                              const res = await fetch(`/api/carousel/${item.id}`, {
+                                method: "DELETE",
+                              });
+                              if (res.ok) {
+                                queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                                toast({
+                                  title: "Success",
+                                  description: "Carousel item deleted successfully",
+                                });
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
