@@ -272,22 +272,40 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
           isPuppy={true}
           defaultValues={selectedDog}
           onSubmit={async (values) => {
+            console.log('LitterForm - Starting puppy submission with values:', values);
             try {
               const url = selectedDog?.id ? `/api/dogs/${selectedDog.id}` : '/api/dogs';
               const method = selectedDog?.id ? 'PUT' : 'POST';
 
+              const submissionData = {
+                ...values,
+                litterId: litter?.id,
+                motherId: litter?.motherId,
+                fatherId: litter?.fatherId,
+              };
+
+              console.log('LitterForm - Submitting puppy data:', submissionData);
+              console.log('LitterForm - API URL:', url);
+              console.log('LitterForm - Method:', method);
+
               const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  ...values,
-                  litterId: litter?.id,
-                  motherId: litter?.motherId,
-                  fatherId: litter?.fatherId,
-                }),
+                body: JSON.stringify(submissionData),
               });
 
-              if (!res.ok) throw new Error('Failed to save dog');
+              if (!res.ok) {
+                const errorText = await res.text();
+                console.error('LitterForm - API Error Response:', {
+                  status: res.status,
+                  statusText: res.statusText,
+                  body: errorText
+                });
+                throw new Error(`Failed to save puppy: ${errorText}`);
+              }
+
+              const responseData = await res.json();
+              console.log('LitterForm - API Success Response:', responseData);
 
               queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
               toast({
@@ -296,10 +314,10 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
               });
               handleDogFormClose();
             } catch (error) {
-              console.error('Error saving puppy:', error);
+              console.error('LitterForm - Error in puppy submission:', error);
               toast({
                 title: "Error",
-                description: error instanceof Error ? error.message : 'Failed to save',
+                description: error instanceof Error ? error.message : 'Failed to save puppy',
                 variant: "destructive",
               });
             }

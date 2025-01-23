@@ -379,6 +379,8 @@ export default function DogForm({
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   const onSubmitWrapper = async (values: any) => {
+    console.log('DogForm - Original form values:', values);
+
     const processedValues = {
       ...values,
       birthDate: values.birthDate,
@@ -396,8 +398,15 @@ export default function DogForm({
       }))
     };
 
+    console.log('DogForm - Processed values before submission:', processedValues);
+
     if (customOnSubmit) {
-      await customOnSubmit(processedValues);
+      try {
+        await customOnSubmit(processedValues);
+      } catch (error) {
+        console.error('DogForm - Error in customOnSubmit:', error);
+        throw error;
+      }
     }
   };
 
