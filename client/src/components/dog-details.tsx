@@ -194,14 +194,14 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
       {/* Media Dialog */}
       <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
-        <DialogContent className="max-w-4xl w-full h-[80vh] p-6">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
+          <DialogHeader className="mb-2">
             <DialogTitle>{dog.name}'s Gallery</DialogTitle>
             <DialogDescription>
               Use arrow keys or buttons to navigate
             </DialogDescription>
           </DialogHeader>
-          <div className="relative flex items-center justify-center h-[calc(100%-4rem)] w-full">
+          <div className="relative flex items-center justify-center h-[calc(100%-6rem)] w-full">
             <Button
               variant="ghost"
               size="icon"
@@ -217,7 +217,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               <img
                 src={imageMedia[activeMediaIndex]?.url}
                 alt={`${dog.name} - photo ${activeMediaIndex + 1}`}
-                className="max-h-full max-w-full w-auto h-auto object-contain rounded-lg"
+                className="max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] w-auto h-auto object-contain rounded-lg"
               />
             </div>
 
