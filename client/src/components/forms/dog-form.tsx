@@ -677,6 +677,7 @@ export default function DogForm({
           )}
         />
 
+        {/* Only show parent and litter selection when not creating from litter page */}
         {!fromLitter && (
           <div className="space-y-6">
             <FormField
