@@ -1,10 +1,7 @@
-
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
 import { Upload, Crop } from "lucide-react";
-import { Input } from "./input";
-import { Label } from "./label";
 import { ImageCrop } from "./image-crop";
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +44,7 @@ export function FileUpload({
       setSelectedFile(file);
       const tempPreview = URL.createObjectURL(file);
       setPreviewUrl(tempPreview);
-      setShowCrop(true);
+      await handleUpload(file);
     } else if (file.type.startsWith('video/')) {
       setSelectedFile(file);
       const tempPreview = URL.createObjectURL(file);
@@ -135,12 +132,6 @@ export function FileUpload({
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setPreviewUrl(newValue);
-    onChange?.(newValue);
-  };
-
   return (
     <div className="space-y-2">
       <div
@@ -166,30 +157,7 @@ export function FileUpload({
         </div>
       </div>
 
-      <div className="space-y-2">
-        {label && <Label>{label}</Label>}
-        <div className="flex gap-2">
-          <Input
-            value={value || ''}
-            onChange={handleInputChange}
-            placeholder="https://example.com/image.jpg"
-            className="flex-1"
-          />
-          {previewUrl && !isUploading && selectedFile?.type.startsWith('image/') && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowCrop(true)}
-              type="button"
-              title="Crop Image"
-            >
-              <Crop className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {previewUrl && !showCrop && (
+      {previewUrl && (
         <div className="mt-2">
           {selectedFile?.type.startsWith('video/') ? (
             <video
@@ -198,11 +166,17 @@ export function FileUpload({
               className="max-h-48 rounded-lg"
             />
           ) : (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="max-h-48 rounded-lg object-contain"
-            />
+            <div className="relative group">
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="max-h-48 rounded-lg object-contain cursor-pointer"
+                onClick={() => setShowCrop(true)}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Crop className="h-6 w-6 text-white" />
+              </div>
+            </div>
           )}
         </div>
       )}
@@ -211,9 +185,9 @@ export function FileUpload({
         <ImageCrop
           imageUrl={previewUrl}
           aspect={cropAspect}
-          open={showCrop}
-          onOpenChange={setShowCrop}
           onCropComplete={handleCropComplete}
+          onCancel={() => setShowCrop(false)}
+          circularCrop={false}
         />
       )}
     </div>
