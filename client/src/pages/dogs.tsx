@@ -31,15 +31,15 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  const females = dogs?.filter(dog =>
-    dog.gender === 'female' &&
-    !dog.outsideBreeder &&
+  const females = dogs?.filter(dog => 
+    dog.gender === 'female' && 
+    !dog.outsideBreeder && 
     !dog.puppy
   ) || [];
 
-  const males = dogs?.filter(dog =>
-    dog.gender === 'male' &&
-    !dog.outsideBreeder &&
+  const males = dogs?.filter(dog => 
+    dog.gender === 'male' && 
+    !dog.outsideBreeder && 
     !dog.puppy
   ) || [];
 
@@ -54,26 +54,26 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   return (
     <div className="w-full">
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
-        <div
+        <div 
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
-          className="bg-[#456251] border-y border-[#567362] cursor-pointer hover:bg-[#567362] transition-colors"
+          className="bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 border-y border-emerald-200 cursor-pointer hover:bg-gradient-to-br hover:from-emerald-100 hover:via-emerald-200 hover:to-emerald-100 transition-colors"
         >
           <div className="container mx-auto px-4">
             <div className="h-[100px] flex items-center">
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-12">
                   <div>
-                    <div className="bg-[#567362] backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-semibold mb-2 inline-block">
+                    <div className="bg-emerald-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-emerald-800 text-sm font-semibold mb-2 inline-block">
                       New Litter Coming Soon!
                     </div>
-                    <p className="text-white">
+                    <p className="text-emerald-800">
                       Expected: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
                     </p>
                   </div>
 
                   <div className="flex items-center gap-10">
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-[#567362]">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-emerald-200">
                         {motherDog.profileImageUrl ? (
                           <img
                             src={motherDog.profileImageUrl}
@@ -87,19 +87,17 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                            <span className="text-3xl text-pink-500">♀</span>
-                          </div>
+                          <span className="text-3xl text-pink-500">♀</span>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-white">{motherDog.name}</p>
-                        <p className="text-sm text-white/80">Mother</p>
+                        <p className="font-medium text-emerald-900">{motherDog.name}</p>
+                        <p className="text-sm text-emerald-700/80">Mother</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-[#567362]">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-emerald-200">
                         {fatherDog.profileImageUrl ? (
                           <img
                             src={fatherDog.profileImageUrl}
@@ -113,14 +111,12 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-3xl text-blue-500">♂</span>
-                          </div>
+                          <span className="text-3xl text-blue-500">♂</span>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-white">{fatherDog.name}</p>
-                        <p className="text-sm text-white/80">Father</p>
+                        <p className="font-medium text-emerald-900">{fatherDog.name}</p>
+                        <p className="text-sm text-emerald-700/80">Father</p>
                       </div>
                     </div>
                   </div>
