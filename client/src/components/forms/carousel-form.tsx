@@ -20,7 +20,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 const carouselItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  imageUrl: z.string().url("Must be a valid URL"),
+  imageUrl: z.string().min(1, "Image is required"),
 });
 
 interface CarouselFormProps {
@@ -131,7 +131,7 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                       onFileSelect={handleImageUpload}
                       onChange={field.onChange}
                     />
-                    <div className="- or text-center text-sm text-muted-foreground">or</div>
+                    <div className="text-center text-sm text-muted-foreground">or</div>
                     <Input
                       placeholder="Enter image URL..."
                       {...field}
