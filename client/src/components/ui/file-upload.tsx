@@ -1,5 +1,4 @@
-
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
 import { Upload, Crop } from "lucide-react";
@@ -29,26 +28,34 @@ export function FileUpload({
 }: FileUploadProps) {
   const [showCrop, setShowCrop] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(value || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Initialize preview URL from value prop
+  useEffect(() => {
+    setPreviewUrl(value || null);
+  }, [value]);
 
   const handleFile = useCallback(async (file: File) => {
     if (!file) return;
-    
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.error('Invalid file type:', file.type);
+      return;
+    }
+
     setSelectedFile(file);
     setIsUploading(true);
 
     try {
-      console.log('Starting file upload...', { fileName: file.name, fileType: file.type, fileSize: file.size });
-      
-      // Create temporary preview for immediate feedback
+      // Create temporary preview URL
       const tempPreview = URL.createObjectURL(file);
       setPreviewUrl(tempPreview);
-      
+
       const formData = new FormData();
       formData.append("file", file);
-      
-      console.log('Sending request to /api/upload...');
+
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -56,44 +63,40 @@ export function FileUpload({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Upload failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          responseText: errorText
-        });
         throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Upload successful:', data);
-      
-      // Clean up temp preview and set actual URL
+
+      // Cleanup temporary preview URL
       URL.revokeObjectURL(tempPreview);
+
+      // Update preview with server URL
       setPreviewUrl(data.url);
+      onChange?.(data.url);
       onFileSelect(file);
-      
+
     } catch (error) {
-      console.error("Error uploading file:", {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      console.error("Error uploading file:", error);
       setPreviewUrl(null);
-      throw error; // Rethrow to be handled by the parent component
+      onChange?.('');
     } finally {
       setIsUploading(false);
     }
-  }, [onFileSelect]);
+  }, [onFileSelect, onChange]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles?.[0]) {
-      handleFile(acceptedFiles[0]);
+    const file = acceptedFiles[0];
+    if (file) {
+      handleFile(file);
     }
   }, [handleFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
     accept: { [accept]: [] },
-    maxFiles: 1
+    maxFiles: 1,
+    multiple: false
   });
 
   const handleCropComplete = async (croppedImageUrl: string) => {
@@ -103,14 +106,14 @@ export function FileUpload({
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
       const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
-      
-      // Clean up URLs
+
+      // Cleanup URLs
       URL.revokeObjectURL(croppedImageUrl);
       if (previewUrl && !previewUrl.startsWith('/')) {
         URL.revokeObjectURL(previewUrl);
       }
 
-      handleFile(croppedFile);
+      await handleFile(croppedFile);
       setShowCrop(false);
     } catch (error) {
       console.error("Error processing cropped image:", error);
@@ -118,14 +121,15 @@ export function FileUpload({
   };
 
   const handleCropClick = () => {
-    if (value) {
-      setPreviewUrl(value);
-      setShowCrop(true);
-    } else if (selectedFile) {
-      const fileUrl = URL.createObjectURL(selectedFile);
-      setPreviewUrl(fileUrl);
+    if (previewUrl) {
       setShowCrop(true);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setPreviewUrl(newValue);
+    onChange?.(newValue);
   };
 
   return (
@@ -158,11 +162,11 @@ export function FileUpload({
         <div className="flex gap-2">
           <Input
             value={value || ''}
-            onChange={(e) => onChange?.(e.target.value)}
+            onChange={handleInputChange}
             placeholder="https://example.com/image.jpg"
             className="flex-1"
           />
-          {(value || selectedFile) && !isUploading && (
+          {previewUrl && !isUploading && (
             <Button
               variant="outline"
               size="icon"
@@ -176,7 +180,7 @@ export function FileUpload({
         </div>
       </div>
 
-      {previewUrl && !showCrop && selectedFile?.type.startsWith('image/') && (
+      {previewUrl && !showCrop && (
         <div className="mt-2">
           <img
             src={previewUrl}
