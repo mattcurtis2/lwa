@@ -522,7 +522,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               </FormDescription>
               <div className="flex items-center gap-4">
                 <div
-                  className="relative h-24 w-32 cursor-pointer"
+                  className="relative h-24 w-24 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
@@ -530,7 +530,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                     }
                   }}
                 >
-                  <div className="absolute inset-0 border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
+                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
                     {field.value ? (
                       <img
                         src={field.value}
@@ -588,6 +588,8 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               setShowCropper(false);
               setCropImageUrl("");
             }}
+            aspect={1}
+            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
           />
         )}
 
