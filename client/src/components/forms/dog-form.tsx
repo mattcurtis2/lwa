@@ -456,6 +456,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
           const dataToSubmit = {
             ...values,
             breed: "Colorado Mountain Dogs",
+            height: values.height ? parseFloat(values.height) || null : null,
+            weight: values.weight ? parseFloat(values.weight) || null : null,
+            price: values.price ? parseFloat(values.price) || null : null,
             media: mediaInputs.map((media, index) => ({
               url: media.url,
               type: media.type,
