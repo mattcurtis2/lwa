@@ -620,10 +620,10 @@ export default function Admin() {
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
-      motherId: litter.motherId,
-      fatherId: litter.fatherId,
-      mother,
-      father,
+      motherId: litter.motherId || undefined,
+      fatherId: litter.fatherId || undefined,
+      mother: mother || undefined,
+      father: father || undefined,
       birthDate: new Date().toISOString().split('T')[0],
       gender: 'male', // Default gender
       available: false,
