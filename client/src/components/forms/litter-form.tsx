@@ -48,6 +48,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
 
   const handleAddNewPuppy = () => {
     console.log('LitterForm - Starting to add new puppy to litter:', litter?.id);
+    const mother = dogs?.find(d => d.id === litter?.motherId);
     setSelectedDog({
       puppy: true,
       litterId: litter?.id,
@@ -56,6 +57,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
       birthDate: new Date().toISOString().split('T')[0],
       gender: 'male',
       available: false,
+      breed: mother?.breed || "Colorado Mountain Dog", // Set default breed from mother
     });
     setShowDogForm(true);
   };
@@ -258,7 +260,6 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
         </SheetContent>
       </Sheet>
 
-      {/* Dog Form Modal */}
       {showDogForm && (
         <DogForm
           open={showDogForm}
@@ -268,7 +269,6 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
           isPuppy={true}
           defaultValues={selectedDog}
           onSubmit={async (values) => {
-            console.log('LitterForm - Starting puppy submission with values:', values);
             try {
               const url = selectedDog?.id ? `/api/dogs/${selectedDog.id}` : '/api/dogs';
               const method = selectedDog?.id ? 'PUT' : 'POST';
@@ -279,6 +279,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 motherId: litter?.motherId,
                 fatherId: litter?.fatherId,
                 puppy: true,
+                breed: values.breed || (dogs?.find(d => d.id === litter?.motherId)?.breed || "Colorado Mountain Dog"),
               };
 
               console.log('LitterForm - API Request:', {
