@@ -22,7 +22,7 @@ import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X } from "lucide-react";
 
@@ -363,24 +363,6 @@ export default function Admin() {
     { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent?.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
 
-  if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
-    return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
-        <p>Loading content...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
-        <p className="text-red-500">Error loading content. Please try refreshing the page.</p>
-      </div>
-    );
-  }
-
   const handleCreateLitter = async () => {
     try {
       const res = await fetch('/api/litters', {
@@ -397,8 +379,7 @@ export default function Admin() {
         title: 'Success',
         description: 'Litter created successfully',
       });
-      setShowLitterForm(false);
-      setEditLitter(null);
+      setLitterFormMode('addPuppies'); // Changed to 'addPuppies' after successful creation
     } catch (error) {
       console.error('Error creating litter:', error);
       toast({
@@ -424,8 +405,6 @@ export default function Admin() {
         title: 'Success',
         description: 'Litter updated successfully',
       });
-      setShowLitterForm(false);
-      setEditLitter(null);
     } catch (error) {
       console.error('Error updating litter:', error);
       toast({
@@ -435,6 +414,24 @@ export default function Admin() {
       });
     }
   };
+
+  if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
+        <p>Loading content...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
+        <p className="text-red-500">Error loading content. Please try refreshing the page.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -819,7 +816,7 @@ export default function Admin() {
                               } catch (error) {
                                 console.error('Error uploading image:', error);
                                 toast({
-                                                                    title: "Error",
+                                  title: "Error",
                                   description: "Failed to upload image",
                                   variant: "destructive",
                                 });
@@ -828,7 +825,7 @@ export default function Admin() {
                             onChange={(value) => handleContentChange(field.key, value)}
                           />
                           {(pendingContent[field.key] || field.value) && (
-                            <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                            <div className="w40 h-40 rounded-lg overflow-hidden border">
                               <img
                                 src={pendingContent[field.key] || field.value}
                                 alt={field.label}
@@ -1063,19 +1060,19 @@ export default function Admin() {
                   </Button>
                 </div>
 
-                <Dialog open={showLitterForm} onOpenChange={setShowLitterForm}>
-                  <DialogContent className="max-w-4xl"> {/* Increased max width for better layout */}
-                    <DialogHeader>
-                      <DialogTitle>
+                <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
+                  <SheetContent side="right" className="w-[600px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>
                         {litterFormMode === 'create' ? 'Add New Litter' :
                          litterFormMode === 'edit' ? 'Edit Litter' : 'Add Puppies'}
-                      </DialogTitle>
-                    </DialogHeader>
+                      </SheetTitle>
+                    </SheetHeader>
 
-                    <div className="grid gap-6">
+                    <div className="grid gap-6 mt-4">
                       {litterFormMode !== 'addPuppies' && (
                         <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-4">
                             <div className="space-y-2">
                               <Label>Mother</Label>
                               <Select
@@ -1117,30 +1114,6 @@ export default function Admin() {
                                   ))}
                                 </SelectContent>
                               </Select>
-
-                              {editLitter?.mother && (
-                                <div className="mt-2 p-2 border rounded-lg">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
-                                      {editLitter.mother.profileImageUrl ? (
-                                        <img
-                                          src={editLitter.mother.profileImageUrl}
-                                          alt={editLitter.mother.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                                          <span className="text-3xl text-pink-500">♀</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="font-medium">{editLitter.mother.name}</p>
-                                      <p className="text-sm text-muted-foreground">Selected Mother</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
 
                             <div className="space-y-2">
@@ -1184,102 +1157,33 @@ export default function Admin() {
                                   ))}
                                 </SelectContent>
                               </Select>
-
-                              {editLitter?.father && (
-                                <div className="mt-2 p-2 border rounded-lg">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
-                                      {editLitter.father.profileImageUrl ? (
-                                        <img
-                                          src={editLitter.father.profileImageUrl}
-                                          alt={editLitter.father.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                          <span className="text-3xl text-blue-500">♂</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="font-medium">{editLitter.father.name}</p>
-                                      <p className="text-sm text-muted-foreground">Selected Father</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
-                          </div>
 
-                          <div className="space-y-2">
-                            <Label htmlFor="dueDate">Due Date</Label>
-                            <Input
-                              type="date"
-                              id="dueDate"
-                              value={editLitter?.dueDate}
-                              onChange={(e) => setEditLitter(prev => ({ ...prev!, dueDate: e.target.value }))}
-                            />
-                          </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="dueDate">Due Date</Label>
+                              <Input
+                                type="date"
+                                id="dueDate"
+                                value={editLitter?.dueDate}
+                                onChange={(e) => setEditLitter(prev => ({ ...prev!, dueDate: e.target.value }))}
+                              />
+                            </div>
 
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="isVisible"
-                              checked={editLitter?.isVisible ?? true}
-                              onCheckedChange={(checked) => setEditLitter(prev => ({ ...prev!, isVisible: checked }))}
-                            />
-                            <Label htmlFor="isVisible">Visible to public</Label>
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id="isVisible"
+                                checked={editLitter?.isVisible ?? true}
+                                onCheckedChange={(checked) => setEditLitter(prev => ({ ...prev!, isVisible: checked }))}
+                              />
+                              <Label htmlFor="isVisible">Visible to public</Label>
+                            </div>
                           </div>
                         </div>
                       )}
 
                       {/* Puppies Section */}
-                      {litterFormMode === 'addPuppies' && editLitter && (
+                      {(litterFormMode === 'addPuppies' || editLitter?.id) && editLitter && (
                         <div className="space-y-4">
-                          <div className="p-4 bg-muted rounded-lg">
-                            <h3 className="text-lg font-medium mb-2">Parent Information</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                                  {editLitter.mother?.profileImageUrl ? (
-                                    <img
-                                      src={editLitter.mother.profileImageUrl}
-                                      alt={editLitter.mother.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                                      <span className="text-2xl text-pink-500">♀</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{editLitter.mother?.name}</p>
-                                  <p className="text-sm text-muted-foreground">Mother</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                                  {editLitter.father?.profileImageUrl ? (
-                                    <img
-                                      src={editLitter.father.profileImageUrl}
-                                      alt={editLitter.father.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                      <span className="text-2xl text-blue-500">♂</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium">{editLitter.father?.name}</p>
-                                  <p className="text-sm text-muted-foreground">Father</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
                           {/* Added Puppies List */}
                           {editLitter.puppies && editLitter.puppies.length > 0 && (
                             <div className="space-y-2">
@@ -1390,24 +1294,14 @@ export default function Admin() {
                           )}
                           {litterFormMode === 'edit' && (
                             <>
-                              <Button variant="outline" onClick={() => {
-                                setLitterFormMode('addPuppies');
-                              }}>
-                                Add Puppies
-                              </Button>
                               <Button onClick={handleUpdateLitter}>Update Litter</Button>
                             </>
-                          )}
-                          {litterFormMode === 'addPuppies' && (
-                            <Button onClick={() => setLitterFormMode('edit')}>
-                              Back to Edit
-                            </Button>
                           )}
                         </div>
                       </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
+                  </SheetContent>
+                </Sheet>
 
                 <div className="grid gap-4">
                   {litters?.map((litter) => {
