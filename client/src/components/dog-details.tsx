@@ -197,7 +197,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           <DialogHeader className="mb-2">
             <DialogTitle>{dog.name}'s Gallery</DialogTitle>
           </DialogHeader>
-          <div className="relative flex items-center justify-center h-[calc(100%-6rem)] w-full">
+          <div className="relative flex items-center justify-center h-[calc(100%-3rem)] w-full">
             <Button
               variant="ghost"
               size="icon"
