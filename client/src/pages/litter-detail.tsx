@@ -120,7 +120,7 @@ export default function LitterDetail() {
 
             {litter.puppies?.map((puppy, index) => (
               <div key={puppy.id}>
-                <DogDetails dog={puppy} showDelete={true} />
+                <DogDetails dog={puppy} />
               </div>
             ))}
           </div>

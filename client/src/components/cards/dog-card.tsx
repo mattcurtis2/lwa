@@ -4,9 +4,6 @@ import { formatAge } from "@/lib/date-utils";
 import { Dog, DogMedia } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
 import { Link } from "wouter";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { TrashIcon } from "@radix-ui/react-icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface DogCardProps {
   dog: Dog & { media?: DogMedia[] };
@@ -15,27 +12,9 @@ interface DogCardProps {
   onEdit?: (dog: Dog) => void;
   onDelete?: (dog: Dog) => void;
   onOrderChange?: (dogId: number, newOrder: number) => void;
-  showDelete?: boolean;
 }
 
-export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onOrderChange, showDelete }: DogCardProps) {
-  const queryClient = useQueryClient();
-
-  const deleteDog = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/dogs/${dog.id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete dog');
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/litters/${dog.litterId}`] });
-    },
-  });
-
+export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onOrderChange }: DogCardProps) {
   const genderSymbol = dog.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
   ) : (
@@ -117,31 +96,13 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                   Edit
                 </Button>
               )}
-              {showDelete && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete {dog.name}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this dog? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteDog.mutate()}
-                        className="bg-destructive hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              {onDelete && (
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDeleteClick(dog)}
+                >
+                  Delete
+                </Button>
               )}
             </div>
           </div>
