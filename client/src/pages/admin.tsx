@@ -33,6 +33,51 @@ interface ContentField {
   type: 'text' | 'textarea' | 'image';
 }
 
+interface PuppyFormData {
+  name: string | undefined;
+  gender: 'male' | 'female' | undefined;
+  birthDate: string | undefined;
+  color: string | undefined;
+  description: string | undefined;
+  narrativeDescription: string | undefined;
+  healthData: string | undefined;
+  height: string | null;
+  weight: string | null;
+  furLength: string | undefined;
+  outsideBreeder: boolean;
+  siresSire: string | undefined;
+  siresDam: string | undefined;
+  damsSire: string | undefined;
+  damsDam: string | undefined;
+  puppy: true;
+  available: boolean;
+  price: string | null;
+  profileImageUrl: string | undefined;
+  pedigreeUrl: string | undefined;
+  healthClearancesUrl: string | undefined;
+  registrationUrl: string | undefined;
+  breed: string | undefined;
+  pedigreeInformation: string | undefined;
+  temperament: string | undefined;
+  workingAbility: string | undefined;
+  showHistory: string | undefined;
+  breedingHistory: string | undefined;
+  awards: string | undefined;
+  motherLine: string | undefined;
+  fatherLine: string | undefined;
+  dietaryNeeds: string | undefined;
+  exerciseRequirements: string | undefined;
+  trainingStatus: string | undefined;
+  specialNeeds: string | undefined;
+  registrationName: string | undefined;
+  media: any[];
+  motherId?: number;
+  fatherId?: number;
+  litterId?: number;
+  order?: number;
+}
+
+
 export default function Admin() {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
@@ -476,46 +521,46 @@ export default function Admin() {
       key={puppy.id || index}
       className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={() => {
-        const selectedPuppy = {
-          ...puppy,
-          id: puppy.id,
-          name: puppy.name || '',
-          birthDate: puppy.birthDate ? new Date(puppy.birthDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          breed: puppy.breed || 'Colorado Mountain Dog',
-          gender: (puppy.gender || 'male') as 'male' | 'female',
-          color: puppy.color || '',
-          description: puppy.description || '',
-          narrativeDescription: puppy.narrativeDescription || '',
-          healthData: puppy.healthData || '',
-          height: typeof puppy.height === 'number' ? puppy.height.toString() : '',
-          weight: typeof puppy.weight === 'number' ? puppy.weight.toString() : '',
-          price: typeof puppy.price === 'number' ? puppy.price.toString() : '',
-          furLength: puppy.furLength || '',
-          registrationName: puppy.registrationName || '',
-          profileImageUrl: puppy.profileImageUrl || '',
-          pedigreeUrl: puppy.pedigreeUrl || '',
-          healthClearancesUrl: puppy.healthClearancesUrl || '',
-          registrationUrl: puppy.registrationUrl || '',
-          temperament: puppy.temperament || '',
-          workingAbility: puppy.workingAbility || '',
-          showHistory: puppy.showHistory || '',
-          breedingHistory: puppy.breedingHistory || '',
-          awards: puppy.awards || '',
-          motherLine: puppy.motherLine || '',
-          fatherLine: puppy.fatherLine || '',
-          dietaryNeeds: puppy.dietaryNeeds || '',
-          exerciseRequirements: puppy.exerciseRequirements || '',
-          trainingStatus: puppy.trainingStatus || '',
-          specialNeeds: puppy.specialNeeds || '',
-          available: Boolean(puppy.available),
+        // Ensure numerical fields are properly converted to strings for form inputs
+        const selectedPuppy: PuppyFormData = {
+          name: puppy.name,
+          gender: puppy.gender as 'male' | 'female',
+          birthDate: puppy.birthDate,
+          color: puppy.color || undefined,
+          description: puppy.description || undefined,
+          narrativeDescription: puppy.narrativeDescription || undefined,
+          healthData: puppy.healthData || undefined,
+          height: puppy.height?.toString() || null,
+          weight: puppy.weight?.toString() || null,
+          furLength: puppy.furLength || undefined,
           outsideBreeder: Boolean(puppy.outsideBreeder),
-          media: Array.isArray(puppy.media) ? puppy.media : [],
-          motherId: editLitter?.motherId || null,
-          fatherId: editLitter?.fatherId || null,
-          litterId: editLitter?.id || null,
+          siresSire: puppy.siresSire || undefined,
+          siresDam: puppy.siresDam || undefined,
+          damsSire: puppy.damsSire || undefined,
+          damsDam: puppy.damsDam || undefined,
           puppy: true,
-          order: typeof puppy.order === 'number' ? puppy.order : 0
-        } as const;
+          available: Boolean(puppy.available),
+          price: puppy.price?.toString(),
+          profileImageUrl: puppy.profileImageUrl || undefined,
+          pedigreeUrl: puppy.pedigreeUrl || undefined,
+          healthClearancesUrl: puppy.healthClearancesUrl || undefined,
+          registrationUrl: puppy.registrationUrl || undefined,
+          breed: puppy.breed || undefined,
+          pedigreeInformation: puppy.pedigreeInformation || undefined,
+          temperament: puppy.temperament || undefined,
+          workingAbility: puppy.workingAbility || undefined,
+          showHistory: puppy.showHistory || undefined,
+          breedingHistory: puppy.breedingHistory || undefined,
+          awards: puppy.awards || undefined,
+          motherLine: puppy.motherLine || undefined,
+          fatherLine: puppy.fatherLine || undefined,
+          dietaryNeeds: puppy.dietaryNeeds || undefined,
+          exerciseRequirements: puppy.exerciseRequirements || undefined,
+          trainingStatus: puppy.trainingStatus || undefined,
+          specialNeeds: puppy.specialNeeds || undefined,
+          registrationName: puppy.registrationName || undefined,
+          media: puppy.media || []
+        };
         setEditItem(selectedPuppy);
         setShowPuppyForm(true);
       }}
@@ -763,7 +808,7 @@ export default function Admin() {
                           <div className="w-40 h-40 rounded-lg overflow-hidden border">
                             <img
                               src={pendingContent[field.key] || field.value}
-                              alt={field.label}
+                                                            alt={field.label}
                               className="w-full h-full object-cover"
                             />
                           </div>
