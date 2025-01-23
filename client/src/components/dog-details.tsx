@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -197,9 +196,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
           <DialogHeader className="mb-2">
             <DialogTitle>{dog.name}'s Gallery</DialogTitle>
-            <DialogDescription>
-              Use arrow keys or buttons to navigate
-            </DialogDescription>
           </DialogHeader>
           <div className="relative flex items-center justify-center h-[calc(100%-6rem)] w-full">
             <Button
