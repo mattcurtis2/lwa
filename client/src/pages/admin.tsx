@@ -805,7 +805,8 @@ export default function Admin() {
             <CardHeader>
               <CardTitle>Hero Section</CardTitle>
               <CardDescription>Manage the main hero section content</CardDescription>
-            </CardHeader>            <CardContent className="space-y-6">
+            </CardHeader>
+            <CardContent className="space-y-6">
               {/* Content fields rendering section */}
               {contentFields.slice(0, 3).map((field) =>(
                 <div key={field.key} className="space-y-2">
@@ -1275,316 +1276,47 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="dogs">
-          <Card className="mb-8">
+          <Card>
             <CardHeader>
-              <CardTitle>Dogs Hero Section</CardTitle>
-              <CardDescription>Manage the hero content for the dogs page</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {dogsHero[0] && (
-                <div className="space-y-4">
-                  <div>
-                    <Label>Title</Label>
-                    <Input
-                      value={dogsHero[0].title ?? ""}
-                      onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Subtitle</Label>
-                    <Input
-                      value={dogsHero[0].subtitle ?? ""}
-                      onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Background Image</Label>
-                    <div className="flex gap-4">
-                      <div className="flex-1">
-                        <FileUpload
-                          value={dogsHero[0].imageUrl ?? ""}
-                          onChange={(url) => updateDogsHero.mutate({ imageUrl: url })}
-                        />
-                      </div>
-                      {dogsHero[0].imageUrl && (
-                        <div className="w-40 h-40 rounded overflow-hidden">
-                          <img
-                            src={dogsHero[0].imageUrl}
-                            alt="Hero background"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Dog Management</CardTitle>
+                  <CardDescription>
+                    Add, edit, and manage dog profiles
+                  </CardDescription>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Dogs Management Section */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Dogs Management</CardTitle>
-              <CardDescription>Manage your dogs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
                 <Button onClick={() => {
-                  setEditItem(null);
-                  setShowForm(true);
+                  setSelectedDog(null); // Reset selected dog
+                  setShowDogForm(true); // Open the drawer
                 }}>
+                  <Plus className="h-4 w-4 mr-2" />
                   Add New Dog
                 </Button>
               </div>
-
-              {/* Females Section */}
-              {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-6">Females</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
-                </div>
-              )}
-
-              {/* Males Section */}
-              {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-6">Males</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
-                </div>
-              )}
-
-              {/* Outside Breeders Section */}
-              {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
-                </div>
-              )}
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {dogs.map((dog) => renderDogCard(dog))}
+              </div>
             </CardContent>
           </Card>
 
           {/* Dog Form Sheet */}
-          {showDogForm && (
-            <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
-              <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <DogForm
-                    dog={selectedDog as Dog}
-                    mode={selectedDog?.id ? 'edit' : 'create'}
-                    onSubmit={handleDogFormClose}
-                    onCancel={handleDogFormClose}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Litters Management</CardTitle>
-              <CardDescription>Manage upcoming and current litters</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <Button onClick={() => {
-                    setEditLitter(null);
-                    setShowLitterForm(true);
-                  }}>
-                    Add New Litter
-                  </Button>
-                </div>
-
-                {/* Litter Form Sheet */}
-                <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
-                  <SheetContent side="right" className="w-1/3">
-                    <SheetHeader>
-                      <SheetTitle>
-                        {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
-                      </SheetTitle>
-                    </SheetHeader>
-                    <div className="space-y-6 mt-6">
-                      {/* Litter Form Section */}
-                      <div className="space-y-4">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <Label>Mother</Label>
-                            <Select
-                              value={editLitter?.motherId?.toString() || ""}
-                              onValueChange={(value) => {
-                                const mother = dogs.find(d => d.id === parseInt(value));
-                                setEditLitter(prev => ({
-                                  ...prev!,
-                                  motherId: parseInt(value),
-                                  mother,
-                                }));
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select mother" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs
-                                  .filter(d => d.gender === 'female')
-                                  .map(dog => (
-                                    <SelectItem key={dog.id} value={dog.id.toString()}>
-                                      {dog.name}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Father</Label>
-                            <Select
-                              value={editLitter?.fatherId?.toString() || ""}
-                              onValueChange={(value) => {
-                                const father = dogs.find(d => d.id === parseInt(value));
-                                setEditLitter(prev => ({
-                                  ...prev!,
-                                  fatherId: parseInt(value),
-                                  father,
-                                }));
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select father" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs
-                                  .filter(d => d.gender === 'male')
-                                  .map(dog => (
-                                    <SelectItem key={dog.id} value={dog.id.toString()}>
-                                      {dog.name}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Due Date</Label>
-                            <Input
-                              type="date"
-                              value={editLitter?.dueDate ? editLitter.dueDate.split('T')[0] : ""}
-                              onChange={(e) => setEditLitter(prev => ({
-                                ...prev!,
-                                dueDate: e.target.value,
-                              }))}
-                            />
-                          </div>
-                        </div>
-
-                        {editLitter?.puppies && editLitter.puppies.length > 0 && (
-                          <div className="space-y-4 mt-8">
-                            <h3 className="text-lg font-medium">Current Puppies</h3>
-                            <div className="grid gap-4">
-                              {editLitter.puppies.map((puppy, index) => (
-                                <div
-                                  key={puppy.id || index}
-                                  className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
-                                  onClick={() => {
-                                    setEditItem(puppy);
-                                    setShowPuppyForm(true);
-                                  }}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                                      {puppy.profileImageUrl ? (
-                                        <img
-                                          src={puppy.profileImageUrl}
-                                          alt={puppy.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${
-                                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                                        }`}>
-                                          <span className={`text-xl ${
-                                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                                          }`}>
-                                            {puppy.gender === 'female' ? '♀' : '♂'}
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="font-medium">{puppy.name}</p>
-                                      <p className="text-sm text-muted-foreground">
-                                        {puppy.gender} • {puppy.color || 'No color set'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={(e) => {
-                                      e.stopPropagation(); // Prevent opening the edit form
-                                      if (!confirm('Are you sure you want to remove this puppy?')) return;
-                                      setEditLitter(prev => ({
-                                        ...prev!,
-                                        puppies: prev!.puppies!.filter((_, i) => i !== index),
-                                      }));
-                                    }}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between pt-4">
-                          <Button variant="outline" onClick={() => {
-                            setShowLitterForm(false);
-                            setEditItem(null);
-                          }}>
-                            Cancel
-                          </Button>
-                          <div className="space-x-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setEditItem(null);
-                                setShowPuppyForm(true);
-                              }}
-                            >
-                              Add Puppy
-                            </Button>
-                            <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
-                              Save Litter
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-
-                <div className="grid gap-4">
-                  {litters?.map(renderLitterCard)}
-                </div>
+          <Sheet open={showDogForm} onOpenChange={setShowDogForm}>
+            <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <DogForm
+                  dog={selectedDog as Dog}
+                  mode={selectedDog ? 'edit' : 'create'}
+                  onSubmit={handleDogFormClose}
+                  onCancel={handleDogFormClose}
+                />
               </div>
-            </CardContent>
-          </Card>
+            </SheetContent>
+          </Sheet>
         </TabsContent>
 
         <TabsContent value="animals">
