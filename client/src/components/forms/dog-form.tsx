@@ -91,6 +91,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
   const [mediaUrl, setMediaUrl] = useState("");
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const [healthDocuments, setHealthDocuments] = useState<any[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<any[]>([]);
   const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
   const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
@@ -463,7 +466,11 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               url: media.url,
               type: media.type,
               order: index
-            }))
+            })),
+            documents: [
+              ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
+              ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
+            ]
           };
 
           const method = dog?.id ? "PUT" : "POST";
@@ -804,10 +811,33 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             <FormItem>
               <FormLabel>Health Information</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Health certifications, testing results, etc."
-                />
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Health certifications, testing results, etc."
+                  />
+                  <div className="space-y-2">
+                    <Label>Health Documents</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
+                      accept=".pdf,.doc,.docx"
+                      label="Upload health documents"
+                    />
+                    {healthDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <span>{doc.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeDocument(index, 'health')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -821,10 +851,33 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             <FormItem>
               <FormLabel>Pedigree</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Pedigree information and lineage details"
-                />
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Pedigree information and lineage details"
+                  />
+                  <div className="space-y-2">
+                    <Label>Pedigree Documents</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                      accept=".pdf,.doc,.docx"
+                      label="Upload pedigree documents"
+                    />
+                    {pedigreeDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <span>{doc.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeDocument(index, 'pedigree')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
