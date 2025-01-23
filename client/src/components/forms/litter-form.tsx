@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Dog, Litter } from "@db/schema";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Upload } from "lucide-react";
 import { 
   Sheet,
   SheetContent,
@@ -19,14 +19,12 @@ import { Separator } from "@/components/ui/separator";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/ui/file-upload";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface LitterFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  litter?: Litter;
-  mode?: 'create' | 'edit' | 'addPuppies';
-}
-
+// Updated PuppyFormData to match all dog fields plus new fields
 interface PuppyFormData {
   name: string;
   registrationName?: string;
@@ -45,16 +43,42 @@ interface PuppyFormData {
   siresDam?: string;
   damsSire?: string;
   damsDam?: string;
+  // New fields
+  puppy: boolean;
+  available: boolean;
+  price?: string;
   // Files
   profileImageUrl?: string;
   pedigreeUrl?: string;
   healthClearancesUrl?: string;
   registrationUrl?: string;
   media?: { type: 'image' | 'video'; url: string }[];
+  // Additional dog fields
+  breed?: string;
+  pedigreeInformation?: string;
+  temperament?: string;
+  workingAbility?: string;
+  showHistory?: string;
+  breedingHistory?: string;
+  awards?: string;
+  motherLine?: string;
+  fatherLine?: string;
+  dietaryNeeds?: string;
+  exerciseRequirements?: string;
+  trainingStatus?: string;
+  specialNeeds?: string;
+}
+
+interface LitterFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  litter?: Litter;
+  mode?: 'create' | 'edit' | 'addPuppies';
 }
 
 export default function LitterForm({ open, onOpenChange, litter, mode = 'create' }: LitterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [puppies, setPuppies] = useState<PuppyFormData[]>([]);
@@ -89,7 +113,10 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
             litterId: litter?.id,
             height: puppy.height ? Number(puppy.height) : null,
             weight: puppy.weight ? Number(puppy.weight) : null,
+            price: puppy.price ? Number(puppy.price) : null,
             media: puppy.media || [],
+            // Ensure puppy is true for all puppies added through litter
+            puppy: true,
           };
 
           const res = await fetch('/api/dogs', {
@@ -146,6 +173,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
       name: '',
       gender: 'male',
       birthDate: new Date().toISOString().split('T')[0],
+      // Initialize all fields with default values
       registrationName: '',
       color: '',
       description: '',
@@ -155,22 +183,31 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
       weight: '',
       furLength: '',
       outsideBreeder: false,
+      // Pedigree information
       siresSire: '',
       siresDam: '',
       damsSire: '',
       damsDam: '',
+      // New fields
+      puppy: true, // Always true for puppies added through litter
+      available: false,
+      price: '',
+      // Additional fields
+      breed: '',
+      pedigreeInformation: '',
+      temperament: '',
+      workingAbility: '',
+      showHistory: '',
+      breedingHistory: '',
+      awards: '',
+      motherLine: '',
+      fatherLine: '',
+      dietaryNeeds: '',
+      exerciseRequirements: '',
+      trainingStatus: '',
+      specialNeeds: '',
       media: [],
     }]);
-  };
-
-  const removePuppy = (index: number) => {
-    setPuppies(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updatePuppy = (index: number, field: keyof PuppyFormData, value: string | boolean | { type: 'image' | 'video'; url: string }[]) => {
-    setPuppies(prev => prev.map((puppy, i) => 
-      i === index ? { ...puppy, [field]: value } : puppy
-    ));
   };
 
   const handleFileUpload = async (file: File, puppyIndex: number, field: keyof PuppyFormData) => {
@@ -205,6 +242,16 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
         variant: "destructive",
       });
     }
+  };
+
+  const removePuppy = (index: number) => {
+    setPuppies(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updatePuppy = (index: number, field: keyof PuppyFormData, value: any) => {
+    setPuppies(prev => prev.map((puppy, i) => 
+      i === index ? { ...puppy, [field]: value } : puppy
+    ));
   };
 
   return (
@@ -284,7 +331,7 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 <div>
                   <h3 className="font-medium mb-1">Add Puppies</h3>
                   <p className="text-sm text-muted-foreground">
-                    Add puppies to {litter?.mother?.name} x {litter?.father?.name}'s litter
+                    Add puppies to this litter
                   </p>
                 </div>
                 <Button type="button" onClick={addPuppy} variant="outline">
@@ -293,10 +340,10 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                 </Button>
               </div>
 
-              <ScrollArea className="h-[400px] pr-4">
-                <div className="space-y-4">
+              <ScrollArea className="h-[600px] pr-4">
+                <div className="space-y-8">
                   {puppies.map((puppy, index) => (
-                    <div key={index} className="space-y-4 p-4 border rounded-lg relative bg-muted/50">
+                    <div key={index} className="space-y-6 p-6 border rounded-lg relative bg-muted/50">
                       <Button
                         type="button"
                         variant="ghost"
@@ -307,224 +354,263 @@ export default function LitterForm({ open, onOpenChange, litter, mode = 'create'
                         <X className="h-4 w-4" />
                       </Button>
 
-                      {/* Basic Information */}
-                      <div className="space-y-2">
-                        <Label>Name</Label>
-                        <Input
-                          value={puppy.name}
-                          onChange={(e) => updatePuppy(index, 'name', e.target.value)}
-                          placeholder="Puppy name"
-                          required
-                        />
+                      {/* Basic Information Section */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Basic Information</h4>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Name</Label>
+                            <Input
+                              value={puppy.name}
+                              onChange={(e) => updatePuppy(index, 'name', e.target.value)}
+                              placeholder="Puppy name"
+                              required
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Registration Name</Label>
+                            <Input
+                              value={puppy.registrationName}
+                              onChange={(e) => updatePuppy(index, 'registrationName', e.target.value)}
+                              placeholder="Registration name (optional)"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Gender</Label>
+                            <Select
+                              value={puppy.gender}
+                              onValueChange={(value) => updatePuppy(index, 'gender', value as 'male' | 'female')}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Birth Date</Label>
+                            <Input
+                              type="date"
+                              value={puppy.birthDate}
+                              onChange={(e) => updatePuppy(index, 'birthDate', e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>Registration Name</Label>
-                        <Input
-                          value={puppy.registrationName}
-                          onChange={(e) => updatePuppy(index, 'registrationName', e.target.value)}
-                          placeholder="Registration name (optional)"
-                        />
-                      </div>
+                      {/* Availability Section */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Availability</h4>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <Label>Available</Label>
+                              <p className="text-sm text-muted-foreground">Mark if this puppy is available for purchase</p>
+                            </div>
+                            <Switch
+                              checked={puppy.available}
+                              onCheckedChange={(checked) => updatePuppy(index, 'available', checked)}
+                            />
+                          </div>
 
-                      <div className="space-y-2">
-                        <Label>Gender</Label>
-                        <Select
-                          value={puppy.gender}
-                          onValueChange={(value) => updatePuppy(index, 'gender', value as 'male' | 'female')}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Birth Date</Label>
-                        <Input
-                          type="date"
-                          value={puppy.birthDate}
-                          onChange={(e) => updatePuppy(index, 'birthDate', e.target.value)}
-                          required
-                        />
+                          {puppy.available && (
+                            <div className="space-y-2">
+                              <Label>Price</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={puppy.price}
+                                onChange={(e) => updatePuppy(index, 'price', e.target.value)}
+                                placeholder="Enter price"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Physical Characteristics */}
-                      <div className="space-y-2">
-                        <Label>Color</Label>
-                        <Input
-                          value={puppy.color || ''}
-                          onChange={(e) => updatePuppy(index, 'color', e.target.value)}
-                          placeholder="Puppy color"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Height (inches)</Label>
-                        <Input
-                          value={puppy.height || ''}
-                          onChange={(e) => updatePuppy(index, 'height', e.target.value)}
-                          placeholder="Height in inches"
-                          type="number"
-                          step="0.1"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Weight (lbs)</Label>
-                        <Input
-                          value={puppy.weight || ''}
-                          onChange={(e) => updatePuppy(index, 'weight', e.target.value)}
-                          placeholder="Weight in pounds"
-                          type="number"
-                          step="0.1"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Fur Length</Label>
-                        <Input
-                          value={puppy.furLength || ''}
-                          onChange={(e) => updatePuppy(index, 'furLength', e.target.value)}
-                          placeholder="Fur length"
-                        />
-                      </div>
-
-                      {/* Pedigree Information */}
-                      <div className="space-y-2">
-                        <Label>Sire's Sire</Label>
-                        <Input
-                          value={puppy.siresSire || ''}
-                          onChange={(e) => updatePuppy(index, 'siresSire', e.target.value)}
-                          placeholder="Paternal grandfather"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Sire's Dam</Label>
-                        <Input
-                          value={puppy.siresDam || ''}
-                          onChange={(e) => updatePuppy(index, 'siresDam', e.target.value)}
-                          placeholder="Paternal grandmother"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Dam's Sire</Label>
-                        <Input
-                          value={puppy.damsSire || ''}
-                          onChange={(e) => updatePuppy(index, 'damsSire', e.target.value)}
-                          placeholder="Maternal grandfather"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Dam's Dam</Label>
-                        <Input
-                          value={puppy.damsDam || ''}
-                          onChange={(e) => updatePuppy(index, 'damsDam', e.target.value)}
-                          placeholder="Maternal grandmother"
-                        />
-                      </div>
-
-                      {/* Descriptions */}
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
-                          value={puppy.description || ''}
-                          onChange={(e) => updatePuppy(index, 'description', e.target.value)}
-                          placeholder="Brief description of the puppy"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Detailed Description</Label>
-                        <Textarea
-                          value={puppy.narrativeDescription || ''}
-                          onChange={(e) => updatePuppy(index, 'narrativeDescription', e.target.value)}
-                          placeholder="Detailed description of the puppy"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Health Information</Label>
-                        <Textarea
-                          value={puppy.healthData || ''}
-                          onChange={(e) => updatePuppy(index, 'healthData', e.target.value)}
-                          placeholder="Health information and records"
-                        />
-                      </div>
-
-                      {/* File Uploads */}
-                      <div className="space-y-2">
-                        <Label>Profile Image</Label>
-                        <FileUpload
-                          value={puppy.profileImageUrl}
-                          onFileSelect={(file) => handleFileUpload(file, index, 'profileImageUrl')}
-                          onChange={(value) => updatePuppy(index, 'profileImageUrl', value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Pedigree Document</Label>
-                        <FileUpload
-                          value={puppy.pedigreeUrl}
-                          onFileSelect={(file) => handleFileUpload(file, index, 'pedigreeUrl')}
-                          onChange={(value) => updatePuppy(index, 'pedigreeUrl', value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Health Clearances</Label>
-                        <FileUpload
-                          value={puppy.healthClearancesUrl}
-                          onFileSelect={(file) => handleFileUpload(file, index, 'healthClearancesUrl')}
-                          onChange={(value) => updatePuppy(index, 'healthClearancesUrl', value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Registration Documents</Label>
-                        <FileUpload
-                          value={puppy.registrationUrl}
-                          onFileSelect={(file) => handleFileUpload(file, index, 'registrationUrl')}
-                          onChange={(value) => updatePuppy(index, 'registrationUrl', value)}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Additional Photos/Videos</Label>
-                        <FileUpload
-                          value=""
-                          onFileSelect={(file) => handleFileUpload(file, index, 'media')}
-                          onChange={() => {}} // Media is handled in handleFileUpload
-                        />
-                        {puppy.media && puppy.media.length > 0 && (
-                          <div className="grid grid-cols-3 gap-2 mt-2">
-                            {puppy.media.map((item, mediaIndex) => (
-                              <div key={mediaIndex} className="relative aspect-square">
-                                <img
-                                  src={item.url}
-                                  alt={`Media ${mediaIndex + 1}`}
-                                  className="w-full h-full object-cover rounded-md"
-                                />
-                              </div>
-                            ))}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Physical Characteristics</h4>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Color</Label>
+                            <Input
+                              value={puppy.color}
+                              onChange={(e) => updatePuppy(index, 'color', e.target.value)}
+                              placeholder="Puppy color"
+                            />
                           </div>
-                        )}
+
+                          <div className="space-y-2">
+                            <Label>Height (inches)</Label>
+                            <Input
+                              value={puppy.height || ''}
+                              onChange={(e) => updatePuppy(index, 'height', e.target.value)}
+                              placeholder="Height in inches"
+                              type="number"
+                              step="0.1"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Weight (lbs)</Label>
+                            <Input
+                              value={puppy.weight || ''}
+                              onChange={(e) => updatePuppy(index, 'weight', e.target.value)}
+                              placeholder="Weight in pounds"
+                              type="number"
+                              step="0.1"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Fur Length</Label>
+                            <Input
+                              value={puppy.furLength}
+                              onChange={(e) => updatePuppy(index, 'furLength', e.target.value)}
+                              placeholder="Fur length"
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>Outside Breeder?</Label>
-                        <Switch
-                          checked={puppy.outsideBreeder}
-                          onCheckedChange={(value) => updatePuppy(index, 'outsideBreeder', value)}
-                        />
+                      {/* Health & Description */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Health & Description</h4>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Textarea
+                              value={puppy.description}
+                              onChange={(e) => updatePuppy(index, 'description', e.target.value)}
+                              placeholder="Brief description of the puppy"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Detailed Description</Label>
+                            <Textarea
+                              value={puppy.narrativeDescription}
+                              onChange={(e) => updatePuppy(index, 'narrativeDescription', e.target.value)}
+                              placeholder="Detailed description of the puppy"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Health Information</Label>
+                            <Textarea
+                              value={puppy.healthData}
+                              onChange={(e) => updatePuppy(index, 'healthData', e.target.value)}
+                              placeholder="Health information and records"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Special Needs</Label>
+                            <Textarea
+                              value={puppy.specialNeeds}
+                              onChange={(e) => updatePuppy(index, 'specialNeeds', e.target.value)}
+                              placeholder="Any special needs or requirements"
+                            />
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Training & Care */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Training & Care</h4>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Training Status</Label>
+                            <Textarea
+                              value={puppy.trainingStatus}
+                              onChange={(e) => updatePuppy(index, 'trainingStatus', e.target.value)}
+                              placeholder="Current training status and progress"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Exercise Requirements</Label>
+                            <Textarea
+                              value={puppy.exerciseRequirements}
+                              onChange={(e) => updatePuppy(index, 'exerciseRequirements', e.target.value)}
+                              placeholder="Exercise needs and recommendations"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Dietary Needs</Label>
+                            <Textarea
+                              value={puppy.dietaryNeeds}
+                              onChange={(e) => updatePuppy(index, 'dietaryNeeds', e.target.value)}
+                              placeholder="Specific dietary requirements"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Media & Documents */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Media & Documents</h4>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Profile Image</Label>
+                            <FileUpload
+                              value={puppy.profileImageUrl}
+                              onFileSelect={(file) => handleFileUpload(file, index, 'profileImageUrl')}
+                              onChange={(value) => updatePuppy(index, 'profileImageUrl', value)}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Additional Photos/Videos</Label>
+                            <FileUpload
+                              value=""
+                              onFileSelect={(file) => handleFileUpload(file, index, 'media')}
+                              onChange={() => {}} // Media is handled in handleFileUpload
+                            />
+                            {puppy.media && puppy.media.length > 0 && (
+                              <div className="grid grid-cols-3 gap-2 mt-2">
+                                {puppy.media.map((item, mediaIndex) => (
+                                  <div key={mediaIndex} className="relative aspect-square">
+                                    <img
+                                      src={item.url}
+                                      alt={`Media ${mediaIndex + 1}`}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Health Clearances</Label>
+                            <FileUpload
+                              value={puppy.healthClearancesUrl}
+                              onFileSelect={(file) => handleFileUpload(file, index, 'healthClearancesUrl')}
+                              onChange={(value) => updatePuppy(index, 'healthClearancesUrl', value)}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Registration Documents</Label>
+                            <FileUpload
+                              value={puppy.registrationUrl}
+                              onFileSelect={(file) => handleFileUpload(file, index, 'registrationUrl')}
+                              onChange={(value) => updatePuppy(index, 'registrationUrl', value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   ))}
                 </div>
