@@ -124,30 +124,29 @@ export default function DogForm({
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
     defaultValues: {
-      name: "",
-      registrationName: "",
+      name: defaultValues?.name || "",
+      registrationName: defaultValues?.registrationName || "",
       birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
       gender: defaultValues?.gender || "male",
-      description: "",
+      description: defaultValues?.description || "",
       motherId: defaultValues?.motherId || null,
       fatherId: defaultValues?.fatherId || null,
       litterId: defaultValues?.litterId || null,
-      profileImageUrl: "",
-      healthData: "",
-      color: "",
-      dewclaws: "",
-      furLength: "",
-      height: "",
-      weight: "",
-      pedigree: "",
-      narrativeDescription: "",
-      media: [],
+      profileImageUrl: defaultValues?.profileImageUrl || "",
+      healthData: defaultValues?.healthData || "",
+      color: defaultValues?.color || "",
+      dewclaws: defaultValues?.dewclaws || "",
+      furLength: defaultValues?.furLength || "",
+      height: defaultValues?.height || "",
+      weight: defaultValues?.weight || "",
+      pedigree: defaultValues?.pedigree || "",
+      narrativeDescription: defaultValues?.narrativeDescription || "",
+      media: defaultValues?.media || [],
       outsideBreeder: defaultValues?.outsideBreeder || false,
       puppy: defaultValues?.puppy || isPuppy,
       available: defaultValues?.available || false,
-      price: "",
+      price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
-      ...defaultValues,
     },
   });
 
@@ -996,7 +995,7 @@ export default function DogForm({
                               src={input.url}
                               alt={`Upload ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                              onClick={() => {
+                              onClick={() =>{
                                 setCropImageUrl(input.url);
                                 setShowCropper(true);
                               }}
