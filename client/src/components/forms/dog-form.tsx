@@ -1133,20 +1133,17 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={async () => {
-                      const res = await fetch(`/api/dogs/${dog.id}`, {
-                        method: "DELETE",
-                      });
-                      if (!res.ok) throw new Error("Failed to delete dog");
-                      toast({
-                        title: "Success",
-                        description: "Dog deleted successfully",
-                      });
-                      onCancel?.();
-                    }}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Delete
-                  </AlertDialogAction>r) {
+                      try {
+                        const res = await fetch(`/api/dogs/${dog.id}`, {
+                          method: "DELETE",
+                        });
+                        if (!res.ok) throw new Error("Failed to delete dog");
+                        toast({
+                          title: "Success",
+                          description: "Dog deleted successfully",
+                        });
+                        onCancel?.();
+                      } catch (error) {
                         console.error('Error deleting dog:', error);
                         toast({
                           title: "Error",
