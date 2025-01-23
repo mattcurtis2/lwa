@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical } from "lucide-react";
+import { Save, GripVertical, X } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -22,9 +22,9 @@ import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
 
 interface ContentField {
   key: string;
