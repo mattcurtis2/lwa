@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { format, parse, isValid } from "date-fns";
+import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect } from "react";
 import { X, Upload, ImageIcon } from "lucide-react";
@@ -43,17 +44,16 @@ const mediaSchema = z.object({
   fileName: z.string().optional(),
 });
 
-// Create schema with optional fields for puppies
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
     name: z.string().min(1, "Name is required"),
     registrationName: z.string().optional(),
     birthDate: z.string().optional(),
     gender: z.enum(["male", "female"]),
-    description: z.string().optional(),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
     litterId: z.number().optional().nullable(),
+    description: z.string().optional(),
     profileImageUrl: z.string().optional(),
     healthData: z.string().optional(),
     color: z.string().optional(),
@@ -82,13 +82,6 @@ interface DogFormProps {
   defaultValues?: Partial<z.infer<ReturnType<typeof createDogSchema>>>;
 }
 
-interface MediaInput {
-  url: string;
-  type: "image" | "video";
-  fileName?: string;
-  isNew?: boolean;
-}
-
 export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defaultValues }: DogFormProps) {
   const { toast } = useToast();
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
@@ -98,12 +91,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   const [inputMethod, setInputMethod] = useState<"url" | "upload">("url");
   const [mediaUrl, setMediaUrl] = useState("");
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
-  const [healthDocuments, setHealthDocuments] = useState<DogDocument[]>([]);
-  const [pedigreeDocuments, setPedigreeDocuments] = useState<DogDocument[]>([]);
-  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
-  const [showCropper, setShowCropper] = useState(false);
-  const [cropImageUrl, setCropImageUrl] = useState<string>("");
-
+  const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
+  const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
+  const [availableLitters, setAvailableLitters] = useState<any[]>([]);
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -136,6 +126,34 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
       ...defaultValues,
     },
   });
+
+  useEffect(() => {
+    // Fetch available mothers and fathers
+    const fetchParents = async () => {
+      const response = await fetch('/api/dogs');
+      const dogs = await response.json();
+      setAvailableMothers(dogs.filter((d: Dog) => d.gender === 'female'));
+      setAvailableFathers(dogs.filter((d: Dog) => d.gender === 'male'));
+    };
+    fetchParents();
+  }, []);
+
+  useEffect(() => {
+    // Fetch litters based on selected mother and father
+    const fetchLitters = async () => {
+      const motherId = form.getValues('motherId');
+      const fatherId = form.getValues('fatherId');
+      if (motherId && fatherId) {
+        const response = await fetch('/api/litters');
+        const allLitters = await response.json();
+        const filteredLitters = allLitters.filter(
+          (l: any) => l.motherId === motherId && l.fatherId === fatherId
+        );
+        setAvailableLitters(filteredLitters);
+      }
+    };
+    fetchLitters();
+  }, [form.watch('motherId'), form.watch('fatherId')]);
 
   useEffect(() => {
     if (dog) {
@@ -329,6 +347,7 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
     }
   };
 
+
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
     setIsUploadingDoc(true);
     const formData = new FormData();
@@ -384,7 +403,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-  // In the form's onSubmit handler, convert string values to numbers
   const onSubmitWrapper = async (values: any) => {
     try {
       const processedValues = {
@@ -429,16 +447,200 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(async (values) => {
+        const dataToSubmit = {
+          ...values,
+          breed: "Colorado Mountain Dogs"
+        };
+        await onSubmit(dataToSubmit);
+      })} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="profileImageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Profile Picture</FormLabel>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20 relative group">
+                  <AvatarImage src={field.value} alt="Profile picture" />
+                  <AvatarFallback>
+                    <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) {
+                        handleProfilePictureUpload(file);
+                      }
+                    };
+                    input.click();
+                  }}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Profile Picture
+                </Button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="registrationName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Registration Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sex</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="male" id="male" />
+                    <label htmlFor="male" className="flex items-center gap-1">
+                      Male <span className="text-blue-500">♂</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="female" id="female" />
+                    <label htmlFor="female" className="flex items-center gap-1">
+                      Female <span className="text-pink-500">♀</span>
+                    </label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="motherId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mother</FormLabel>
+              <Select
+                value={field.value?.toString()}
+                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select mother" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {availableMothers.map((mother) => (
+                    <SelectItem key={mother.id} value={mother.id.toString()}>
+                      {mother.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="fatherId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Father</FormLabel>
+              <Select
+                value={field.value?.toString()}
+                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select father" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {availableFathers.map((father) => (
+                    <SelectItem key={father.id} value={father.id.toString()}>
+                      {father.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="litterId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Litter</FormLabel>
+              <Select
+                value={field.value?.toString()}
+                onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select litter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {availableLitters.map((litter) => (
+                    <SelectItem key={litter.id} value={litter.id.toString()}>
+                      {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="space-y-4">
           <FormField
             control={form.control}
-            name="name"
+            name="birthDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Birth Date</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -458,175 +660,6 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="birthDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Birth Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sex</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="flex gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="male" id="male" />
-                      <label htmlFor="male" className="flex items-center gap-1">
-                        Male <span className="text-blue-500">♂</span>
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="female" id="female" />
-                      <label htmlFor="female" className="flex items-center gap-1">
-                        Female <span className="text-pink-500">♀</span>
-                      </label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="profileImageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Profile Picture</FormLabel>
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-20 w-20 relative group">
-                    <AvatarImage src={field.value} alt="Profile picture" />
-                    <AvatarFallback>
-                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) {
-                          handleProfilePictureUpload(file);
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Profile Picture
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <FormLabel>Pictures & Videos</FormLabel>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowAddMedia(true)}
-                disabled={isUploading}
-              >
-                Add Media
-              </Button>
-            </div>
-
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <StrictModeDroppable droppableId="droppable-media-list">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-2"
-                  >
-                    {mediaInputs.map((input, index) => (
-                      <Draggable
-                        key={input.url}
-                        draggableId={input.url}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={cn(
-                              "p-4 rounded-lg",
-                              input.isNew
-                                ? "bg-primary/5 border border-primary/20"
-                                : "bg-muted"
-                            )}
-                          >
-                            <div className="flex gap-4">
-                              <div className="w-20 h-20 relative shrink-0">
-                                {input.type === "image" ? (
-                                  <img
-                                    src={input.url}
-                                    alt="Preview"
-                                    className="w-full h-full object-cover rounded"
-                                  />
-                                ) : (
-                                  <video
-                                    src={input.url}
-                                    className="w-full h-full object-cover rounded"
-                                    controls
-                                  />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">
-                                  {input.fileName || input.url.split("/").pop()}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {input.url}
-                                </p>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="shrink-0"
-                                onClick={() => removeMediaInput(index)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </StrictModeDroppable>
-            </DragDropContext>
-          </div>
         </div>
 
         <div className="space-y-4">
@@ -749,6 +782,91 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             </FormItem>
           )}
         />
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <FormLabel>Pictures & Videos</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAddMedia(true)}
+              disabled={isUploading}
+            >
+              Add Media
+            </Button>
+          </div>
+
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <StrictModeDroppable droppableId="droppable-media-list">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-2"
+                >
+                  {mediaInputs.map((input, index) => (
+                    <Draggable
+                      key={input.url}
+                      draggableId={input.url}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={cn(
+                            "p-4 rounded-lg",
+                            input.isNew
+                              ? "bg-primary/5 border border-primary/20"
+                              : "bg-muted"
+                          )}
+                        >
+                          <div className="flex gap-4">
+                            <div className="w-20 h-20 relative shrink-0">
+                              {input.type === "image" ? (
+                                <img
+                                  src={input.url}
+                                  alt="Preview"
+                                  className="w-full h-full object-cover rounded"
+                                />
+                              ) : (
+                                <video
+                                  src={input.url}
+                                  className="w-full h-full object-cover rounded"
+                                  controls
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {input.fileName || input.url.split("/").pop()}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {input.url}
+                              </p>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="shrink-0"
+                              onClick={() => removeMediaInput(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </StrictModeDroppable>
+          </DragDropContext>
+        </div>
+
 
         {!isPuppy && (
           <div className="space-y-4">
@@ -881,11 +999,9 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
   );
 }
 
-interface DogDocument {
-  id?: number;
+interface MediaInput {
   url: string;
-  type: "health" | "pedigree";
-  name: string;
-  mimeType: string;
+  type: "image" | "video";
+  fileName?: string;
   isNew?: boolean;
 }
