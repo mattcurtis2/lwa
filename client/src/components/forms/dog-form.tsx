@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/select";
 import { isValid, parse } from "date-fns";
 
-
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
   type: z.enum(["image", "video"]),
@@ -49,18 +48,9 @@ const mediaSchema = z.object({
 const dogSchema = z.object({
   name: z.string().min(1, "Name is required"),
   registrationName: z.string().optional(),
-  birthDate: z.string().refine(
-    (date) => {
-      if (!date) return false;
-      const inputDate = parse(date, 'yyyy-MM-dd', new Date());
-      return isValid(inputDate) && inputDate <= new Date();
-    },
-    "Please enter a valid date that is not in the future"
-  ),
-  gender: z.enum(["male", "female"], {
-    required_error: "Please select sex",
-  }),
-  description: z.string(),
+  birthDate: z.string().optional(),
+  gender: z.enum(["male", "female"]).optional(),
+  description: z.string().optional(),
   motherId: z.number().optional().nullable(),
   fatherId: z.number().optional().nullable(),
   litterId: z.number().optional().nullable(),
@@ -73,11 +63,10 @@ const dogSchema = z.object({
   weight: z.string().optional().nullable(),
   pedigree: z.string().optional(),
   narrativeDescription: z.string().optional(),
-  media: z.array(mediaSchema),
-  outsideBreeder: z.boolean().default(false),
-  // Add new fields
-  puppy: z.boolean().default(false),
-  available: z.boolean().default(false),
+  media: z.array(mediaSchema).optional().default([]),
+  outsideBreeder: z.boolean().optional().default(false),
+  puppy: z.boolean().optional().default(false),
+  available: z.boolean().optional().default(false),
   price: z.string().optional().transform((val) => val ? parseFloat(val) : null),
 });
 
