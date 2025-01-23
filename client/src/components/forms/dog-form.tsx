@@ -37,7 +37,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
@@ -860,7 +861,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
 
                 <div className="space-y-4">
                   <DragDropContext
-                    onDragEnd={(result) => {
+                    onDragEnd={(result: DropResult) => {
                       if (!result.destination) return;
 
                       const items = Array.from(mediaInputs);
@@ -871,7 +872,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       form.setValue("media", items);
                     }}
                   >
-                    <Droppable droppableId="media-list">
+                    <StrictModeDroppable droppableId="droppable-media-list">
                       {(provided) => (
                         <div
                           {...provided.droppableProps}
@@ -939,7 +940,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                           {provided.placeholder}
                         </div>
                       )}
-                    </Droppable>
+                    </StrictModeDroppable>
                   </DragDropContext>
                 </div>
               </div>
@@ -1042,8 +1043,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <Textarea {...field} placeholder="Health certifications, testing results, etc." />
                     </FormControl>
                     <div className="mt-4 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
+                      <div className="flex justify-between items-center"><FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
                         <Button
                           type="button"
                           variant="outline"
