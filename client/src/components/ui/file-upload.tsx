@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
@@ -234,10 +233,6 @@ export function FileUpload({
                   alt="Crop preview"
                   id="cropImage"
                   style={{ maxHeight: '70vh' }}
-                  onLoad={(e) => {
-                    const img = e.currentTarget;
-                    handleCropComplete(img);
-                  }}
                 />
               </ReactCrop>
               <DialogFooter>
