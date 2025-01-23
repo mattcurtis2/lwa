@@ -31,12 +31,15 @@ export function FileUpload({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleFile = useCallback((file: File) => {
+    if (!file) return;
+    
     setSelectedFile(file);
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrl(fileUrl);
     
     if (file.type.startsWith('image/')) {
-      setShowCrop(true);
+      onFileSelect(file);
+      setShowCrop(false);
     } else {
       onFileSelect(file);
     }
