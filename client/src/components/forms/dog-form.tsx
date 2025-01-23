@@ -68,7 +68,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     puppy: z.boolean().default(false),
     available: z.boolean().default(false),
     price: z.string().optional(),
-    breed: z.string().optional(),
+    breed: z.string().default("Colorado Mountain Dogs"),
   };
 
   return z.object(baseSchema);
@@ -647,22 +647,30 @@ export default function DogForm({ dog, isPuppy = false, onSubmit, onCancel, defa
             )}
           />
 
+          </div>
+
+        <div className="space-y-4">
           <FormField
             control={form.control}
-            name="breed"
+            name="puppy"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Breed</FormLabel>
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Puppy</FormLabel>
+                  <FormDescription>
+                    Mark this if the dog is a puppy
+                  </FormDescription>
+                </div>
                 <FormControl>
-                  <Input {...field} placeholder="Optional" />
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="space-y-4">
           <FormField
             control={form.control}
             name="description"
