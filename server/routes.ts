@@ -646,17 +646,17 @@ export function registerRoutes(app: Express): Server {
       console.log("Updating litter - Request body:", req.body);
       console.log("Litter ID:", req.params.id);
 
-      // Validate the incoming data
-      if (!req.body) {
-        console.error("No request body provided");
-        return res.status(400).json({ message: "No data provided" });
-      }
+      // Extract only the fields we want to update
+      const { dueDate, motherId, fatherId, isVisible } = req.body;
 
-      // Log the data being set
       const updateData = {
-        ...req.body,
-        updatedAt: new Date().toISOString()
+        dueDate,
+        motherId,
+        fatherId,
+        isVisible,
+        updatedAt: new Date(),
       };
+
       console.log("Update data being set:", updateData);
 
       const litter = await db.update(litters)
