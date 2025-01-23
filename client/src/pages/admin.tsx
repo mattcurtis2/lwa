@@ -859,6 +859,22 @@ export default function Admin() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Add Dialog for CarouselForm */}
+          <Dialog open={showForm} onOpenChange={setShowForm}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</DialogTitle>
+              </DialogHeader>
+              <CarouselForm
+                item={editItem as CarouselItem}
+                onClose={() => {
+                  setShowForm(false);
+                  setEditItem(null);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="dogs">
