@@ -1035,8 +1035,9 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Pedigree Information</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Family history and lineage information" />                    </FormControl>
+                    <FormControl><Textarea {...field} placeholder="Family history and lineage information" />
+                    </FormControl>
+                    <FormMessage />
                     <div className="mt-4 space-y-4">
                       <div className="flex justify-between items-center">
                         <FormLabel className="text-sm text-muted-foreground">Pedigree Documents</FormLabel>
@@ -1063,7 +1064,6 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       </div>
                       <DocumentList documents={pedigreeDocuments} type="pedigree" />
                     </div>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -1084,14 +1084,80 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
       {showCropper && cropImageUrl && (
         <ImageCropper
           imageUrl={cropImageUrl}
-          onCrop={handleCroppedImage}
-          onClose={() => {
+          open={showCropper}
+          onOpenChange={setShowCropper}
+          onCropComplete={handleCroppedImage}
+          onSkip={() => {
+            form.setValue("profileImageUrl", cropImageUrl);
             setShowCropper(false);
-            setCropImageUrl("");
           }}
-          aspectRatio={1}
         />
       )}
+
+      <Sheet open={showAddMedia} onOpenChange={setShowAddMedia}>
+        <SheetContent side="bottom" className="h-[90vh] sm:h-auto">
+          <SheetHeader>
+            <SheetTitle>Add Media</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-6 pt-6">
+            <div className="space-y-4">
+              <div className="text-sm font-medium leading-none">Media Type</div>
+              <RadioGroup 
+                value={mediaType} 
+                onValueChange={(value) => setMediaType(value as "image" | "video")} 
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="image" id="image" />
+                  <label htmlFor="image">Image</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="video" id="video" />
+                  <label htmlFor="video">Video</label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-4">
+              <div className="text-sm font-medium leading-none">Input Method</div>
+              <RadioGroup 
+                value={inputMethod} 
+                onValueChange={(value) => setInputMethod(value as "url" | "upload")} 
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="url" id="url" />
+                  <label htmlFor="url">URL</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="upload" id="upload" />
+                  <label htmlFor="upload">Upload</label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {inputMethod === "url" && (
+              <div className="space-y-2">
+                <div className="text-sm font-medium leading-none">Media URL</div>
+                <Input
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  placeholder={`Enter ${mediaType} URL`}
+                />
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <Button onClick={handleAddMedia} disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Add Media"}
+              </Button>
+              <Button variant="outline" onClick={() => setShowAddMedia(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
