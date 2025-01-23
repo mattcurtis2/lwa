@@ -75,10 +75,11 @@ const dogSchema = z.object({
   narrativeDescription: z.string().optional(),
   media: z.array(mediaSchema),
   outsideBreeder: z.boolean().default(false),
-  // Add new fields
   puppy: z.boolean().default(false),
   available: z.boolean().default(false),
-  price: z.string().optional().transform((val) => val ? parseFloat(val) : null),
+  price: z.string().optional().transform((val) =>
+    val ? parseInt(val) : null
+  ),
 });
 
 interface DogDocument {
@@ -831,14 +832,19 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                       <FormControl>
                         <Input
                           type="number"
-                          step="0.01"
+                          step="1"
                           min="0"
                           placeholder="Enter price (optional)"
                           {...field}
+                          onChange={(e) => {
+                            // Remove any decimal points
+                            const value = e.target.value.replace(/\D/g, '');
+                            field.onChange(value);
+                          }}
                         />
                       </FormControl>
                       <FormDescription>
-                        Set a price if the dog is available for sale
+                        Set a price if the dog is available for sale (whole dollars only)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -1040,7 +1046,7 @@ export default function DogForm({ dog, open, onOpenChange }: DogFormProps) {
                   <FormItem>
                     <FormLabel>Health Information</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Health certifications, testing results, etc." />
+                      <Textarea {...field}     placeholder="Health certifications, testing results, etc." />
                     </FormControl>
                     <div className="mt-4 space-y-4">
                       <div className="flex justify-between items-center"><FormLabel className="text-sm text-muted-foreground">Health Documents</FormLabel>
