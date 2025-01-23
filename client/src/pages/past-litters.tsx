@@ -67,8 +67,12 @@ export default function PastLitters() {
       <h1 className="text-3xl font-bold mb-8">Past Litters</h1>
       <div className="grid gap-8">
         {litters.map((litter) => (
-          <Link key={litter.id} href={`/dogs/litters/${litter.id}`}>
-            <Card className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]">
+          <Link
+            key={litter.id}
+            href={`/dogs/litters/${litter.id}`}
+            className="block transition-transform hover:scale-[1.02]"
+          >
+            <Card className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                   <div>
@@ -76,7 +80,7 @@ export default function PastLitters() {
                       Born {litter.puppies.length > 0 ? formatDisplayDate(new Date(litter.puppies[0].birthDate)) : "N/A"}
                     </div>
                     <p className="text-muted-foreground text-sm">
-                      {litter.puppies.length} {litter.puppies.length === 1 ? 'puppy' : 'puppies'} from this litter
+                      {litter.puppies.length} {litter.puppies.length === 1 ? "puppy" : "puppies"} from this litter
                     </p>
                   </div>
 
@@ -89,7 +93,7 @@ export default function PastLitters() {
                             alt={litter.mother.name}
                             className="w-full h-full object-cover"
                           />
-                        ) : litter.mother.media && litter.mother.media.length > 0 && litter.mother.media[0].type === 'image' ? (
+                        ) : litter.mother.media && litter.mother.media.length > 0 && litter.mother.media[0].type === "image" ? (
                           <img
                             src={litter.mother.media[0].url}
                             alt={litter.mother.name}
@@ -115,7 +119,7 @@ export default function PastLitters() {
                             alt={litter.father.name}
                             className="w-full h-full object-cover"
                           />
-                        ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === 'image' ? (
+                        ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === "image" ? (
                           <img
                             src={litter.father.media[0].url}
                             alt={litter.father.name}
