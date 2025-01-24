@@ -911,6 +911,7 @@ function AdminDashboard() {
                       <TabsTrigger value="hero">Hero</TabsTrigger>
                       <TabsTrigger value="about">About</TabsTrigger>
                       <TabsTrigger value="principles">Principles</TabsTrigger>
+                      <TabsTrigger value="carousel">Carousel</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="hero" className="space-y-4 pt-4">
@@ -1233,6 +1234,45 @@ function AdminDashboard() {
                           </div>
                         </div>
                       ))}
+                    </TabsContent>
+                    <TabsContent value="carousel" className="space-y-4 pt-4">
+                      <div className="mb-6">
+                        <Button onClick={() => {
+                          setEditItem(null);
+                          setShowForm(true);
+                        }}>
+                          Add Carousel Item
+                        </Button>
+                      </div>
+                      <div className="grid gap-4">
+                        {carouselItems?.map((item) => (
+                          <Card key={item.id}>
+                            <CardHeader>
+                              <CardTitle>{item.title}</CardTitle>
+                              <CardDescription>{item.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              {item.imageUrl && (
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="w-full h-48 object-cover rounded-lg"
+                                />
+                              )}
+                              <div className="flex justify-end mt-4">
+                                <Button
+                                  onClick={() => {
+                                    setEditItem(item);
+                                    setShowForm(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                     </TabsContent>
                   </Tabs>
                 </TabsContent>
