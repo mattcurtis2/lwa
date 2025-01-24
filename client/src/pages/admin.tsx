@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form } from "@/components/ui/form";
 import { Sidebar } from "@/components/layout/sidebar";
-
 
 export default function Admin() {
   const { toast } = useToast();
@@ -120,6 +119,7 @@ export default function Admin() {
             <Card>
               <CardHeader>
                 <CardTitle>Home Content</CardTitle>
+                <CardDescription>Edit your home page content</CardDescription>
               </CardHeader>
               <CardContent>
                 {/* Home content management */}
@@ -168,7 +168,6 @@ export default function Admin() {
           </div>
         );
 
-      // Add other sections as needed
       default:
         return (
           <div className="flex items-center justify-center h-full">
@@ -210,99 +209,6 @@ export default function Admin() {
           </SheetContent>
         </Sheet>
       )}
-      {showPuppyForm && (
-        <Sheet open={showPuppyForm} onOpenChange={(open) => {
-          setShowPuppyForm(open);
-          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
-        }}>
-          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
-            <SheetHeader>
-              <SheetTitle>
-                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <Form
-                isPuppy={true}
-                defaultValues={{
-                  name: editItem?.name || '',
-                  gender: editItem?.gender as 'male' | 'female' || 'male',
-                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
-                  breed: editItem?.breed || 'Colorado Mountain Dog',
-                  color: editItem?.color || '',
-                  description: editItem?.description || '',
-                  narrativeDescription: editItem?.narrativeDescription || '',
-                  healthData: editItem?.healthData || '',
-                  height: editItem?.height?.toString() || '',
-                  weight: editItem?.weight?.toString() || '',
-                  furLength: editItem?.furLength || '',
-                  registrationName: editItem?.registrationName || '',
-                  profileImageUrl: editItem?.profileImageUrl || '',
-                  media: editItem?.media || [],
-                  outsideBreeder: Boolean(editItem?.outsideBreeder),
-                  available: Boolean(editItem?.available),
-                  price: editItem?.price?.toString() || '',
-                }}
-                onSubmit={async (values) => {
-                  try {
-                    const processedValues = {
-                      ...values,
-                      height: values.height ? Number(values.height) : null,
-                      weight: values.weight ? Number(values.weight) : null,
-                      price: values.price ? Number(values.price) : null,
-                    };
-
-                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
-                      method: editItem?.id ? 'PUT' : 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(processedValues),
-                    });
-
-                    if (!res.ok) throw new Error('Failed to save puppy');
-
-                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-                    toast({
-                      title: "Success",
-                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
-                    });
-                    setShowPuppyForm(false);
-                  } catch (error) {
-                    console.error('Error saving puppy:', error);
-                    toast({
-                      title: "Error",
-                      description: error instanceof Error ? error.message : 'Failed to save puppy',
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
-      {showDogForm && (
-        <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
-          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <DogForm
-                dog={selectedDog as Dog}
-                mode={selectedDog?.id ? 'edit' : 'create'}
-                onSubmit={handleDogFormClose}
-                onCancel={handleDogFormClose}
-                fromLitter={true}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
     </div>
   );
 }
-
-const handleDogFormClose = () => {
-  setShowDogForm(false);
-  setSelectedDog(null);
-};
