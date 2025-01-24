@@ -1005,7 +1005,7 @@ export default function DogForm({
                 <div className="space-y-4">
                   <Textarea
                     {...field}
-                    placeholder="Pedigree information and lineage details"
+                    placeholder="Family history and lineage information"
                   />
                   <div className="space-y-2">
                     <Label>Pedigree Documents</Label>
@@ -1018,7 +1018,8 @@ export default function DogForm({
                       isUploading={isUploadingDoc}
                     />
                     {pedigreeDocuments.length > 0 && (
-                      <div className="space-y-2{pedigreeDocuments.map((doc, index) => (
+                      <div className="space-y-2">
+                        {pedigreeDocuments.map((doc, index) => (
                           <div key={index} className="flex items-center justify-between p-2 border rounded">
                             <div className="flex items-center gap-2">
                               {doc.mimeType.startsWith('image/') ? (
