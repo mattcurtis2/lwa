@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,16 +25,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form } from "@/components/ui/form";
 import { Sidebar } from "@/components/layout/sidebar";
 
-// ... keep all the interfaces and types ...
 
 export default function Admin() {
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
-  // ... keep all the other state variables ...
+  // State variables for forms and editing
+  const [showDogForm, setShowDogForm] = useState(false);
+  const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showPuppyForm, setShowPuppyForm] = useState(false);
+  const [editItem, setEditItem] = useState<Partial<Dog> | null>(null);
+  const [editLitter, setEditLitter] = useState({ puppies: [] });
 
-  // Extract section from URL using URLSearchParams
+  // Get current section from URL
   const getSection = () => {
     if (location.includes('?')) {
       const params = new URLSearchParams(location.split('?')[1]);
@@ -45,14 +50,34 @@ export default function Admin() {
 
   const section = getSection();
 
-  // ... keep all your existing queries ...
+  // Data queries
+  const { data: siteContent = [], isLoading: isLoadingSiteContent, error: siteContentError } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"]
+  });
+
+  const { data: principles = [], isLoading: isLoadingPrinciples, error: principlesError } = useQuery<Principle[]>({
+    queryKey: ["/api/principles"]
+  });
+
+  const { data: carouselItems = [], isLoading: isLoadingCarousel, error: carouselError } = useQuery<CarouselItem[]>({
+    queryKey: ["/api/carousel"]
+  });
+
+  const { data: animals = [] } = useQuery<Animal[]>({
+    queryKey: ["/api/animals"]
+  });
+
+  const { data: products = [] } = useQuery<Product[]>({
+    queryKey: ["/api/products"]
+  });
 
   const handleSectionChange = (newSection: string) => {
     setLocation(`/admin?section=${newSection}`);
   };
 
-  // ... keep all your existing handlers and render functions ...
+  const error = siteContentError || principlesError || carouselError;
 
+  // Render loading state
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
       <div className="flex min-h-screen">
@@ -66,6 +91,7 @@ export default function Admin() {
     );
   }
 
+  // Render error state
   if (error) {
     return (
       <div className="flex min-h-screen">
@@ -86,6 +112,72 @@ export default function Admin() {
     );
   }
 
+  const renderContent = () => {
+    switch (section) {
+      case 'home':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Home Content</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Home content management */}
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 'animals':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Animals</h2>
+              <Button onClick={() => {/* handle add animal */}}>Add Animal</Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {animals.map((animal) => (
+                <AnimalCard
+                  key={animal.id}
+                  animal={animal}
+                  isAdmin
+                  onEdit={() => {/* handle edit animal */}}
+                />
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'products':
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Products</h2>
+              <Button onClick={() => {/* handle add product */}}>Add Product</Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isAdmin
+                  onEdit={() => {/* handle edit product */}}
+                />
+              ))}
+            </div>
+          </div>
+        );
+
+      // Add other sections as needed
+      default:
+        return (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-lg text-muted-foreground">Select a section from the sidebar</p>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar className="w-64" onNavigate={handleSectionChange} />
@@ -95,7 +187,7 @@ export default function Admin() {
             {section.charAt(0).toUpperCase() + section.slice(1)} Management
           </h1>
           {hasUnsavedChanges && (
-            <Button onClick={handleSaveChanges}>
+            <Button onClick={() => {/* handle save changes */}}>
               <Save className="w-4 h-4 mr-2" />
               Save Changes
             </Button>
@@ -113,7 +205,7 @@ export default function Admin() {
               <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
             </SheetHeader>
             <div className="mt-6">
-              <DogForm initialDog={selectedDog} onClose={handleDogFormClose} />
+              <DogForm dog={selectedDog} onClose={() => setShowDogForm(false)} />
             </div>
           </SheetContent>
         </Sheet>
@@ -209,3 +301,8 @@ export default function Admin() {
     </div>
   );
 }
+
+const handleDogFormClose = () => {
+  setShowDogForm(false);
+  setSelectedDog(null);
+};
