@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
@@ -40,7 +39,7 @@ export default function LitterManagement() {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
     console.log('Found parents:', { mother, father });
-    
+
     const puppyDefaults = {
       name: "",
       puppy: true,
@@ -60,7 +59,7 @@ export default function LitterManagement() {
       media: [],
       documents: []
     };
-    
+
     console.log('Setting puppy defaults:', puppyDefaults);
     setSelectedDog(puppyDefaults);
     console.log('Setting showDogForm to true');
@@ -219,6 +218,11 @@ export default function LitterManagement() {
     );
   };
 
+  const handleDogFormClose = () => {
+    setShowDogForm(false);
+    setSelectedDog(null);
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-2">Litters Management</h2>
@@ -327,18 +331,24 @@ export default function LitterManagement() {
           </SheetContent>
         </Sheet>
 
+        {/* Dog Form Sheet */}
         {showDogForm && (
-          <DogForm
-            open={showDogForm}
-            onOpenChange={() => {
-              setShowDogForm(false);
-              setSelectedDog(null);
-            }}
-            dog={selectedDog as Dog}
-            mode={selectedDog?.id ? 'edit' : 'create'}
-            fromLitter={true}
-            onSubmit={onDogFormSubmit}
-          />
+          <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+            <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <DogForm
+                  open={showDogForm}
+                  onOpenChange={handleDogFormClose}
+                  dog={selectedDog as Dog}
+                  mode={selectedDog?.id ? 'edit' : 'create'}
+                  fromLitter={true}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
         )}
       </div>
     </div>
