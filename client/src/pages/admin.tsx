@@ -867,13 +867,12 @@ function AdminDashboard() {
           {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="home">Home Page</TabsTrigger>
                   <TabsTrigger value="dogs">Colorado Mountain Dogs</TabsTrigger>
                   <TabsTrigger value="goats">Nigerian Dwarf Goats</TabsTrigger>
                   <TabsTrigger value="market">Farmers Market</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
-                  <TabsTrigger value="principles">Principles</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="home" className="space-y-6">
