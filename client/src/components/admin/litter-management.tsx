@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Dog, Litter } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import { Button } from "@/components/ui/button";
