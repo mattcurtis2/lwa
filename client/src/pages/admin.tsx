@@ -818,7 +818,9 @@ function AdminDashboard() {
       {/* Sidebar */}
       <div className="w-64 border-r bg-card">
         <div className="p-6">
-          <h2 className="text-lg font-semibold mb-6">Dashboard</h2>
+          <Link href="/" className="text-lg font-semibold mb-6 hover:text-primary transition-colors">
+            {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
+          </Link>
           <nav className="space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
