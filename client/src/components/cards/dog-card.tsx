@@ -43,9 +43,9 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
               <>
                 <DogMediaCarousel media={dog.media} />
                 {showPrice && dog.price && (
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <p className="text-2xl font-bold text-white">
-                      ${parseInt(dog.price).toLocaleString()}
+                  <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
+                    <p className="text-lg font-semibold text-white">
+                      Available: ${parseInt(dog.price).toLocaleString()}
                     </p>
                   </div>
                 )}
