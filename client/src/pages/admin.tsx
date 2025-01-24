@@ -45,6 +45,11 @@ interface PuppyFormData {
   color: string | undefined;
   description: string | undefined;
   narrativeDescription: string | undefined;
+
+  const { data: siteSettings } = useQuery({
+    queryKey: ['/api/site-settings'],
+  });
+
   healthData: string | undefined;
   height: string | null;
   weight: string | null;
@@ -927,20 +932,28 @@ function AdminDashboard() {
                           <Label>Site Logo</Label>
                           <div className="flex flex-col gap-4">
                             <FileUpload
-                              value={pendingContent["logo_url"] || ""}
-                              onFileSelect={(file) => handleContentChange("logo_url", file)}
-                              onChange={(url) => {
-                                if (typeof url === 'string') {
-                                  handleContentChange("logo_url", url);
-                                  setHasUnsavedChanges(true);
+                              value={siteSettings?.logoUrl || ""}
+                              onFileSelect={async (file) => {
+                                const formData = new FormData();
+                                formData.append('logo', file);
+                                const res = await fetch('/api/site-settings', {
+                                  method: 'PUT',
+                                  body: formData
+                                });
+                                if (res.ok) {
+                                  queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
+                                  toast({
+                                    title: "Success",
+                                    description: "Logo updated successfully"
+                                  });
                                 }
                               }}
                             />
-                            {pendingContent["logo_url"] && (
+                            {siteSettings?.logoUrl && (
                               <div className="space-y-4">
                                 <div className="p-4 border rounded-lg bg-muted/50">
                                   <img
-                                    src={pendingContent["logo_url"]}
+                                    src={siteSettings.logoUrl}
                                     alt="Site Logo"
                                     className="h-12 object-contain"
                                   />
@@ -954,12 +967,20 @@ function AdminDashboard() {
                           <Label>Favicon</Label>
                           <div className="flex flex-col gap-4">
                             <FileUpload
-                              value={pendingContent["favicon_url"] || ""}
-                              onFileSelect={(file) => handleContentChange("favicon_url", file)}
-                              onChange={(url) => {
-                                if (typeof url === 'string') {
-                                  handleContentChange("favicon_url", url);
-                                  setHasUnsavedChanges(true);
+                              value={siteSettings?.faviconUrl || ""}
+                              onFileSelect={async (file) => {
+                                const formData = new FormData();
+                                formData.append('favicon', file);
+                                const res = await fetch('/api/site-settings', {
+                                  method: 'PUT',
+                                  body: formData
+                                });
+                                if (res.ok) {
+                                  queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
+                                  toast({
+                                    title: "Success",
+                                    description: "Favicon updated successfully"
+                                  });
                                 }
                               }}
                             />
