@@ -25,6 +25,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface ContentField {
   key: string;
@@ -806,7 +807,7 @@ function AdminDashboard() {
   }
 
   const sidebarItems = [
-    { id: "home", label: "Home Page", icon: LayoutDashboard },
+    { id: "content", label: "Content", icon: LayoutDashboard },
     { id: "carousel", label: "Carousel", icon: Image },
     { id: "dogs", label: "Dogs", icon: DogIcon },
     { id: "animals", label: "Animals", icon: Cat },
@@ -861,368 +862,326 @@ function AdminDashboard() {
           </div>
 
           {/* Content sections */}
-          {activeTab === "home" && (
+          {activeTab === "content" && (
             <div className="space-y-6">
-              {/* Home page content */}
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>Hero Section</CardTitle>
-                  <CardDescription>Manage the main hero section content</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {contentFields.slice(0, 3).map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={field.key}>{field.label}</Label>
-                      <div className="flex gap-4">
-                        {field.type === "textarea" ? (
-                          <Textarea
-                            id={field.key}
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(e) => handleContentChange(field.key, e.target.value)}
-                          />
-                        ) : field.type === "image" ? (
-                          <div className="flex-1 space-y-2">
-                            <Input
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
+              <Tabs defaultValue="home" className="w-full">
+                <TabsList className="w-full justify-start">
+                  <TabsTrigger value="home">Home Page</TabsTrigger>
+                  <TabsTrigger value="dogs">Colorado Mountain Dogs</TabsTrigger>
+                  <TabsTrigger value="goats">Nigerian Dwarf Goats</TabsTrigger>
+                  <TabsTrigger value="market">Farmers Market</TabsTrigger>
+                  <TabsTrigger value="contact">Contact</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="home" className="space-y-6">
+                  <Card className="mb-8">
+                    <CardHeader>
+                      <CardTitle>Hero Section</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {contentFields
+                        .filter(field =>
+                          ['hero_text', 'hero_subtext', 'hero_background'].includes(field.key)
+                        )
+                        .map((field) => (
+                          <div key={field.key}>
+                            <Label htmlFor={field.key}>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            ) : field.type === 'image' ? (
+                              <div className="mt-1.5 space-y-2">
+                                <FileUpload
+                                  value={field.value}
+                                  onChange={(url) => handleContentChange(field.key, url)}
+                                />
+                                {field.value && (
+                                  <img
+                                    src={field.value}
+                                    alt={field.label}
+                                    className="mt-2 max-w-md rounded-md"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
                           </div>
-                        ) : (
-                          <Input
-                            id={field.key}
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(e) => handleContentChange(field.key, e.target.value)}
-                          />
-                        )}
+                        ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="mb-8">
+                    <CardHeader>
+                      <CardTitle>About Section</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {contentFields
+                        .filter(field =>
+                          ['about_title', 'mission_text'].includes(field.key)
+                        )
+                        .map((field) => (
+                          <div key={field.key}>
+                            <Label htmlFor={field.key}>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
+                          </div>
+                        ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="mb-8">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Principles</CardTitle>
+                        <Button onClick={handleAddPrinciple}>Add Principle</Button>
                       </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>Principles</CardTitle>
-                  <CardDescription>Manage the principles section content and ordering</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <DragDropContext onDragEnd={handlePrincipleReorder}>
-                    <Droppable droppableId="principles">
-                      {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef}>
-                          {pendingPrinciples.map((principle, index) => (
-                            <Draggable
-                              key={principle.id}
-                              draggableId={principle.id.toString()}
-                              index={index}
-                            >
-                              {(provided) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className="p-4 border rounded-lg space-y-4 mb-4"
+                    </CardHeader>
+                    <CardContent>
+                      <DragDropContext onDragEnd={handlePrincipleReorder}>
+                        <Droppable droppableId="principles">
+                          {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef}>
+                              {pendingPrinciples.map((principle, index) => (
+                                <Draggable
+                                  key={principle.id}
+                                  draggableId={principle.id.toString()}
+                                  index={index}
                                 >
-                                  <div className="flex items-center gap-2">
-                                    <GripVertical className="h-5 w-5 text-stone-400" />
-                                    <Input
-                                      value={principle.title}
-                                      onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
-                                      className="font-semibold"
-                                      placeholder="Principle Title"
-                                    />
-                                  </div>
-                                  <Textarea
-                                    value={principle.description}
-                                    onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
-                                    placeholder="Principle Description"
-                                    className="min-h-[100px]"
-                                  />
-                                  <div className="space-y-2">
-                                    <Label>Image</Label>
-                                    <div className="flex gap-4 items-start">
-                                      <div className="flex-1">
-                                        <FileUpload
-                                          value={principle.imageUrl}
-                                          onFileSelect={async (file) => {
-                                            const formData = new FormData();
-                                            formData.append("file", file);
-
-                                            try {
-                                              const uploadRes = await fetch("/api/upload", {
-                                                method: "POST",
-                                                body: formData,
-                                              });
-
-                                              if (!uploadRes.ok) throw new Error("Failed to upload image");
-
-                                              const { url } = await uploadRes.json();
-                                              handlePrincipleChange(principle.id, 'imageUrl', url);
-                                            } catch (error) {
-                                              console.error('Error uploading image:', error);
-                                              toast({
-                                                title: "Error",
-                                                description: "Failed to upload image",
-                                                variant: "destructive",
-                                              });
-                                            }
-                                          }}
-                                          onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
-                                        />
-                                      </div>
-                                      {principle.imageUrl && (
-                                        <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                                          <img
-                                            src={principle.imageUrl}
-                                            alt={principle.title}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex justify-end">
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => handleDeletePrinciple(principle.id)}
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className="mb-4 last:mb-0"
                                     >
-                                      Delete
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
-
-                  <Button
-                    onClick={handleAddPrinciple}
-                    className="w-full mt-4"
-                  >
-                    Add New Principle
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>About Section</CardTitle>
-                  <CardDescription>Manage the about section content</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {contentFields.slice(3, 5).map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={field.key}>{field.label}</Label>
-                      <div className="flex gap-4">
-                        {field.type === "textarea" ? (
-                          <Textarea
-                            id={field.key}
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(e) => handleContentChange(field.key, e.target.value)}
-                          />
-                        ) : (
-                          <Input
-                            id={field.key}
-                            value={pendingContent[field.key] ?? field.value}
-                            onChange={(e) => handleContentChange(field.key, e.target.value)}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-              <Card className="mt-8">
-                <CardHeader>
-                  <CardTitle>Feature Cards</CardTitle>
-                  <CardDescription>Manage the three main feature cards</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6 pb-6 border-b">
-                    <h3 className="text-lg font-semibold">Dogs Card</h3>
-                    {contentFields.slice(5, 8).map((field) => (
-                      <div key={field.key} className="space-y-2">
-                        <Label htmlFor={field.key}>{field.label}</Label>
-                        <div className="flex gap-4">
-                          {field.type === "textarea" ? (
-                            <Textarea
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
-                          ) : field.type === "image" ? (
-                            <div className="flex-1 space-y-2">
-                              <FileUpload
-                                value={pendingContent[field.key] ?? field.value}
-                                onFileSelect={async (file) => {
-                                  const formData = new FormData();
-                                  formData.append("file", file);
-                                  try {
-                                    const uploadRes = await fetch("/api/upload", {
-                                      method: "POST",
-                                      body: formData,
-                                    });
-                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                    const { url } = await uploadRes.json();
-                                    handleContentChange(field.key, url);
-                                  } catch (error) {
-                                    console.error('Error uploading image:', error);
-                                    toast({
-                                      title: "Error",
-                                      description: "Failed to upload image",
-                                      variant: "destructive",
-                                    });
-                                  }
-                                }}
-                                onChange={(value) => handleContentChange(field.key, value)}
-                              />
-                              {(pendingContent[field.key] || field.value) && (
-                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                                  <img
-                                    src={pendingContent[field.key] || field.value}
-                                    alt={field.label}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              )}
+                                      <Card>
+                                        <CardContent className="pt-6">
+                                          <div className="flex items-start gap-4">
+                                            <div
+                                              {...provided.dragHandleProps}
+                                              className="mt-2.5 cursor-move"
+                                            >
+                                              <GripVertical className="h-5 w-5 text-stone-400" />
+                                            </div>
+                                            <div className="flex-1 space-y-4">
+                                              <div>
+                                                <Label htmlFor={`title-${principle.id}`}>
+                                                  Title
+                                                </Label>
+                                                <Input
+                                                  id={`title-${principle.id}`}
+                                                  value={principle.title}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "title",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`description-${principle.id}`}>
+                                                  Description
+                                                </Label>
+                                                <Textarea
+                                                  id={`description-${principle.id}`}
+                                                  value={principle.description}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "description",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`image-${principle.id}`}>
+                                                  Image
+                                                </Label>
+                                                <FileUpload
+                                                  value={principle.imageUrl}
+                                                  onChange={(url) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "imageUrl",
+                                                      url
+                                                    )
+                                                  }
+                                                />
+                                                {principle.imageUrl && (
+                                                  <img
+                                                    src={principle.imageUrl}
+                                                    alt={principle.title}
+                                                    className="mt-2 max-w-md rounded-md"
+                                                  />
+                                                )}
+                                              </div>
+                                            </div>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleDeletePrinciple(principle.id)
+                                              }
+                                            >
+                                              <X className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
                             </div>
-                          ) : (
-                            <Input
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
                           )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        </Droppable>
+                      </DragDropContext>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-                  <div className="space-y-6 pb-6 border-b">
-                    <h3 className="text-lg font-semibold">Goats Card</h3>
-                    {contentFields.slice(8, 11).map((field) => (
-                      <div key={field.key} className="space-y-2">
-                        <Label htmlFor={field.key}>{field.label}</Label>
-                        <div className="flex gap-4">
-                          {field.type === "textarea" ? (
-                            <Textarea
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
-                          ) : field.type === "image" ? (
-                            <div className="flex-1 space-y-2">
-                              <FileUpload
-                                value={pendingContent[field.key] ?? field.value}
-                                onFileSelect={async (file) => {
-                                  const formData = new FormData();
-                                  formData.append("file", file);
-                                  try {
-                                    const uploadRes = await fetch("/api/upload", {
-                                      method: "POST",
-                                      body: formData,
-                                    });
-                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                    const { url } = await uploadRes.json();
-                                    handleContentChange(field.key, url);
-                                  } catch (error) {
-                                    console.error('Error uploading image:', error);
-                                    toast({
-                                      title: "Error",
-                                      description: "Failed to upload image",
-                                      variant: "destructive",
-                                    });
-                                  }
-                                }}
-                                onChange={(value) => handleContentChange(field.key, value)}
+                <TabsContent value="dogs" className="space-y-6">
+                  <Card className="mb-8">
+                    <CardHeader>
+                      <CardTitle>Dogs Hero Section</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {contentFields
+                        .filter(field =>
+                          ['animals_title', 'animals_text', 'animals_image'].includes(field.key)
+                        )
+                        .map((field) => (
+                          <div key={field.key}>
+                            <Label htmlFor={field.key}>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
                               />
-                              {(pendingContent[field.key] || field.value) && (
-                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                            ) : field.type === 'image' ? (
+                              <div className="mt-1.5 space-y-2">
+                                <FileUpload
+                                  value={field.value}
+                                  onChange={(url) => handleContentChange(field.key, url)}
+                                />
+                                {field.value && (
                                   <img
-                                    src={pendingContent[field.key] || field.value}
+                                    src={field.value}
                                     alt={field.label}
-                                    className="w-full h-full object-cover"
+                                    className="mt-2 max-w-md rounded-md"
                                   />
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <Input
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
+                          </div>
+                        ))}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Products Card</h3>
-                    {contentFields.slice(11).map((field) => (
-                      <div key={field.key} className="space-y-2">
-                        <Label htmlFor={field.key}>{field.label}</Label>
-                        <div className="flex gap-4">
-                          {field.type === "textarea" ? (
-                            <Textarea
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
-                          ) : field.type === "image" ? (
-                            <div className="flex-1 space-y-2">
-                              <FileUpload
-                                value={pendingContent[field.key] ?? field.value}
-                                onFileSelect={async (file) => {
-                                  const formData = new FormData();
-                                  formData.append("file", file);
-                                  try {
-                                    const uploadRes = await fetch("/api/upload", {
-                                      method: "POST",
-                                      body: formData,
-                                    });
-                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                    const { url } = await uploadRes.json();
-                                    handleContentChange(field.key, url);
-                                  } catch (error) {
-                                    console.error('Error uploading image:', error);
-                                    toast({
-                                      title: "Error",
-                                      description: "Failed toupload image",
-                                      variant: "destructive",
-                                    });
-                                  }
-                                }}
-                                onChange={(value) => handleContentChange(field.key, value)}
-                              />
-                              {(pendingContent[field.key] || field.value) && (
-                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                                  <img
-                                    src={pendingContent[field.key] || field.value}
-                                    alt={field.label}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <Input
-                              id={field.key}
-                              value={pendingContent[field.key] ?? field.value}
-                              onChange={(e) => handleContentChange(field.key, e.target.value)}
-                            />
-                          )}
-                        </div>
+                <TabsContent value="goats" className="space-y-6">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground">Nigerian Dwarf Goats section coming soon.</p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="market" className="space-y-6">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground">Farmers Market section coming soon.</p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="contact" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Contact Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={pendingContactInfo.email || ""}
+                          onChange={(e) => handleContactChange("email", e.target.value)}
+                          placeholder="Enter email address"
+                        />
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      <div>
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={pendingContactInfo.phone || ""}
+                          onChange={(e) => handleContactChange("phone", e.target.value)}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="facebook">Facebook</Label>
+                        <Input
+                          id="facebook"
+                          type="url"
+                          value={pendingContactInfo.facebook || ""}
+                          onChange={(e) => handleContactChange("facebook", e.target.value)}
+                          placeholder="Enter Facebook URL"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input
+                          id="instagram"
+                          type="url"
+                          value={pendingContactInfo.instagram || ""}
+                          onChange={(e) => handleContactChange("instagram", e.target.value)}
+                          placeholder="Enter Instagram URL"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
 
@@ -1813,15 +1772,15 @@ function AdminDashboard() {
                       weight: values.weight ? Number(values.weight) : null,
                       price: values.price ? Number(values.price) : null,
                     };
-
+                  
                     const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
                       method: editItem?.id ? 'PUT' : 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(processedValues),
                     });
-
+                  
                     if (!res.ok) throw new Error('Failed to save puppy');
-
+                  
                     queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
                     toast({
                       title: "Success",
