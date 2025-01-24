@@ -42,16 +42,26 @@ export function useContentManagement(
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
       const results = await Promise.all(
-        updates.map(({ key, value }) =>
-          fetch(`/api/site-content/${key}`, {
+        updates.map(async ({ key, value }) => {
+          const formData = new FormData();
+          formData.append('value', value);
+
+          const isImageContent = key === 'hero_background';
+          const headers: Record<string, string> = {};
+          
+          if (!isImageContent) {
+            headers['Content-Type'] = 'application/json';
+          }
+
+          const response = await fetch(`/api/site-content/${key}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ value }),
-          }).then(res => {
-            if (!res.ok) throw new Error(`Failed to update ${key}`);
-            return res.json();
-          })
-        )
+            headers,
+            body: isImageContent ? formData : JSON.stringify({ value }),
+          });
+
+          if (!response.ok) throw new Error(`Failed to update ${key}`);
+          return response.json();
+        })
       );
       return results;
     },
