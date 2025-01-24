@@ -849,10 +849,7 @@ function AdminDashboard() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="container py-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">
-              {sidebarItems.find((item) => item.id === activeTab)?.label}
-            </h1>
+          <div className="flex justify-end mb-6">
             {hasUnsavedChanges && (
               <Button onClick={handleSaveChanges}>
                 <Save className="w-4 h-4 mr-2" />
