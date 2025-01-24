@@ -1,4 +1,3 @@
-
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,23 +8,25 @@ export default function MobileNav() {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+          <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right">
-        <nav className="flex flex-col gap-4">
-          <Link href="/" className="text-lg font-medium">
-            Home
+      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+        <nav className="flex flex-col gap-4 mt-8">
+          <Link href="/dogs">
+            <a className="block px-2 py-1 text-lg text-stone-600 hover:text-stone-900">
+              Colorado Mountain Dogs
+            </a>
           </Link>
-          <Link href="/dogs" className="text-lg font-medium">
-            Dogs
+          <Link href="/#goats">
+            <a className="block px-2 py-1 text-lg text-stone-600 hover:text-stone-900">
+              Nigerian Dwarfs
+            </a>
           </Link>
-          <Link href="/upcoming-litters" className="text-lg font-medium">
-            Upcoming Litters
-          </Link>
-          <Link href="/past-litters" className="text-lg font-medium">
-            Past Litters
+          <Link href="/#market">
+            <a className="block px-2 py-1 text-lg text-stone-600 hover:text-stone-900">
+              Farmers Market
+            </a>
           </Link>
         </nav>
       </SheetContent>
