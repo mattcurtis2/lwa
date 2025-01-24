@@ -1277,7 +1277,7 @@ function AdminDashboard() {
                   </Tabs>
                 </TabsContent>
                 <TabsContent value="dogs" className="space-y-6">
-                  <DogManagement/>
+                  <CMDContentForm />
                 </TabsContent>
                 <TabsContent value="goats" className="space-y-6">
                   <div>Goats Content</div>
