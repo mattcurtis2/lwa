@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -16,49 +17,63 @@ interface ImageCropperProps {
   onCropComplete: (croppedImageUrl: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  circularCrop?: boolean;
 }
 
 export default function ImageCropper({
   imageUrl,
-  aspectRatio = 1,
+  aspectRatio,
   onCropComplete,
   open,
   onOpenChange,
+  circularCrop = false,
 }: ImageCropperProps) {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
     width: 90,
-    height: 90,
+    height: aspectRatio ? 90 * aspectRatio : 90,
     x: 5,
     y: 5,
   });
+  const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
   const getCroppedImg = async () => {
-    if (!imageRef.current) return;
+    if (!imageRef.current || !completedCrop) return;
 
     const image = imageRef.current;
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
-    canvas.width = crop.width! * scaleX;
-    canvas.height = crop.height! * scaleY;
+    canvas.width = completedCrop.width! * scaleX;
+    canvas.height = completedCrop.height! * scaleY;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.drawImage(
       image,
-      crop.x! * scaleX,
-      crop.y! * scaleY,
-      crop.width! * scaleX,
-      crop.height! * scaleY,
+      completedCrop.x! * scaleX,
+      completedCrop.y! * scaleY,
+      completedCrop.width! * scaleX,
+      completedCrop.height! * scaleY,
       0,
       0,
-      crop.width! * scaleX,
-      crop.height! * scaleY
+      completedCrop.width! * scaleX,
+      completedCrop.height! * scaleY
     );
+
+    if (circularCrop) {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) / 2;
+      
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     return new Promise<string>((resolve) => {
       canvas.toBlob((blob) => {
@@ -73,6 +88,8 @@ export default function ImageCropper({
   };
 
   const handleCropComplete = async () => {
+    if (!completedCrop) return;
+    
     const croppedImageUrl = await getCroppedImg();
     if (croppedImageUrl) {
       onCropComplete(croppedImageUrl);
@@ -84,15 +101,16 @@ export default function ImageCropper({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-[95vw] sm:max-w-2xl">
         <SheetHeader>
-          <SheetTitle>Crop Profile Picture</SheetTitle>
+          <SheetTitle>Crop Image</SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-4">
           <div className="flex flex-col items-center gap-4 pb-4">
             <ReactCrop
               crop={crop}
               onChange={(c) => setCrop(c)}
+              onComplete={(c) => setCompletedCrop(c)}
               aspect={aspectRatio}
-              circularCrop
+              circularCrop={circularCrop}
             >
               <img
                 ref={imageRef}
