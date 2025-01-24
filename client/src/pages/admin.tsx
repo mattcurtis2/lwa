@@ -109,6 +109,10 @@ function AdminDashboard() {
     queryKey: ["/api/site-content"]
   });
 
+  const { data: siteSettings } = useQuery({
+    queryKey: ["/api/site-settings"]
+  });
+
   const { data: dogsHero = [] } = useQuery<DogsHero[]>({
     queryKey: ["/api/dogs-hero"],
   });
