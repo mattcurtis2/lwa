@@ -773,7 +773,7 @@ function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) :(<div className={`w-full h-fullflex items-center justify-center ${
-                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
@@ -1699,8 +1699,7 @@ function AdminDashboard() {
                       ...values,
                       height: values.height ? Number(values.height) : null,
                       weight: values.weight ? Number(values.weight) : null,
-                      price: values.price ? Number(values.price) : null,
-                    };
+                      price: values.price ? Number(values.price) : null,                    };
 
                     const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
                       method: editItem?.id ? 'PUT' : 'POST',
