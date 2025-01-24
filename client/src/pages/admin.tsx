@@ -99,7 +99,7 @@ function AdminDashboard() {
   const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("content");
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
