@@ -39,12 +39,29 @@ export default function ImageCropper({
   const imageRef = useRef<HTMLImageElement>(null);
 
   const getCroppedImg = async () => {
-    if (!imageRef.current || !completedCrop) return;
+    console.log('getCroppedImg called with:', { completedCrop, imageRef: !!imageRef.current });
+    
+    if (!imageRef.current || !completedCrop) {
+      console.error('Missing required refs:', { 
+        hasImageRef: !!imageRef.current, 
+        hasCompletedCrop: !!completedCrop 
+      });
+      return;
+    }
 
     const image = imageRef.current;
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
+
+    console.log('Crop dimensions:', {
+      width: completedCrop.width,
+      height: completedCrop.height,
+      x: completedCrop.x,
+      y: completedCrop.y,
+      scaleX,
+      scaleY
+    });
 
     canvas.width = completedCrop.width! * scaleX;
     canvas.height = completedCrop.height! * scaleY;
@@ -88,12 +105,25 @@ export default function ImageCropper({
   };
 
   const handleCropComplete = async () => {
-    if (!completedCrop) return;
+    console.log('handleCropComplete called with completedCrop:', completedCrop);
     
-    const croppedImageUrl = await getCroppedImg();
-    if (croppedImageUrl) {
-      onCropComplete(croppedImageUrl);
-      onOpenChange(false);
+    if (!completedCrop) {
+      console.error('No completed crop data available');
+      return;
+    }
+    
+    try {
+      const croppedImageUrl = await getCroppedImg();
+      console.log('Cropped image URL generated:', !!croppedImageUrl);
+      
+      if (croppedImageUrl) {
+        onCropComplete(croppedImageUrl);
+        onOpenChange(false);
+      } else {
+        console.error('Failed to generate cropped image URL');
+      }
+    } catch (error) {
+      console.error('Error during crop completion:', error);
     }
   };
 
