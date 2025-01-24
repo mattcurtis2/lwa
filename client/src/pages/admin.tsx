@@ -1335,6 +1335,32 @@ function AdminDashboard() {
                     </TabsContent>
 
                     <TabsContent value="principles" className="space-y-4 pt-4">
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle>Principles Section Settings</CardTitle>
+                          <CardDescription>Edit the main title and description for the principles section</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <Label htmlFor="principles_title">Section Title</Label>
+                            <Input
+                              id="principles_title"
+                              value={pendingContent["principles_title"] || ""}
+                              onChange={(e) => handleContentChange("principles_title", e.target.value)}
+                              placeholder="Our Principles"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="principles_description">Section Description</Label>
+                            <Textarea
+                              id="principles_description"
+                              value={pendingContent["principles_description"] || ""}
+                              onChange={(e) => handleContentChange("principles_description", e.target.value)}
+                              placeholder="These foundational principles guide our daily operations and long-term vision at Little Way Acres."
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
                       <div className="flex justify-end mb-4">
                         <Button onClick={handleAddPrinciple}>
                           Add Principle
