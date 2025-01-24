@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,67 +9,55 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
-  content: z.string().min(1, "Content is required"),
+  hero_title: z.string(),
+  hero_subtitle: z.string(),
 });
 
 export function CMDContentForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: content, isLoading } = useQuery(["/api/site-content/cmd-description"]);
+  const { data: siteContent = [] } = useQuery({
+    queryKey: ['/api/dogs-hero'],
+    staleTime: Infinity,
+  });
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      content: "",
+      hero_title: siteContent?.title || "",
+      hero_subtitle: siteContent?.subtitle || "",
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const response = await fetch("/api/site-content/cmd-description", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ value: values.content }),
+      const res = await fetch('/api/dogs-hero', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save content");
-      }
-
-      return response.json();
+      if (!res.ok) throw new Error('Failed to update content');
+      return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["/api/site-content/cmd-description"]);
+      queryClient.invalidateQueries({ queryKey: ['/api/dogs-hero'] });
       toast({
         title: "Success",
-        description: "Content has been saved",
+        description: "Content updated successfully",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
-        description: "Failed to save content",
+        description: "Failed to update content",
         variant: "destructive",
       });
     },
   });
 
-  // Update form when data is loaded
-  React.useEffect(() => {
-    if (content) {
-      form.reset({ content: content.value });
-    }
-  }, [content, form]);
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     mutation.mutate(values);
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
   }
 
   return (
@@ -76,23 +65,29 @@ export function CMDContentForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="content"
+          name="hero_title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Colorado Mountain Dogs Description</FormLabel>
+              <FormLabel>Hero Title</FormLabel>
               <FormControl>
-                <Textarea 
-                  {...field} 
-                  rows={10}
-                  placeholder="Enter description for Colorado Mountain Dogs section..." 
-                />
+                <Textarea {...field} />
               </FormControl>
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? "Saving..." : "Save"}
-        </Button>
+        <FormField
+          control={form.control}
+          name="hero_subtitle"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Hero Subtitle</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Save Changes</Button>
       </form>
     </Form>
   );
