@@ -88,18 +88,18 @@ export default function LitterManagement() {
         return;
       }
 
-      // Ensure both queries are invalidated and force a refetch
-      await queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-      await queryClient.refetchQueries({ queryKey: ['/api/dogs'], stale: true });
-      await queryClient.refetchQueries({ queryKey: ['/api/litters'], stale: true });
-
-      console.log('Invalidating queries...');
-      queryClient.invalidateQueries({ queryKey: ['/api/dogs'], exact: false });
-      queryClient.invalidateQueries({ queryKey: ['/api/litters'], exact: false });
-      queryClient.refetchQueries({ queryKey: ['/api/dogs'], exact: false });
-      queryClient.refetchQueries({ queryKey: ['/api/litters'], exact: false });
-      console.log('Queries invalidated and refetched');
+      // Force an immediate refetch of the data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/litters'] })
+      ]);
+      
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['/api/dogs'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/litters'] })
+      ]);
+      
+      console.log('Data refetched successfully');
       
       setShowDogForm(false);
       setSelectedDog(null);
