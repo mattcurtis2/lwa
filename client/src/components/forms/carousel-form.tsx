@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -86,6 +87,34 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!item?.id) return;
+    
+    if (!confirm("Are you sure you want to delete this carousel item?")) return;
+
+    try {
+      const res = await fetch(`/api/carousel/${item.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete carousel item");
+
+      queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+      toast({
+        title: "Success",
+        description: "Carousel item deleted successfully",
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error deleting carousel item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete carousel item",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
@@ -153,11 +182,18 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
           )}
         />
 
-        <div className="flex gap-4">
-          <Button type="submit">Save</Button>
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
+        <div className="flex justify-between">
+          <div className="flex gap-4">
+            <Button type="submit">Save</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
+          {item && (
+            <Button type="button" variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
         </div>
       </form>
     </Form>
