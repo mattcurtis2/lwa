@@ -4,13 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Dog, Litter } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { useLitterManagement } from "@/hooks/use-litter-management";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 
 export default function LitterManagement() {
   const {
@@ -31,6 +31,27 @@ export default function LitterManagement() {
     queryKey: ["/api/litters"],
   });
 
+  const handleAddPuppy = (litter: Litter) => {
+    const mother = dogs.find(d => d.id === litter.motherId);
+    const father = dogs.find(d => d.id === litter.fatherId);
+
+    // Set selected dog with puppy defaults
+    setSelectedDog({
+      puppy: true,
+      litterId: litter.id,
+      motherId: litter.motherId,
+      fatherId: litter.fatherId,
+      mother,
+      father,
+      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
+      gender: 'male',
+      available: false,
+      breed: "Colorado Mountain Dogs",
+      outsideBreeder: false
+    });
+    setShowDogForm(true);
+  };
+
   const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
@@ -38,68 +59,119 @@ export default function LitterManagement() {
 
     return (
       <Card key={litter.id} className="mb-4">
-        <CardContent className="p-6">
-          <div className="grid gap-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {mother?.name} x {father?.name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Due Date: {formatDisplayDate(new Date(litter.dueDate))}
-                </p>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>
+              {mother?.name} x {father?.name}
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddPuppy(litter)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Puppy
+            </Button>
+          </div>
+          <CardDescription>
+            Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Parents Section */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Mother */}
+            <div className="flex items-center gap-3 p-2 rounded-lg">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
+                {mother?.profileImageUrl ? (
+                  <img
+                    src={mother.profileImageUrl}
+                    alt={mother.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                    <span className="text-2xl text-pink-500">♀</span>
+                  </div>
+                )}
               </div>
-              <Button
-                onClick={() => {
-                  setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
-                  setShowLitterForm(true);
-                }}
-              >
-                Edit
-              </Button>
+              <div>
+                <p className="font-medium">{mother?.name}</p>
+                <p className="text-sm text-muted-foreground">Mother</p>
+              </div>
             </div>
 
-            {litterPuppies.length > 0 && (
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Puppies</h4>
-                <div className="grid gap-2">
-                  {litterPuppies.map((puppy) => (
-                    <div
-                      key={puppy.id}
-                      className="flex items-center justify-between p-4 rounded-lg border"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                          {puppy.profileImageUrl ? (
-                            <img
-                              src={puppy.profileImageUrl}
-                              alt={puppy.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className={`w-full h-full flex items-center justify-center ${
-                              puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                            }`}>
-                              <span className={`text-xl ${
-                                puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                              }`}>
-                                {puppy.gender === 'female' ? '♀' : '♂'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium">{puppy.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {puppy.gender} • {puppy.color || 'No color set'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* Father */}
+            <div className="flex items-center gap-3 p-2 rounded-lg">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
+                {father?.profileImageUrl ? (
+                  <img
+                    src={father.profileImageUrl}
+                    alt={father.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                    <span className="text-2xl text-blue-500">♂</span>
+                  </div>
+                )}
               </div>
-            )}
+              <div>
+                <p className="font-medium">{father?.name}</p>
+                <p className="text-sm text-muted-foreground">Father</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Puppies Section */}
+          {litterPuppies.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-medium">Puppies</h4>
+              <div className="grid gap-4">
+                {litterPuppies.map((puppy) => (
+                  <div
+                    key={puppy.id}
+                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                      {puppy.profileImageUrl ? (
+                        <img
+                          src={puppy.profileImageUrl}
+                          alt={puppy.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${
+                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                        }`}>
+                          <span className={`text-xl ${
+                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                          }`}>
+                            {puppy.gender === 'female' ? '♀' : '♂'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{puppy.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {puppy.gender} • {puppy.color || 'No color set'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end mt-4">
+            <Button
+              onClick={() => {
+                setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
+                setShowLitterForm(true);
+              }}
+            >
+              Edit Litter
+            </Button>
           </div>
         </CardContent>
       </Card>
