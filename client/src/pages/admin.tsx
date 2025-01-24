@@ -664,7 +664,20 @@ function AdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleAddPuppy(litter)}
+              onClick={() => {
+  const defaultPuppy = {
+    name: "",
+    gender: "male",
+    birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
+    puppy: true,
+    motherId: litter.motherId,
+    fatherId: litter.fatherId,
+    litterId: litter.id,
+    breed: "Colorado Mountain Dogs"
+  };
+  setEditItem(defaultPuppy);
+  setShowPuppyForm(true);
+}}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Puppy
