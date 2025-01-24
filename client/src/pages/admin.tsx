@@ -773,7 +773,7 @@ function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${
+                        <div className={`w-full h-fullflex items-center justify-center ${
                           puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
@@ -987,44 +987,46 @@ function AdminDashboard() {
                           )
                           .map((field) => {
                             return (
-                          <div key={field.key}>
-                            <Label htmlFor={field.key}>{field.label}</Label>
-                            {field.type === 'textarea' ? (
-                              <Textarea
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            ) : field.type === 'image' ? (
-                              <div className="mt-1.5 space-y-2">
-                                <FileUpload
-                                  value={pendingContent[field.key] || field.value}
-                                  onFileSelect={(file) => handleContentChange(field.key, file)}
-                                  onChange={(url) => {
-                                    if (typeof url === 'string') {
-                                      handleContentChange(field.key, url);
-                                    }
-                                  }}
-                                />
-                                {(pendingContent[field.key] || field.value) && (
-                                  <img
-                                    src={pendingContent[field.key] || field.value}
-                                    alt="Preview"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                              <div key={field.key}>
+                                <Label htmlFor={field.key}>{field.label}</Label>
+                                {field.type === 'textarea' ? (
+                                  <Textarea
+                                    id={field.key}
+                                    value={field.value}
+                                    onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                    className="mt-1.5"
+                                  />
+                                ) : field.type === 'image' ? (
+                                  <div className="mt-1.5 space-y-2">
+                                    <FileUpload
+                                      value={pendingContent[field.key] || field.value}
+                                      onFileSelect={(file) => handleContentChange(field.key, file)}
+                                      onChange={(url) => {
+                                        if (typeof url === 'string') {
+                                          handleContentChange(field.key, url);
+                                        }
+                                      }}
+                                    />
+                                    {(pendingContent[field.key] || field.value) && (
+                                      <img
+                                        src={pendingContent[field.key] || field.value}
+                                        alt="Preview"
+                                        className="mt-2 rounded-lg max-h-48 object-cover"
+                                      />
+                                    )}
+                                  </div>
+                                ) : (
+                                  <Input
+                                    id={field.key}
+                                    value={field.value}
+                                    onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                    className="mt-1.5"
                                   />
                                 )}
                               </div>
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            })}
-                          </div>
-                        )}
+                            );
+                          })}
+                      </div>
                     </TabsContent>
 
                     <TabsContent value="about" className="space-y-4 pt-4">
