@@ -139,32 +139,32 @@ export default function DogForm({
 
   const form = useForm<z.infer<typeof dogSchema>>({
     resolver: zodResolver(dogSchema),
-    values: {
-      name: defaultValues?.name ?? "",
-      registrationName: defaultValues?.registrationName ?? "",
-      birthDate: defaultValues?.birthDate ?? new Date().toISOString().split('T')[0],
-      gender: defaultValues?.gender ?? "male",
-      description: defaultValues?.description ?? "",
-      motherId: defaultValues?.motherId ?? null,
-      fatherId: defaultValues?.fatherId ?? null,
-      litterId: defaultValues?.litterId ?? null,
-      profileImageUrl: defaultValues?.profileImageUrl ?? "",
-      healthData: defaultValues?.healthData ?? "",
-      color: defaultValues?.color ?? "",
-      dewclaws: defaultValues?.dewclaws ?? "",
-      furLength: defaultValues?.furLength ?? "",
-      height: defaultValues?.height ?? "",
-      weight: defaultValues?.weight ?? "",
-      pedigree: defaultValues?.pedigree ?? "",
-      narrativeDescription: defaultValues?.narrativeDescription ?? "",
-      media: defaultValues?.media ?? [],
-      outsideBreeder: defaultValues?.outsideBreeder ?? false,
-      puppy: defaultValues?.puppy ?? isPuppy,
-      available: defaultValues?.available ?? false,
-      price: defaultValues?.price ?? "",
-      breed: defaultValues?.breed ?? "Colorado Mountain Dogs",
-      documents: defaultValues?.documents ?? []
-    },
+    defaultValues: {
+      name: defaultValues?.name || "",
+      registrationName: defaultValues?.registrationName || "",
+      birthDate: defaultValues?.birthDate || new Date().toISOString().split('T')[0],
+      gender: defaultValues?.gender || "male",
+      description: defaultValues?.description || "",
+      motherId: defaultValues?.motherId || null,
+      fatherId: defaultValues?.fatherId || null,
+      litterId: defaultValues?.litterId || null,
+      profileImageUrl: defaultValues?.profileImageUrl || "",
+      healthData: defaultValues?.healthData || "",
+      color: defaultValues?.color || "",
+      dewclaws: defaultValues?.dewclaws || "",
+      furLength: defaultValues?.furLength || "",
+      height: defaultValues?.height || "",
+      weight: defaultValues?.weight || "",
+      pedigree: defaultValues?.pedigree || "",
+      narrativeDescription: defaultValues?.narrativeDescription || "",
+      media: defaultValues?.media || [],
+      outsideBreeder: defaultValues?.outsideBreeder || false,
+      puppy: defaultValues?.puppy || isPuppy,
+      available: defaultValues?.available || false,
+      price: defaultValues?.price || "",
+      breed: defaultValues?.breed || "Colorado Mountain Dogs",
+      documents: defaultValues?.documents || []
+    }
   });
 
   // Only fetch parents if not opening from litter
