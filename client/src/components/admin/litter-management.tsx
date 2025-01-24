@@ -71,14 +71,9 @@ export default function LitterManagement() {
       const litter = litters.find(l => l.id === savedDog.litterId);
       if (!litter) return;
 
-      // Immediately update the UI with the new dog
-      await queryClient.invalidateQueries(['/api/dogs']);
-      await queryClient.invalidateQueries(['/api/litters']);
-      
-      // Force an immediate refetch
       await Promise.all([
-        queryClient.fetchQuery(['/api/dogs']),
-        queryClient.fetchQuery(['/api/litters'])
+        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/litters'] })
       ]);
 
       setShowDogForm(false);
