@@ -36,8 +36,10 @@ export default function LitterManagement() {
   });
 
   const handleAddPuppy = (litter: Litter) => {
+    console.log('handleAddPuppy called with litter:', litter);
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
+    console.log('Found parents:', { mother, father });
     
     const puppyDefaults = {
       name: "",
@@ -59,13 +61,17 @@ export default function LitterManagement() {
       documents: []
     };
     
+    console.log('Setting puppy defaults:', puppyDefaults);
     setSelectedDog(puppyDefaults);
+    console.log('Setting showDogForm to true');
     setShowDogForm(true);
   };
 
   const onDogFormSubmit = async (values: any) => {
-    console.log('Submitting dog form with values:', values);
+    console.log('onDogFormSubmit called with values:', values);
+    console.log('Current state - showDogForm:', showDogForm, 'selectedDog:', selectedDog);
     try {
+      console.log('Attempting to send POST request to /api/dogs');
       const response = await fetch('/api/dogs', {
         method: 'POST',
         headers: {
