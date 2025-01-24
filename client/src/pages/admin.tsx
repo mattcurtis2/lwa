@@ -33,7 +33,10 @@ export default function Admin() {
   const section = location.split('?')[1]?.split('=')[1] || 'home';
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDogForm, setShowDogForm] = useState(false);
+  const [showPuppyForm, setShowPuppyForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editItem, setEditItem] = useState<any>(null);
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
