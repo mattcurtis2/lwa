@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 // ... keep all interfaces and types ...
 
 export default function Admin() {
+  const [location] = useLocation();
+  const section = location.split('?')[1]?.split('=')[1] || 'home';
+
   const { data: siteContent, isLoading: isLoadingSiteContent, error: errorSiteContent } = useQuery({ 
     queryKey: ["siteContent"], 
     queryFn: () => fetch("/api/site-content").then((res) => res.json()) 
