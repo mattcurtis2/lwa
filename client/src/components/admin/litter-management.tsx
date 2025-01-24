@@ -68,16 +68,25 @@ export default function LitterManagement() {
 
   const onDogFormSubmit = async (savedDog: Dog) => {
     try {
+      console.log('onDogFormSubmit called with:', savedDog);
+      
       const litter = litters.find(l => l.id === savedDog.litterId);
-      if (!litter) return;
-
-      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+      if (!litter) {
+        console.error('No matching litter found for dog:', savedDog);
+        return;
+      }
+      
+      console.log('Invalidating queries...');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/litters'] })
+      ]);
+      console.log('Queries invalidated');
       
       setShowDogForm(false);
       setSelectedDog(null);
     } catch (error) {
-      console.error('Error updating litter with puppy:', error);
+      console.error('Error in onDogFormSubmit:', error);
     }
   };
 

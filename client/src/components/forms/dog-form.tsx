@@ -455,6 +455,7 @@ export default function DogForm({
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   const onSubmitWrapper = async (values: any) => {
+    console.log('Form submission started with values:', values); // Added logging
     try {
       const processedValues = {
         ...values,
@@ -488,16 +489,17 @@ export default function DogForm({
       }
 
       const savedDog = await response.json();
-      
+      console.log('Dog saved successfully:', savedDog); // Added logging
+
       toast({
         title: "Success",
         description: `Dog ${dog?.id ? 'updated' : 'created'} successfully`,
       });
-      
+
       if (onSubmit) {
         await onSubmit(savedDog);
       }
-      
+
       if (onOpenChange) {
         onOpenChange(false);
       }
@@ -1022,8 +1024,7 @@ export default function DogForm({
                     placeholder="Family history and lineage information"/>
                   <div className="space-y-2">
                     <Label>Pedigree Documents</Label>
-                    <FileUpload
-                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                    <FileUpload                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
                     />
