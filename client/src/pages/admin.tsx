@@ -852,7 +852,7 @@ function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto pl-5">
         <div className="container py-6">
           <div className="flex justify-end mb-6">
             {hasUnsavedChanges && (
