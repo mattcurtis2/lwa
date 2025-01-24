@@ -238,6 +238,26 @@ export const selectPrincipleSchema = createSelectSchema(principles);
 export type Principle = typeof principles.$inferSelect;
 export type NewPrinciple = typeof principles.$inferInsert;
 
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  siteTitle: text("site_title").notNull(),
+  siteDescription: text("site_description"),
+  ogImage: text("og_image"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const siteSettingsRelations = relations(siteSettings, ({ }) => ({
+  // No relations for now
+}));
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings);
+export const selectSiteSettingsSchema = createSelectSchema(siteSettings);
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type NewSiteSettings = typeof siteSettings.$inferInsert;
+
 export const contactInfo = pgTable("contact_info", {
   id: serial("id").primaryKey(),
   email: text("email"),

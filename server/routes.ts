@@ -950,6 +950,59 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add contact info routes
+  // Site Settings routes
+  app.get("/api/site-settings", async (_req, res) => {
+    try {
+      const settings = await db.query.siteSettings.findFirst();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Failed to fetch site settings" });
+    }
+  });
+
+  app.put("/api/site-settings", upload.fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'favicon', maxCount: 1 },
+    { name: 'ogImage', maxCount: 1 }
+  ]), async (req, res) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const existingSettings = await db.query.siteSettings.findFirst();
+
+      const updateData: Partial<NewSiteSettings> = {
+        ...req.body,
+        updatedAt: new Date()
+      };
+
+      if (files.logo) {
+        updateData.logoUrl = `/uploads/${files.logo[0].filename}`;
+      }
+      if (files.favicon) {
+        updateData.faviconUrl = `/uploads/${files.favicon[0].filename}`;
+      }
+      if (files.ogImage) {
+        updateData.ogImage = `/uploads/${files.ogImage[0].filename}`;
+      }
+
+      if (!existingSettings) {
+        const settings = await db.insert(siteSettings)
+          .values(updateData)
+          .returning();
+        res.json(settings[0]);
+      } else {
+        const settings = await db.update(siteSettings)
+          .set(updateData)
+          .where(eq(siteSettings.id, existingSettings.id))
+          .returning();
+        res.json(settings[0]);
+      }
+    } catch (error) {
+      console.error("Error updating site settings:", error);
+      res.status(500).json({ message: "Failed to update site settings" });
+    }
+  });
+
   app.get("/api/contact-info", async (_req, res) => {
     try {
       const info = await db.query.contactInfo.findFirst();
