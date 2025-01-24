@@ -46,12 +46,6 @@ interface PuppyFormData {
   description: string | undefined;
   narrativeDescription: string | undefined;
   healthData: string | undefined;
-}
-
-function AdminDashboard() {
-  const { data: siteSettings } = useQuery({
-    queryKey: ['/api/site-settings'],
-  });
   height: string | null;
   weight: string | null;
   furLength: string | undefined;
@@ -86,6 +80,12 @@ function AdminDashboard() {
   fatherId?: number;
   litterId?: number;
   order?: number;
+}
+
+function AdminDashboard() {
+  const { data: siteSettings } = useQuery({
+    queryKey: ['/api/site-settings'],
+  });
 }
 
 function AdminDashboard() {
