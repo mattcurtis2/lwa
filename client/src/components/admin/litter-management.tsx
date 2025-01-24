@@ -66,29 +66,38 @@ export default function LitterManagement() {
     setShowDogForm(true);
   };
 
-  const onDogFormSubmit = async (values: any) => {
-    console.log('onDogFormSubmit called with values:', values);
-    console.log('Current state - showDogForm:', showDogForm, 'selectedDog:', selectedDog);
+  const onDogFormSubmit = async (savedDog: Dog) => {
     try {
-      console.log('Attempting to send POST request to /api/dogs');
-      const response = await fetch('/api/dogs', {
-        method: 'POST',
+      // Find the current litter
+      const litter = litters.find(l => l.id === savedDog.litterId);
+      if (!litter) return;
+
+      // Add the new puppy to the litter's puppies array
+      const updatedLitter = {
+        ...litter,
+        puppies: [...(litter.puppies || []), savedDog]
+      };
+
+      // Update the litter with the new puppy
+      const response = await fetch(`/api/litters/${litter.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(updatedLitter),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create puppy');
+        throw new Error('Failed to update litter with new puppy');
       }
 
-      // Refresh the dogs data
+      // Refresh both dogs and litters data
       await queryClient.invalidateQueries(['/api/dogs']);
+      await queryClient.invalidateQueries(['/api/litters']);
       setShowDogForm(false);
       setSelectedDog(null);
     } catch (error) {
-      console.error('Error creating puppy:', error);
+      console.error('Error updating litter with puppy:', error);
     }
   };
 
