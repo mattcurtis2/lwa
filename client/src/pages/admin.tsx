@@ -1011,7 +1011,7 @@ function AdminDashboard() {
                           Add Carousel Item
                         </Button>
                       </div>
-                      {carousel?.map((item) => (
+                      {carouselItems?.map((item) => (
                         <div key={item.id} className="space-y-4">
                           <Label>Title</Label>
                           <Input
