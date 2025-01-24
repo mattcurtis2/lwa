@@ -641,7 +641,7 @@ function AdminDashboard() {
     };
 
     setSelectedDog(initialPuppyData);
-    setShowDogForm(true);
+    setTimeout(() => setShowDogForm(true), 0);
   };
 
   const handleDogFormClose = () => {
@@ -1696,7 +1696,6 @@ function AdminDashboard() {
               </Tabs>
             </div>
           )}
-
           {activeTab === "carousel" && (
             <div className="space-y-6">
               <Card>
@@ -2266,6 +2265,14 @@ function AdminDashboard() {
           </SheetContent>
         </Sheet>
       )}
+      <DogForm
+        open={showDogForm}
+        onOpenChange={(open) => {
+          if (!open) handleDogFormClose();
+        }}
+        dog={selectedDog as Dog}
+        mode={selectedDog?.id ? 'edit' : 'create'}
+      />
     </div>
   );
 }
