@@ -26,19 +26,7 @@ export default function UpcomingLitters() {
     setShowDogForm(true);
   };
 
-  const handleAddPuppy = (litter: Litter, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent litter navigation
-    setSelectedDog({
-      puppy: true,
-      litterId: litter.id,
-      motherId: litter.motherId,
-      fatherId: litter.fatherId,
-      birthDate: new Date().toISOString().split('T')[0],
-      gender: 'male', // Default gender
-      available: false,
-    });
-    setShowDogForm(true);
-  };
+  
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
@@ -114,15 +102,7 @@ export default function UpcomingLitters() {
                     <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
                       Expected {formatDisplayDate(new Date(litter.dueDate))}
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => handleAddPuppy(litter, e)}
-                      className="mt-2"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Puppy
-                    </Button>
+                    
                     <p className="text-muted-foreground text-sm mt-2">
                       Click to view detailed information about this upcoming litter
                     </p>
