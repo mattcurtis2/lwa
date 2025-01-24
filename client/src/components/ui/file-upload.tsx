@@ -143,12 +143,10 @@ export function FileUpload({
         return;
       }
 
-      if (file.type.startsWith('image/')) {
-        setSelectedFile(file);
-        const tempUrl = URL.createObjectURL(file);
-        setTempImageUrl(tempUrl);
-        setShowCropper(true);
-      } else {
+      setSelectedFile(file);
+      const tempUrl = URL.createObjectURL(file);
+      setPreviewUrl(tempUrl);
+      if (!file.type.startsWith('image/')) {
         onFileSelect(file);
       }
     }
@@ -191,27 +189,44 @@ export function FileUpload({
           onOpenChange={setShowCropper}
         />
       )}
-      <div
-        {...getRootProps()}
-        className={cn(
-          "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-          isDragActive && "border-primary bg-accent",
-          isUploading && "opacity-50 pointer-events-none",
-          className
-        )}
-      >
-        <input {...getInputProps()} />
-        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-          <Upload className="h-10 w-10" />
-          <p className="text-sm text-center">
-            {isDragActive 
-              ? "Drop your file here..."
-              : isUploading 
-                ? "Uploading..."
-                : "Drag & drop files here, or click to select"
-            }
-          </p>
+      <div className="space-y-4">
+        <div
+          {...getRootProps()}
+          className={cn(
+            "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+            isDragActive && "border-primary bg-accent",
+            isUploading && "opacity-50 pointer-events-none",
+            className
+          )}
+        >
+          <input {...getInputProps()} />
+          <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+            <Upload className="h-10 w-10" />
+            <p className="text-sm text-center">
+              {isDragActive 
+                ? "Drop your file here..."
+                : isUploading 
+                  ? "Uploading..."
+                  : "Drag & drop files here, or click to select"
+              }
+            </p>
+          </div>
         </div>
+        {previewUrl && selectedFile?.type.startsWith('image/') && (
+          <div 
+            className="relative cursor-pointer group"
+            onClick={() => setShowCropper(true)}
+          >
+            <img 
+              src={previewUrl} 
+              alt="Preview" 
+              className="w-full h-auto rounded-lg"
+            />
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-lg">
+              Click to crop
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
