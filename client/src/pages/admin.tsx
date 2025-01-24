@@ -772,8 +772,9 @@ function AdminDashboard() {
                           alt={puppy.name}
                           className="w-full h-full object-cover"
                         />
-                      ) :(<div className={`w-full h-fullflex items-center justify-center ${
-                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100' : 'bg-blue-100'
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${
+                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
