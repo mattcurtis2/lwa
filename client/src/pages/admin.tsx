@@ -1782,7 +1782,8 @@ function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="instagram">Instagram URL</Label<Input
+                    <Label htmlFor="instagram">Instagram URL</Label>
+                    <Input
                       id="instagram"
                       type="url"
                       value={pendingContactInfo.instagram ?? ''}
