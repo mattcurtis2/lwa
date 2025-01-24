@@ -808,7 +808,6 @@ function AdminDashboard() {
 
   const sidebarItems = [
     { id: "content", label: "Content", icon: LayoutDashboard },
-    { id: "carousel", label: "Carousel", icon: Image },
     { id: "dogs", label: "Dogs", icon: DogIcon },
     { id: "animals", label: "Animals", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
@@ -862,12 +861,13 @@ function AdminDashboard() {
           {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
-                <TabsList className="w-full justify-start">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="home">Home Page</TabsTrigger>
                   <TabsTrigger value="dogs">Colorado Mountain Dogs</TabsTrigger>
                   <TabsTrigger value="goats">Nigerian Dwarf Goats</TabsTrigger>
                   <TabsTrigger value="market">Farmers Market</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
+                  <TabsTrigger value="principles">Principles</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="home" className="space-y-6">
@@ -1063,6 +1063,69 @@ function AdminDashboard() {
                       </DragDropContext>
                     </CardContent>
                   </Card>
+                  <Card className="mb-8">
+                    <CardHeader>
+                      <CardTitle>Carousel Management</CardTitle>
+                      <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <Button onClick={() => {
+                          setEditItem(null);
+                          setShowForm(true);
+                        }}>
+                          Add Carousel Item
+                        </Button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {carouselItems?.map((item) => (
+                            <Card key={item.id}>
+                              <div className="aspect-video relative">
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                                />
+                              </div>
+                              <CardContent className="pt-4">
+                                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                                <div className="flex gap-2 mt-4">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditItem(item);
+                                      setShowForm(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                                      const res = await fetch(`/api/carousel/${item.id}`, {
+                                        method: "DELETE",
+                                      });
+                                      if (res.ok) {
+                                        queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                                        toast({
+                                          title: "Success",
+                                          description: "Carousel item deleted successfully",
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="dogs" className="space-y-6">
@@ -1175,6 +1238,122 @@ function AdminDashboard() {
                           placeholder="Enter Instagram URL"
                         />
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="principles" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Principles</CardTitle>
+                        <Button onClick={handleAddPrinciple}>Add Principle</Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <DragDropContext onDragEnd={handlePrincipleReorder}>
+                        <Droppable droppableId="principles">
+                          {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef}>
+                              {pendingPrinciples.map((principle, index) => (
+                                <Draggable
+                                  key={principle.id}
+                                  draggableId={principle.id.toString()}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className="mb-4 last:mb-0"
+                                    >
+                                      <Card>
+                                        <CardContent className="pt-6">
+                                          <div className="flex items-start gap-4">
+                                            <div
+                                              {...provided.dragHandleProps}
+                                              className="mt-2.5 cursor-move"
+                                            >
+                                              <GripVertical className="h-5 w-5 text-stone-400" />
+                                            </div>
+                                            <div className="flex-1 space-y-4">
+                                              <div>
+                                                <Label htmlFor={`title-${principle.id}`}>
+                                                  Title
+                                                </Label>
+                                                <Input
+                                                  id={`title-${principle.id}`}
+                                                  value={principle.title}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "title",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`description-${principle.id}`}>
+                                                  Description
+                                                </Label>
+                                                <Textarea
+                                                  id={`description-${principle.id}`}
+                                                  value={principle.description}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "description",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`image-${principle.id}`}>
+                                                  Image
+                                                </Label>
+                                                <FileUpload
+                                                  value={principle.imageUrl}
+                                                  onChange={(url) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "imageUrl",
+                                                      url
+                                                    )
+                                                  }
+                                                />
+                                                {principle.imageUrl && (
+                                                  <img
+                                                    src={principle.imageUrl}
+                                                    alt={principle.title}
+                                                    className="mt-2 max-w-md rounded-md"
+                                                  />
+                                                )}
+                                              </div>
+                                            </div>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleDeletePrinciple(principle.id)
+                                              }
+                                            >
+                                              <X className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -1769,15 +1948,15 @@ function AdminDashboard() {
                       weight: values.weight ? Number(values.weight) : null,
                       price: values.price ? Number(values.price) : null,
                     };
-                  
+
                     const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
                       method: editItem?.id ? 'PUT' : 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(processedValues),
                     });
-                  
+
                     if (!res.ok) throw new Error('Failed to save puppy');
-                  
+
                     queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
                     toast({
                       title: "Success",
