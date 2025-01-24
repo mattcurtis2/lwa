@@ -6,6 +6,17 @@ import DogForm from "@/components/forms/dog-form";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -219,7 +230,46 @@ export default function LitterManagement() {
               </div>
             </div>
           )}
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end gap-2 mt-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Delete Litter</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Litter</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete this litter and all associated puppies. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={async () => {
+                    try {
+                      await fetch(`/api/litters/${litter.id}`, {
+                        method: 'DELETE',
+                      });
+                      
+                      // Refetch data
+                      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                      
+                      toast({
+                        title: 'Success',
+                        description: 'Litter deleted successfully',
+                      });
+                    } catch (error) {
+                      console.error('Error deleting litter:', error);
+                      toast({
+                        title: 'Error',
+                        description: 'Failed to delete litter',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Button
               onClick={() => {
                 setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
