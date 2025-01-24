@@ -640,6 +640,7 @@ function AdminDashboard() {
       outsideBreeder: false
     });
     setShowDogForm(true);
+    setShowLitterForm(false);
   };
 
   const handleDogFormClose = () => {
