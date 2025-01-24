@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import {
   HomeIcon,
@@ -12,30 +12,20 @@ import {
 
 interface SidebarProps {
   className?: string;
-  onNavigate?: (section: string) => void;
 }
 
-export function Sidebar({ className, onNavigate }: SidebarProps) {
+export function Sidebar({ className }: SidebarProps) {
   const [location] = useLocation();
-
-  const getSection = () => {
-    if (location.includes('?')) {
-      const params = new URLSearchParams(location.split('?')[1]);
-      return params.get('section') || 'home';
-    }
-    return 'home';
-  };
-
-  const currentSection = getSection();
+  const currentSection = location.split('?')[1]?.split('=')[1] || 'home';
 
   const navigation = [
-    { name: 'Home Content', section: 'home', icon: HomeIcon },
-    { name: 'Carousel', section: 'carousel', icon: ImageIcon },
-    { name: 'Dogs', section: 'dogs', icon: DogIcon },
-    { name: 'Animals', section: 'animals', icon: UsersIcon },
-    { name: 'Products', section: 'products', icon: ShoppingBagIcon },
-    { name: 'Contact', section: 'contact', icon: PhoneIcon },
-    { name: 'Settings', section: 'settings', icon: Settings2Icon },
+    { name: 'Home Content', href: '/admin?section=home', icon: HomeIcon },
+    { name: 'Carousel', href: '/admin?section=carousel', icon: ImageIcon },
+    { name: 'Dogs', href: '/admin?section=dogs', icon: DogIcon },
+    { name: 'Animals', href: '/admin?section=animals', icon: UsersIcon },
+    { name: 'Products', href: '/admin?section=products', icon: ShoppingBagIcon },
+    { name: 'Contact', href: '/admin?section=contact', icon: PhoneIcon },
+    { name: 'Settings', href: '/admin?section=settings', icon: Settings2Icon },
   ];
 
   return (
@@ -45,17 +35,17 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Dashboard</h2>
           <div className="space-y-1">
             {navigation.map((item) => (
-              <button
+              <Link
                 key={item.name}
-                onClick={() => onNavigate?.(item.section)}
+                href={item.href}
                 className={cn(
-                  "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                  currentSection === item.section ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground",
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent",
+                  currentSection === item.href.split('=')[1] ? "bg-accent" : "transparent",
                 )}
               >
                 <item.icon className="h-4 w-4" />
                 {item.name}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
