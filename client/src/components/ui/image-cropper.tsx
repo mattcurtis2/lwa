@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -39,33 +38,28 @@ export default function ImageCropper({
   const imageRef = useRef<HTMLImageElement>(null);
 
   const getCroppedImg = async () => {
-    console.log('getCroppedImg called with:', { 
-      completedCrop, 
+    console.log('Starting getCroppedImg with:', {
       hasImageRef: !!imageRef.current,
-      cropDimensions: completedCrop ? {
-        x: completedCrop.x,
-        y: completedCrop.y,
-        width: completedCrop.width,
-        height: completedCrop.height,
-        unit: completedCrop.unit
-      } : null,
-      imageRefDimensions: imageRef.current ? {
-        width: imageRef.current.width,
-        height: imageRef.current.height,
-        naturalWidth: imageRef.current.naturalWidth,
-        naturalHeight: imageRef.current.naturalHeight
-      } : null
+      completedCrop,
+      imageUrl
     });
-    
+
     if (!imageRef.current || !completedCrop) {
-      console.error('Missing required refs:', { 
-        hasImageRef: !!imageRef.current, 
-        hasCompletedCrop: !!completedCrop 
+      console.error('Missing required refs:', {
+        hasImageRef: !!imageRef.current,
+        hasCompletedCrop: !!completedCrop
       });
       return;
     }
 
     const image = imageRef.current;
+    console.log('Image dimensions:', {
+      width: image.width,
+      height: image.height,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight
+    });
+
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
@@ -101,7 +95,7 @@ export default function ImageCropper({
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const radius = Math.min(canvas.width, canvas.height) / 2;
-      
+
       ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -114,7 +108,7 @@ export default function ImageCropper({
           width: canvas.width,
           height: canvas.height
         });
-        
+
         canvas.toBlob((blob) => {
           if (!blob) {
             console.error('Canvas is empty');
@@ -125,7 +119,7 @@ export default function ImageCropper({
             size: blob.size,
             type: blob.type
           });
-          
+
           const croppedImageUrl = URL.createObjectURL(blob);
           console.log('Created URL:', croppedImageUrl);
           resolve(croppedImageUrl);
@@ -139,16 +133,16 @@ export default function ImageCropper({
 
   const handleCropComplete = async () => {
     console.log('handleCropComplete called with completedCrop:', completedCrop);
-    
+
     if (!completedCrop) {
       console.error('No completed crop data available');
       return;
     }
-    
+
     try {
       const croppedImageUrl = await getCroppedImg();
       console.log('Cropped image URL generated:', !!croppedImageUrl);
-      
+
       if (croppedImageUrl) {
         onCropComplete(croppedImageUrl);
         onOpenChange(false);

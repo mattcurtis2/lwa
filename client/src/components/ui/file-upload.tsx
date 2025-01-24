@@ -19,6 +19,78 @@ interface FileUploadProps {
   isUploading?: boolean;
 }
 
+function ImageCropper({ imageUrl, onCropComplete, open, onOpenChange }: { imageUrl: string; onCropComplete: (croppedImageUrl: string) => void; open: boolean; onOpenChange: (open: boolean) => void; }) {
+  const [crop, setCrop] = useState<CropType>();
+  const [completedCrop, setCompletedCrop] = useState<CropType | null>(null);
+
+  const getCroppedImg = useCallback(async () => {
+    if (!completedCrop || !imageUrl) {
+      return null;
+    }
+
+    console.log('Inside getCroppedImg, completedCrop:', completedCrop);
+    console.log('Inside getCroppedImg, imageUrl:', imageUrl);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const image = new Image();
+    image.src = imageUrl;
+    await new Promise(resolve => {
+      image.onload = resolve;
+    });
+    canvas.width = completedCrop.width;
+    canvas.height = completedCrop.height;
+    ctx!.drawImage(
+      image,
+      completedCrop.x,
+      completedCrop.y,
+      completedCrop.width,
+      completedCrop.height,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height
+    );
+
+    const croppedImageUrl = canvas.toDataURL('image/jpeg');
+    console.log('Cropped image URL generated:', croppedImageUrl);
+    return croppedImageUrl;
+  }, [completedCrop, imageUrl]);
+
+
+  const handleCropComplete = async () => {
+    console.log('Starting crop completion...');
+    if (!completedCrop) {
+      console.log('No completed crop data');
+      return;
+    }
+    try {
+      console.log('Getting cropped image...');
+      const croppedImageUrl = await getCroppedImg();
+      console.log('Cropped image URL:', croppedImageUrl);
+      if (croppedImageUrl) {
+        onCropComplete(croppedImageUrl);
+      }
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error in crop completion:', error);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+            <ReactCrop
+                src={imageUrl}
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+            />
+            <Button onClick={handleCropComplete}>Crop Image</Button>
+        </DialogContent>
+    </Dialog>
+  );
+}
+
 export function FileUpload({ 
   onFileSelect, 
   value, 
@@ -43,6 +115,7 @@ export function FileUpload({
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    console.log('Files dropped:', acceptedFiles, rejectedFiles);
     if (rejectedFiles.length > 0) {
       toast({
         title: "Error",
@@ -54,6 +127,7 @@ export function FileUpload({
 
     const file = acceptedFiles[0];
     if (file) {
+      console.log('Selected file:', file);
       if (file.size > 50 * 1024 * 1024) { // 50MB limit
         toast({
           title: "Error",
@@ -62,7 +136,7 @@ export function FileUpload({
         });
         return;
       }
-      
+
       if (file.type.startsWith('image/')) {
         setSelectedFile(file);
         const tempUrl = URL.createObjectURL(file);
@@ -93,15 +167,21 @@ export function FileUpload({
   });
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
+    console.log('handleCroppedImage called with:', croppedImageUrl);
     if (!selectedFile) return;
-    
-    const response = await fetch(croppedImageUrl);
-    const blob = await response.blob();
-    const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
-    onFileSelect(croppedFile);
-    setShowCropper(false);
-    setTempImageUrl(null);
-    setSelectedFile(null);
+
+    try {
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+      console.log('Cropped file created:', croppedFile);
+      onFileSelect(croppedFile);
+      setShowCropper(false);
+      setTempImageUrl(null);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Error handling cropped image:", error);
+    }
   };
 
   return (
