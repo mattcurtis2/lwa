@@ -132,8 +132,11 @@ export default function DogForm({
   const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
   const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
-  const [showCropper, setShowCropper] = useState(false);
-  const [cropImageUrl, setCropImageUrl] = useState("");
+  const [showProfileCropper, setShowProfileCropper] = useState(false);
+  const [showMediaCropper, setShowMediaCropper] = useState(false);
+  const [cropProfileUrl, setCropProfileUrl] = useState("");
+  const [cropMediaUrl, setCropMediaUrl] = useState("");
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState<number>(-1);
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -343,8 +346,8 @@ export default function DogForm({
 
     try {
       const previewUrl = URL.createObjectURL(file);
-      setCropImageUrl(previewUrl);
-      setShowCropper(true);
+      setCropProfileUrl(previewUrl);
+      setShowProfileCropper(true);
     } catch (error) {
       toast({
         title: 'Error',
@@ -354,7 +357,7 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedImage = async (croppedImageUrl: string) => {
+  const handleCroppedProfileImage = async (croppedImageUrl: string) => {
     try {
       setIsUploadingProfile(true);
       // Convert the cropped canvas data URL to a blob
@@ -384,9 +387,9 @@ export default function DogForm({
 
       // Only revoke URLs after successful upload
       URL.revokeObjectURL(croppedImageUrl);
-      URL.revokeObjectURL(cropImageUrl);
-      setCropImageUrl("");
-      setShowCropper(false);
+      URL.revokeObjectURL(cropProfileUrl);
+      setCropProfileUrl("");
+      setShowProfileCropper(false);
     } catch (error) {
       console.error('Error uploading cropped image:', error);
       toast({
@@ -573,6 +576,40 @@ export default function DogForm({
     }
   });
 
+  const handleMediaCroppedImage = async (croppedImageUrl: string, index:number) => {
+    try {
+      setIsUploading(true);
+      const response = await fetch(croppedImageUrl);
+      if (!response.ok) throw new Error('Failed to fetch cropped image');
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', blob, `media-${index}.jpg`);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload cropped image');
+      }
+      const data = await uploadRes.json();
+      const updatedMedia = [...mediaInputs];
+      updatedMedia[index] = {...updatedMedia[index], url: data.url};
+      setMediaInputs(updatedMedia);
+      form.setValue('media', updatedMedia);
+      toast({ title: 'Success', description: 'Media updated successfully' });
+      URL.revokeObjectURL(croppedImageUrl);
+      URL.revokeObjectURL(cropMediaUrl);
+      setCropMediaUrl('');
+      setShowMediaCropper(false);
+    } catch (error) {
+      console.error('Error uploading cropped media:', error);
+      toast({ title: 'Error', description: 'Failed to upload cropped media', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -590,8 +627,8 @@ export default function DogForm({
                   className="relative h-24 w-24 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
-                      setCropImageUrl(field.value);
-                      setShowCropper(true);
+                      setCropProfileUrl(field.value);
+                      setShowProfileCropper(true);
                     }
                   }}
                 >
@@ -645,16 +682,16 @@ export default function DogForm({
           )}
         />
 
-        {showCropper && cropImageUrl && (
+        {showProfileCropper && cropProfileUrl && (
           <ImageCrop
-            imageUrl={cropImageUrl}
-            onCropComplete={handleCroppedImage}
+            imageUrl={cropProfileUrl}
+            onCropComplete={handleCroppedProfileImage}
             onCancel={() => {
-              setShowCropper(false);
-              setCropImageUrl("");
+              setShowProfileCropper(false);
+              setCropProfileUrl("");
             }}
-            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
-            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
+            aspect={cropProfileUrl === form.getValues("profileImageUrl") ? 1 : undefined}
+            circularCrop={cropProfileUrl === form.getValues("profileImageUrl")}
           />
         )}
 
@@ -1144,8 +1181,9 @@ export default function DogForm({
                               alt={`Upload ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
                               onClick={() =>{
-                                setCropImageUrl(input.url);
-                                setShowCropper(true);
+                                setCropMediaUrl(input.url);
+                                setSelectedMediaIndex(index);
+                                setShowMediaCropper(true);
                               }}
                             />
                           ) : (
@@ -1177,6 +1215,17 @@ export default function DogForm({
             </StrictModeDroppable>
           </DragDropContext>
         </div>
+
+        {showMediaCropper && cropMediaUrl && (
+          <ImageCrop
+            imageUrl={cropMediaUrl}
+            onCropComplete={(croppedImageUrl) => handleMediaCroppedImage(croppedImageUrl, selectedMediaIndex)}
+            onCancel={() => {
+              setShowMediaCropper(false);
+              setCropMediaUrl("");
+            }}
+          />
+        )}
 
         {!isPuppy && (
           <div className="space-y-4">
