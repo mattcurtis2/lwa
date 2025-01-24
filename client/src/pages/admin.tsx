@@ -616,7 +616,7 @@ export default function Admin() {
   const handleAddPuppy = (litter: Litter) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
-    
+
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
@@ -814,7 +814,7 @@ export default function Admin() {
               <CardDescription>Manage the main hero section content</CardDescription>
             </CardHeader>            <CardContent className="space-y-6">
               {/* Content fields rendering section */}
-              {contentFields.slice(0, 3).map((field) =>(
+              {contentFields.slice(0, 3).map((field)=>(
                 <div key={field.key} className="space-y-2">
                   <Label htmlFor={field.key}>{field.label}</Label>
                   <div className="flex gap-4">
@@ -1803,6 +1803,7 @@ export default function Admin() {
                 mode={selectedDog?.id ? 'edit' : 'create'}
                 onSubmit={handleDogFormClose}
                 onCancel={handleDogFormClose}
+                fromLitter={true}
               />
             </div>
           </SheetContent>
