@@ -31,6 +31,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 export default function Admin() {
   const [location] = useLocation();
   const section = location.split('?')[1]?.split('=')[1] || 'home';
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { data: siteContent, isLoading: isLoadingSiteContent, error: errorSiteContent } = useQuery({ 
     queryKey: ["siteContent"], 
@@ -318,6 +319,11 @@ export default function Admin() {
       default:
         return null;
     }
+  };
+
+  const handleSaveChanges = async () => {
+    // TODO: Implement save changes logic
+    setHasUnsavedChanges(false);
   };
 
   const error = errorSiteContent || errorPrinciples || errorCarousel;
