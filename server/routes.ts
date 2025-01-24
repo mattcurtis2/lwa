@@ -229,11 +229,16 @@ export function registerRoutes(app: Express): Server {
     res.json(content);
   });
 
-  app.put("/api/site-content/:key", async (req, res) => {
-    const { value } = req.body;
+  app.put("/api/site-content/:key", upload.single('file'), async (req, res) => {
     const key = req.params.key;
-
     try {
+      let value = req.body.value;
+
+      // If this is a file upload (for hero_background or other images)
+      if (req.file && (key === 'hero_background' || key.includes('image'))) {
+        value = `/uploads/${req.file.filename}`;
+      }
+
       // Check if the content exists first
       const existingContent = await db.query.siteContent.findFirst({
         where: eq(siteContent.key, key),
