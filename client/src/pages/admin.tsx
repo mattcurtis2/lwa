@@ -931,19 +931,19 @@ function AdminDashboard() {
                           <div className="space-y-4">
                             <h3 className="text-lg font-medium">What We Offer</h3>
                             <div>
-                              <Label htmlFor="offer_title">Title</Label>
+                              <Label htmlFor="about_title">Title</Label>
                               <Input
-                                id="offer_title"
-                                value={pendingContent["offer_title"] || ""}
-                                onChange={(e) => handleContentChange("offer_title", e.target.value)}
+                                id="about_title"
+                                value={pendingContent["about_title"] || ""}
+                                onChange={(e) => handleContentChange("about_title", e.target.value)}
                               />
                             </div>
                             <div>
-                              <Label htmlFor="offer_description">Description</Label>
+                              <Label htmlFor="mission_text">Description</Label>
                               <Textarea
-                                id="offer_description"
-                                value={pendingContent["offer_description"] || ""}
-                                onChange={(e) => handleContentChange("offer_description", e.target.value)}
+                                id="mission_text"
+                                value={pendingContent["mission_text"] || ""}
+                                onChange={(e) => handleContentChange("mission_text", e.target.value)}
                               />
                             </div>
                           </div>
