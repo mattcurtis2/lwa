@@ -26,7 +26,7 @@ export default function UpcomingLitters() {
     setShowDogForm(true);
   };
 
-  
+
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
@@ -102,7 +102,7 @@ export default function UpcomingLitters() {
                     <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
                       Expected {formatDisplayDate(new Date(litter.dueDate))}
                     </div>
-                    
+
                     <p className="text-muted-foreground text-sm mt-2">
                       Click to view detailed information about this upcoming litter
                     </p>
@@ -146,15 +146,9 @@ export default function UpcomingLitters() {
                       onClick={(e) => handleEditDog(litter.father, e)}
                     >
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
-                        {litter.father.profileImageUrl ? (
+                        {(litter.father.profileImageUrl || (litter.father.media?.[0]?.type === 'image' && litter.father.media[0].url)) ? (
                           <img
-                            src={litter.father.profileImageUrl}
-                            alt={litter.father.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === 'image' ? (
-                          <img
-                            src={litter.father.media[0].url}
+                            src={litter.father.profileImageUrl || litter.father.media[0].url}
                             alt={litter.father.name}
                             className="w-full h-full object-cover"
                           />
