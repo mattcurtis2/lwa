@@ -32,6 +32,13 @@ export default function Admin() {
   const [location] = useLocation();
   const section = location.split('?')[1]?.split('=')[1] || 'home';
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDogForm, setShowDogForm] = useState(false);
+  const [selectedDog, setSelectedDog] = useState<Dog | null>(null);
+
+  const handleDogFormClose = () => {
+    setShowDogForm(false);
+    setSelectedDog(null);
+  };
 
   const { data: siteContent, isLoading: isLoadingSiteContent, error: errorSiteContent } = useQuery({ 
     queryKey: ["siteContent"], 
