@@ -772,8 +772,7 @@ function AdminDashboard() {
                           alt={puppy.name}
                           className="w-full h-full object-cover"
                         />
-                      ) : (
-                        <div className={`w-full h-fullflex items-center justify-center ${
+                      ) :(<div className={`w-full h-fullflex items-center justify-center ${
                           puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
@@ -897,69 +896,95 @@ function AdminDashboard() {
           {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                   <TabsTrigger value="site">Site</TabsTrigger>
                   <TabsTrigger value="home">Home</TabsTrigger>
                   <TabsTrigger value="dogs">CMD</TabsTrigger>
                   <TabsTrigger value="goats">NDG</TabsTrigger>
                   <TabsTrigger value="market">Market</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
+                  <TabsTrigger value="seo">SEO</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="site" className="space-y-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Site Settings</CardTitle>
-                      <CardDescription>Manage site-wide settings and SEO information</CardDescription>
+                      <CardTitle>Branding</CardTitle>
+                      <CardDescription>Manage your site's logo and favicon</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <div className="space-y-4">
+                      <div className="grid gap-6">
                         <div>
                           <Label>Site Logo</Label>
-                          <FileUpload
-                            value={pendingContent["logo_url"] || ""}
-                            onFileSelect={(file) => handleContentChange("logo_url", file)}
-                            onChange={(url) => {
-                              if (typeof url === 'string') {
-                                handleContentChange("logo_url", url);
-                              }
-                            }}
-                          />
-                          {pendingContent["logo_url"] && (
-                            <img
-                              src={pendingContent["logo_url"]}
-                              alt="Site Logo"
-                              className="mt-2 h-12 object-contain"
+                          <div className="flex flex-col gap-4">
+                            <FileUpload
+                              value={pendingContent["logo_url"] || ""}
+                              onFileSelect={(file) => handleContentChange("logo_url", file)}
+                              onChange={(url) => {
+                                if (typeof url === 'string') {
+                                  handleContentChange("logo_url", url);
+                                }
+                              }}
                             />
-                          )}
+                            {pendingContent["logo_url"] && (
+                              <div className="p-4 border rounded-lg bg-muted/50">
+                                <img
+                                  src={pendingContent["logo_url"]}
+                                  alt="Site Logo"
+                                  className="h-12 object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <div>
                           <Label>Favicon</Label>
-                          <FileUpload
-                            value={pendingContent["favicon_url"] || ""}
-                            onFileSelect={(file) => handleContentChange("favicon_url", file)}
-                            onChange={(url) => {
-                              if (typeof url === 'string') {
-                                handleContentChange("favicon_url", url);
-                              }
-                            }}
-                          />
-                          {pendingContent["favicon_url"] && (
-                            <img
-                              src={pendingContent["favicon_url"]}
-                              alt="Favicon"
-                              className="mt-2 h-8 w-8 object-contain"
+                          <div className="flex flex-col gap-4">
+                            <FileUpload
+                              value={pendingContent["favicon_url"] || ""}
+                              onFileSelect={(file) => handleContentChange("favicon_url", file)}
+                              onChange={(url) => {
+                                if (typeof url === 'string') {
+                                  handleContentChange("favicon_url", url);
+                                }
+                              }}
                             />
-                          )}
+                            {pendingContent["favicon_url"] && (
+                              <div className="p-4 border rounded-lg bg-muted/50 flex items-center gap-4">
+                                <img
+                                  src={pendingContent["favicon_url"]}
+                                  alt="Favicon"
+                                  className="h-8 w-8 object-contain"
+                                />
+                                <span className="text-sm text-muted-foreground">Preview of favicon at 32x32px</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
+                <TabsContent value="seo" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>SEO Settings</CardTitle>
+                      <CardDescription>Manage search engine optimization and social sharing</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="grid gap-6">
                         <div>
                           <Label>Site Title</Label>
                           <Input
                             value={pendingContent["site_title"] || ""}
                             onChange={(e) => handleContentChange("site_title", e.target.value)}
+                            placeholder="Little Way Acres"
                           />
+                          <p className="text-sm text-muted-foreground mt-2">
+                            The name of your site, displayed in browser tabs and search results
+                          </p>
                         </div>
 
                         <div>
@@ -967,27 +992,38 @@ function AdminDashboard() {
                           <Textarea
                             value={pendingContent["site_description"] || ""}
                             onChange={(e) => handleContentChange("site_description", e.target.value)}
+                            placeholder="Experience sustainable farming and meet our beloved animals at Little Way Acres"
                           />
+                          <p className="text-sm text-muted-foreground mt-2">
+                            A brief description of your site, shown in search results and social shares
+                          </p>
                         </div>
 
                         <div>
-                          <Label>Open Graph Image</Label>
-                          <FileUpload
-                            value={pendingContent["og_image"] || ""}
-                            onFileSelect={(file) => handleContentChange("og_image", file)}
-                            onChange={(url) => {
-                              if (typeof url === 'string') {
-                                handleContentChange("og_image", url);
-                              }
-                            }}
-                          />
-                          {pendingContent["og_image"] && (
-                            <img
-                              src={pendingContent["og_image"]}
-                              alt="Open Graph Image"
-                              className="mt-2 rounded-lg max-h-48 object-cover"
+                          <Label>Social Image</Label>
+                          <div className="flex flex-col gap-4">
+                            <FileUpload
+                              value={pendingContent["og_image"] || ""}
+                              onFileSelect={(file) => handleContentChange("og_image", file)}
+                              onChange={(url) => {
+                                if (typeof url === 'string') {
+                                  handleContentChange("og_image", url);
+                                }
+                              }}
                             />
-                          )}
+                            {pendingContent["og_image"] && (
+                              <div className="p-4 border rounded-lg bg-muted/50">
+                                <img
+                                  src={pendingContent["og_image"]}
+                                  alt="Social Preview"
+                                  className="rounded-lg max-h-48 object-cover w-full"
+                                />
+                                <p className="text-sm text-muted-foreground mt-2">
+                                  This image will be shown when your site is shared on social media
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
