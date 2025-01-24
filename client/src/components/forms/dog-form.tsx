@@ -1136,8 +1136,9 @@ export default function DogForm({
                       placeholder="Enter price"
                       {...field}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        field.onChange(value);
+                        const value = e.target.value.replace(/[^\d]/g, '');
+                        const formattedValue = value ? parseInt(value).toLocaleString() : '';
+                        field.onChange(formattedValue);
                       }}
                     />
                   </FormControl>
