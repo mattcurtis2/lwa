@@ -82,7 +82,6 @@ interface PuppyFormData {
   order?: number;
 }
 
-
 function AdminDashboard() {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
@@ -150,20 +149,20 @@ function AdminDashboard() {
       });
       setPendingContent(initialContent);
     }
-  }, [siteContent]);
+  }, [siteContent]); // Only depend on siteContent
 
   useEffect(() => {
     if (principlesData) {
       const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setPendingPrinciples(sortedPrinciples);
     }
-  }, [principlesData]);
+  }, [principlesData]); // Only depend on principlesData
 
   useEffect(() => {
     if (contactInfo) {
       setPendingContactInfo(contactInfo);
     }
-  }, [contactInfo]);
+  }, [contactInfo]); // Only depend on contactInfo
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -271,10 +270,10 @@ function AdminDashboard() {
   });
 
   const handleContentChange = async (key: string, value: string | File) => {
-    if (key.includes('image') || key === 'hero_background') {
+    if (value instanceof File) {
       // For image uploads, we need to handle the file upload first
       const formData = new FormData();
-      formData.append('file', value as File);
+      formData.append('file', value);
 
       try {
         const uploadRes = await fetch('/api/upload', {
@@ -286,6 +285,7 @@ function AdminDashboard() {
 
         const { url } = await uploadRes.json();
         setPendingContent(prev => ({ ...prev, [key]: url }));
+        setHasUnsavedChanges(true);
       } catch (error) {
         console.error('Error uploading image:', error);
         toast({
@@ -296,9 +296,9 @@ function AdminDashboard() {
         return;
       }
     } else {
-      setPendingContent(prev => ({ ...prev, [key]: value as string }));
+      setPendingContent(prev => ({ ...prev, [key]: value }));
+      setHasUnsavedChanges(true);
     }
-    setHasUnsavedChanges(true);
   };
 
   const handlePrincipleChange = (id: number, field: string, value: string) => {
@@ -770,7 +770,7 @@ function AdminDashboard() {
                         <img
                           src={puppy.profileImageUrl}
                           alt={puppy.name}
-                          className="w-full h-fullobject-cover"
+                          className="w-full hfull object-cover"
                         />
                       ) : (
                         <div className={`w-full h-full flex items-center justify-center ${
@@ -905,30 +905,12 @@ function AdminDashboard() {
                         <div className="space-y-4">
                           <FileUpload
                             value={pendingContent[key] || value}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append('file', file);
-
-                              try {
-                                const uploadRes = await fetch('/api/upload', {
-                                  method: 'POST',
-                                  body: formData,
-                                });
-
-                                if (!uploadRes.ok) throw new Error('Failed to upload image');
-
-                                const { url } = await uploadRes.json();
+                            onFileSelect={(file) => handleContentChange(key, file)}
+                            onChange={(url) => {
+                              if (typeof url === 'string') {
                                 handleContentChange(key, url);
-                              } catch (error) {
-                                console.error('Error uploading image:', error);
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
                               }
                             }}
-                            onChange={(url) => handleContentChange(key, url)}
                           />
                           {(pendingContent[key] || value) && (
                             <div className="w-full aspect-video rounded-lg overflow-hidden border">
