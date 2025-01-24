@@ -1057,7 +1057,6 @@ function AdminDashboard() {
                               </div>
                             </div>
                           </div>
-                          </div>
 
                           {/* Cards Section */}
                           <div className="space-y-4">
