@@ -640,9 +640,15 @@ function AdminDashboard() {
       outsideBreeder: false
     });
     setShowDogForm(true);
+    setShowPuppyForm(false);  // Close puppy form when opening dog form
   };
 
   const handleDogFormClose = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+    setShowDogForm(false);
+    setSelectedDog(null);
+  };
     setShowDogForm(false);
     setSelectedDog(null);
     queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
