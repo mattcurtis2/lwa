@@ -633,14 +633,13 @@ function AdminDashboard() {
       fatherId: litter.fatherId,
       mother,
       father,
-      birthDate: new Date().toISOString().split('T')[0],
+      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
       gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
       outsideBreeder: false
     });
     setShowDogForm(true);
-    setShowLitterForm(false);
   };
 
   const handleDogFormClose = () => {
