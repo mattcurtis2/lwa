@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Dog, Litter } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { useLitterManagement } from "@/hooks/use-litter-management";
 import { X, Plus } from "lucide-react";
 
 export default function LitterManagement() {
+  const { toast } = useToast();
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
   const {
