@@ -103,7 +103,7 @@ export default function UpcomingLitters() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div
-                      className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
+                      className="flex items-center gap-3 p-2 rounded-lg"
                     >
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
                         {litter.mother.profileImageUrl ? (
@@ -131,7 +131,7 @@ export default function UpcomingLitters() {
                     </div>
 
                     <div
-                      className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
+                      className="flex items-center gap-3 p-2 rounded-lg"
                     >
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
                         {(litter.father.profileImageUrl || (litter.father.media?.[0]?.type === 'image' && litter.father.media[0].url)) ? (
