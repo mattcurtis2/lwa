@@ -68,15 +68,10 @@ export default function LitterManagement() {
 
   const onDogFormSubmit = async (savedDog: Dog) => {
     try {
-      // Find the current litter
-      const litter = litters.find(l => l.id === savedDog.litterId);
-      if (!litter) return;
-
-      // Add the new puppy to the litter's puppies array
-      const updatedLitter = {
-        ...litter,
-        puppies: [...(litter.puppies || []), savedDog]
-      };
+      await queryClient.invalidateQueries(['/api/dogs']);
+      await queryClient.invalidateQueries(['/api/litters']);
+      setShowDogForm(false);
+      setSelectedDog(null);
 
       // Update the litter with the new puppy
       const response = await fetch(`/api/litters/${litter.id}`, {

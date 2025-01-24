@@ -497,6 +497,10 @@ export default function DogForm({
       if (onSubmit) {
         await onSubmit(savedDog);
       }
+      
+      if (onOpenChange) {
+        onOpenChange(false);
+      }
     } catch (error) {
       console.error('Error saving dog:', error);
       toast({
