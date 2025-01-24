@@ -71,11 +71,9 @@ export default function LitterManagement() {
       const litter = litters.find(l => l.id === savedDog.litterId);
       if (!litter) return;
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/litters'] })
-      ]);
-
+      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+      
       setShowDogForm(false);
       setSelectedDog(null);
     } catch (error) {
