@@ -937,12 +937,21 @@ function AdminDashboard() {
                               }}
                             />
                             {pendingContent["logo_url"] && (
-                              <div className="p-4 border rounded-lg bg-muted/50">
-                                <img
-                                  src={pendingContent["logo_url"]}
-                                  alt="Site Logo"
-                                  className="h-12 object-contain"
-                                />
+                              <div className="space-y-4">
+                                <div className="p-4 border rounded-lg bg-muted/50">
+                                  <img
+                                    src={pendingContent["logo_url"]}
+                                    alt="Site Logo"
+                                    className="h-12 object-contain"
+                                  />
+                                </div>
+                                <Button 
+                                  onClick={handleSaveChanges}
+                                  className="w-full"
+                                >
+                                  <Save className="w-4 h-4 mr-2" />
+                                  Save Logo
+                                </Button>
                               </div>
                             )}
                           </div>
