@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useLocation as useWouterLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,7 +80,7 @@ interface PuppyFormData {
 
 export default function Admin() {
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, setLocation] = useWouterLocation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
@@ -99,7 +99,7 @@ export default function Admin() {
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
 
-  const section = location.split('?')[1]?.split('=')[1] || 'home';
+  const section = location.includes('?') ? location.split('section=')[1] : 'home';
 
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"]
@@ -588,7 +588,7 @@ export default function Admin() {
         variant="ghost"
         size="icon"
         onClick={(e) => {
-          e.stopPropagation(); 
+          e.stopPropagation();
           if (!confirm('Are you sure you want to remove this puppy?')) return;
           setEditLitter(prev => ({
             ...prev!,
@@ -1515,10 +1515,14 @@ export default function Admin() {
     }
   };
 
+  const handleSectionChange = (newSection: string) => {
+    setLocation(`/admin?section=${newSection}`);
+  };
+
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar className="w-64 border-r" />
+        <Sidebar className="w-64 border-r" onNavigate={handleSectionChange} />
         <div className="flex-1 p-8">
           <div className="flex items-center justify-center h-full">
             <p className="text-lg text-muted-foreground">Loading content...</p>
@@ -1531,7 +1535,7 @@ export default function Admin() {
   if (error) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar className="w-64 border-r" />
+        <Sidebar className="w-64 border-r" onNavigate={handleSectionChange} />
         <div className="flex-1 p-8">
           <div className="flex items-center justify-center h-full">
             <Card className="w-full max-w-lg">
@@ -1550,7 +1554,7 @@ export default function Admin() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar className="w-64 border-r" />
+      <Sidebar className="w-64 border-r" onNavigate={handleSectionChange} />
       <div className="flex-1">
         <div className="h-16 border-b px-8 flex items-center justify-between">
           <h1 className="text-xl font-semibold">Dashboard</h1>
