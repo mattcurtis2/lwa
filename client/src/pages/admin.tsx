@@ -954,112 +954,160 @@ function AdminDashboard() {
                             </div>
                           </div>
 
-                          {/* Cards Section */}
+                          {/* Feature Cards Section */}
                           <div className="space-y-4 mt-6">
                             <h3 className="text-lg font-medium">Feature Cards</h3>
 
-                            {/* Card 1 */}
+                            {/* Dogs Card */}
                             <div className="border p-4 rounded-lg space-y-4">
-                              <h4 className="font-medium">Card 1</h4>
+                              <h4 className="font-medium">Colorado Mountain Dogs</h4>
                               <div>
-                                <Label htmlFor="card1_title">Title</Label>
+                                <Label htmlFor="animals_title">Title</Label>
                                 <Input
-                                  id="card1_title"
-                                  value={pendingContent["card1_title"] || ""}
-                                  onChange={(e) => handleContentChange("card1_title", e.target.value)}
+                                  id="animals_title"
+                                  value={pendingContent["animals_title"] || ""}
+                                  onChange={(e) => handleContentChange("animals_title", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card1_text">Description</Label>
+                                <Label htmlFor="animals_text">Description</Label>
                                 <Textarea
-                                  id="card1_text"
-                                  value={pendingContent["card1_text"] || ""}
-                                  onChange={(e) => handleContentChange("card1_text", e.target.value)}
+                                  id="animals_text"
+                                  value={pendingContent["animals_text"] || ""}
+                                  onChange={(e) => handleContentChange("animals_text", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card1_image">Image</Label>
+                                <Label htmlFor="animals_image">Image</Label>
                                 <FileUpload
-                                  value={pendingContent["card1_image"] || ""}
-                                  onChange={(url) => handleContentChange("card1_image", url)}
+                                  value={pendingContent["animals_image"] || ""}
+                                  onChange={(url) => handleContentChange("animals_image", url)}
                                 />
-                                {pendingContent["card1_image"] && (
+                                {pendingContent["animals_image"] && (
                                   <img
-                                    src={pendingContent["card1_image"]}
-                                    alt="Card 1"
+                                    src={pendingContent["animals_image"]}
+                                    alt="Colorado Mountain Dogs"
                                     className="mt-2 rounded-lg max-h-48 object-cover"
                                   />
                                 )}
+                              </div>
+                              <div>
+                                <Label htmlFor="animals_button_text">Button Text</Label>
+                                <Input
+                                  id="animals_button_text"
+                                  value={pendingContent["animals_button_text"] || ""}
+                                  onChange={(e) => handleContentChange("animals_button_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="animals_redirect">Button Link</Label>
+                                <Input
+                                  id="animals_redirect"
+                                  value={pendingContent["animals_redirect"] || ""}
+                                  onChange={(e) => handleContentChange("animals_redirect", e.target.value)}
+                                />
                               </div>
                             </div>
 
-                            {/* Card 2 */}
+                            {/* Goats Card */}
                             <div className="border p-4 rounded-lg space-y-4">
-                              <h4 className="font-medium">Card 2</h4>
+                              <h4 className="font-medium">Nigerian Dwarf Goats</h4>
                               <div>
-                                <Label htmlFor="card2_title">Title</Label>
+                                <Label htmlFor="bakery_title">Title</Label>
                                 <Input
-                                  id="card2_title"
-                                  value={pendingContent["card2_title"] || ""}
-                                  onChange={(e) => handleContentChange("card2_title", e.target.value)}
+                                  id="bakery_title"
+                                  value={pendingContent["bakery_title"] || ""}
+                                  onChange={(e) => handleContentChange("bakery_title", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card2_text">Description</Label>
+                                <Label htmlFor="bakery_text">Description</Label>
                                 <Textarea
-                                  id="card2_text"
-                                  value={pendingContent["card2_text"] || ""}
-                                  onChange={(e) => handleContentChange("card2_text", e.target.value)}
+                                  id="bakery_text"
+                                  value={pendingContent["bakery_text"] || ""}
+                                  onChange={(e) => handleContentChange("bakery_text", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card2_image">Image</Label>
+                                <Label htmlFor="bakery_image">Image</Label>
                                 <FileUpload
-                                  value={pendingContent["card2_image"] || ""}
-                                  onChange={(url) => handleContentChange("card2_image", url)}
+                                  value={pendingContent["bakery_image"] || ""}
+                                  onChange={(url) => handleContentChange("bakery_image", url)}
                                 />
-                                {pendingContent["card2_image"] && (
+                                {pendingContent["bakery_image"] && (
                                   <img
-                                    src={pendingContent["card2_image"]}
-                                    alt="Card 2"
+                                    src={pendingContent["bakery_image"]}
+                                    alt="Nigerian Dwarf Goats"
                                     className="mt-2 rounded-lg max-h-48 object-cover"
                                   />
                                 )}
+                              </div>
+                              <div>
+                                <Label htmlFor="bakery_button_text">Button Text</Label>
+                                <Input
+                                  id="bakery_button_text"
+                                  value={pendingContent["bakery_button_text"] || ""}
+                                  onChange={(e) => handleContentChange("bakery_button_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="bakery_redirect">Button Link</Label>
+                                <Input
+                                  id="bakery_redirect"
+                                  value={pendingContent["bakery_redirect"] || ""}
+                                  onChange={(e) => handleContentChange("bakery_redirect", e.target.value)}
+                                />
                               </div>
                             </div>
 
-                            {/* Card 3 */}
+                            {/* Products Card */}
                             <div className="border p-4 rounded-lg space-y-4">
-                              <h4 className="font-medium">Card 3</h4>
+                              <h4 className="font-medium">Products</h4>
                               <div>
-                                <Label htmlFor="card3_title">Title</Label>
+                                <Label htmlFor="products_title">Title</Label>
                                 <Input
-                                  id="card3_title"
-                                  value={pendingContent["card3_title"] || ""}
-                                  onChange={(e) => handleContentChange("card3_title", e.target.value)}
+                                  id="products_title"
+                                  value={pendingContent["products_title"] || ""}
+                                  onChange={(e) => handleContentChange("products_title", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card3_text">Description</Label>
+                                <Label htmlFor="products_text">Description</Label>
                                 <Textarea
-                                  id="card3_text"
-                                  value={pendingContent["card3_text"] || ""}
-                                  onChange={(e) => handleContentChange("card3_text", e.target.value)}
+                                  id="products_text"
+                                  value={pendingContent["products_text"] || ""}
+                                  onChange={(e) => handleContentChange("products_text", e.target.value)}
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="card3_image">Image</Label>
+                                <Label htmlFor="products_image">Image</Label>
                                 <FileUpload
-                                  value={pendingContent["card3_image"] || ""}
-                                  onChange={(url) => handleContentChange("card3_image", url)}
+                                  value={pendingContent["products_image"] || ""}
+                                  onChange={(url) => handleContentChange("products_image", url)}
                                 />
-                                {pendingContent["card3_image"] && (
+                                {pendingContent["products_image"] && (
                                   <img
-                                    src={pendingContent["card3_image"]}
-                                    alt="Card 3"
+                                    src={pendingContent["products_image"]}
+                                    alt="Products"
                                     className="mt-2 rounded-lg max-h-48 object-cover"
                                   />
                                 )}
+                              </div>
+                              <div>
+                                <Label htmlFor="products_button_text">Button Text</Label>
+                                <Input
+                                  id="products_button_text"
+                                  value={pendingContent["products_button_text"] || ""}
+                                  onChange={(e) => handleContentChange("products_button_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="products_redirect">Button Link</Label>
+                                <Input
+                                  id="products_redirect"
+                                  value={pendingContent["products_redirect"] || ""}
+                                  onChange={(e) => handleContentChange("products_redirect", e.target.value)}
+                                />
                               </div>
                             </div>
                           </div>
