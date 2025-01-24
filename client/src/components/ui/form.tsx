@@ -54,7 +54,7 @@ const useFormField = () => {
 
   const { id } = itemContext
 
-  const fieldState = form?.getFieldState?.(fieldContext.name, form.formState) || {
+  const fieldState = form?.getFieldState?.(fieldContext.name, form.formState) ?? {
     invalid: false,
     isDirty: false,
     isTouched: false,
