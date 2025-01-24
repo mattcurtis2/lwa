@@ -23,7 +23,6 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 
 interface ContentField {
@@ -78,7 +77,7 @@ interface PuppyFormData {
 }
 
 
-export default function Admin() {
+function AdminDashboard() {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
   const queryClient = useQueryClient();
@@ -775,9 +774,23 @@ export default function Admin() {
 
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold mb-8">Content Management</h1>
-        <p>Loading content...</p>
+      <div className="flex min-h-screen bg-background">
+        <div className="w-64 border-r bg-card p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 w-24 bg-muted rounded" />
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="h-10 bg-muted rounded" />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 w-48 bg-muted rounded" />
+            <div className="h-[200px] bg-muted rounded" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -801,20 +814,21 @@ export default function Admin() {
   ];
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <div className="w-64 border-r bg-card">
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-6">Dashboard</h2>
           <nav className="space-y-2">
-            {sidebarItems.map((item)=> {
+            {sidebarItems.map((item) => {
               const Icon = item.icon;
               return (
-                <button                  key={item.id}
+                <button
+                  key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={cn(
                     "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
-                    activeTab === item.id 
+                    activeTab === item.id
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
                   )}
@@ -831,7 +845,19 @@ export default function Admin() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="container py-6">
-          {/* Content sections - reuse existing tab content but remove TabsContent wrapper */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">
+              {sidebarItems.find((item) => item.id === activeTab)?.label}
+            </h1>
+            {hasUnsavedChanges && (
+              <Button onClick={handleSaveChanges}>
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            )}
+          </div>
+
+          {/* Content sections */}
           {activeTab === "home" && (
             <div className="space-y-6">
               {/* Home page content */}
@@ -853,39 +879,11 @@ export default function Admin() {
                           />
                         ) : field.type === "image" ? (
                           <div className="flex-1 space-y-2">
-                            <FileUpload
+                            <Input
+                              id={field.key}
                               value={pendingContent[field.key] ?? field.value}
-                              onFileSelect={async (file) => {
-                                const formData = new FormData();
-                                formData.append("file", file);
-                                try {
-                                  const uploadRes = await fetch("/api/upload", {
-                                    method: "POST",
-                                    body: formData,
-                                  });
-                                  if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                  const { url } = await uploadRes.json();
-                                  handleContentChange(field.key, url);
-                                } catch (error) {
-                                  console.error('Error uploading image:', error);
-                                  toast({
-                                    title: "Error",
-                                    description: "Failed to upload image",
-                                    variant: "destructive",
-                                  });
-                                }
-                              }}
-                              onChange={(value) => handleContentChange(field.key, value)}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
                             />
-                            {(pendingContent[field.key] || field.value) && (
-                              <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                                <img
-                                  src={pendingContent[field.key] || field.value}
-                                  alt={field.label}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
                           </div>
                         ) : (
                           <Input
@@ -899,7 +897,6 @@ export default function Admin() {
                   ))}
                 </CardContent>
               </Card>
-
               <Card className="mb-8">
                 <CardHeader>
                   <CardTitle>Principles</CardTitle>
@@ -927,7 +924,7 @@ export default function Admin() {
                                     <GripVertical className="h-5 w-5 text-stone-400" />
                                     <Input
                                       value={principle.title}
-                                      onChange={(e) =>handlePrincipleChange(principle.id, 'title', e.target.value)}
+                                      onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
                                       className="font-semibold"
                                       placeholder="Principle Title"
                                     />
@@ -1008,7 +1005,6 @@ export default function Admin() {
                   </Button>
                 </CardContent>
               </Card>
-
               <Card className="mb-8">
                 <CardHeader>
                   <CardTitle>About Section</CardTitle>
@@ -1037,7 +1033,6 @@ export default function Admin() {
                   ))}
                 </CardContent>
               </Card>
-
               <Card className="mt-8">
                 <CardHeader>
                   <CardTitle>Feature Cards</CardTitle>
@@ -1229,7 +1224,7 @@ export default function Admin() {
           )}
 
           {activeTab === "carousel" && (
-            <>
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Carousel Management</CardTitle>
@@ -1308,11 +1303,11 @@ export default function Admin() {
                   />
                 </SheetContent>
               </Sheet>
-            </>
+            </div>
           )}
 
           {activeTab === "dogs" && (
-            <>
+            <div className="space-y-6">
               <Card className="mb-8">
                 <CardHeader>
                   <CardTitle>Dogs Hero Section</CardTitle>
@@ -1613,11 +1608,11 @@ export default function Admin() {
                   </div>
                 </CardContent>
               </Card>
-            </>
+            </div>
           )}
 
           {activeTab === "animals" && (
-            <div>
+            <div className="space-y-6">
               <div className="mb-6">
                 <Button onClick={() => {
                   setEditItem(null);
@@ -1651,7 +1646,7 @@ export default function Admin() {
           )}
 
           {activeTab === "products" && (
-            <div>
+            <div className="space-y-6">
               <div className="mb-6">
                 <Button onClick={() => {
                   setEditItem(null);
@@ -1685,79 +1680,94 @@ export default function Admin() {
           )}
 
           {activeTab === "contact" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-                <CardDescription>Manage contact details and social media links</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={pendingContactInfo.email ?? ''}
-                    onChange={(e) => handleContactChange('email', e.target.value)}
-                    placeholder="contact@littlewayacres.com"
-                  />
-                </div>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contact Information</CardTitle>
+                  <CardDescription>Manage contact details and social media links</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={pendingContactInfo.email ?? ''}
+                      onChange={(e) => handleContactChange('email', e.target.value)}
+                      placeholder="contact@littlewayacres.com"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={pendingContactInfo.phone ?? ''}
-                    onChange={(e) => handleContactChange('phone', e.target.value)}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={pendingContactInfo.phone ?? ''}
+                      onChange={(e) => handleContactChange('phone', e.target.value)}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook URL</Label>
-                  <Input
-                    id="facebook"
-                    type="url"
-                    value={pendingContactInfo.facebook ?? ''}
-                    onChange={(e) => handleContactChange('facebook', e.target.value)}
-                    placeholder="https://facebook.com/littlewayacres"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="facebook">Facebook URL</Label>
+                    <Input
+                      id="facebook"
+                      type="url"
+                      value={pendingContactInfo.facebook ?? ''}
+                      onChange={(e) => handleContactChange('facebook', e.target.value)}
+                      placeholder="https://facebook.com/littlewayacres"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram URL</Label>
-                  <Input
-                    id="instagram"
-                    type="url"
-                    value={pendingContactInfo.instagram ?? ''}
-                    onChange={(e) => handleContactChange('instagram', e.target.value)}
-                    placeholder="https://instagram.com/littlewayacres"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram">Instagram URL</Label>
+                    <Input
+                      id="instagram"
+                      type="url"
+                      value={pendingContactInfo.instagram ?? ''}
+                      onChange={(e) => handleContactChange('instagram', e.target.value)}
+                      placeholder="https://instagram.com/littlewayacres"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Keep all the sheet/modal components */}
+      {/* Forms */}
       {showForm && (
         <Sheet open={showForm} onOpenChange={setShowForm}>
-          <SheetContent className="max-w-2xl">
+          <SheetContent className="sm:max-w-2xl">
             <SheetHeader>
-              <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+              <SheetTitle>{editItem ? 'Edit' : 'Add New'}</SheetTitle>
             </SheetHeader>
-            <CarouselForm
-              item={editItem as CarouselItem}
-              onClose={() => {
-                setShowForm(false);
-                setEditItem(null);
-              }}
-            />
+            {activeTab === "carousel" && (
+              <CarouselForm
+                item={editItem as CarouselItem}
+                onClose={() => {
+                  setShowForm(false);
+                  setEditItem(null);
+                }}
+              />
+            )}
+            {activeTab === "animals" && (
+              <AnimalForm
+                animal={editItem as Animal}
+                onClose={() => setShowForm(false)}
+              />
+            )}
+            {activeTab === "products" && (
+              <ProductForm
+                product={editItem as Product}
+                onClose={() => setShowForm(false)}
+              />
+            )}
           </SheetContent>
         </Sheet>
       )}
-
       {showPuppyForm && (
         <Sheet open={showPuppyForm} onOpenChange={(open) => {
           setShowPuppyForm(open);
@@ -1829,6 +1839,8 @@ export default function Admin() {
           </SheetContent>
         </Sheet>
       )}
-    </>
+    </div>
   );
 }
+
+export default AdminDashboard;
