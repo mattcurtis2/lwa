@@ -812,7 +812,6 @@ function AdminDashboard() {
     { id: "animals", label: "Animals", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
-    {id: "media", label: "Media", icon: Image},
   ];
 
   return (
@@ -866,70 +865,190 @@ function AdminDashboard() {
                   <TabsTrigger value="home">Home Page</TabsTrigger>
                   <TabsTrigger value="dogs">Colorado Mountain Dogs</TabsTrigger>
                   <TabsTrigger value="goats">Nigerian Dwarf Goats</TabsTrigger>
-                  <TabsTrigger value="products">Products</TabsTrigger>
-                  <TabsTrigger value="principles">Our Principles</TabsTrigger>
-                  <TabsTrigger value="media">Media</TabsTrigger>
+                  <TabsTrigger value="market">Farmers Market</TabsTrigger>
+                  <TabsTrigger value="contact">Contact</TabsTrigger>
+                  <TabsTrigger value="principles">Principles</TabsTrigger>
                 </TabsList>
 
-                {/* Home Page Content */}
-                <TabsContent value="home">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Home Page Content</CardTitle>
-                      <CardDescription>Edit the main page content and hero section.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {contentFields.filter(field => !field.key.includes('dogs') && !field.key.includes('goats') && !field.key.includes('products')).map((field) => (
+                <TabsContent value="home" className="space-y-6">
+                  <Tabs defaultValue="hero">
+                    <TabsList>
+                      <TabsTrigger value="hero">Hero</TabsTrigger>
+                      <TabsTrigger value="about">About</TabsTrigger>
+                      <TabsTrigger value="principles">Principles</TabsTrigger>
+                      <TabsTrigger value="carousel">Carousel</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="hero" className="space-y-4 pt-4">
+                      {contentFields
+                        .filter(field =>
+                          ['hero_text', 'hero_subtext', 'hero_background'].includes(field.key)
+                        )
+                        .map((field) => (
                           <div key={field.key}>
-                            <Label>{field.label}</Label>
+                            <Label htmlFor={field.key}>{field.label}</Label>
                             {field.type === 'textarea' ? (
                               <Textarea
                                 id={field.key}
                                 value={field.value}
                                 onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
                               />
                             ) : field.type === 'image' ? (
-                              <div className="space-y-2">
+                              <div className="mt-1.5 space-y-2">
                                 <FileUpload
                                   value={field.value}
                                   onChange={(url) => handleContentChange(field.key, url)}
-                                  onFileSelect={async (file) => {
-                                    const formData = new FormData();
-                                    formData.append("file", file);
-
-                                    try {
-                                      const res = await fetch("/api/upload", {
-                                        method: "POST",
-                                        body: formData,
-                                      });
-
-                                      if (!res.ok) throw new Error("Upload failed");
-
-                                      const data = await res.json();
-                                      handleContentChange(field.key, data.url);
-                                    } catch (error) {
-                                      toast({
-                                        title: "Error",
-                                        description: "Failed to upload image",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  }}
                                 />
+                                {field.value && (
+                                  <img
+                                    src={field.value}
+                                    alt="Preview"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
                               </div>
                             ) : (
                               <Input
                                 id={field.key}
                                 value={field.value}
                                 onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
                               />
                             )}
                           </div>
                         ))}
+                    </TabsContent>
+
+                    <TabsContent value="about" className="space-y-4 pt-4">
+                      {contentFields
+                        .filter(field =>
+                          ['about_title', 'about_text', 'about_image'].includes(field.key)
+                        )
+                        .map((field) => (
+                          <div key={field.key}>
+                            <Label htmlFor={field.key}>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            ) : field.type === 'image' ? (
+                              <div className="mt-1.5 space-y-2">
+                                <FileUpload
+                                  value={field.value}
+                                  onChange={(url) => handleContentChange(field.key, url)}
+                                />
+                                {field.value && (
+                                  <img
+                                    src={field.value}
+                                    alt="Preview"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
+                          </div>
+                        ))}
+                    </TabsContent>
+
+                    <TabsContent value="principles" className="space-y-4 pt-4">
+                      <div className="flex justify-end mb-4">
+                        <Button onClick={() => setShowAddPrinciple(true)}>
+                          Add Principle
+                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                      {principles?.map((principle) => (
+                        <div key={principle.id} className="space-y-4">
+                          <Label>Title</Label>
+                          <Input
+                            value={principle.title}
+                            onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                          />
+                          <Label>Description</Label>
+                          <Textarea
+                            value={principle.description}
+                            onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                          />
+                          <Label>Image</Label>
+                          <div className="space-y-2">
+                            <FileUpload
+                              value={principle.imageUrl}
+                              onChange={(url) => handlePrincipleChange(principle.id, 'imageUrl', url)}
+                            />
+                            {principle.imageUrl && (
+                              <img
+                                src={principle.imageUrl}
+                                alt={principle.title}
+                                className="mt-2 rounded-lg max-h-48 object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDeletePrinciple(principle.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </TabsContent>
+
+                    <TabsContent value="carousel" className="space-y-4 pt-4">
+                      <div className="flex justify-end mb-4">
+                        <Button onClick={() => setShowAddCarousel(true)}>
+                          Add Carousel Item
+                        </Button>
+                      </div>
+                      {carousel?.map((item) => (
+                        <div key={item.id} className="space-y-4">
+                          <Label>Title</Label>
+                          <Input
+                            value={item.title}
+                            onChange={(e) => handleCarouselChange(item.id, 'title', e.target.value)}
+                          />
+                          <Label>Description</Label>
+                          <Textarea
+                            value={item.description}
+                            onChange={(e) => handleCarouselChange(item.id, 'description', e.target.value)}
+                          />
+                          <Label>Image</Label>
+                          <div className="space-y-2">
+                            <FileUpload
+                              value={item.imageUrl}
+                              onChange={(url) => handleCarouselChange(item.id, 'imageUrl', url)}
+                            />
+                            {item.imageUrl && (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.title}
+                                className="mt-2 rounded-lg max-h-48 object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDeleteCarousel(item.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </TabsContent>
+                  </Tabs>
                 </TabsContent>
 
                 <TabsContent value="dogs" className="space-y-6">
@@ -957,28 +1076,6 @@ function AdminDashboard() {
                                 <FileUpload
                                   value={field.value}
                                   onChange={(url) => handleContentChange(field.key, url)}
-                                  onFileSelect={async (file) => {
-                                    const formData = new FormData();
-                                    formData.append("file", file);
-
-                                    try {
-                                      const res = await fetch("/api/upload", {
-                                        method: "POST",
-                                        body: formData,
-                                      });
-
-                                      if (!res.ok) throw new Error("Upload failed");
-
-                                      const data = await res.json();
-                                      handleContentChange(field.key, data.url);
-                                    } catch (error) {
-                                      toast({
-                                        title: "Error",
-                                        description: "Failed to upload image",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  }}
                                 />
                                 {field.value && (
                                   <img
@@ -1010,14 +1107,63 @@ function AdminDashboard() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="products" className="space-y-6">
+                <TabsContent value="market" className="space-y-6">
                   <Card>
                     <CardContent className="pt-6">
-                      <p className="text-muted-foreground">Products section coming soon.</p>
+                      <p className="text-muted-foreground">Farmers Market section coming soon.</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
+                <TabsContent value="contact" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Contact Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={pendingContactInfo.email || ""}
+                          onChange={(e) => handleContactChange("email", e.target.value)}
+                          placeholder="Enter email address"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={pendingContactInfo.phone || ""}
+                          onChange={(e) => handleContactChange("phone", e.target.value)}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="facebook">Facebook</Label>
+                        <Input
+                          id="facebook"
+                          type="url"
+                          value={pendingContactInfo.facebook || ""}
+                          onChange={(e) => handleContactChange("facebook", e.target.value)}
+                          placeholder="Enter Facebook URL"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="instagram">Instagram</Label>
+                        <Input
+                          id="instagram"
+                          type="url"
+                          value={pendingContactInfo.instagram || ""}
+                          onChange={(e) => handleContactChange("instagram", e.target.value)}
+                          placeholder="Enter Instagram URL"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
                 <TabsContent value="principles" className="space-y-6">
                   <Card>
                     <CardHeader>
@@ -1131,17 +1277,6 @@ function AdminDashboard() {
                           )}
                         </Droppable>
                       </DragDropContext>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="media" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Media Management</CardTitle>
-                      <CardDescription>Manage media assets.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Media section coming soon.</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -1647,8 +1782,7 @@ function AdminDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="instagram">Instagram URL</Label>
-                    <Input
+                    <Label htmlFor="instagram">Instagram URL</Label<Input
                       id="instagram"
                       type="url"
                       value={pendingContactInfo.instagram ?? ''}
