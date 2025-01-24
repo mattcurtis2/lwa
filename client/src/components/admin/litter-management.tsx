@@ -36,10 +36,28 @@ export default function LitterManagement() {
   });
 
   const handleAddPuppy = (litter: Litter) => {
+    console.log('Add Puppy clicked for litter:', litter);
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
+    
+    console.log('Found parents:', { mother, father });
 
     // Set selected dog with puppy defaults
+    const puppyDefaults = {
+      puppy: true,
+      litterId: litter.id,
+      motherId: litter.motherId,
+      fatherId: litter.fatherId,
+      mother,
+      father,
+      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
+      gender: 'male',
+      available: false,
+      breed: "Colorado Mountain Dogs",
+      outsideBreeder: false
+    };
+    
+    console.log('Setting puppy defaults:', puppyDefaults);
     setSelectedDog({
       puppy: true,
       litterId: litter.id,
@@ -57,6 +75,7 @@ export default function LitterManagement() {
   };
 
   const onDogFormSubmit = async (values: any) => {
+    console.log('Submitting dog form with values:', values);
     try {
       const response = await fetch('/api/dogs', {
         method: 'POST',
