@@ -812,6 +812,7 @@ function AdminDashboard() {
     { id: "animals", label: "Animals", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
+    {id: "media", label: "Media", icon: Image},
   ];
 
   return (
@@ -865,414 +866,67 @@ function AdminDashboard() {
                   <TabsTrigger value="home">Home Page</TabsTrigger>
                   <TabsTrigger value="dogs">Colorado Mountain Dogs</TabsTrigger>
                   <TabsTrigger value="goats">Nigerian Dwarf Goats</TabsTrigger>
-                  <TabsTrigger value="market">Farmers Market</TabsTrigger>
-                  <TabsTrigger value="contact">Contact</TabsTrigger>
-                  <TabsTrigger value="principles">Principles</TabsTrigger>
+                  <TabsTrigger value="products">Products</TabsTrigger>
+                  <TabsTrigger value="principles">Our Principles</TabsTrigger>
+                  <TabsTrigger value="media">Media</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="home" className="space-y-6">
-                  <Tabs defaultValue="hero">
-                    <TabsList>
-                      <TabsTrigger value="hero">Hero</TabsTrigger>
-                      <TabsTrigger value="about">About</TabsTrigger>
-                      <TabsTrigger value="principles">Principles</TabsTrigger>
-                      <TabsTrigger value="carousel">Carousel</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="hero" className="space-y-4 pt-4">
-                      {contentFields
-                        .filter(field =>
-                          ['hero_text', 'hero_subtext', 'hero_background'].includes(field.key)
-                        )
-                        .map((field) => (
-                          <div key={field.key}>
-                            <Label htmlFor={field.key}>{field.label}</Label>
-                            {field.type === 'textarea' ? (
-                              <Textarea
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            ) : field.type === 'image' ? (
-                              <div className="mt-1.5 space-y-2">
-                                <FileUpload
-                                  value={field.value}
-                                  onChange={(url) => handleContentChange(field.key, url)}
-                                />
-                                {field.value && (
-                                  <img
-                                    src={field.value}
-                                    alt="Preview"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            )}
-                          </div>
-                        ))}
-                    </TabsContent>
-
-                    <TabsContent value="about" className="space-y-4 pt-4">
-                      {contentFields
-                        .filter(field =>
-                          ['about_title', 'about_text', 'about_image'].includes(field.key)
-                        )
-                        .map((field) => (
-                          <div key={field.key}>
-                            <Label htmlFor={field.key}>{field.label}</Label>
-                            {field.type === 'textarea' ? (
-                              <Textarea
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            ) : field.type === 'image' ? (
-                              <div className="mt-1.5 space-y-2">
-                                <FileUpload
-                                  value={field.value}
-                                  onChange={(url) => handleContentChange(field.key, url)}
-                                />
-                                {field.value && (
-                                  <img
-                                    src={field.value}
-                                    alt="Preview"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            )}
-                          </div>
-                        ))}
-                    </TabsContent>
-
-                    <TabsContent value="principles" className="space-y-4 pt-4">
-                      <div className="flex justify-end mb-4">
-                        <Button onClick={() => setShowAddPrinciple(true)}>
-                          Add Principle
-                        </Button>
-                      </div>
-                      {principles?.map((principle) => (
-                        <div key={principle.id} className="space-y-4">
-                          <Label>Title</Label>
-                          <Input
-                            value={principle.title}
-                            onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
-                          />
-                          <Label>Description</Label>
-                          <Textarea
-                            value={principle.description}
-                            onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
-                          />
-                          <Label>Image</Label>
-                          <div className="space-y-2">
-                            <FileUpload
-                              value={principle.imageUrl}
-                              onChange={(url) => handlePrincipleChange(principle.id, 'imageUrl', url)}
-                            />
-                            {principle.imageUrl && (
-                              <img
-                                src={principle.imageUrl}
-                                alt={principle.title}
-                                className="mt-2 rounded-lg max-h-48 object-cover"
-                              />
-                            )}
-                          </div>
-                          <div className="flex justify-end">
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDeletePrinciple(principle.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="carousel" className="space-y-4 pt-4">
-                      <div className="flex justify-end mb-4">
-                        <Button onClick={() => setShowAddCarousel(true)}>
-                          Add Carousel Item
-                        </Button>
-                      </div>
-                      {carousel?.map((item) => (
-                        <div key={item.id} className="space-y-4">
-                          <Label>Title</Label>
-                          <Input
-                            value={item.title}
-                            onChange={(e) => handleCarouselChange(item.id, 'title', e.target.value)}
-                          />
-                          <Label>Description</Label>
-                          <Textarea
-                            value={item.description}
-                            onChange={(e) => handleCarouselChange(item.id, 'description', e.target.value)}
-                          />
-                          <Label>Image</Label>
-                          <div className="space-y-2">
-                            <FileUpload
-                              value={item.imageUrl}
-                              onChange={(url) => handleCarouselChange(item.id, 'imageUrl', url)}
-                            />
-                            {item.imageUrl && (
-                              <img
-                                src={item.imageUrl}
-                                alt={item.title}
-                                className="mt-2 rounded-lg max-h-48 object-cover"
-                              />
-                            )}
-                          </div>
-                          <div className="flex justify-end">
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDeleteCarousel(item.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </TabsContent>
-                  </Tabs>rc={field.value}
-                                    alt={field.label}
-                                    className="mt-2 max-w-md rounded-md"
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            )}
-                          </div>
-                        ))}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="mb-8">
+                {/* Home Page Content */}
+                <TabsContent value="home">
+                  <Card>
                     <CardHeader>
-                      <CardTitle>About Section</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {contentFields
-                        .filter(field =>
-                          ['about_title', 'mission_text'].includes(field.key)
-                        )
-                        .map((field) => (
-                          <div key={field.key}>
-                            <Label htmlFor={field.key}>{field.label}</Label>
-                            {field.type === 'textarea' ? (
-                              <Textarea
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            )}
-                          </div>
-                        ))}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="mb-8">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>Principles</CardTitle>
-                        <Button onClick={handleAddPrinciple}>Add Principle</Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <DragDropContext onDragEnd={handlePrincipleReorder}>
-                        <Droppable droppableId="principles">
-                          {(provided) => (
-                            <div {...provided.droppableProps} ref={provided.innerRef}>
-                              {pendingPrinciples.map((principle, index) => (
-                                <Draggable
-                                  key={principle.id}
-                                  draggableId={principle.id.toString()}
-                                  index={index}
-                                >
-                                  {(provided) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      className="mb-4 last:mb-0"
-                                    >
-                                      <Card>
-                                        <CardContent className="pt-6">
-                                          <div className="flex items-start gap-4">
-                                            <div
-                                              {...provided.dragHandleProps}
-                                              className="mt-2.5 cursor-move"
-                                            >
-                                              <GripVertical className="h-5 w-5 text-stone-400" />
-                                            </div>
-                                            <div className="flex-1 space-y-4">
-                                              <div>
-                                                <Label htmlFor={`title-${principle.id}`}>
-                                                  Title
-                                                </Label>
-                                                <Input
-                                                  id={`title-${principle.id}`}
-                                                  value={principle.title}
-                                                  onChange={(e) =>
-                                                    handlePrincipleChange(
-                                                      principle.id,
-                                                      "title",
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                  className="mt-1.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <Label htmlFor={`description-${principle.id}`}>
-                                                  Description
-                                                </Label>
-                                                <Textarea
-                                                  id={`description-${principle.id}`}
-                                                  value={principle.description}
-                                                  onChange={(e) =>
-                                                    handlePrincipleChange(
-                                                      principle.id,
-                                                      "description",
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                  className="mt-1.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <Label htmlFor={`image-${principle.id}`}>
-                                                  Image
-                                                </Label>
-                                                <FileUpload
-                                                  value={principle.imageUrl}
-                                                  onChange={(url) =>
-                                                    handlePrincipleChange(
-                                                      principle.id,
-                                                      "imageUrl",
-                                                      url
-                                                    )
-                                                  }
-                                                />
-                                                {principle.imageUrl && (
-                                                  <img
-                                                    src={principle.imageUrl}
-                                                    alt={principle.title}
-                                                    className="mt-2 max-w-md rounded-md"
-                                                  />
-                                                )}
-                                              </div>
-                                            </div>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleDeletePrinciple(principle.id)
-                                              }
-                                            >
-                                              <X className="h-4 w-4" />
-                                            </Button>
-                                          </div>
-                                        </CardContent>
-                                      </Card>
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))}
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
-                      </DragDropContext>
-                    </CardContent>
-                  </Card>
-                  <Card className="mb-8">
-                    <CardHeader>
-                      <CardTitle>Carousel Management</CardTitle>
-                      <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+                      <CardTitle>Home Page Content</CardTitle>
+                      <CardDescription>Edit the main page content and hero section.</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <Button onClick={() => {
-                          setEditItem(null);
-                          setShowForm(true);
-                        }}>
-                          Add Carousel Item
-                        </Button>
+                        {contentFields.filter(field => !field.key.includes('dogs') && !field.key.includes('goats') && !field.key.includes('products')).map((field) => (
+                          <div key={field.key}>
+                            <Label>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                              />
+                            ) : field.type === 'image' ? (
+                              <div className="space-y-2">
+                                <FileUpload
+                                  value={field.value}
+                                  onChange={(url) => handleContentChange(field.key, url)}
+                                  onFileSelect={async (file) => {
+                                    const formData = new FormData();
+                                    formData.append("file", file);
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {carouselItems?.map((item) => (
-                            <Card key={item.id}>
-                              <div className="aspect-video relative">
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.title}
-                                  className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                                    try {
+                                      const res = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formData,
+                                      });
+
+                                      if (!res.ok) throw new Error("Upload failed");
+
+                                      const data = await res.json();
+                                      handleContentChange(field.key, data.url);
+                                    } catch (error) {
+                                      toast({
+                                        title: "Error",
+                                        description: "Failed to upload image",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
                                 />
                               </div>
-                              <CardContent className="pt-4">
-                                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                                <p className="text-sm text-muted-foreground">{item.description}</p>
-                                <div className="flex gap-2 mt-4">
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                      setEditItem(item);
-                                      setShowForm(true);
-                                    }}
-                                  >
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    onClick={async () => {
-                                      if (!confirm("Are you sure you want to delete this carousel item?")) return;
-                                      const res = await fetch(`/api/carousel/${item.id}`, {
-                                        method: "DELETE",
-                                      });
-                                      if (res.ok) {
-                                        queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-                                        toast({
-                                          title: "Success",
-                                          description: "Carousel item deleted successfully",
-                                        });
-                                      }
-                                    }}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                              />
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -1303,6 +957,28 @@ function AdminDashboard() {
                                 <FileUpload
                                   value={field.value}
                                   onChange={(url) => handleContentChange(field.key, url)}
+                                  onFileSelect={async (file) => {
+                                    const formData = new FormData();
+                                    formData.append("file", file);
+
+                                    try {
+                                      const res = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formData,
+                                      });
+
+                                      if (!res.ok) throw new Error("Upload failed");
+
+                                      const data = await res.json();
+                                      handleContentChange(field.key, data.url);
+                                    } catch (error) {
+                                      toast({
+                                        title: "Error",
+                                        description: "Failed to upload image",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
                                 />
                                 {field.value && (
                                   <img
@@ -1334,63 +1010,14 @@ function AdminDashboard() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="market" className="space-y-6">
+                <TabsContent value="products" className="space-y-6">
                   <Card>
                     <CardContent className="pt-6">
-                      <p className="text-muted-foreground">Farmers Market section coming soon.</p>
+                      <p className="text-muted-foreground">Products section coming soon.</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="contact" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Contact Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={pendingContactInfo.email || ""}
-                          onChange={(e) => handleContactChange("email", e.target.value)}
-                          placeholder="Enter email address"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={pendingContactInfo.phone || ""}
-                          onChange={(e) => handleContactChange("phone", e.target.value)}
-                          placeholder="Enter phone number"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="facebook">Facebook</Label>
-                        <Input
-                          id="facebook"
-                          type="url"
-                          value={pendingContactInfo.facebook || ""}
-                          onChange={(e) => handleContactChange("facebook", e.target.value)}
-                          placeholder="Enter Facebook URL"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="instagram">Instagram</Label>
-                        <Input
-                          id="instagram"
-                          type="url"
-                          value={pendingContactInfo.instagram || ""}
-                          onChange={(e) => handleContactChange("instagram", e.target.value)}
-                          placeholder="Enter Instagram URL"
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
                 <TabsContent value="principles" className="space-y-6">
                   <Card>
                     <CardHeader>
@@ -1504,6 +1131,17 @@ function AdminDashboard() {
                           )}
                         </Droppable>
                       </DragDropContext>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="media" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Media Management</CardTitle>
+                      <CardDescription>Manage media assets.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p>Media section coming soon.</p>
                     </CardContent>
                   </Card>
                 </TabsContent>
