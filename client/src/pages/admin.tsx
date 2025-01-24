@@ -640,7 +640,6 @@ function AdminDashboard() {
       outsideBreeder: false
     });
     setShowDogForm(true);
-    setShowPuppyForm(false);  // Close puppy form when opening dog form
   };
 
   const handleDogFormClose = () => {
