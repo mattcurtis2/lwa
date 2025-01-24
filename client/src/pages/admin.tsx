@@ -392,14 +392,20 @@ function AdminDashboard() {
     { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
     { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent?.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
     { key: "animals_image", label: "Dogs Image", value: pendingContent["animals_image"] ?? siteContent?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
+    { key: "animals_button_text", label: "Dogs Button Text", value: pendingContent["animals_button_text"] ?? siteContent?.find(c => c.key === "animals_button_text")?.value ?? "", type: "text" },
+    { key: "animals_redirect", label: "Dogs Button Link", value: pendingContent["animals_redirect"] ?? siteContent?.find(c => c.key === "animals_redirect")?.value ?? "", type: "text" },
 
     { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent?.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
     { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent?.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
     { key: "bakery_image", label: "Goats Image", value: pendingContent["bakery_image"] ?? siteContent?.find(c => c.key === "bakery_image")?.value ?? "", type: "image" },
+    { key: "bakery_button_text", label: "Goats Button Text", value: pendingContent["bakery_button_text"] ?? siteContent?.find(c => c.key === "bakery_button_text")?.value ?? "", type: "text" },
+    { key: "bakery_redirect", label: "Goats Button Link", value: pendingContent["bakery_redirect"] ?? siteContent?.find(c => c.key === "bakery_redirect")?.value ?? "", type: "text" },
 
     { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
     { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent?.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
     { key: "products_image", label: "Products Image", value: pendingContent["products_image"] ?? siteContent?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
+    { key: "products_button_text", label: "Products Button Text", value: pendingContent["products_button_text"] ?? siteContent?.find(c => c.key === "products_button_text")?.value ?? "", type: "text" },
+    { key: "products_redirect", label: "Products Button Link", value: pendingContent["products_redirect"] ?? siteContent?.find(c => c.key === "products_redirect")?.value ?? "", type: "text" },
     { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent?.find(c => c.key === "market_title")?.value ?? "", type: "text" },
     { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent?.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
   ];
@@ -951,7 +957,7 @@ function AdminDashboard() {
                           {/* Cards Section */}
                           <div className="space-y-4 mt-6">
                             <h3 className="text-lg font-medium">Feature Cards</h3>
-                            
+
                             {/* Card 1 */}
                             <div className="border p-4 rounded-lg space-y-4">
                               <h4 className="font-medium">Card 1</h4>
