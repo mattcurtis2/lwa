@@ -38,12 +38,29 @@ export function FileUpload({
     }
   }, [value]);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    if (rejectedFiles.length > 0) {
+      toast({
+        title: "Error",
+        description: "File type not supported or file is too large (max 50MB)",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const file = acceptedFiles[0];
     if (file) {
+      if (file.size > 50 * 1024 * 1024) { // 50MB limit
+        toast({
+          title: "Error",
+          description: "File is too large (max 50MB)",
+          variant: "destructive"
+        });
+        return;
+      }
       onFileSelect(file);
     }
-  }, [onFileSelect]);
+  }, [onFileSelect, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -52,7 +69,15 @@ export function FileUpload({
       return acc;
     }, {} as Record<string, string[]>),
     maxFiles: 1,
-    multiple: false
+    multiple: false,
+    maxSize: 50 * 1024 * 1024, // 50MB
+    onDropRejected: () => {
+      toast({
+        title: "Error",
+        description: "File type not supported or file is too large (max 50MB)",
+        variant: "destructive"
+      });
+    }
   });
 
   return (
