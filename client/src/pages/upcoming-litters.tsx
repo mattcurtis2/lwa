@@ -20,13 +20,6 @@ export default function UpcomingLitters() {
     queryKey: ["/api/litters"],
   });
 
-  const handleEditDog = (dog: Dog, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent litter navigation
-    setSelectedDog(dog);
-    setShowDogForm(true);
-  };
-
-
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
@@ -111,9 +104,8 @@ export default function UpcomingLitters() {
                   <div className="grid grid-cols-2 gap-4">
                     <div
                       className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
-                      onClick={(e) => handleEditDog(litter.mother, e)}
                     >
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
                         {litter.mother.profileImageUrl ? (
                           <img
                             src={litter.mother.profileImageUrl}
@@ -131,9 +123,6 @@ export default function UpcomingLitters() {
                             <span className="text-3xl text-pink-500">♀</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <Edit className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
-                        </div>
                       </div>
                       <div>
                         <p className="font-medium">{litter.mother.name}</p>
@@ -143,9 +132,8 @@ export default function UpcomingLitters() {
 
                     <div
                       className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
-                      onClick={(e) => handleEditDog(litter.father, e)}
                     >
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative">
                         {(litter.father.profileImageUrl || (litter.father.media?.[0]?.type === 'image' && litter.father.media[0].url)) ? (
                           <img
                             src={litter.father.profileImageUrl || litter.father.media[0].url}
@@ -157,9 +145,6 @@ export default function UpcomingLitters() {
                             <span className="text-3xl text-blue-500">♂</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <Edit className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
-                        </div>
                       </div>
                       <div>
                         <p className="font-medium">{litter.father.name}</p>
