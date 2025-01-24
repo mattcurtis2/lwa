@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical, X, Plus, Edit } from "lucide-react";
+import { Save, GripVertical, X, Plus } from "lucide-react";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
 import AnimalCard from "@/components/cards/animal-card";
@@ -588,7 +588,7 @@ export default function Admin() {
         variant="ghost"
         size="icon"
         onClick={(e) => {
-          e.stopPropagation(); 
+          e.stopPropagation();
           if (!confirm('Are you sure you want to remove this puppy?')) return;
           setEditLitter(prev => ({
             ...prev!,
@@ -730,11 +730,9 @@ export default function Admin() {
     );
   };
 
-  const renderContent = () => {
-    switch (section) {
-      case 'home':
-        return (
-          <div className="space-y-6">
+  const renderHomeContent = () => {
+    return (
+      <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Hero Section</CardTitle>
@@ -1515,6 +1513,15 @@ export default function Admin() {
     }
   };
 
+  const navigation = [
+    { href: '/admin?section=home', name: 'Home' },
+    { href: '/admin?section=carousel', name: 'Carousel' },
+    { href: '/admin?section=dogs', name: 'Dogs' },
+    { href: '/admin?section=animals', name: 'Animals' },
+    { href: '/admin?section=products', name: 'Products' },
+    { href: '/admin?section=contact', name: 'Contact' },
+  ];
+
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
       <div className="flex min-h-screen">
@@ -1562,7 +1569,403 @@ export default function Admin() {
           )}
         </div>
         <div className="p-8">
-          {renderContent()}
+          {renderSection()}
+        </div>
+      </div>
+
+      {showDogForm && (
+        <Sheet open={showDogForm} onOpenChange={setShowDogForm}>
+          <SheetContent className="w-[800px] sm:max-w-[800px]">
+            <SheetHeader>
+              <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <DogForm initialDog={selectedDog} onClose={handleDogFormClose} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {showPuppyForm && (
+        <Sheet open={showPuppyForm} onOpenChange={(open) => {
+          setShowPuppyForm(open);
+          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
+        }}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
+            <SheetHeader>
+              <SheetTitle>
+                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <Form
+                isPuppy={true}
+                defaultValues={{
+                  name: editItem?.name || '',
+                  gender: editItem?.gender as 'male' | 'female' || 'male',
+                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+                  breed: editItem?.breed || 'Colorado Mountain Dog',
+                  color: editItem?.color || '',
+                  description: editItem?.description || '',
+                  narrativeDescription: editItem?.narrativeDescription || '',
+                  healthData: editItem?.healthData || '',
+                  height: editItem?.height?.toString() || '',
+                  weight: editItem?.weight?.toString() || '',
+                  furLength: editItem?.furLength || '',
+                  registrationName: editItem?.registrationName || '',
+                  profileImageUrl: editItem?.profileImageUrl || '',
+                  media: editItem?.media || [],
+                  outsideBreeder: Boolean(editItem?.outsideBreeder),
+                  available: Boolean(editItem?.available),
+                  price: editItem?.price?.toString() || '',
+                }}
+                onSubmit={async (values) => {
+                  try {
+                    const processedValues = {
+                      ...values,
+                      height: values.height ? Number(values.height) : null,
+                      weight: values.weight ? Number(values.weight) : null,
+                      price: values.price ? Number(values.price) : null,
+                    };
+
+                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
+                      method: editItem?.id ? 'PUT' : 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(processedValues),
+                    });
+
+                    if (!res.ok) throw new Error('Failed to save puppy');
+
+                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                    toast({
+                      title: "Success",
+                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
+                    });
+                    setShowPuppyForm(false);
+                  } catch (error) {
+                    console.error('Error saving puppy:', error);
+                    toast({
+                      title: "Error",
+                      description: error instanceof Error ? error.message : 'Failed to save puppy',
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {showDogForm && (
+        <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <DogForm
+                dog={selectedDog as Dog}
+                mode={selectedDog?.id ? 'edit' : 'create'}
+                onSubmit={handleDogFormClose}
+                onCancel={handleDogFormClose}
+                fromLitter={true}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+    </div>
+  );
+}
+
+const renderSection = () => {
+    switch (section) {
+      case 'home':
+        return (
+          <div className="space-y-6">
+            {/* Home content section */}
+            {renderHomeContent()}
+          </div>
+        );
+      case 'carousel':
+        return (
+          <div className="space-y-6">
+            {/* Carousel management section */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Carousel Items</CardTitle>
+                    <CardDescription>Manage your homepage carousel content</CardDescription>
+                  </div>
+                  <Button onClick={() => {
+                    setEditItem(null);
+                    setShowForm(true);
+                  }}>
+                    Add Item
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  {carouselItems.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => {
+                          setEditItem(item);
+                          setShowForm(true);
+                        }}>
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'dogs':
+        return (
+          <div className="space-y-6">
+            {/* Dogs management section */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Dogs</CardTitle>
+                    <CardDescription>Manage your dogs and litters</CardDescription>
+                  </div>
+                  <Button onClick={() => {
+                    setSelectedDog(null);
+                    setShowDogForm(true);
+                  }}>
+                    Add Dog
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Dogs content */}
+                {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold mb-6">Females</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {dogs
+                        .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
+                        .map(renderDogCard)}
+                    </div>
+                  </div>
+                )}
+
+                {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold mb-6">Males</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {dogs
+                        .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
+                        .map(renderDogCard)}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'animals':
+        return (
+          <div className="space-y-6">
+            {/* Animals management section */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Animals</CardTitle>
+                    <CardDescription>Manage your animals</CardDescription>
+                  </div>
+                  <Button onClick={() => {
+                    setEditItem(null);
+                    setShowForm(true);
+                  }}>
+                    Add Animal
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {animals.map((animal) => (
+                    <AnimalCard
+                      key={animal.id}
+                      animal={animal}
+                      isAdmin
+                      onEdit={() => {
+                        setEditItem(animal);
+                        setShowForm(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'products':
+        return (
+          <div className="space-y-6">
+            {/* Products management section */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Products</CardTitle>
+                    <CardDescription>Manage your products</CardDescription>
+                  </div>
+                  <Button onClick={() => {
+                    setEditItem(null);
+                    setShowForm(true);
+                  }}>
+                    Add Product
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      isAdmin
+                      onEdit={() => {
+                        setEditItem(product);
+                        setShowForm(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'contact':
+        return (
+          <div className="space-y-6">
+            {/* Contact information management */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+                <CardDescription>Manage your contact details and social media links</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      value={pendingContactInfo.email || ''}
+                      onChange={(e) => handleContactChange('email', e.target.value)}
+                      placeholder="contact@example.com"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={pendingContactInfo.phone || ''}
+                      onChange={(e) => handleContactChange('phone', e.target.value)}
+                      placeholder="+1 (555) 000-0000"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="facebook">Facebook</Label>
+                    <Input
+                      id="facebook"
+                      value={pendingContactInfo.facebook || ''}
+                      onChange={(e) => handleContactChange('facebook', e.target.value)}
+                      placeholder="https://facebook.com/your-page"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="instagram">Instagram</Label>
+                    <Input
+                      id="instagram"
+                      value={pendingContactInfo.instagram || ''}
+                      onChange={(e) => handleContactChange('instagram', e.target.value)}
+                      placeholder="https://instagram.com/your-handle"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const navigation = [
+    { href: '/admin?section=home', name: 'Home' },
+    { href: '/admin?section=carousel', name: 'Carousel' },
+    { href: '/admin?section=dogs', name: 'Dogs' },
+    { href: '/admin?section=animals', name: 'Animals' },
+    { href: '/admin?section=products', name: 'Products' },
+    { href: '/admin?section=contact', name: 'Contact' },
+  ];
+
+  if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar className="w-64 border-r" />
+        <div className="flex-1 p-8">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-lg text-muted-foreground">Loading content...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen">
+        <Sidebar className="w-64 border-r" />
+        <div className="flex-1 p-8">
+          <div className="flex items-center justify-center h-full">
+            <Card className="w-full max-w-lg">
+              <CardHeader>
+                <CardTitle className="text-red-500">Error</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Error loading content. Please try refreshing the page.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar className="w-64 border-r" />
+      <div className="flex-1">
+        <div className="h-16 border-b px-8 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">
+            {navigation.find(item => item.href.includes(section))?.name || 'Dashboard'}
+          </h1>
+          {hasUnsavedChanges && (
+            <Button onClick={handleSaveChanges}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Changes
+            </Button>
+          )}
+        </div>
+        <div className="p-8">
+          {renderSection()}
         </div>
       </div>
 
