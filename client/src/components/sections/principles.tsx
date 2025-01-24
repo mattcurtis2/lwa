@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Principle } from "@db/schema";
+import { Principle, SiteContent } from "@db/schema";
 
 const fadeInUp = {
   initial: {
@@ -27,6 +27,10 @@ const staggerChildren = {
 export default function Principles() {
   const { data: principles } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
+  });
+
+  const { data: siteContent } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"],
   });
 
   return (
