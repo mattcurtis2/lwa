@@ -295,11 +295,6 @@ export default function DogForm({
       const newInputs = [newMedia, ...mediaInputs];
       setMediaInputs(newInputs);
       form.setValue("media", newInputs);
-
-      toast({
-        title: "Success",
-        description: "File uploaded successfully",
-      });
       setShowAddMedia(false);
     } catch (error) {
       toast({
@@ -509,11 +504,6 @@ export default function DogForm({
           setMediaInputs(prev => [newMedia, ...prev]);
           form.setValue("media", [newMedia, ...form.getValues("media")]);
         }
-
-        toast({
-          title: "Success",
-          description: `${acceptedFiles.length} file(s) uploaded successfully`,
-        });
       } catch (error) {
         console.error('Error uploading files:', error);
         toast({
