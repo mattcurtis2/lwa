@@ -29,6 +29,11 @@ import { Sidebar } from "@/components/layout/sidebar";
 // ... keep all interfaces and types ...
 
 export default function Admin() {
+  const { data: siteContent, isLoading: isLoadingSiteContent, error: errorSiteContent } = useQuery({ queryKey: ["siteContent"], queryFn: () => fetch("/api/siteContent").then((res) => res.json()) });
+  const { data: principles, isLoading: isLoadingPrinciples, error: errorPrinciples } = useQuery({ queryKey: ["principles"], queryFn: () => fetch("/api/principles").then((res) => res.json()) });
+  const { data: carouselItems, isLoading: isLoadingCarousel, error: errorCarousel } = useQuery({ queryKey: ["carousel"], queryFn: () => fetch("/api/carousel").then((res) => res.json()) });
+
+
   // ... keep all the existing state and handlers ...
 
   const renderSection = () => {
@@ -302,6 +307,8 @@ export default function Admin() {
         return null;
     }
   };
+
+  const error = errorSiteContent || errorPrinciples || errorCarousel;
 
   if (isLoadingSiteContent || isLoadingPrinciples || isLoadingCarousel) {
     return (
