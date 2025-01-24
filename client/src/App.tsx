@@ -25,9 +25,10 @@ function ScrollToTop() {
 }
 
 function Router() {
+  const [location] = useLocation();
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      {location !== '/admin' && <Header />}
       <ScrollToTop />
       <main className="flex-grow">
         <Switch>
