@@ -1,3 +1,4 @@
+
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
@@ -22,6 +23,19 @@ export default function Header() {
               className="h-12 w-auto"
             />
           </Link>
+          
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/dogs" className="text-sm font-medium">
+              Dogs
+            </Link>
+            <Link href="/upcoming-litters" className="text-sm font-medium">
+              Upcoming Litters
+            </Link>
+            <Link href="/past-litters" className="text-sm font-medium">
+              Past Litters
+            </Link>
+          </div>
+          
           <MobileNav />
         </nav>
       </div>
