@@ -87,13 +87,13 @@ export default function LitterManagement() {
         console.error('No matching litter found for dog:', savedDog);
         return;
       }
-      
+
       console.log('Invalidating queries...');
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/litters'] })
-      ]);
-      console.log('Queries invalidated');
+      queryClient.invalidateQueries({ queryKey: ['/api/dogs'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['/api/litters'], exact: false });
+      queryClient.refetchQueries({ queryKey: ['/api/dogs'], exact: false });
+      queryClient.refetchQueries({ queryKey: ['/api/litters'], exact: false });
+      console.log('Queries invalidated and refetched');
       
       setShowDogForm(false);
       setSelectedDog(null);
