@@ -121,22 +121,22 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
               <div className="mb-4 flex items-center gap-3">
                 {genderSymbol}
                 <div>
-                  <h3 className="text-xl font-bold">
-                    {dog.name}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-bold">
+                      {dog.name}
+                    </h3>
+                    {showPrice && dog.price && (
+                      <p className="text-lg font-semibold text-green-600">
+                        ${parseInt(dog.price).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
                   {dog.registrationName && (
                     <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
                   )}
                   <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
                 </div>
               </div>
-              {showPrice && dog.price && (
-                <div className="mb-4">
-                  <p className="text-lg font-semibold text-green-600">
-                    ${parseInt(dog.price).toLocaleString()}
-                  </p>
-                </div>
-              )}
               <p className="text-stone-600 mb-4">{dog.description}</p>
             </div>
           </Link>
