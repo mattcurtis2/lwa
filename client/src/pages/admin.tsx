@@ -1742,21 +1742,21 @@ export default function Admin() {
       
       {/* Keep all the sheet/modal components */}
       {showForm && (
-        <Sheet>
+        <Sheet open={showForm} onOpenChange={setShowForm}>
           <SheetContent className="max-w-2xl">
             <SheetHeader>
               <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
-            </SheetHeader<SheetContent>
-                <CarouselForm
-                  item={editItem as CarouselItem}
-                  onClose={() => {
-                    setShowForm(false);
-                    setEditItem(null);
-                  }}
-                />
-              </SheetContent>
-            </Sheet>
-          )}
+            </SheetHeader>
+            <CarouselForm
+              item={editItem as CarouselItem}
+              onClose={() => {
+                setShowForm(false);
+                setEditItem(null);
+              }}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
 
           {showPuppyForm && (
             <Sheet open={showPuppyForm} onOpenChange={(open) => {
@@ -1830,26 +1830,7 @@ export default function Admin() {
             </Sheet>
           )}
 
-          {/* Dog Form Sheet */}
-          {showDogForm && (
-            <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
-              <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <DogForm
-                    dog={selectedDog as Dog}
-                    mode={selectedDog?.id ? 'edit' : 'create'}
-                    onSubmit={handleDogFormClose}
-                    onCancel={handleDogFormClose}
-                    fromLitter={true}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-        </div>
+          </div>
       </div>
     </div>
   );
