@@ -774,7 +774,7 @@ function AdminDashboard() {
                         />
                       ) : (
                         <div className={`w-full h-full flex items-center justify-center ${
-                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
@@ -902,6 +902,7 @@ function AdminDashboard() {
                   <TabsTrigger value="dogs">CMD</TabsTrigger>
                   <TabsTrigger value="goats">NDG</TabsTrigger>
                   <TabsTrigger value="market">Market</TabsTrigger>
+                  <TabsTrigger value="carousel">Carousel</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
                 </TabsList>
 
@@ -1242,91 +1243,87 @@ function AdminDashboard() {
                 <TabsContent value="market" className="space-y-6">
                   <div>Market Content</div>
                 </TabsContent>
-              </Tabs>
-            </div>
-          )}
+                <TabsContent value="carousel" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Carousel Management</CardTitle>
+                      <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <Button onClick={() => {
+                          setEditItem(null);
+                          setShowForm(true);
+                        }}>
+                          Add Carousel Item
+                        </Button>
 
-          {activeTab === "carousel" && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Carousel Management</CardTitle>
-                  <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <Button onClick={() => {
-                      setEditItem(null);
-                      setShowForm(true);
-                    }}>
-                      Add Carousel Item
-                    </Button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {carouselItems?.map((item) => (
+                            <Card key={item.id}>
+                              <div className="aspect-video relative">
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                                />
+                              </div>
+                              <CardContent className="pt-4">
+                                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                                <div className="flex gap-2 mt-4">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditItem(item);
+                                      setShowForm(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                                      const res = await fetch(`/api/carousel/${item.id}`, {
+                                        method: "DELETE",
+                                      });
+                                      if (res.ok) {
+                                        queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                                        toast({
+                                          title: "Success",
+                                          description: "Carousel item deleted successfully",
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {carouselItems?.map((item) => (
-                        <Card key={item.id}>
-                          <div className="aspect-video relative">
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-                            />
-                          </div>
-                          <CardContent className="pt-4">
-                            <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                            <div className="flex gap-2 mt-4">
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setEditItem(item);
-                                  setShowForm(true);
-                                }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={async () => {
-                                  if (!confirm("Are you sure you want to delete this carousel item?")) return;
-                                  const res = await fetch(`/api/carousel/${item.id}`, {
-                                    method: "DELETE",
-                                  });
-                                  if (res.ok) {
-                                    queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-                                    toast({
-                                      title: "Success",
-                                      description: "Carousel item deleted successfully",
-                                    });
-                                  }
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Sheet open={showForm} onOpenChange={setShowForm}>
-                <SheetContent className="max-w-2xl">
-                  <SheetHeader>
-                    <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
-                  </SheetHeader>
-                  <CarouselForm
-                    item={editItem as CarouselItem}
-                    onClose={() => {
-                      setShowForm(false);
-                      setEditItem(null);
-                    }}
-                  />
-                </SheetContent>
-              </Sheet>
-            </div>
+                  <Sheet open={showForm} onOpenChange={setShowForm}>
+                    <SheetContent className="max-w-2xl">
+                      <SheetHeader>
+                        <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+                      </SheetHeader>
+                      <CarouselForm
+                        item={editItem as CarouselItem}
+                        onClose={() => {
+                          setShowForm(false);
+                          setEditItem(null);
+                        }}
+                      />
+                    </SheetContent>
+                  </Sheet>
+                </TabsContent>
+              </div>
           )}
 
           {activeTab === "dogs" && (
