@@ -378,11 +378,18 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+
+    console.log('Starting upload for file:', file.name, 'type:', type);
     setIsUploadingDoc(true);
     const formData = new FormData();
     formData.append("file", file);
 
     try {
+      console.log('Sending upload request...');
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -393,6 +400,8 @@ export default function DogForm({
       }
 
       const data = await res.json();
+      console.log('Upload successful:', data);
+
       const newDoc = {
         url: data.url,
         type,
@@ -403,8 +412,10 @@ export default function DogForm({
 
       if (type === 'health') {
         setHealthDocuments(prev => [newDoc, ...prev]);
+        console.log('Updated health documents');
       } else {
         setPedigreeDocuments(prev => [newDoc, ...prev]);
+        console.log('Updated pedigree documents');
       }
 
       toast({
@@ -412,6 +423,7 @@ export default function DogForm({
         description: "Document uploaded successfully",
       });
     } catch (error) {
+      console.error('Error uploading document:', error);
       toast({
         title: "Error",
         description: "Failed to upload document",
@@ -921,52 +933,60 @@ export default function DogForm({
                   <div className="space-y-2">
                     <Label>Health Documents</Label>
                     <FileUpload
-                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
+                      onFileSelect={(file) => {
+                        console.log('File selected for health:', file);
+                        handleDocumentUpload(file, 'health');
+                      }}
                       accept="application/pdf,image/jpeg,image/png,video/*"
+                      isUploading={isUploadingDoc}
                     />
-                    {healthDocuments.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <div className="flex items-center gap-2">
-                          {doc.mimeType.startsWith('image/') ? (
-                            <img
-                              src={doc.url}
-                              alt={doc.name}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ) : doc.mimeType.startsWith('video/') ? (
-                            <video
-                              src={doc.url}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                              <FileText className="h-6 w-6 text-muted-foreground" />
+                    {healthDocuments.length > 0 && (
+                      <div className="space-y-2">
+                        {healthDocuments.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              {doc.mimeType.startsWith('image/') ? (
+                                <img
+                                  src={doc.url}
+                                  alt={doc.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : doc.mimeType.startsWith('video/') ? (
+                                <video
+                                  src={doc.url}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                  <FileText className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
                             </div>
-                          )}
-                          <span className="truncate max-w-[200px]">{doc.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeDocument(index, 'health')}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                              >
+                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeDocument(index, 'health')}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </FormControl>
@@ -990,52 +1010,59 @@ export default function DogForm({
                   <div className="space-y-2">
                     <Label>Pedigree Documents</Label>
                     <FileUpload
-                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                      onFileSelect={(file) => {
+                        console.log('File selected for pedigree:', file);
+                        handleDocumentUpload(file, 'pedigree');
+                      }}
                       accept="application/pdf,image/jpeg,image/png,video/*"
+                      isUploading={isUploadingDoc}
                     />
-                    {pedigreeDocuments.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <div className="flex items-center gap-2">
-                          {doc.mimeType.startsWith('image/') ? (
-                            <img
-                              src={doc.url}
-                              alt={doc.name}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ) : doc.mimeType.startsWith('video/') ? (
-                            <video
-                              src={doc.url}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                              <FileText className="h-6 w-6 text-muted-foreground" />
+                    {pedigreeDocuments.length > 0 && (
+                      <div className="space-y-2{pedigreeDocuments.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              {doc.mimeType.startsWith('image/') ? (
+                                <img
+                                  src={doc.url}
+                                  alt={doc.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : doc.mimeType.startsWith('video/') ? (
+                                <video
+                                  src={doc.url}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                  <FileText className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
                             </div>
-                          )}
-                          <span className="truncate max-w-[200px]">{doc.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeDocument(index, 'pedigree')}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                              >
+                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeDocument(index, 'pedigree')}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </FormControl>
