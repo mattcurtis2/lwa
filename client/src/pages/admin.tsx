@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical, X, Plus, Edit, LayoutDashboard, Image, Dog as DogIcon, Cat, ShoppingBag, Contact, PanelLeft } from "lucide-react";
+import { Save, GripVertical, X, Plus, Edit, LayoutDashboard, Image, Dog as DogIcon, Cat, ShoppingBag, Contact } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
