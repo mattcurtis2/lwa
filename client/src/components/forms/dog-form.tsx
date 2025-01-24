@@ -487,24 +487,12 @@ export default function DogForm({
         throw new Error('Failed to save dog');
       }
 
+      const savedDog = await response.json();
+      
       toast({
         title: "Success",
         description: `Dog ${dog?.id ? 'updated' : 'created'} successfully`,
       });
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(processedValues),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save dog');
-      }
-
-      const savedDog = await response.json();
       
       if (onSubmit) {
         await onSubmit(savedDog);
