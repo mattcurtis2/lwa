@@ -1244,9 +1244,6 @@ function AdminDashboard() {
                 </TabsContent>
               </Tabs>
             </div>
-                </TabsContent>
-              </Tabs>
-            </div>
           )}
 
           {activeTab === "carousel" && (
