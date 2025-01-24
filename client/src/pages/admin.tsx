@@ -967,7 +967,7 @@ function AdminDashboard() {
                           Add Principle
                         </Button>
                       </div>
-                      {principles?.map((principle) => (
+                      {pendingPrinciples?.map((principle) => (
                         <div key={principle.id} className="space-y-4">
                           <Label>Title</Label>
                           <Input
