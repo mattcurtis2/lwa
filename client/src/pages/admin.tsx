@@ -871,11 +871,15 @@ function AdminDashboard() {
                 </TabsList>
 
                 <TabsContent value="home" className="space-y-6">
-                  <Card className="mb-8">
-                    <CardHeader>
-                      <CardTitle>Hero Section</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                  <Tabs defaultValue="hero">
+                    <TabsList>
+                      <TabsTrigger value="hero">Hero</TabsTrigger>
+                      <TabsTrigger value="about">About</TabsTrigger>
+                      <TabsTrigger value="principles">Principles</TabsTrigger>
+                      <TabsTrigger value="carousel">Carousel</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="hero" className="space-y-4 pt-4">
                       {contentFields
                         .filter(field =>
                           ['hero_text', 'hero_subtext', 'hero_background'].includes(field.key)
@@ -899,6 +903,152 @@ function AdminDashboard() {
                                 {field.value && (
                                   <img
                                     src={field.value}
+                                    alt="Preview"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
+                          </div>
+                        ))}
+                    </TabsContent>
+
+                    <TabsContent value="about" className="space-y-4 pt-4">
+                      {contentFields
+                        .filter(field =>
+                          ['about_title', 'about_text', 'about_image'].includes(field.key)
+                        )
+                        .map((field) => (
+                          <div key={field.key}>
+                            <Label htmlFor={field.key}>{field.label}</Label>
+                            {field.type === 'textarea' ? (
+                              <Textarea
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            ) : field.type === 'image' ? (
+                              <div className="mt-1.5 space-y-2">
+                                <FileUpload
+                                  value={field.value}
+                                  onChange={(url) => handleContentChange(field.key, url)}
+                                />
+                                {field.value && (
+                                  <img
+                                    src={field.value}
+                                    alt="Preview"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                id={field.key}
+                                value={field.value}
+                                onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                className="mt-1.5"
+                              />
+                            )}
+                          </div>
+                        ))}
+                    </TabsContent>
+
+                    <TabsContent value="principles" className="space-y-4 pt-4">
+                      <div className="flex justify-end mb-4">
+                        <Button onClick={() => setShowAddPrinciple(true)}>
+                          Add Principle
+                        </Button>
+                      </div>
+                      {principles?.map((principle) => (
+                        <div key={principle.id} className="space-y-4">
+                          <Label>Title</Label>
+                          <Input
+                            value={principle.title}
+                            onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                          />
+                          <Label>Description</Label>
+                          <Textarea
+                            value={principle.description}
+                            onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                          />
+                          <Label>Image</Label>
+                          <div className="space-y-2">
+                            <FileUpload
+                              value={principle.imageUrl}
+                              onChange={(url) => handlePrincipleChange(principle.id, 'imageUrl', url)}
+                            />
+                            {principle.imageUrl && (
+                              <img
+                                src={principle.imageUrl}
+                                alt={principle.title}
+                                className="mt-2 rounded-lg max-h-48 object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDeletePrinciple(principle.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </TabsContent>
+
+                    <TabsContent value="carousel" className="space-y-4 pt-4">
+                      <div className="flex justify-end mb-4">
+                        <Button onClick={() => setShowAddCarousel(true)}>
+                          Add Carousel Item
+                        </Button>
+                      </div>
+                      {carousel?.map((item) => (
+                        <div key={item.id} className="space-y-4">
+                          <Label>Title</Label>
+                          <Input
+                            value={item.title}
+                            onChange={(e) => handleCarouselChange(item.id, 'title', e.target.value)}
+                          />
+                          <Label>Description</Label>
+                          <Textarea
+                            value={item.description}
+                            onChange={(e) => handleCarouselChange(item.id, 'description', e.target.value)}
+                          />
+                          <Label>Image</Label>
+                          <div className="space-y-2">
+                            <FileUpload
+                              value={item.imageUrl}
+                              onChange={(url) => handleCarouselChange(item.id, 'imageUrl', url)}
+                            />
+                            {item.imageUrl && (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.title}
+                                className="mt-2 rounded-lg max-h-48 object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDeleteCarousel(item.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </TabsContent>
+                  </Tabs>rc={field.value}
                                     alt={field.label}
                                     className="mt-2 max-w-md rounded-md"
                                   />
