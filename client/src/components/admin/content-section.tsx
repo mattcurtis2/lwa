@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -33,6 +32,27 @@ export function ContentSection({
 
   return (
     <div className="space-y-6">
+      {/* Principles Title and Description */}
+      <div className="border p-4 rounded-lg space-y-4 mb-6">
+        <h4 className="font-medium">Principles Section</h4>
+        <div>
+          <Label htmlFor="principles_title">Section Title</Label>
+          <Input
+            id="principles_title"
+            value={pendingContent["principles_title"] || ""}
+            onChange={(e) => handleContentChange("principles_title", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="principles_description">Section Description</Label>
+          <Textarea
+            id="principles_description"
+            value={pendingContent["principles_description"] || ""}
+            onChange={(e) => handleContentChange("principles_description", e.target.value)}
+          />
+        </div>
+      </div>
+
       {/* Content fields rendering */}
       {contentFields.map((field) => (
         <div key={field.key}>
