@@ -24,23 +24,22 @@ export function CMDContentForm() {
     queryFn: async () => {
       const res = await fetch('/api/dogs-hero');
       if (!res.ok) throw new Error('Failed to fetch hero content');
-      const data = await res.json();
-      return data[0];
+      return res.json();
     },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: heroContent?.title || "",
-      subtitle: heroContent?.subtitle || "",
-      imageUrl: heroContent?.imageUrl || "",
+    values: {
+      title: heroContent?.[0]?.title || "",
+      subtitle: heroContent?.[0]?.subtitle || "",
+      imageUrl: heroContent?.[0]?.imageUrl || "",
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const res = await fetch(`/api/dogs-hero/${heroContent?.id}`, {
+      const res = await fetch(`/api/dogs-hero/${heroContent?.[0]?.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
