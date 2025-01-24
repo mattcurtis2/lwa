@@ -886,7 +886,11 @@ export default function DogForm({
               <FormItem>
                 <FormLabel>Narrative Description</FormLabel>
                 <FormControl>
-                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
+                  <Textarea 
+                    {...field} 
+                    className="min-h-[200px] whitespace-pre-wrap"
+                    placeholder="Detailed description of personality, training, and characteristics"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
