@@ -649,10 +649,6 @@ function AdminDashboard() {
     setShowDogForm(false);
     setSelectedDog(null);
   };
-    setShowDogForm(false);
-    setSelectedDog(null);
-    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-  };
 
   const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
     const mother = dogs.find(d => d.id === litter.motherId);
