@@ -356,7 +356,11 @@ export default function DogForm({
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
     try {
+      setIsUploadingProfile(true);
+      // Convert the cropped canvas data URL to a blob
       const response = await fetch(croppedImageUrl);
+      if (!response.ok) throw new Error('Failed to fetch cropped image');
+
       const blob = await response.blob();
       const formData = new FormData();
       formData.append('file', blob, 'profile-picture.jpg');
@@ -372,16 +376,17 @@ export default function DogForm({
 
       const data = await uploadRes.json();
       form.setValue("profileImageUrl", data.url);
-      setShowCropper(false);
-
-      URL.revokeObjectURL(croppedImageUrl);
-      URL.revokeObjectURL(cropImageUrl);
-      setCropImageUrl("");
 
       toast({
         title: 'Success',
         description: 'Profile picture updated successfully',
       });
+
+      // Only revoke URLs after successful upload
+      URL.revokeObjectURL(croppedImageUrl);
+      URL.revokeObjectURL(cropImageUrl);
+      setCropImageUrl("");
+      setShowCropper(false);
     } catch (error) {
       console.error('Error uploading cropped image:', error);
       toast({
@@ -389,6 +394,8 @@ export default function DogForm({
         description: 'Failed to upload cropped image',
         variant: 'destructive',
       });
+    } finally {
+      setIsUploadingProfile(false);
     }
   };
 
