@@ -398,6 +398,7 @@ export default function DogForm({
       console.log('No file selected');
       return;
     }
+    console.log('Uploading document:', { type, fileName: file.name, fileSize: file.size });
 
     setIsUploadingDoc(true);
     const formData = new FormData();

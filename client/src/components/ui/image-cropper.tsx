@@ -39,7 +39,23 @@ export default function ImageCropper({
   const imageRef = useRef<HTMLImageElement>(null);
 
   const getCroppedImg = async () => {
-    console.log('getCroppedImg called with:', { completedCrop, imageRef: !!imageRef.current });
+    console.log('getCroppedImg called with:', { 
+      completedCrop, 
+      hasImageRef: !!imageRef.current,
+      cropDimensions: completedCrop ? {
+        x: completedCrop.x,
+        y: completedCrop.y,
+        width: completedCrop.width,
+        height: completedCrop.height,
+        unit: completedCrop.unit
+      } : null,
+      imageRefDimensions: imageRef.current ? {
+        width: imageRef.current.width,
+        height: imageRef.current.height,
+        naturalWidth: imageRef.current.naturalWidth,
+        naturalHeight: imageRef.current.naturalHeight
+      } : null
+    });
     
     if (!imageRef.current || !completedCrop) {
       console.error('Missing required refs:', { 
@@ -93,15 +109,31 @@ export default function ImageCropper({
     }
 
     return new Promise<string>((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          console.error('Canvas is empty');
-          reject(new Error('Failed to create blob'));
-          return;
-        }
-        const croppedImageUrl = URL.createObjectURL(blob);
-        resolve(croppedImageUrl);
-      }, 'image/jpeg', 0.95);
+      try {
+        console.log('Canvas dimensions:', {
+          width: canvas.width,
+          height: canvas.height
+        });
+        
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error('Canvas is empty');
+            reject(new Error('Failed to create blob'));
+            return;
+          }
+          console.log('Blob created successfully:', {
+            size: blob.size,
+            type: blob.type
+          });
+          
+          const croppedImageUrl = URL.createObjectURL(blob);
+          console.log('Created URL:', croppedImageUrl);
+          resolve(croppedImageUrl);
+        }, 'image/jpeg', 0.95);
+      } catch (error) {
+        console.error('Error in blob creation:', error);
+        reject(error);
+      }
     });
   };
 
