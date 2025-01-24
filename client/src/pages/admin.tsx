@@ -810,8 +810,7 @@ export default function Admin() {
             {sidebarItems.map((item)=> {
               const Icon = item.icon;
               return (
-                <button
-                  key={item.id}
+                <button                  key={item.id}
                   onClick={() => setActiveTab(item.id)}
                   className={cn(
                     "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
@@ -1296,19 +1295,20 @@ export default function Admin() {
               </Card>
 
               <Sheet open={showForm} onOpenChange={setShowForm}>
-              <SheetContent className="max-w-2xl">
-                <SheetHeader>
-                  <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
-                </SheetHeader>
-                <CarouselForm
-                  item={editItem as CarouselItem}
-                  onClose={() => {
-                    setShowForm(false);
-                    setEditItem(null);
-                  }}
-                />
-              </SheetContent>
-            </Sheet>
+                <SheetContent className="max-w-2xl">
+                  <SheetHeader>
+                    <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+                  </SheetHeader>
+                  <CarouselForm
+                    item={editItem as CarouselItem}
+                    onClose={() => {
+                      setShowForm(false);
+                      setEditItem(null);
+                    }}
+                  />
+                </SheetContent>
+              </Sheet>
+            </>
           )}
 
           {activeTab === "dogs" && (
@@ -1739,7 +1739,7 @@ export default function Admin() {
           )}
         </div>
       </div>
-      
+
       {/* Keep all the sheet/modal components */}
       {showForm && (
         <Sheet open={showForm} onOpenChange={setShowForm}>
@@ -1758,80 +1758,77 @@ export default function Admin() {
         </Sheet>
       )}
 
-          {showPuppyForm && (
-            <Sheet open={showPuppyForm} onOpenChange={(open) => {
-              setShowPuppyForm(open);
-              // Don't close the litter form when closing puppy dialog
-              if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
-            }}>
-              <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
-                <SheetHeader>
-                  <SheetTitle>
-                    {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <Form
-                    isPuppy={true}
-                    defaultValues={{
-                      name: editItem?.name || '',
-                      gender: editItem?.gender as 'male' | 'female' || 'male',
-                      birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
-                      breed: editItem?.breed || 'Colorado Mountain Dog',
-                      color: editItem?.color || '',
-                      description: editItem?.description || '',
-                      narrativeDescription: editItem?.narrativeDescription || '',
-                      healthData: editItem?.healthData || '',
-                      height: editItem?.height?.toString() || '',
-                      weight: editItem?.weight?.toString() || '',
-                      furLength: editItem?.furLength || '',
-                      registrationName: editItem?.registrationName || '',
-                      profileImageUrl: editItem?.profileImageUrl || '',
-                      media: editItem?.media || [],
-                      outsideBreeder: Boolean(editItem?.outsideBreeder),
-                      available: Boolean(editItem?.available),
-                      price: editItem?.price?.toString() || '',
-                    }}
-                    onSubmit={async (values) => {
-                      try {
-                        const processedValues = {
-                          ...values,
-                          height: values.height ? Number(values.height) : null,
-                          weight: values.weight ? Number(values.weight) : null,
-                          price: values.price ? Number(values.price) : null,
-                        };
+      {showPuppyForm && (
+        <Sheet open={showPuppyForm} onOpenChange={(open) => {
+          setShowPuppyForm(open);
+          // Don't close the litter form when closing puppy dialog
+          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
+        }}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
+            <SheetHeader>
+              <SheetTitle>
+                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <Form
+                isPuppy={true}
+                defaultValues={{
+                  name: editItem?.name || '',
+                  gender: editItem?.gender as 'male' | 'female' || 'male',
+                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+                  breed: editItem?.breed || 'Colorado Mountain Dog',
+                  color: editItem?.color || '',
+                  description: editItem?.description || '',
+                  narrativeDescription: editItem?.narrativeDescription || '',
+                  healthData: editItem?.healthData || '',
+                  height: editItem?.height?.toString() || '',
+                  weight: editItem?.weight?.toString() || '',
+                  furLength: editItem?.furLength || '',
+                  registrationName: editItem?.registrationName || '',
+                  profileImageUrl: editItem?.profileImageUrl || '',
+                  media: editItem?.media || [],
+                  outsideBreeder: Boolean(editItem?.outsideBreeder),
+                  available: Boolean(editItem?.available),
+                  price: editItem?.price?.toString() || '',
+                }}
+                onSubmit={async (values) => {
+                  try {
+                    const processedValues = {
+                      ...values,
+                      height: values.height ? Number(values.height) : null,
+                      weight: values.weight ? Number(values.weight) : null,
+                      price: values.price ? Number(values.price) : null,
+                    };
 
-                        const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
-                          method: editItem?.id ? 'PUT' : 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(processedValues),
-                        });
+                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
+                      method: editItem?.id ? 'PUT' : 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(processedValues),
+                    });
 
-                        if (!res.ok) throw new Error('Failed to save puppy');
+                    if (!res.ok) throw new Error('Failed to save puppy');
 
-                        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-                        toast({
-                          title: "Success",
-                          description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
-                        });
-                        setShowPuppyForm(false);
-                      } catch (error) {
-                        console.error('Error saving puppy:', error);
-                        toast({
-                          title: "Error",
-                          description: error instanceof Error ? error.message : 'Failed to save puppy',
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
-          </div>
-      </div>
-    </div>
+                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                    toast({
+                      title: "Success",
+                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
+                    });
+                    setShowPuppyForm(false);
+                  } catch (error) {
+                    console.error('Error saving puppy:', error);
+                    toast({
+                      title: "Error",
+                      description: error instanceof Error ? error.message : 'Failed to save puppy',
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+    </>
   );
 }
