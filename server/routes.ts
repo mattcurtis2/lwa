@@ -641,18 +641,29 @@ export function registerRoutes(app: Express): Server {
   // Add file upload endpoint with updated file types
   app.post("/api/upload", upload.single("file"), (req, res) => {
     if (!req.file) {
+      console.error("Upload error: No file in request");
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
-    const fileType = req.file.mimetype.split('/')[0]; // 'image', 'video', 'application', etc.
+    try {
+      const fileUrl = `/uploads/${req.file.filename}`;
+      const fileType = req.file.mimetype.split('/')[0]; // 'image', 'video', 'application', etc.
 
-    res.json({
-      url: fileUrl,
-      type: fileType,
-      originalName: req.file.originalname,
-      mimeType: req.file.mimetype
-    });
+      // Ensure uploads directory exists
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      res.json({
+        url: fileUrl,
+        type: fileType,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Failed to process uploaded file" });
+    }
   });
 
   // Serve uploaded files statically
@@ -833,7 +844,7 @@ export function registerRoutes(app: Express): Server {
         },
       });
 
-      // For each litter, fetch its puppies
+      //      // For each litter, fetch its puppies
       const littersWithPuppies = await Promise.all(
         allLitters.map(async (litter) => {
           const puppies = await db.query.dogs.findMany({
