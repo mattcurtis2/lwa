@@ -623,25 +623,23 @@ function AdminDashboard() {
   };
 
   const handleAddPuppy = (litter: Litter) => {
-    const initialPuppyData: Partial<Dog> = {
+    const mother = dogs.find(d => d.id === litter.motherId);
+    const father = dogs.find(d => d.id === litter.fatherId);
+
+    setSelectedDog({
       puppy: true,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
+      mother,
+      father,
       birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
       gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
-      outsideBreeder: false,
-      healthData: "",
-      description: "",
-      color: "",
-      height: null,
-      weight: null
-    };
-
-    setSelectedDog(initialPuppyData);
-    setTimeout(() => setShowDogForm(true), 0);
+      outsideBreeder: false
+    });
+    setShowDogForm(true);
   };
 
   const handleDogFormClose = () => {
@@ -666,10 +664,7 @@ function AdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent event bubbling
-                handleAddPuppy(litter);
-              }}
+              onClick={() => handleAddPuppy(litter)}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Puppy
@@ -736,37 +731,36 @@ function AdminDashboard() {
             <div className="space-y-4">
               <h4 className="font-medium">Puppies</h4>
               <div className="grid gap-4">
-                {litterPuppies.map((puppy, index) => (
-                  <div key={puppy.id || index} className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors" >
-                    {/* Puppy Card */}
-                    <div className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleEditDog(puppy)}
-                    >
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                        {puppy.profileImageUrl ? (
-                          <img
-                            src={puppy.profileImageUrl}
-                            alt={puppy.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className={`w-full h-full flex items-center justify-center ${
-                            puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                {litterPuppies.map((puppy) => (
+                  <div
+                    key={puppy.id}
+                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleEditDog(puppy)}
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                      {puppy.profileImageUrl ? (
+                        <img
+                          src={puppy.profileImageUrl}
+                          alt={puppy.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className={`w-full h-full flex items-center justify-center ${
+                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                        }`}>
+                          <span className={`text-xl ${
+                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
                           }`}>
-                            <span className={`text-xl ${
-                              puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                            }`}>
-                              {puppy.gender === 'female' ? '♀' : '♂'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium">{puppy.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {puppy.gender} • {puppy.color || 'No color set'}
-                        </p>
-                      </div>
+                            {puppy.gender === 'female' ? '♀' : '♂'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{puppy.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {puppy.gender} • {puppy.color || 'No color set'}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -781,8 +775,7 @@ function AdminDashboard() {
                 setShowLitterForm(true);
               }}
             >
-              Edit Litter
-            </Button>
+              Edit Litter            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1696,11 +1689,13 @@ function AdminDashboard() {
               </Tabs>
             </div>
           )}
+
           {activeTab === "carousel" && (
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Manage the carousel items that appear on the home page</CardTitle>
+                  <CardTitle>Carousel Management</CardTitle>
+                  <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -2265,14 +2260,6 @@ function AdminDashboard() {
           </SheetContent>
         </Sheet>
       )}
-      <DogForm
-        open={showDogForm}
-        onOpenChange={(open) => {
-          if (!open) handleDogFormClose();
-        }}
-        dog={selectedDog as Dog}
-        mode={selectedDog?.id ? 'edit' : 'create'}
-      />
     </div>
   );
 }
