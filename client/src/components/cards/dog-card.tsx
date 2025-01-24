@@ -38,13 +38,24 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
     <Card className="h-full">
       <Link href={`/dogs/${dog.id}`}>
         <div className="cursor-pointer">
-          {dog.media && dog.media.length > 0 ? (
-            <DogMediaCarousel media={dog.media} />
-          ) : (
-            <div className="aspect-square bg-gray-100 flex items-center justify-center">
-              <p className="text-gray-500">No media available</p>
-            </div>
-          )}
+          <div className="relative group">
+            {dog.media && dog.media.length > 0 ? (
+              <>
+                <DogMediaCarousel media={dog.media} />
+                {showPrice && dog.price && (
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-2xl font-bold text-white">
+                      ${parseInt(dog.price).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-500">No media available</p>
+              </div>
+            )}
+          </div>
         </div>
       </Link>
 
