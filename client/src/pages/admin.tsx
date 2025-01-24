@@ -626,19 +626,23 @@ function AdminDashboard() {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
 
-    setSelectedDog({
+    // Set default puppy values
+    const newPuppy: Partial<Dog> = {
       puppy: true,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
-      mother,
-      father,
       birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
       gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
-      outsideBreeder: false
-    });
+      outsideBreeder: false,
+      // Adding parent references for form context
+      mother: mother || undefined,
+      father: father || undefined
+    };
+
+    setSelectedDog(newPuppy);
     setShowDogForm(true);
     setShowLitterForm(false);  // Close the litter form when opening dog form
   };
@@ -731,39 +735,7 @@ function AdminDashboard() {
             <div className="space-y-4">
               <h4 className="font-medium">Puppies</h4>
               <div className="grid gap-4">
-                {litterPuppies.map((puppy) => (
-                  <div
-                    key={puppy.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleEditDog(puppy)}
-                  >
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                      {puppy.profileImageUrl ? (
-                        <img
-                          src={puppy.profileImageUrl}
-                          alt={puppy.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${
-                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                        }`}>
-                          <span className={`text-xl ${
-                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                          }`}>
-                            {puppy.gender === 'female' ? '♀' : '♂'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">{puppy.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {puppy.gender} • {puppy.color || 'No color set'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                {litterPuppies.map((puppy, index) => renderPuppyCard(puppy, index))}
               </div>
             </div>
           )}
@@ -775,7 +747,8 @@ function AdminDashboard() {
                 setShowLitterForm(true);
               }}
             >
-              Edit Litter            </Button>
+              Edit Litter
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -797,8 +770,7 @@ function AdminDashboard() {
         </div>
         <div className="flex-1 p-6">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 w-48 bg-muted rounded" />
-            <div className="h-[200px] bg-muted rounded" />
+            <div className="h-8 w-48 bg-muted rounded" /><div className="h-[200px] bg-muted rounded" />
           </div>
         </div>
       </div>
@@ -1207,6 +1179,424 @@ function AdminDashboard() {
                 </TabsContent>
 
                 <TabsContent value="dogs" className="space-y-6">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-semibold mb-2">Dogs Management</h2>
+                    <p className="text-muted-foreground mb-6">Manage your dogs</p>
+                    <div className="mb-4">
+                      <Button onClick={() => {
+                        setSelectedDog(null);
+                        setShowDogForm(true);
+                      }}>
+                        Add New Dog
+                      </Button>
+                    </div>
+
+                    {/* Females Section */}
+                    {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold mb-6">Females</h3>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          {dogs
+                            .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
+                            .map(renderDogCard)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Males Section */}
+                    {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
+                      <div className="mb-8">
+                        <h3 className="text-xl font-semibold mb-6">Males</h3>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          {dogs
+                            .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
+                            .map(renderDogCard)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Outside Breeders Section */}
+                    {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          {dogs
+                            .filter(dog => dog.outsideBreeder)
+                            .map(renderDogCard)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Dog Form Sheet */}
+                  {showDogForm && (
+                    <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+                      <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+                        <SheetHeader>
+                          <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+                        </SheetHeader>
+                        <div className="mt-6">
+                          <DogForm
+                            open={showDogForm}
+                            onOpenChange={handleDogFormClose}
+                            dog={selectedDog as Dog}
+                            mode={selectedDog?.id ? 'edit' : 'create'}
+                            fromLitter={true}
+                          />
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  )}
+
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-2">Litters Management</h2>
+                    <p className="text-muted-foreground mb-6">Manage upcoming and current litters</p>
+                    <div className="space-y-4">
+                      <Button onClick={() => {
+                        setLitterFormMode('create');
+                        setEditLitter(null);
+                        setShowLitterForm(true);
+                      }}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New Litter
+                      </Button>
+
+                      <div className="grid gap-6">
+                        {litters.map(litter => renderLitterCard(litter))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="animals" className="space-y-6">
+                  <div className="mb-6">
+                    <Button onClick={() => {
+                      setEditItem(null);
+                      setShowForm(true);
+                    }}>
+                      Add New Animal
+                    </Button>
+                  </div>
+
+                  {showForm && (
+                    <AnimalForm
+                      animal={editItem as Animal}
+                      onClose={() => setShowForm(false)}
+                    />
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {animals.map((animal) => (
+                      <AnimalCard
+                        key={animal.id}
+                        animal={animal}
+                        isAdmin
+                        onEdit={() => {
+                          setEditItem(animal);
+                          setShowForm(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="products" className="space-y-6">
+                  <div className="mb-6">
+                    <Button onClick={() => {
+                      setEditItem(null);
+                      setShowForm(true);
+                    }}>
+                      Add New Product
+                    </Button>
+                  </div>
+
+                  {showForm && (
+                    <ProductForm
+                      product={editItem as Product}
+                      onClose={() => setShowForm(false)}
+                    />
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {products.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        isAdmin
+                        onEdit={() => {
+                          setEditItem(product);
+                          setShowForm(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="contact" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Contact Information</CardTitle>
+                      <CardDescription>Manage contact details and social media links</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={pendingContactInfo.email ?? ''}
+                          onChange={(e) => handleContactChange('email', e.target.value)}
+                          placeholder="contact@littlewayacres.com"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={pendingContactInfo.phone ?? ''}
+                          onChange={(e) => handleContactChange('phone', e.target.value)}
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook">Facebook URL</Label>
+                        <Input
+                          id="facebook"
+                          type="url"
+                          value={pendingContactInfo.facebook ?? ''}
+                          onChange={(e) => handleContactChange('facebook', e.target.value)}
+                          placeholder="https://facebook.com/littlewayacres"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram">Instagram URL</Label>
+                        <Input
+                          id="instagram"
+                          type="url"
+                          value={pendingContactInfo.instagram ?? ''}
+                          onChange={(e) => handleContactChange('instagram', e.target.value)}
+                          placeholder="https://instagram.com/littlewayacres"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="principles" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Principles</CardTitle>
+                        <Button onClick={handleAddPrinciple}>Add Principle</Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <DragDropContext onDragEnd={handlePrincipleReorder}>
+                        <Droppable droppableId="principles">
+                          {(provided) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef}>
+                              {pendingPrinciples.map((principle, index) => (
+                                <Draggable
+                                  key={principle.id}
+                                  draggableId={principle.id.toString()}
+                                  index={index}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className="mb-4 last:mb-0"
+                                    >
+                                      <Card>
+                                        <CardContent className="pt-6">
+                                          <div className="flex items-start gap-4">
+                                            <div
+                                              {...provided.dragHandleProps}
+                                              className="mt-2.5 cursor-move"
+                                            >
+                                              <GripVertical className="h-5 w-5 text-stone-400" />
+                                            </div>
+                                            <div className="flex-1 space-y-4">
+                                              <div>
+                                                <Label htmlFor={`title-${principle.id}`}>
+                                                  Title
+                                                </Label>
+                                                <Input
+                                                  id={`title-${principle.id}`}
+                                                  value={principle.title}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "title",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`description-${principle.id}`}>
+                                                  Description
+                                                </Label>
+                                                <Textarea
+                                                  id={`description-${principle.id}`}
+                                                  value={principle.description}
+                                                  onChange={(e) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "description",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="mt-1.5"
+                                                />
+                                              </div>
+                                              <div>
+                                                <Label htmlFor={`image-${principle.id}`}>
+                                                  Image
+                                                </Label>
+                                                <FileUpload
+                                                  value={principle.imageUrl}
+                                                  onChange={(url) =>
+                                                    handlePrincipleChange(
+                                                      principle.id,
+                                                      "imageUrl",
+                                                      url
+                                                    )
+                                                  }
+                                                />
+                                                {principle.imageUrl && (
+                                                  <img
+                                                    src={principle.imageUrl}
+                                                    alt={principle.title}
+                                                    className="mt-2 max-w-md rounded-md"
+                                                  />
+                                                )}
+                                              </div>
+                                            </div>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleDeletePrinciple(principle.id)
+                                              }
+                                            >
+                                              <X className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab === "carousel" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Carousel Management</CardTitle>
+                  <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Button onClick={() => {
+                      setEditItem(null);
+                      setShowForm(true);
+                    }}>
+                      Add Carousel Item
+                    </Button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {carouselItems?.map((item) => (
+                        <Card key={item.id}>
+                          <div className="aspect-video relative">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                            />
+                          </div>
+                          <CardContent className="pt-4">
+                            <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                            <div className="flex gap-2 mt-4">
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setEditItem(item);
+                                  setShowForm(true);
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={async () => {
+                                  if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                                  const res = await fetch(`/api/carousel/${item.id}`, {
+                                    method: "DELETE",
+                                  });
+                                  if (res.ok) {
+                                    queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                                    toast({
+                                      title: "Success",
+                                      description: "Carousel item deleted successfully",
+                                    });
+                                  }
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Sheet open={showForm} onOpenChange={setShowForm}>
+                <SheetContent className="max-w-2xl">
+                  <SheetHeader>
+                    <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+                  </SheetHeader>
+                  <CarouselForm
+                    item={editItem as CarouselItem}
+                    onClose={() => {
+                      setShowForm(false);
+                      setEditItem(null);
+                    }}
+                  />
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
+
+          {activeTab === "dogs" && (
+            <div className="space-y-6">
+              {/* Dogs Management Section */}
+              <Tabs defaultValue="dogManagement">
+                <TabsList>
+                  <TabsTrigger value="dogManagement">Dog Management</TabsTrigger>
+                  <TabsTrigger value="litterManagement">Litter Management</TabsTrigger>
+                </TabsList>
+                <TabsContent value="dogManagement">
                   <div className="mb-8">
                     <h2 className="text-2xl font-semibold mb-2">Dogs Management</h2>
                     <p className="text-muted-foreground mb-6">Manage your dogs</p>
@@ -1850,8 +2240,7 @@ function AdminDashboard() {
                       </SheetContent>
                     </Sheet>
                   )}
-                </TabsContent>
-                <TabsContent value="litterManagement">
+
                   <div>
                     <h2 className="text-2xl font-semibold mb-2">Litters Management</h2>
                     <p className="text-muted-foreground mb-6">Manage upcoming and current litters</p>
@@ -2257,6 +2646,59 @@ function AdminDashboard() {
                 }}
               />
             </div>
+          </SheetContent>
+        </Sheet>
+      )}
+      {showDogForm && selectedDog && (
+        <Sheet
+          open={showDogForm}
+          onOpenChange={(open) => {
+            if (!open) handleDogFormClose();
+          }}
+        >
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>
+                {selectedDog.id ? 'Edit Dog' : 'Add New Dog'}
+              </SheetTitle>
+            </SheetHeader>
+            <DogForm
+              defaultValues={selectedDog}
+              onSubmit={async (values) => {
+                try {
+                  if (selectedDog.id) {
+                    await fetch(`/api/dogs/${selectedDog.id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(values),
+                    });
+                  } else {
+                    <continued_generation>
+                    await fetch('/api/dogs', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(values),
+                    });
+                  }
+
+                  queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                  handleDogFormClose();
+
+                  toast({
+                    title: 'Success',
+                    description: `Dog ${selectedDog.id ? 'updated' : 'added'} successfully`,
+                  });
+                } catch (error) {
+                  console.error('Error saving dog:', error);
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to save dog details',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+              isPuppy={true}
+            />
           </SheetContent>
         </Sheet>
       )}
