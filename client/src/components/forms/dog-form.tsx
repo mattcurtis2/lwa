@@ -45,6 +45,14 @@ import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 
 
+interface Document {
+  id?: number;
+  type: string;
+  url: string;
+  name: string;
+  mimeType: string;
+}
+
 const mediaSchema = z.object({
   url: z.string().min(1, "Media URL or file path is required"),
   type: z.enum(["image", "video"]),
@@ -113,8 +121,8 @@ export default function DogForm({
   const [mediaUrl, setMediaUrl] = useState("");
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
-  const [healthDocuments, setHealthDocuments] = useState<any[]>([]);
-  const [pedigreeDocuments, setPedigreeDocuments] = useState<any[]>([]);
+  const [healthDocuments, setHealthDocuments] = useState<Document[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<Document[]>([]);
   const [availableMothers, setAvailableMothers] = useState<Dog[]>([]);
   const [availableFathers, setAvailableFathers] = useState<Dog[]>([]);
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
@@ -434,7 +442,11 @@ export default function DogForm({
         motherId: values.motherId || null,
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
-        breed: "Colorado Mountain Dogs"
+        breed: "Colorado Mountain Dogs",
+        documents: [
+          ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
+          ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
+        ]
       };
 
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
