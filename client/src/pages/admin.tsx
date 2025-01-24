@@ -1323,7 +1323,8 @@ function AdminDashboard() {
                     </SheetContent>
                   </Sheet>
                 </TabsContent>
-              </div>
+              </Tabs>
+            </div>
           )}
 
           {activeTab === "dogs" && (
