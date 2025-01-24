@@ -55,6 +55,29 @@ export default function LitterManagement() {
     setShowDogForm(true);
   };
 
+  const onDogFormSubmit = async (values: any) => {
+    try {
+      const response = await fetch('/api/dogs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create puppy');
+      }
+
+      // Refresh the dogs data
+      await queryClient.invalidateQueries(['/api/dogs']);
+      setShowDogForm(false);
+      setSelectedDog(null);
+    } catch (error) {
+      console.error('Error creating puppy:', error);
+    }
+  };
+
   const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
@@ -299,6 +322,7 @@ export default function LitterManagement() {
             dog={selectedDog as Dog}
             mode={selectedDog?.id ? 'edit' : 'create'}
             fromLitter={true}
+            onSubmit={onDogFormSubmit}
           />
         )}
       </div>
