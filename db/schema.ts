@@ -82,7 +82,7 @@ export const dogs = pgTable("dogs", {
   litterId: integer("litter_id").references(() => litters.id),
   puppy: boolean("puppy").default(false).notNull(),
   available: boolean("available").default(false).notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }),
+  price: text("price"),
   profileImageUrl: text("profile_image_url"),
   healthData: text("health_data"),
   color: text("color"),
