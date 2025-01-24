@@ -22,6 +22,7 @@ const carouselItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().min(1, "Image is required"),
+  order: z.number().optional(),
 });
 
 interface CarouselFormProps {
@@ -33,12 +34,13 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof carouselItemSchema>>({
     resolver: zodResolver(carouselItemSchema),
     defaultValues: {
       title: item?.title ?? "",
       description: item?.description ?? "",
       imageUrl: item?.imageUrl ?? "",
+      order: item?.order ?? undefined,
     },
   });
 
@@ -160,22 +162,17 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                       onFileSelect={handleImageUpload}
                       onChange={field.onChange}
                     />
-                    <div className="text-center text-sm text-muted-foreground">or</div>
-                    <Input
-                      placeholder="Enter image URL..."
-                      {...field}
-                    />
+                    {field.value && (
+                      <div className="w-full aspect-video rounded-lg overflow-hidden border">
+                        <img
+                          src={field.value}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 </FormControl>
-                {field.value && (
-                  <div className="w-full aspect-video rounded-lg overflow-hidden border">
-                    <img
-                      src={field.value}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
                 <FormMessage />
               </div>
             </FormItem>
