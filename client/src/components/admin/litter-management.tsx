@@ -88,6 +88,12 @@ export default function LitterManagement() {
         return;
       }
 
+      // Ensure both queries are invalidated and force a refetch
+      await queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+      await queryClient.refetchQueries({ queryKey: ['/api/dogs'], stale: true });
+      await queryClient.refetchQueries({ queryKey: ['/api/litters'], stale: true });
+
       console.log('Invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['/api/dogs'], exact: false });
       queryClient.invalidateQueries({ queryKey: ['/api/litters'], exact: false });
