@@ -906,7 +906,16 @@ function AdminDashboard() {
                   <TabsTrigger value="seo">SEO</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="site" className="space-y-6">
+                <TabsContent value="site" className="space-y-6 pb-20">
+                  {hasUnsavedChanges && (
+                    <Button
+                      onClick={handleSaveChanges}
+                      className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
+                      size="icon"
+                    >
+                      <Save className="h-6 w-6" />
+                    </Button>
+                  )}
                   <Card>
                     <CardHeader>
                       <CardTitle>Branding</CardTitle>
@@ -967,7 +976,16 @@ function AdminDashboard() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="seo" className="space-y-6">
+                <TabsContent value="seo" className="space-y-6 pb-20">
+                  {hasUnsavedChanges && (
+                    <Button
+                      onClick={handleSaveChanges}
+                      className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
+                      size="icon"
+                    >
+                      <Save className="h-6 w-6" />
+                    </Button>
+                  )}
                   <Card>
                     <CardHeader>
                       <CardTitle>SEO Settings</CardTitle>
