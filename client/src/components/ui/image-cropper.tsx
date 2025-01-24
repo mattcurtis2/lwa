@@ -92,10 +92,11 @@ export default function ImageCropper({
       ctx.fill();
     }
 
-    return new Promise<string>((resolve) => {
+    return new Promise<string>((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (!blob) {
           console.error('Canvas is empty');
+          reject(new Error('Failed to create blob'));
           return;
         }
         const croppedImageUrl = URL.createObjectURL(blob);

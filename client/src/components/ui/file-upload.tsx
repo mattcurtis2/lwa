@@ -38,6 +38,10 @@ export function FileUpload({
     }
   }, [value]);
 
+  const [showCropper, setShowCropper] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     if (rejectedFiles.length > 0) {
       toast({
@@ -58,7 +62,15 @@ export function FileUpload({
         });
         return;
       }
-      onFileSelect(file);
+      
+      if (file.type.startsWith('image/')) {
+        setSelectedFile(file);
+        const tempUrl = URL.createObjectURL(file);
+        setTempImageUrl(tempUrl);
+        setShowCropper(true);
+      } else {
+        onFileSelect(file);
+      }
     }
   }, [onFileSelect, toast]);
 
@@ -80,8 +92,28 @@ export function FileUpload({
     }
   });
 
+  const handleCroppedImage = async (croppedImageUrl: string) => {
+    if (!selectedFile) return;
+    
+    const response = await fetch(croppedImageUrl);
+    const blob = await response.blob();
+    const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+    onFileSelect(croppedFile);
+    setShowCropper(false);
+    setTempImageUrl(null);
+    setSelectedFile(null);
+  };
+
   return (
     <div className="space-y-2">
+      {showCropper && tempImageUrl && (
+        <ImageCropper
+          imageUrl={tempImageUrl}
+          onCropComplete={handleCroppedImage}
+          open={showCropper}
+          onOpenChange={setShowCropper}
+        />
+      )}
       <div
         {...getRootProps()}
         className={cn(
