@@ -45,12 +45,13 @@ interface PuppyFormData {
   color: string | undefined;
   description: string | undefined;
   narrativeDescription: string | undefined;
+  healthData: string | undefined;
+}
 
+function AdminDashboard() {
   const { data: siteSettings } = useQuery({
     queryKey: ['/api/site-settings'],
   });
-
-  healthData: string | undefined;
   height: string | null;
   weight: string | null;
   furLength: string | undefined;
