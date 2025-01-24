@@ -49,7 +49,34 @@ export default function Admin() {
 
   // ... keep all the existing state and handlers ...
 
-  const renderSection = () => {
+  const renderHomeContent = () => {
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Home Page Content</CardTitle>
+          <CardDescription>Manage the content displayed on the home page</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {siteContent?.map((content) => (
+            <div key={content.id} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>{content.key}</Label>
+              </div>
+              {content.type === 'text' ? (
+                <Textarea defaultValue={content.value} />
+              ) : (
+                <Input defaultValue={content.value} />
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const renderSection = () => {
     switch (section) {
       case 'home':
         return renderHomeContent();
