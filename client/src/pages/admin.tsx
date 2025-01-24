@@ -26,6 +26,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CMDContentForm } from "@/components/forms/cmd-content-form";
 
 interface ContentField {
   key: string;
@@ -1209,7 +1210,7 @@ function AdminDashboard() {
                     <CardHeader>
                       <CardTitle>Dogs Hero Section</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent>
                       {contentFields
                         .filter(field =>
                           ['animals_title', 'animals_text', 'animals_image'].includes(field.key)

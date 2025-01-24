@@ -263,6 +263,62 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // CMD Description content routes
+  app.get("/api/site-content/cmd-description", async (_req, res) => {
+    try {
+      const content = await db.query.siteContent.findFirst({
+        where: eq(siteContent.key, "cmd_description"),
+      });
+
+      if (!content) {
+        // If content doesn't exist, create it with default value
+        const newContent = await db.insert(siteContent)
+          .values({
+            key: "cmd_description",
+            value: "Colorado Mountain Dogs are exceptional working dogs bred for livestock protection.",
+            type: "text",
+          })
+          .returning();
+        res.json(newContent[0]);
+      } else {
+        res.json(content);
+      }
+    } catch (error) {
+      console.error("Error fetching CMD description:", error);
+      res.status(500).json({ message: "Failed to fetch CMD description" });
+    }
+  });
+
+  app.post("/api/site-content/cmd-description", async (req, res) => {
+    try {
+      const { value } = req.body;
+
+      const existingContent = await db.query.siteContent.findFirst({
+        where: eq(siteContent.key, "cmd_description"),
+      });
+
+      if (existingContent) {
+        const content = await db.update(siteContent)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(siteContent.key, "cmd_description"))
+          .returning();
+        res.json(content[0]);
+      } else {
+        const content = await db.insert(siteContent)
+          .values({
+            key: "cmd_description",
+            value,
+            type: "text",
+          })
+          .returning();
+        res.json(content[0]);
+      }
+    } catch (error) {
+      console.error("Error updating CMD description:", error);
+      res.status(500).json({ message: "Failed to update CMD description" });
+    }
+  });
+
   // Animals routes
   app.get("/api/animals", async (req, res) => {
     const type = req.query.type as string;
@@ -784,7 +840,7 @@ export function registerRoutes(app: Express): Server {
             },
           });
 
-          // Only include if there are puppies and at least one puppy has a birth date
+          // Only include if thereare puppies and at least one puppy has a birth date
           if (puppies.length > 0 && puppies.some(puppy => puppy.birthDate)) {
             return {
               ...litter,
