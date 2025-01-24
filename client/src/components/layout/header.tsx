@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
-import { MobileNav } from "./mobile-nav";
+import MobileNav from "./mobile-nav";
 
 export default function Header() {
   const { data: siteContent } = useQuery<SiteContent[]>({
