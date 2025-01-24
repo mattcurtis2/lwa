@@ -823,11 +823,21 @@ function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 border-r bg-card">
-        <div className="p-6">
-          <Link href="/" className="text-lg font-semibold mb-6 hover:text-primary transition-colors">
-            {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
-          </Link>
+      <div className={`w-48 border-r bg-card transition-all duration-300 ${activeTab === "collapsed" ? "w-16" : ""}`}>
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/" className={`text-lg font-semibold hover:text-primary transition-colors ${activeTab === "collapsed" ? "hidden" : ""}`}>
+              {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setActiveTab(prev => prev === "collapsed" ? "content" : "collapsed")}
+              className="ml-auto"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+          </div>
           <nav className="space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
@@ -842,8 +852,8 @@ function AdminDashboard() {
                       : "hover:bg-muted"
                   )}
                 >
-                  <Icon className="w-4 h-4 mr-3" />
-                  {item.label}
+                  <Icon className="w-4 h-4" />
+                  {activeTab !== "collapsed" && <span className="ml-3">{item.label}</span>}
                 </button>
               );
             })}
