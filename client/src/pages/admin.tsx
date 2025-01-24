@@ -631,14 +631,13 @@ function AdminDashboard() {
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
-      mother,
-      father,
       birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
       gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
       outsideBreeder: false
     });
+    // Set showDogForm to true immediately after setting the dog data
     setShowDogForm(true);
   };
 
@@ -664,7 +663,10 @@ function AdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleAddPuppy(litter)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                handleAddPuppy(litter);
+              }}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Puppy
@@ -1694,8 +1696,7 @@ function AdminDashboard() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Carousel Management</CardTitle>
-                  <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+                  <CardTitle>Manage the carousel items that appear on the home page</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
