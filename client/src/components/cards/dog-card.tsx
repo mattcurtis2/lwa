@@ -122,7 +122,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
               {showPrice && dog.price && (
                 <div className="mb-4">
                   <p className="text-lg font-semibold text-green-600">
-                    ${dog.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    ${parseInt(dog.price).toLocaleString()}
                   </p>
                 </div>
               )}
