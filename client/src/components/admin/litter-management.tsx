@@ -28,10 +28,22 @@ export default function LitterManagement() {
 
   const { data: dogs = [] } = useQuery<Dog[]>({
     queryKey: ["/api/dogs"],
+    onSuccess: (data) => {
+      console.log('Dogs loaded:', data);
+    },
+    onError: (error) => {
+      console.error('Error loading dogs:', error);
+    }
   });
 
   const { data: litters = [] } = useQuery<Litter[]>({
     queryKey: ["/api/litters"],
+    onSuccess: (data) => {
+      console.log('Litters loaded:', data);
+    },
+    onError: (error) => {
+      console.error('Error loading litters:', error);
+    }
   });
 
   const handleAddPuppy = (litter: Litter) => {
