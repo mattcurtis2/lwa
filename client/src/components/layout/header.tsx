@@ -66,7 +66,7 @@ export default function Header() {
                 </Link>
                 <Link href="/dogs/litters/past" onClick={() => setIsDropdownOpen(false)}>
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Past Litters
+                    Current Litters
                   </a>
                 </Link>
                 <Link href="/dogs/available" onClick={() => setIsDropdownOpen(false)}>
