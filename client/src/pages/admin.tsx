@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical, X, Plus, Edit } from "lucide-react";
+import { Save, GripVertical, X, Plus, Edit, LayoutDashboard, Image, Dog as DogIcon, Cat, ShoppingBag, Contact } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -25,6 +24,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 
 interface ContentField {
   key: string;
@@ -98,7 +98,7 @@ export default function Admin() {
   const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
-
+  const [activeTab, setActiveTab] = useState("home");
 
   // Data queries
   const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
@@ -791,597 +791,1043 @@ export default function Admin() {
     );
   }
 
+  const sidebarItems = [
+    { id: "home", label: "Home Page", icon: LayoutDashboard },
+    { id: "carousel", label: "Carousel", icon: Image },
+    { id: "dogs", label: "Dogs", icon: DogIcon },
+    { id: "animals", label: "Animals", icon: Cat },
+    { id: "products", label: "Products", icon: ShoppingBag },
+    { id: "contact", label: "Contact", icon: Contact },
+  ];
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Content Management</h1>
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-64 border-r bg-card">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-6">Dashboard</h2>
+          <nav className="space-y-2">
+            {sidebarItems.map((item)=> {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={cn(
+                    "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
+                    activeTab === item.id 
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <Icon className="w-4 h-4 mr-3" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      <Tabs defaultValue="home">
-        <TabsList>
-          <TabsTrigger value="home">Home Page</TabsTrigger>
-          <TabsTrigger value="carousel">Carousel</TabsTrigger>
-          <TabsTrigger value="dogs">Dogs</TabsTrigger>
-          <TabsTrigger value="animals">Animals</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="contact">Contact</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="home">
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Hero Section</CardTitle>
-              <CardDescription>Manage the main hero section content</CardDescription>
-            </CardHeader>            <CardContent className="space-y-6">
-              {/* Content fields rendering section */}
-              {contentFields.slice(0, 3).map((field)=>(
-                <div key={field.key} className="space-y-2">
-                  <Label htmlFor={field.key}>{field.label}</Label>
-                  <div className="flex gap-4">
-                    {field.type === "textarea" ? (
-                      <Textarea
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    ) : field.type === "image" ? (
-                      <div className="flex-1 space-y-2">
-                        <FileUpload
-                          value={pendingContent[field.key] ?? field.value}
-                          onFileSelect={async (file) => {
-                            const formData = new FormData();
-                            formData.append("file", file);
-                            try {
-                              const uploadRes = await fetch("/api/upload", {
-                                method: "POST",
-                                body: formData,
-                              });
-                              if (!uploadRes.ok) throw new Error("Failed to upload image");
-                              const { url } = await uploadRes.json();
-                              handleContentChange(field.key, url);
-                            } catch (error) {
-                              console.error('Error uploading image:', error);
-                              toast({
-                                title: "Error",
-                                description: "Failed to upload image",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                          onChange={(value) => handleContentChange(field.key, value)}
-                        />
-                        {(pendingContent[field.key] || field.value) && (
-                          <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                            <img
-                              src={pendingContent[field.key] || field.value}
-                              alt={field.label}
-                              className="w-full h-full object-cover"
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="container py-6">
+          {/* Content sections - reuse existing tab content but remove TabsContent wrapper */}
+          {activeTab === "home" && (
+            <div className="space-y-6">
+              {/* Home page content */}
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Hero Section</CardTitle>
+                  <CardDescription>Manage the main hero section content</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {contentFields.slice(0, 3).map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <Label htmlFor={field.key}>{field.label}</Label>
+                      <div className="flex gap-4">
+                        {field.type === "textarea" ? (
+                          <Textarea
+                            id={field.key}
+                            value={pendingContent[field.key] ?? field.value}
+                            onChange={(e) => handleContentChange(field.key, e.target.value)}
+                          />
+                        ) : field.type === "image" ? (
+                          <div className="flex-1 space-y-2">
+                            <FileUpload
+                              value={pendingContent[field.key] ?? field.value}
+                              onFileSelect={async (file) => {
+                                const formData = new FormData();
+                                formData.append("file", file);
+                                try {
+                                  const uploadRes = await fetch("/api/upload", {
+                                    method: "POST",
+                                    body: formData,
+                                  });
+                                  if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                  const { url } = await uploadRes.json();
+                                  handleContentChange(field.key, url);
+                                } catch (error) {
+                                  console.error('Error uploading image:', error);
+                                  toast({
+                                    title: "Error",
+                                    description: "Failed to upload image",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              onChange={(value) => handleContentChange(field.key, value)}
                             />
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Input
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Principles</CardTitle>
-              <CardDescription>Manage the principles section content and ordering</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DragDropContext onDragEnd={handlePrincipleReorder}>
-                <Droppable droppableId="principles">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {pendingPrinciples.map((principle, index) => (
-                        <Draggable
-                          key={principle.id}
-                          draggableId={principle.id.toString()}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="p-4 border rounded-lg space-y-4 mb-4"
-                            >
-                              <div className="flex items-center gap-2">
-                                <GripVertical className="h-5 w-5 text-stone-400" />
-                                <Input
-                                  value={principle.title}
-                                  onChange={(e) =>handlePrincipleChange(principle.id, 'title', e.target.value)}
-                                  className="font-semibold"
-                                  placeholder="Principle Title"
+                            {(pendingContent[field.key] || field.value) && (
+                              <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                <img
+                                  src={pendingContent[field.key] || field.value}
+                                  alt={field.label}
+                                  className="w-full h-full object-cover"
                                 />
                               </div>
-                              <Textarea
-                                value={principle.description}
-                                onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
-                                placeholder="Principle Description"
-                                className="min-h-[100px]"
-                              />
-                              <div className="space-y-2">
-                                <Label>Image</Label>
-                                <div className="flex gap-4 items-start">
-                                  <div className="flex-1">
-                                    <FileUpload
-                                      value={principle.imageUrl}
-                                      onFileSelect={async (file) => {
-                                        const formData = new FormData();
-                                        formData.append("file", file);
+                            )}
+                          </div>
+                        ) : (
+                          <Input
+                            id={field.key}
+                            value={pendingContent[field.key] ?? field.value}
+                            onChange={(e) => handleContentChange(field.key, e.target.value)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
 
-                                        try {
-                                          const uploadRes = await fetch("/api/upload", {
-                                            method: "POST",
-                                            body: formData,
-                                          });
-
-                                          if (!uploadRes.ok) throw new Error("Failed to upload image");
-
-                                          const { url } = await uploadRes.json();
-                                          handlePrincipleChange(principle.id, 'imageUrl', url);
-                                        } catch (error) {
-                                          console.error('Error uploading image:', error);
-                                          toast({
-                                            title: "Error",
-                                            description: "Failed to upload image",
-                                            variant: "destructive",
-                                          });
-                                        }
-                                      }}
-                                      onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Principles</CardTitle>
+                  <CardDescription>Manage the principles section content and ordering</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DragDropContext onDragEnd={handlePrincipleReorder}>
+                    <Droppable droppableId="principles">
+                      {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                          {pendingPrinciples.map((principle, index) => (
+                            <Draggable
+                              key={principle.id}
+                              draggableId={principle.id.toString()}
+                              index={index}
+                            >
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className="p-4 border rounded-lg space-y-4 mb-4"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <GripVertical className="h-5 w-5 text-stone-400" />
+                                    <Input
+                                      value={principle.title}
+                                      onChange={(e) =>handlePrincipleChange(principle.id, 'title', e.target.value)}
+                                      className="font-semibold"
+                                      placeholder="Principle Title"
                                     />
                                   </div>
-                                  {principle.imageUrl && (
-                                    <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                                      <img
-                                        src={principle.imageUrl}
-                                        alt={principle.title}
-                                        className="w-full h-full object-cover"
-                                      />
+                                  <Textarea
+                                    value={principle.description}
+                                    onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                                    placeholder="Principle Description"
+                                    className="min-h-[100px]"
+                                  />
+                                  <div className="space-y-2">
+                                    <Label>Image</Label>
+                                    <div className="flex gap-4 items-start">
+                                      <div className="flex-1">
+                                        <FileUpload
+                                          value={principle.imageUrl}
+                                          onFileSelect={async (file) => {
+                                            const formData = new FormData();
+                                            formData.append("file", file);
+
+                                            try {
+                                              const uploadRes = await fetch("/api/upload", {
+                                                method: "POST",
+                                                body: formData,
+                                              });
+
+                                              if (!uploadRes.ok) throw new Error("Failed to upload image");
+
+                                              const { url } = await uploadRes.json();
+                                              handlePrincipleChange(principle.id, 'imageUrl', url);
+                                            } catch (error) {
+                                              console.error('Error uploading image:', error);
+                                              toast({
+                                                title: "Error",
+                                                description: "Failed to upload image",
+                                                variant: "destructive",
+                                              });
+                                            }
+                                          }}
+                                          onChange={(value) => handlePrincipleChange(principle.id, 'imageUrl', value)}
+                                        />
+                                      </div>
+                                      {principle.imageUrl && (
+                                        <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                          <img
+                                            src={principle.imageUrl}
+                                            alt={principle.title}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
+                                  </div>
+                                  <div className="flex justify-end">
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => handleDeletePrinciple(principle.id)}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="flex justify-end">
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDeletePrinciple(principle.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+
+                  <Button
+                    onClick={handleAddPrinciple}
+                    className="w-full mt-4"
+                  >
+                    Add New Principle
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>About Section</CardTitle>
+                  <CardDescription>Manage the about section content</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {contentFields.slice(3, 5).map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <Label htmlFor={field.key}>{field.label}</Label>
+                      <div className="flex gap-4">
+                        {field.type === "textarea" ? (
+                          <Textarea
+                            id={field.key}
+                            value={pendingContent[field.key] ?? field.value}
+                            onChange={(e) => handleContentChange(field.key, e.target.value)}
+                          />
+                        ) : (
+                          <Input
+                            id={field.key}
+                            value={pendingContent[field.key] ?? field.value}
+                            onChange={(e) => handleContentChange(field.key, e.target.value)}
+                          />
+                        )}
+                      </div>
                     </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                  ))}
+                </CardContent>
+              </Card>
 
-              <Button
-                onClick={handleAddPrinciple}
-                className="w-full mt-4"
-              >
-                Add New Principle
-              </Button>
-            </CardContent>
-          </Card>
+              <Card className="mt-8">
+                <CardHeader>
+                  <CardTitle>Feature Cards</CardTitle>
+                  <CardDescription>Manage the three main feature cards</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6 pb-6 border-b">
+                    <h3 className="text-lg font-semibold">Dogs Card</h3>
+                    {contentFields.slice(5, 8).map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <div className="flex gap-4">
+                          {field.type === "textarea" ? (
+                            <Textarea
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          ) : field.type === "image" ? (
+                            <div className="flex-1 space-y-2">
+                              <FileUpload
+                                value={pendingContent[field.key] ?? field.value}
+                                onFileSelect={async (file) => {
+                                  const formData = new FormData();
+                                  formData.append("file", file);
+                                  try {
+                                    const uploadRes = await fetch("/api/upload", {
+                                      method: "POST",
+                                      body: formData,
+                                    });
+                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                    const { url } = await uploadRes.json();
+                                    handleContentChange(field.key, url);
+                                  } catch (error) {
+                                    console.error('Error uploading image:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to upload image",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                                onChange={(value) => handleContentChange(field.key, value)}
+                              />
+                              {(pendingContent[field.key] || field.value) && (
+                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                  <img
+                                    src={pendingContent[field.key] || field.value}
+                                    alt={field.label}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <Input
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>About Section</CardTitle>
-              <CardDescription>Manage the about section content</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {contentFields.slice(3, 5).map((field) => (
-                <div key={field.key} className="space-y-2">
-                  <Label htmlFor={field.key}>{field.label}</Label>
-                  <div className="flex gap-4">
-                    {field.type === "textarea" ? (
-                      <Textarea
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    ) : (
-                      <Input
-                        id={field.key}
-                        value={pendingContent[field.key] ?? field.value}
-                        onChange={(e) => handleContentChange(field.key, e.target.value)}
-                      />
-                    )}
+                  <div className="space-y-6 pb-6 border-b">
+                    <h3 className="text-lg font-semibold">Goats Card</h3>
+                    {contentFields.slice(8, 11).map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <div className="flex gap-4">
+                          {field.type === "textarea" ? (
+                            <Textarea
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          ) : field.type === "image" ? (
+                            <div className="flex-1 space-y-2">
+                              <FileUpload
+                                value={pendingContent[field.key] ?? field.value}
+                                onFileSelect={async (file) => {
+                                  const formData = new FormData();
+                                  formData.append("file", file);
+                                  try {
+                                    const uploadRes = await fetch("/api/upload", {
+                                      method: "POST",
+                                      body: formData,
+                                    });
+                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                    const { url } = await uploadRes.json();
+                                    handleContentChange(field.key, url);
+                                  } catch (error) {
+                                    console.error('Error uploading image:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to upload image",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                                onChange={(value) => handleContentChange(field.key, value)}
+                              />
+                              {(pendingContent[field.key] || field.value) && (
+                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                  <img
+                                    src={pendingContent[field.key] || field.value}
+                                    alt={field.label}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <Input
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold">Products Card</h3>
+                    {contentFields.slice(11).map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <div className="flex gap-4">
+                          {field.type === "textarea" ? (
+                            <Textarea
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          ) : field.type === "image" ? (
+                            <div className="flex-1 space-y-2">
+                              <FileUpload
+                                value={pendingContent[field.key] ?? field.value}
+                                onFileSelect={async (file) => {
+                                  const formData = new FormData();
+                                  formData.append("file", file);
+                                  try {
+                                    const uploadRes = await fetch("/api/upload", {
+                                      method: "POST",
+                                      body: formData,
+                                    });
+                                    if (!uploadRes.ok) throw new Error("Failed to upload image");
+                                    const { url } = await uploadRes.json();
+                                    handleContentChange(field.key, url);
+                                  } catch (error) {
+                                    console.error('Error uploading image:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed toupload image",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                                onChange={(value) => handleContentChange(field.key, value)}
+                              />
+                              {(pendingContent[field.key] || field.value) && (
+                                <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                                  <img
+                                    src={pendingContent[field.key] || field.value}
+                                    alt={field.label}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <Input
+                              id={field.key}
+                              value={pendingContent[field.key] ?? field.value}
+                              onChange={(e) => handleContentChange(field.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "carousel" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Carousel Management</CardTitle>
+                <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button onClick={() => {
+                    setEditItem(null);
+                    setShowForm(true);
+                  }}>
+                    Add Carousel Item
+                  </Button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {carouselItems?.map((item) => (
+                      <Card key={item.id}>
+                        <div className="aspect-video relative">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                          />
+                        </div>
+                        <CardContent className="pt-4">
+                          <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">{item.description}</p>
+                          <div className="flex gap-2 mt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setEditItem(item);
+                                setShowForm(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={async () => {
+                                if (!confirm("Are you sure you want to delete this carousel item?")) return;
+                                const res = await fetch(`/api/carousel/${item.id}`, {
+                                  method: "DELETE",
+                                });
+                                if (res.ok) {
+                                  queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+                                  toast({
+                                    title: "Success",
+                                    description: "Carousel item deleted successfully",
+                                  });
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Feature Cards</CardTitle>
-              <CardDescription>Manage the three main feature cards</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Dogs Card</h3>
-                {contentFields.slice(5, 8).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+            <Sheet open={showForm} onOpenChange={setShowForm}>
+              <SheetContent className="max-w-2xl">
+                <SheetHeader>
+                  <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+                </SheetHeader>
+                <CarouselForm
+                  item={editItem as CarouselItem}
+                  onClose={() => {
+                    setShowForm(false);
+                    setEditItem(null);
+                  }}
+                />
+              </SheetContent>
+            </Sheet>
+          )}
+
+          {activeTab === "dogs" && (
+            <>
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Dogs Hero Section</CardTitle>
+                  <CardDescription>Manage the hero content for the dogs page</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {dogsHero[0] && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Title</Label>
+                        <Input
+                          value={dogsHero[0].title ?? ""}
+                          onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
                         />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1 space-y-2">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-                                handleContentChange(field.key, url);
-                              } catch (error) {
-                                console.error('Error uploading image:', error);
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                          />
-                          {(pendingContent[field.key] || field.value) && (
-                            <div className="w-40 h-40 rounded-lg overflow-hidden border">
+                      </div>
+                      <div>
+                        <Label>Subtitle</Label>
+                        <Input
+                          value={dogsHero[0].subtitle ?? ""}
+                          onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Background Image</Label>
+                        <div className="flex gap-4">
+                          <div className="flex-1">
+                            <FileUpload
+                              value={dogsHero[0].imageUrl ?? ""}
+                              onChange={(url) => updateDogsHero.mutate({ imageUrl: url })}
+                            />
+                          </div>
+                          {dogsHero[0].imageUrl && (
+                            <div className="w-40 h-40 rounded overflow-hidden">
                               <img
-                                src={pendingContent[field.key] || field.value}
-                                alt={field.label}
+                                src={dogsHero[0].imageUrl}
+                                alt="Hero background"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                           )}
                         </div>
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  )}
+                </CardContent>
+              </Card>
 
-              <div className="space-y-6 pb-6 border-b">
-                <h3 className="text-lg font-semibold">Goats Card</h3>
-                {contentFields.slice(8, 11).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1 space-y-2">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-                                handleContentChange(field.key, url);
-                              } catch (error) {
-                                console.error('Error uploading image:', error);
-                                toast({
-                                  title: "Error",
-                                  description: "Failed to upload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                          />
-                          {(pendingContent[field.key] || field.value) && (
-                            <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                              <img
-                                src={pendingContent[field.key] || field.value}
-                                alt={field.label}
-                                className="w-full h-full object-cover"
-                              />
+              {/* Dogs Management Section */}
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Dogs Management</CardTitle>
+                  <CardDescription>Manage your dogs</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4">
+                    <Button onClick={() => {
+                      setSelectedDog(null);
+                      setShowDogForm(true);
+                    }}>
+                      Add New Dog
+                    </Button>
+                  </div>
+
+                  {/* Females Section */}
+                  {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-6">Females</h3>
+                      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {dogs
+                          .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
+                          .map(renderDogCard)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Males Section */}
+                  {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-6">Males</h3>
+                      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {dogs
+                          .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
+                          .map(renderDogCard)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Outside Breeders Section */}
+                  {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
+                      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {dogs
+                          .filter(dog => dog.outsideBreeder)
+                          .map(renderDogCard)}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Dog Form Sheet */}
+              {showDogForm && (
+                <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
+                  <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <DogForm
+                        open={showDogForm}
+                        onOpenChange={handleDogFormClose}
+                        dog={selectedDog as Dog}
+                        mode={selectedDog?.id ? 'edit' : 'create'}
+                        fromLitter={true}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Litters Management</CardTitle>
+                  <CardDescription>Manage upcoming and current litters</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <Button onClick={() => {
+                        setEditLitter(null);
+                        setShowLitterForm(true);
+                      }}>
+                        Add New Litter
+                      </Button>
+                    </div>
+
+                    {/* Litter Form Sheet */}
+                    <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
+                      <SheetContent side="right" className="w-1/3">
+                        <SheetHeader>
+                          <SheetTitle>
+                            {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="space-y-6 mt-6">
+                          {/* Litter Form Section */}
+                          <div className="space-y-4">
+                            <div className="grid gap-4">
+                              <div className="space-y-2">
+                                <Label>Mother</Label>
+                                <Select
+                                  value={editLitter?.motherId?.toString() || ""}
+                                  onValueChange={(value) => {
+                                    const mother = dogs.find(d => d.id === parseInt(value));
+                                    setEditLitter(prev => ({
+                                      ...prev!,
+                                      motherId: parseInt(value),
+                                      mother,
+                                    }));
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select mother" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {dogs
+                                      .filter(d => d.gender === 'female')
+                                      .map(dog => (
+                                        <SelectItem key={dog.id} value={dog.id.toString()}>
+                                          {dog.name}
+                                        </SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Father</Label>
+                                <Select
+                                  value={editLitter?.fatherId?.toString() || ""}
+                                  onValueChange={(value) => {
+                                    const father = dogs.find(d => d.id === parseInt(value));
+                                    setEditLitter(prev => ({
+                                      ...prev!,
+                                      fatherId: parseInt(value),
+                                      father,
+                                    }));
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select father" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {dogs
+                                      .filter(d => d.gender === 'male')
+                                      .map(dog => (
+                                        <SelectItem key={dog.id} value={dog.id.toString()}>
+                                          {dog.name}
+                                        </SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Due Date</Label>
+                                <Input
+                                  type="date"
+                                  value={editLitter?.dueDate ? editLitter.dueDate.split('T')[0] : ""}
+                                  onChange={(e) => setEditLitter(prev => ({
+                                    ...prev!,
+                                    dueDate: e.target.value,
+                                  }))}
+                                />
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
 
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Products Card</h3>
-                {contentFields.slice(11).map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <div className="flex gap-4">
-                      {field.type === "textarea" ? (
-                        <Textarea
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      ) : field.type === "image" ? (
-                        <div className="flex-1 space-y-2">
-                          <FileUpload
-                            value={pendingContent[field.key] ?? field.value}
-                            onFileSelect={async (file) => {
-                              const formData = new FormData();
-                              formData.append("file", file);
-                              try {
-                                const uploadRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formData,
-                                });
-                                if (!uploadRes.ok) throw new Error("Failed to upload image");
-                                const { url } = await uploadRes.json();
-                                handleContentChange(field.key, url);
-                              } catch (error) {
-                                console.error('Error uploading image:', error);
-                                toast({
-                                  title: "Error",
-                                  description: "Failed toupload image",
-                                  variant: "destructive",
-                                });
-                              }
-                            }}
-                            onChange={(value) => handleContentChange(field.key, value)}
-                          />
-                          {(pendingContent[field.key] || field.value) && (
-                            <div className="w-40 h-40 rounded-lg overflow-hidden border">
-                              <img
-                                src={pendingContent[field.key] || field.value}
-                                alt={field.label}
-                                className="w-full h-full object-cover"
-                              />
+                            {editLitter?.puppies && editLitter.puppies.length > 0 && (
+                              <div className="space-y-4 mt-8">
+                                <h3 className="text-lg font-medium">Current Puppies</h3>
+                                <div className="grid gap-4">
+                                  {editLitter.puppies.map((puppy, index) => (
+                                    <div
+                                      key={puppy.id || index}
+                                      className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
+                                      onClick={() => {
+                                        setEditItem(puppy);
+                                        setShowPuppyForm(true);
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                                          {puppy.profileImageUrl ? (
+                                            <img
+                                              src={puppy.profileImageUrl}
+                                              alt={puppy.name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <div className={`w-full h-full flex items-center justify-center ${
+                                              puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                                            }`}>
+                                              <span className={`text-xl ${
+                                                puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                                              }`}>
+                                                {puppy.gender === 'female' ? '♀' : '♂'}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <p className="font-medium">{puppy.name}</p>
+                                          <p className="text-sm text-muted-foreground">
+                                            {puppy.gender} • {puppy.color || 'No color set'}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevent opening the edit form
+                                          if (!confirm('Are you sure you want to remove this puppy?')) return;
+                                          setEditLitter(prev => ({
+                                            ...prev!,
+                                            puppies: prev!.puppies!.filter((_, i) => i !== index),
+                                          }));
+                                        }}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between pt-4">
+                              <Button variant="outline" onClick={() => {
+                                setShowLitterForm(false);
+                                setEditItem(null);
+                              }}>
+                                Cancel
+                              </Button>
+                              <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
+                                Save Litter
+                              </Button>
                             </div>
-                          )}
+                          </div>
                         </div>
-                      ) : (
-                        <Input
-                          id={field.key}
-                          value={pendingContent[field.key] ?? field.value}
-                          onChange={(e) => handleContentChange(field.key, e.target.value)}
-                        />
-                      )}
+                      </SheetContent>
+                    </Sheet>
+
+                    <div className="grid gap-4">
+                      {litters?.map(renderLitterCard)}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
-        <TabsContent value="carousel">
-          <Card>
-            <CardHeader>
-              <CardTitle>Carousel Management</CardTitle>
-              <CardDescription>Manage the carousel items that appear on the home page</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+          {activeTab === "animals" && (
+            <div>
+              <div className="mb-6">
                 <Button onClick={() => {
                   setEditItem(null);
                   setShowForm(true);
                 }}>
-                  Add Carousel Item
+                  Add New Animal
                 </Button>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {carouselItems?.map((item) => (
-                    <Card key={item.id}>
-                      <div className="aspect-video relative">
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-                        />
-                      </div>
-                      <CardContent className="pt-4">
-                        <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                        <div className="flex gap-2 mt-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setEditItem(item);
-                              setShowForm(true);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={async () => {
-                              if (!confirm("Are you sure you want to delete this carousel item?")) return;
-                              const res = await fetch(`/api/carousel/${item.id}`, {
-                                method: "DELETE",
-                              });
-                              if (res.ok) {
-                                queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-                                toast({
-                                  title: "Success",
-                                  description: "Carousel item deleted successfully",
-                                });
-                              }
-                            }}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
               </div>
-            </CardContent>
-          </Card>
 
-          <Sheet open={showForm} onOpenChange={setShowForm}>
-            <SheetContent className="max-w-2xl">
-              <SheetHeader>
-                <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
-              </SheetHeader>
-              <CarouselForm
-                item={editItem as CarouselItem}
-                onClose={() => {
-                  setShowForm(false);
-                  setEditItem(null);
-                }}
-              />
-            </SheetContent>
-          </Sheet>
-        </TabsContent>
-
-        <TabsContent value="dogs">
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Dogs Hero Section</CardTitle>
-              <CardDescription>Manage the hero content for the dogs page</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {dogsHero[0] && (
-                <div className="space-y-4">
-                  <div>
-                    <Label>Title</Label>
-                    <Input
-                      value={dogsHero[0].title ?? ""}
-                      onChange={(e) => updateDogsHero.mutate({ title: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Subtitle</Label>
-                    <Input
-                      value={dogsHero[0].subtitle ?? ""}
-                      onChange={(e) => updateDogsHero.mutate({ subtitle: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Background Image</Label>
-                    <div className="flex gap-4">
-                      <div className="flex-1">
-                        <FileUpload
-                          value={dogsHero[0].imageUrl ?? ""}
-                          onChange={(url) => updateDogsHero.mutate({ imageUrl: url })}
-                        />
-                      </div>
-                      {dogsHero[0].imageUrl && (
-                        <div className="w-40 h-40 rounded overflow-hidden">
-                          <img
-                            src={dogsHero[0].imageUrl}
-                            alt="Hero background"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {showForm && (
+                <AnimalForm
+                  animal={editItem as Animal}
+                  onClose={() => setShowForm(false)}
+                />
               )}
-            </CardContent>
-          </Card>
 
-          {/* Dogs Management Section */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Dogs Management</CardTitle>
-              <CardDescription>Manage your dogs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {animals.map((animal) => (
+                  <AnimalCard
+                    key={animal.id}
+                    animal={animal}
+                    isAdmin
+                    onEdit={() => {
+                      setEditItem(animal);
+                      setShowForm(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "products" && (
+            <div>
+              <div className="mb-6">
                 <Button onClick={() => {
-                  setSelectedDog(null);
-                  setShowDogForm(true);
+                  setEditItem(null);
+                  setShowForm(true);
                 }}>
-                  Add New Dog
+                  Add New Product
                 </Button>
               </div>
 
-              {/* Females Section */}
-              {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-6">Females</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
-                </div>
+              {showForm && (
+                <ProductForm
+                  product={editItem as Product}
+                  onClose={() => setShowForm(false)}
+                />
               )}
 
-              {/* Males Section */}
-              {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-6">Males</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isAdmin
+                    onEdit={() => {
+                      setEditItem(product);
+                      setShowForm(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
-              {/* Outside Breeders Section */}
-              {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {dogs
-                      .filter(dog => dog.outsideBreeder)
-                      .map(renderDogCard)}
-                  </div>
+          {activeTab === "contact" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+                <CardDescription>Manage contact details and social media links</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={pendingContactInfo.email ?? ''}
+                    onChange={(e) => handleContactChange('email', e.target.value)}
+                    placeholder="contact@littlewayacres.com"
+                  />
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={pendingContactInfo.phone ?? ''}
+                    onChange={(e) => handleContactChange('phone', e.target.value)}
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook URL</Label>
+                  <Input
+                    id="facebook"
+                    type="url"
+                    value={pendingContactInfo.facebook ?? ''}
+                    onChange={(e) => handleContactChange('facebook', e.target.value)}
+                    placeholder="https://facebook.com/littlewayacres"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram URL</Label>
+                  <Input
+                    id="instagram"
+                    type="url"
+                    value={pendingContactInfo.instagram ?? ''}
+                    onChange={(e) => handleContactChange('instagram', e.target.value)}
+                    placeholder="https://instagram.com/littlewayacres"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      {/* Keep all the sheet/modal components */}
+      {showForm && (
+        <Sheet>
+          <SheetContent className="max-w-2xl">
+            <SheetHeader>
+              <SheetTitle>{editItem ? "Edit Carousel Item" : "Add Carousel Item"}</SheetTitle>
+            </SheetHeader<SheetContent>
+                <CarouselForm
+                  item={editItem as CarouselItem}
+                  onClose={() => {
+                    setShowForm(false);
+                    setEditItem(null);
+                  }}
+                />
+              </SheetContent>
+            </Sheet>
+          )}
+
+          {showPuppyForm && (
+            <Sheet open={showPuppyForm} onOpenChange={(open) => {
+              setShowPuppyForm(open);
+              // Don't close the litter form when closing puppy dialog
+              if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
+            }}>
+              <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
+                <SheetHeader>
+                  <SheetTitle>
+                    {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <Form
+                    isPuppy={true}
+                    defaultValues={{
+                      name: editItem?.name || '',
+                      gender: editItem?.gender as 'male' | 'female' || 'male',
+                      birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+                      breed: editItem?.breed || 'Colorado Mountain Dog',
+                      color: editItem?.color || '',
+                      description: editItem?.description || '',
+                      narrativeDescription: editItem?.narrativeDescription || '',
+                      healthData: editItem?.healthData || '',
+                      height: editItem?.height?.toString() || '',
+                      weight: editItem?.weight?.toString() || '',
+                      furLength: editItem?.furLength || '',
+                      registrationName: editItem?.registrationName || '',
+                      profileImageUrl: editItem?.profileImageUrl || '',
+                      media: editItem?.media || [],
+                      outsideBreeder: Boolean(editItem?.outsideBreeder),
+                      available: Boolean(editItem?.available),
+                      price: editItem?.price?.toString() || '',
+                    }}
+                    onSubmit={async (values) => {
+                      try {
+                        const processedValues = {
+                          ...values,
+                          height: values.height ? Number(values.height) : null,
+                          weight: values.weight ? Number(values.weight) : null,
+                          price: values.price ? Number(values.price) : null,
+                        };
+
+                        const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
+                          method: editItem?.id ? 'PUT' : 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(processedValues),
+                        });
+
+                        if (!res.ok) throw new Error('Failed to save puppy');
+
+                        queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                        toast({
+                          title: "Success",
+                          description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
+                        });
+                        setShowPuppyForm(false);
+                      } catch (error) {
+                        console.error('Error saving puppy:', error);
+                        toast({
+                          title: "Error",
+                          description: error instanceof Error ? error.message : 'Failed to save puppy',
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
 
           {/* Dog Form Sheet */}
           {showDogForm && (
@@ -1392,423 +1838,18 @@ export default function Admin() {
                 </SheetHeader>
                 <div className="mt-6">
                   <DogForm
-                    open={showDogForm}
-                    onOpenChange={handleDogFormClose}
                     dog={selectedDog as Dog}
                     mode={selectedDog?.id ? 'edit' : 'create'}
+                    onSubmit={handleDogFormClose}
+                    onCancel={handleDogFormClose}
                     fromLitter={true}
                   />
                 </div>
               </SheetContent>
             </Sheet>
           )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Litters Management</CardTitle>
-              <CardDescription>Manage upcoming and current litters</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <Button onClick={() => {
-                    setEditLitter(null);
-                    setShowLitterForm(true);
-                  }}>
-                    Add New Litter
-                  </Button>
-                </div>
-
-                {/* Litter Form Sheet */}
-                <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
-                  <SheetContent side="right" className="w-1/3">
-                    <SheetHeader>
-                      <SheetTitle>
-                        {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
-                      </SheetTitle>
-                    </SheetHeader>
-                    <div className="space-y-6 mt-6">
-                      {/* Litter Form Section */}
-                      <div className="space-y-4">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <Label>Mother</Label>
-                            <Select
-                              value={editLitter?.motherId?.toString() || ""}
-                              onValueChange={(value) => {
-                                const mother = dogs.find(d => d.id === parseInt(value));
-                                setEditLitter(prev => ({
-                                  ...prev!,
-                                  motherId: parseInt(value),
-                                  mother,
-                                }));
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select mother" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs
-                                  .filter(d => d.gender === 'female')
-                                  .map(dog => (
-                                    <SelectItem key={dog.id} value={dog.id.toString()}>
-                                      {dog.name}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Father</Label>
-                            <Select
-                              value={editLitter?.fatherId?.toString() || ""}
-                              onValueChange={(value) => {
-                                const father = dogs.find(d => d.id === parseInt(value));
-                                setEditLitter(prev => ({
-                                  ...prev!,
-                                  fatherId: parseInt(value),
-                                  father,
-                                }));
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select father" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dogs
-                                  .filter(d => d.gender === 'male')
-                                  .map(dog => (
-                                    <SelectItem key={dog.id} value={dog.id.toString()}>
-                                      {dog.name}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Due Date</Label>
-                            <Input
-                              type="date"
-                              value={editLitter?.dueDate ? editLitter.dueDate.split('T')[0] : ""}
-                              onChange={(e) => setEditLitter(prev => ({
-                                ...prev!,
-                                dueDate: e.target.value,
-                              }))}
-                            />
-                          </div>
-                        </div>
-
-                        {editLitter?.puppies && editLitter.puppies.length > 0 && (
-                          <div className="space-y-4 mt-8">
-                            <h3 className="text-lg font-medium">Current Puppies</h3>
-                            <div className="grid gap-4">
-                              {editLitter.puppies.map((puppy, index) => (
-                                <div
-                                  key={puppy.id || index}
-                                  className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
-                                  onClick={() => {
-                                    setEditItem(puppy);
-                                    setShowPuppyForm(true);
-                                  }}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                                      {puppy.profileImageUrl ? (
-                                        <img
-                                          src={puppy.profileImageUrl}
-                                          alt={puppy.name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${
-                                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                                        }`}>
-                                          <span className={`text-xl ${
-                                            puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                                          }`}>
-                                            {puppy.gender === 'female' ? '♀' : '♂'}
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="font-medium">{puppy.name}</p>
-                                      <p className="text-sm text-muted-foreground">
-                                        {puppy.gender} • {puppy.color || 'No color set'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={(e) => {
-                                      e.stopPropagation(); // Prevent opening the edit form
-                                      if (!confirm('Are you sure you want to remove this puppy?')) return;
-                                      setEditLitter(prev => ({
-                                        ...prev!,
-                                        puppies: prev!.puppies!.filter((_, i) => i !== index),
-                                      }));
-                                    }}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between pt-4">
-                          <Button variant="outline" onClick={() => {
-                            setShowLitterForm(false);
-                            setEditItem(null);
-                          }}>
-                            Cancel
-                          </Button>
-                          <Button onClick={litterFormMode === 'create' ? handleCreateLitter : handleUpdateLitter}>
-                            Save Litter
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-
-                <div className="grid gap-4">
-                  {litters?.map(renderLitterCard)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="animals">
-          <div className="mb-6">
-            <Button onClick={() => {
-              setEditItem(null);
-              setShowForm(true);
-            }}>
-              Add New Animal
-            </Button>
-          </div>
-
-          {showForm && (
-            <AnimalForm
-              animal={editItem as Animal}
-              onClose={() => setShowForm(false)}
-            />
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {animals.map((animal) => (
-              <AnimalCard
-                key={animal.id}
-                animal={animal}
-                isAdmin
-                onEdit={() => {
-                  setEditItem(animal);
-                  setShowForm(true);
-                }}
-              />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="products">
-          <div className="mb-6">
-            <Button onClick={() => {
-              setEditItem(null);
-              setShowForm(true);
-            }}>
-              Add New Product
-            </Button>
-          </div>
-
-          {showForm && (
-            <ProductForm
-              product={editItem as Product}
-              onClose={() => setShowForm(false)}
-            />
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isAdmin
-                onEdit={() => {
-                  setEditItem(product);
-                  setShowForm(true);
-                }}
-              />
-            ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="contact">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-              <CardDescription>Manage contact details and social media links</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={pendingContactInfo.email ?? ''}
-                  onChange={(e) => handleContactChange('email', e.target.value)}
-                  placeholder="contact@littlewayacres.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={pendingContactInfo.phone ?? ''}
-                  onChange={(e) => handleContactChange('phone', e.target.value)}
-                  placeholder="(555) 123-4567"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="facebook">Facebook URL</Label>
-                <Input
-                  id="facebook"
-                  type="url"
-                  value={pendingContactInfo.facebook ?? ''}
-                  onChange={(e) => handleContactChange('facebook', e.target.value)}
-                  placeholder="https://facebook.com/littlewayacres"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram URL</Label>
-                <Input
-                  id="instagram"
-                  type="url"
-                  value={pendingContactInfo.instagram ?? ''}
-                  onChange={(e) => handleContactChange('instagram', e.target.value)}
-                  placeholder="https://instagram.com/littlewayacres"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-      </Tabs>
-
-      {hasUnsavedChanges && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <Button
-            size="lg"
-            onClick={handleSaveChanges}
-            disabled={updateSiteContent.isPending || updatePrinciples.isPending || updateContactInfo.isPending}
-            className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
-          </Button>
         </div>
-      )}
-
-      {/* Puppy Form Sheet */}
-      {showPuppyForm && (
-        <Sheet open={showPuppyForm} onOpenChange={(open) => {
-          setShowPuppyForm(open);
-          // Don't close the litter form when closing puppy dialog
-          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
-        }}>
-          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
-            <SheetHeader>
-              <SheetTitle>
-                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <Form
-                isPuppy={true}
-                defaultValues={{
-                  name: editItem?.name || '',
-                  gender: editItem?.gender as 'male' | 'female' || 'male',
-                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
-                  breed: editItem?.breed || 'Colorado Mountain Dog',
-                  color: editItem?.color || '',
-                  description: editItem?.description || '',
-                  narrativeDescription: editItem?.narrativeDescription || '',
-                  healthData: editItem?.healthData || '',
-                  height: editItem?.height?.toString() || '',
-                  weight: editItem?.weight?.toString() || '',
-                  furLength: editItem?.furLength || '',
-                  registrationName: editItem?.registrationName || '',
-                  profileImageUrl: editItem?.profileImageUrl || '',
-                  media: editItem?.media || [],
-                  outsideBreeder: Boolean(editItem?.outsideBreeder),
-                  available: Boolean(editItem?.available),
-                  price: editItem?.price?.toString() || '',
-                }}
-                onSubmit={async (values) => {
-                  try {
-                    const processedValues = {
-                      ...values,
-                      height: values.height ? Number(values.height) : null,
-                      weight: values.weight ? Number(values.weight) : null,
-                      price: values.price ? Number(values.price) : null,
-                    };
-
-                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
-                      method: editItem?.id ? 'PUT' : 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(processedValues),
-                    });
-
-                    if (!res.ok) throw new Error('Failed to save puppy');
-
-                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-                    toast({
-                      title: "Success",
-                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
-                    });
-                    setShowPuppyForm(false);
-                  } catch (error) {
-                    console.error('Error saving puppy:', error);
-                    toast({
-                      title: "Error",
-                      description: error instanceof Error ? error.message : 'Failed to save puppy',
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
-
-      {/* Dog Form Sheet */}
-      {showDogForm && (
-        <Sheet open={showDogForm} onOpenChange={handleDogFormClose}>
-          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>{selectedDog?.id ? 'Edit Dog' : 'Add New Dog'}</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <DogForm
-                dog={selectedDog as Dog}
-                mode={selectedDog?.id ? 'edit' : 'create'}
-                onSubmit={handleDogFormClose}
-                onCancel={handleDogFormClose}
-                fromLitter={true}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
+      </div>
     </div>
   );
 }
