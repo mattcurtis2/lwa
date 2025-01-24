@@ -921,44 +921,144 @@ function AdminDashboard() {
                     </TabsContent>
 
                     <TabsContent value="about" className="space-y-4 pt-4">
-                      {contentFields
-                        .filter(field =>
-                          ['about_title', 'about_text', 'about_image'].includes(field.key)
-                        )
-                        .map((field) => (
-                          <div key={field.key}>
-                            <Label htmlFor={field.key}>{field.label}</Label>
-                            {field.type === 'textarea' ? (
-                              <Textarea
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>About Section</CardTitle>
+                          <CardDescription>Manage the About section content</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          {/* What We Offer Section */}
+                          <div className="space-y-4">
+                            <h3 className="text-lg font-medium">What We Offer</h3>
+                            <div>
+                              <Label htmlFor="offer_title">Title</Label>
+                              <Input
+                                id="offer_title"
+                                value={pendingContent["offer_title"] || ""}
+                                onChange={(e) => handleContentChange("offer_title", e.target.value)}
                               />
-                            ) : field.type === 'image' ? (
-                              <div className="mt-1.5 space-y-2">
-                                <FileUpload
-                                  value={field.value}
-                                  onChange={(url) => handleContentChange(field.key, url)}
+                            </div>
+                            <div>
+                              <Label htmlFor="offer_description">Description</Label>
+                              <Textarea
+                                id="offer_description"
+                                value={pendingContent["offer_description"] || ""}
+                                onChange={(e) => handleContentChange("offer_description", e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Cards Section */}
+                          <div className="space-y-4">
+                            <h3 className="text-lg font-medium">Feature Cards</h3>
+                            
+                            {/* Card 1 */}
+                            <div className="border p-4 rounded-lg space-y-4">
+                              <h4 className="font-medium">Card 1</h4>
+                              <div>
+                                <Label htmlFor="card1_title">Title</Label>
+                                <Input
+                                  id="card1_title"
+                                  value={pendingContent["card1_title"] || ""}
+                                  onChange={(e) => handleContentChange("card1_title", e.target.value)}
                                 />
-                                {field.value && (
+                              </div>
+                              <div>
+                                <Label htmlFor="card1_text">Description</Label>
+                                <Textarea
+                                  id="card1_text"
+                                  value={pendingContent["card1_text"] || ""}
+                                  onChange={(e) => handleContentChange("card1_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="card1_image">Image</Label>
+                                <FileUpload
+                                  value={pendingContent["card1_image"] || ""}
+                                  onChange={(url) => handleContentChange("card1_image", url)}
+                                />
+                                {pendingContent["card1_image"] && (
                                   <img
-                                    src={field.value}
-                                    alt="Preview"
+                                    src={pendingContent["card1_image"]}
+                                    alt="Card 1"
                                     className="mt-2 rounded-lg max-h-48 object-cover"
                                   />
                                 )}
                               </div>
-                            ) : (
-                              <Input
-                                id={field.key}
-                                value={field.value}
-                                onChange={(e) => handleContentChange(field.key, e.target.value)}
-                                className="mt-1.5"
-                              />
-                            )}
+                            </div>
+
+                            {/* Card 2 */}
+                            <div className="border p-4 rounded-lg space-y-4">
+                              <h4 className="font-medium">Card 2</h4>
+                              <div>
+                                <Label htmlFor="card2_title">Title</Label>
+                                <Input
+                                  id="card2_title"
+                                  value={pendingContent["card2_title"] || ""}
+                                  onChange={(e) => handleContentChange("card2_title", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="card2_text">Description</Label>
+                                <Textarea
+                                  id="card2_text"
+                                  value={pendingContent["card2_text"] || ""}
+                                  onChange={(e) => handleContentChange("card2_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="card2_image">Image</Label>
+                                <FileUpload
+                                  value={pendingContent["card2_image"] || ""}
+                                  onChange={(url) => handleContentChange("card2_image", url)}
+                                />
+                                {pendingContent["card2_image"] && (
+                                  <img
+                                    src={pendingContent["card2_image"]}
+                                    alt="Card 2"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Card 3 */}
+                            <div className="border p-4 rounded-lg space-y-4">
+                              <h4 className="font-medium">Card 3</h4>
+                              <div>
+                                <Label htmlFor="card3_title">Title</Label>
+                                <Input
+                                  id="card3_title"
+                                  value={pendingContent["card3_title"] || ""}
+                                  onChange={(e) => handleContentChange("card3_title", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="card3_text">Description</Label>
+                                <Textarea
+                                  id="card3_text"
+                                  value={pendingContent["card3_text"] || ""}
+                                  onChange={(e) => handleContentChange("card3_text", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="card3_image">Image</Label>
+                                <FileUpload
+                                  value={pendingContent["card3_image"] || ""}
+                                  onChange={(url) => handleContentChange("card3_image", url)}
+                                />
+                                {pendingContent["card3_image"] && (
+                                  <img
+                                    src={pendingContent["card3_image"]}
+                                    alt="Card 3"
+                                    className="mt-2 rounded-lg max-h-48 object-cover"
+                                  />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        ))}
+                        </CardContent>
+                      </Card>
                     </TabsContent>
 
                     <TabsContent value="principles" className="space-y-4 pt-4">
