@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Dog, Litter } from "@db/schema";
+import DogForm from "@/components/forms/dog-form";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import { useLitterManagement } from "@/hooks/use-litter-management";
 import { X, Plus } from "lucide-react";
 
 export default function LitterManagement() {
+  const [showDogForm, setShowDogForm] = useState(false);
+  const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
   const {
     showLitterForm,
     setShowLitterForm,
@@ -285,6 +288,19 @@ export default function LitterManagement() {
             </div>
           </SheetContent>
         </Sheet>
+
+        {showDogForm && (
+          <DogForm
+            open={showDogForm}
+            onOpenChange={() => {
+              setShowDogForm(false);
+              setSelectedDog(null);
+            }}
+            dog={selectedDog as Dog}
+            mode={selectedDog?.id ? 'edit' : 'create'}
+            fromLitter={true}
+          />
+        )}
       </div>
     </div>
   );
