@@ -84,13 +84,19 @@ const createDogSchema = (isPuppy: boolean = false) => {
     available: z.boolean().default(false),
     price: z.string().optional(),
     breed: z.string().default("Colorado Mountain Dogs"),
+    documents: z.array(z.object({
+      type: z.string(),
+      url: z.string(),
+      name: z.string(),
+      mimeType: z.string()
+    })).optional()
   };
 
   return z.object(baseSchema);
 };
 
 interface DogFormProps {
-  dog?: Dog & { media?: DogMedia[] };
+  dog?: Dog & { media?: DogMedia[]; documents?: Document[] };
   isPuppy?: boolean;
   onSubmit?: (values: any) => Promise<void>;
   onCancel?: () => void;
@@ -157,6 +163,7 @@ export default function DogForm({
       available: defaultValues?.available || false,
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
+      documents: defaultValues?.documents || []
     },
   });
 
@@ -214,6 +221,7 @@ export default function DogForm({
           type: m.type as "image" | "video",
           fileName: m.fileName,
         })) || [],
+        documents: dog.documents || []
       });
 
       const media = dog.media?.map(m => ({
@@ -224,6 +232,14 @@ export default function DogForm({
       })) || [];
 
       setMediaInputs(media);
+
+      // Initialize document arrays with existing documents
+      if (dog.documents) {
+        const health = dog.documents.filter(doc => doc.type === 'health');
+        const pedigree = dog.documents.filter(doc => doc.type === 'pedigree');
+        setHealthDocuments(health);
+        setPedigreeDocuments(pedigree);
+      }
     }
   }, [dog, form]);
 
@@ -383,13 +399,11 @@ export default function DogForm({
       return;
     }
 
-    console.log('Starting upload for file:', file.name, 'type:', type);
     setIsUploadingDoc(true);
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      console.log('Sending upload request...');
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -400,8 +414,6 @@ export default function DogForm({
       }
 
       const data = await res.json();
-      console.log('Upload successful:', data);
-
       const newDoc = {
         url: data.url,
         type,
@@ -412,10 +424,8 @@ export default function DogForm({
 
       if (type === 'health') {
         setHealthDocuments(prev => [newDoc, ...prev]);
-        console.log('Updated health documents');
       } else {
         setPedigreeDocuments(prev => [newDoc, ...prev]);
-        console.log('Updated pedigree documents');
       }
 
       toast({
@@ -455,6 +465,7 @@ export default function DogForm({
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
         breed: "Colorado Mountain Dogs",
+        // Include both existing and newly uploaded documents
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
@@ -933,10 +944,7 @@ export default function DogForm({
                   <div className="space-y-2">
                     <Label>Health Documents</Label>
                     <FileUpload
-                      onFileSelect={(file) => {
-                        console.log('File selected for health:', file);
-                        handleDocumentUpload(file, 'health');
-                      }}
+                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
                     />
@@ -1005,15 +1013,11 @@ export default function DogForm({
                 <div className="space-y-4">
                   <Textarea
                     {...field}
-                    placeholder="Family history and lineage information"
-                  />
+                    placeholder="Family history and lineage information"/>
                   <div className="space-y-2">
                     <Label>Pedigree Documents</Label>
                     <FileUpload
-                      onFileSelect={(file) => {
-                        console.log('File selected for pedigree:', file);
-                        handleDocumentUpload(file, 'pedigree');
-                      }}
+                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
                     />
