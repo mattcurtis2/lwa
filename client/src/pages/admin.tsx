@@ -83,12 +83,6 @@ interface PuppyFormData {
 }
 
 function AdminDashboard() {
-  const { data: siteSettings } = useQuery({
-    queryKey: ['/api/site-settings'],
-  });
-}
-
-function AdminDashboard() {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
   const queryClient = useQueryClient();
