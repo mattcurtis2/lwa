@@ -1829,6 +1829,7 @@ export default function Admin() {
           </SheetContent>
         </Sheet>
       )}
+      </div>
     </>
   );
 }
