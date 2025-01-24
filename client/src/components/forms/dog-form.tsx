@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect } from "react";
-import { X, ImageIcon } from "lucide-react";
+import { X, ImageIcon, FileText, ExternalLink } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -910,19 +910,49 @@ export default function DogForm({
                     <Label>Health Documents</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'health')}
-                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept="application/pdf,image/jpeg,image/png,video/*"
                     />
                     {healthDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <span>{doc.name}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeDocument(index, 'health')}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {doc.mimeType.startsWith('image/') ? (
+                            <img
+                              src={doc.url}
+                              alt={doc.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : doc.mimeType.startsWith('video/') ? (
+                            <video
+                              src={doc.url}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                              <FileText className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="truncate max-w-[200px]">{doc.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                          >
+                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeDocument(index, 'health')}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -949,19 +979,49 @@ export default function DogForm({
                     <Label>Pedigree Documents</Label>
                     <FileUpload
                       onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
-                      accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept="application/pdf,image/jpeg,image/png,video/*"
                     />
                     {pedigreeDocuments.map((doc, index) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <span>{doc.name}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeDocument(index, 'pedigree')}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {doc.mimeType.startsWith('image/') ? (
+                            <img
+                              src={doc.url}
+                              alt={doc.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : doc.mimeType.startsWith('video/') ? (
+                            <video
+                              src={doc.url}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                              <FileText className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="truncate max-w-[200px]">{doc.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                          >
+                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeDocument(index, 'pedigree')}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
