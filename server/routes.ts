@@ -97,6 +97,8 @@ export function registerRoutes(app: Express): Server {
     }
 
     const defaultContent = [
+      { key: "principles_title", value: "Our Principles", type: "text" },
+      { key: "principles_description", value: "These foundational principles guide our daily operations and long-term vision at Little Way Acres.", type: "text" },
       { key: "logo", value: "/images/logo.png", type: "image" },
       { key: "hero_background", value: "https://images.unsplash.com/photo-1611501807352-03324d70054c", type: "image" },
       { key: "hero_text", value: "Welcome to Little Way Acres", type: "text" },
