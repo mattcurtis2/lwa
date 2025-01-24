@@ -1022,9 +1022,9 @@ function AdminDashboard() {
                                 onChange={(e) => handleContentChange(field.key, e.target.value)}
                                 className="mt-1.5"
                               />
-                            )}
+                            })}
                           </div>
-                        ))}
+                        )}
                     </TabsContent>
 
                     <TabsContent value="about" className="space-y-4 pt-4">
