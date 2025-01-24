@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
+import DogManagement from "@/components/admin/dog-management";
 
 interface ContentField {
   key: string;
