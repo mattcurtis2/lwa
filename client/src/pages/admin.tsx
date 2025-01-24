@@ -639,8 +639,7 @@ function AdminDashboard() {
       breed: "Colorado Mountain Dogs",
       outsideBreeder: false
     });
-    setShowDogForm(false);
-    setTimeout(() => setShowDogForm(true), 0);
+    setShowDogForm(true);
   };
 
   const handleDogFormClose = () => {
