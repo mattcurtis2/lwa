@@ -430,7 +430,7 @@ export default function DogForm({
         ...values,
         height: values.height ? parseFloat(values.height) || null : null,
         weight: values.weight ? parseFloat(values.weight) || null : null,
-        price: values.price ? parseFloat(values.price) || null : null,
+        price: values.price ? parseInt(values.price.replace(/,/g, '')) || null : null,
         motherId: values.motherId || null,
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
