@@ -932,6 +932,7 @@ function AdminDashboard() {
                               onChange={(url) => {
                                 if (typeof url === 'string') {
                                   handleContentChange("logo_url", url);
+                                  setHasUnsavedChanges(true);
                                 }
                               }}
                             />
@@ -944,13 +945,6 @@ function AdminDashboard() {
                                     className="h-12 object-contain"
                                   />
                                 </div>
-                                <Button 
-                                  onClick={handleSaveChanges}
-                                  className="w-full"
-                                >
-                                  <Save className="w-4 h-4 mr-2" />
-                                  Save Logo
-                                </Button>
                               </div>
                             )}
                           </div>
@@ -965,6 +959,7 @@ function AdminDashboard() {
                               onChange={(url) => {
                                 if (typeof url === 'string') {
                                   handleContentChange("favicon_url", url);
+                                  setHasUnsavedChanges(true);
                                 }
                               }}
                             />
@@ -1706,7 +1701,7 @@ function AdminDashboard() {
                     const processedValues = {
                       ...values,
                       height: values.height ? Number(values.height) : null,
-                      weight: values.weight ? Number(values.weight) : null,
+                      weight: values.weight ? Number(values.weight) :null,
                       price: values.price ? Number(values.price) : null,                    };
 
                     const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
