@@ -16,7 +16,7 @@ const formSchema = z.object({
 });
 
 export function CMDContentForm() {
-  const [showCropper, setShowCropper] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
   const [tempImageUrl, setTempImageUrl] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -41,7 +41,7 @@ export function CMDContentForm() {
 
   const handleImageSelect = (url: string) => {
     setTempImageUrl(url);
-    setShowCropper(true);
+    setCropperOpen(true);
   };
 
   const handleCropComplete = (croppedUrl: string) => {
@@ -81,14 +81,13 @@ export function CMDContentForm() {
 
   return (
     <>
-      {showCropper && tempImageUrl && (
-        <ImageCrop
-          imageUrl={tempImageUrl}
-          onCropComplete={handleCropComplete}
-          onCancel={() => setShowCropper(false)}
-          aspect={16/9}
-        />
-      )}
+      <ImageCropper
+        imageUrl={tempImageUrl}
+        onCropComplete={handleCropComplete}
+        open={cropperOpen}
+        onOpenChange={setCropperOpen}
+        aspect={16/9}
+      />
       <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
