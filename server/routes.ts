@@ -11,6 +11,27 @@ import path from "path";
 import fs from "fs-extra";
 import express from 'express';
 
+// Multer configuration for file uploads
+const uploadDir = path.join(process.cwd(), "uploads");
+fs.ensureDirSync(uploadDir); // Create uploads directory if it doesn't exist
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'file-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  }
+});
+
 export function registerRoutes(app: Express): Server {
   app.get("/api/files/:filename", async (req, res) => {
     try {
