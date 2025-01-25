@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -101,7 +100,7 @@ export default function UpcomingLitters() {
                     <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
                       Expected {formatDisplayDate(new Date(litter.dueDate))}
                     </div>
-                    
+
                     <p className="text-muted-foreground text-sm mt-2">
                       Click to view detailed information about this upcoming litter
                     </p>
@@ -109,10 +108,9 @@ export default function UpcomingLitters() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div
-                      className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
-                      onClick={(e) => handleEditDog(litter.mother, e)}
+                      className="flex items-center gap-3 p-2 rounded-lg"
                     >
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                         {litter.mother.profileImageUrl ? (
                           <img
                             src={litter.mother.profileImageUrl.startsWith('http') ? litter.mother.profileImageUrl : litter.mother.profileImageUrl.startsWith('/') ? litter.mother.profileImageUrl : `/${litter.mother.profileImageUrl}`}
@@ -130,9 +128,6 @@ export default function UpcomingLitters() {
                             <span className="text-3xl text-pink-500">♀</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <Edit className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
-                        </div>
                       </div>
                       <div>
                         <p className="font-medium">{litter.mother.name}</p>
@@ -141,10 +136,9 @@ export default function UpcomingLitters() {
                     </div>
 
                     <div
-                      className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg group"
-                      onClick={(e) => handleEditDog(litter.father, e)}
+                      className="flex items-center gap-3 p-2 rounded-lg"
                     >
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                         {litter.father.profileImageUrl ? (
                           <img
                             src={litter.father.profileImageUrl.startsWith('http') ? litter.father.profileImageUrl : litter.father.profileImageUrl.startsWith('/') ? litter.father.profileImageUrl : `/${litter.father.profileImageUrl}`}
@@ -162,9 +156,6 @@ export default function UpcomingLitters() {
                             <span className="text-3xl text-blue-500">♂</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <Edit className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 drop-shadow-md" />
-                        </div>
                       </div>
                       <div>
                         <p className="font-medium">{litter.father.name}</p>
