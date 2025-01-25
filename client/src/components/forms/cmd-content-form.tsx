@@ -8,7 +8,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ImageCropper } from "@/components/ImageCropper"; // Assumed component
+import ImageCropper from "@/components/ui/image-cropper"; // Assumed component
 
 const formSchema = z.object({
   title: z.string(),
