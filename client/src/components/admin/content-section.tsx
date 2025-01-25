@@ -5,10 +5,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/button";
 import { useContentManagement } from "@/hooks/use-content-management";
-import { ContentField, SiteContent, Principle, ContactInfo } from "@db/schema";
+import { SiteContent, Principle, ContactInfo } from "@db/schema";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ImageCropper from "@/components/ui/image-cropper";
+
+interface ContentField {
+  key: string;
+  label: string;
+  value: string;
+  type: 'text' | 'textarea' | 'image';
+}
 
 interface ContentSectionProps {
   siteContent: SiteContent[];
@@ -26,6 +33,7 @@ export function ContentSection({
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [cropperOpen, setCropperOpen] = useState(false);
   const [imageToEdit, setImageToEdit] = useState("");
+  const [currentImageKey, setCurrentImageKey] = useState<string>("");
   const { toast } = useToast();
   const {
     pendingContent: pendingContentFromHook,
@@ -38,8 +46,14 @@ export function ContentSection({
   } = useContentManagement(siteContent, principlesData, contactInfo);
 
   const handleCropComplete = (croppedUrl: string) => {
-    handleContentChange('hero_background', croppedUrl);
+    handleContentChange(currentImageKey, croppedUrl);
     setCropperOpen(false);
+  };
+
+  const handleImageEdit = (key: string, imageUrl: string) => {
+    setCurrentImageKey(key);
+    setImageToEdit(imageUrl);
+    setCropperOpen(true);
   };
 
   return (
@@ -47,9 +61,8 @@ export function ContentSection({
       <ImageCropper
         imageUrl={imageToEdit}
         onCropComplete={handleCropComplete}
-        open={cropperOpen}
-        onOpenChange={setCropperOpen}
-        aspect={16/9}
+        isOpen={cropperOpen}
+        onClose={() => setCropperOpen(false)}
       />
       <div className="grid gap-4">
       {/* Principles Title and Description */}
@@ -88,11 +101,9 @@ export function ContentSection({
             <div className="mt-1.5 space-y-2">
               <FileUpload
                 value={pendingContent[field.key] || field.value}
-                onFileSelect={(file) => handleContentChange(field.key, file)}
                 onChange={(url) => {
                   if (typeof url === 'string') {
-                    setImageToEdit(url);
-                    setCropperOpen(true);
+                    handleImageEdit(field.key, url);
                   }
                 }}
               />
@@ -102,10 +113,7 @@ export function ContentSection({
                     src={pendingContent[field.key] || field.value}
                     alt="Preview"
                     className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
-                    onClick={() => {
-                      setImageToEdit(pendingContent[field.key] || field.value);
-                      setCropperOpen(true);
-                    }}
+                    onClick={() => handleImageEdit(field.key, pendingContent[field.key] || field.value)}
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <p className="text-white">Click to crop</p>
