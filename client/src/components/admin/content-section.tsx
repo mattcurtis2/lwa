@@ -38,6 +38,17 @@ export function ContentSection({
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        handleContentChange("hero_background", e.target.result as string); // Assumed hero_background is the key
+      };
+      reader.readAsDataURL(file);
+    },
+  });
+
 
   return (
     <div className="space-y-6">
@@ -54,74 +65,60 @@ export function ContentSection({
             />
           ) : field.type === 'image' ? (
             <div className="mt-1.5 space-y-2">
-              {/* Added Dropzone functionality here */}
-              {field.key === "hero_background" ? ( //Conditional rendering for Home Hero Background
-                <div>
-                  <div className="space-y-4">
-                    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-                      onDrop: (acceptedFiles) => {
-                        const file = acceptedFiles[0];
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                          handleContentChange(field.key, e.target.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      },
-                    });
-
-                    <div
-                      {...getRootProps()}
-                      className={cn(
-                        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                        isDragActive && "border-primary bg-accent"
-                      )}
-                    >
-                      <input {...getInputProps()} />
-                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                        <Upload className="h-10 w-10" />
-                        <p className="text-sm text-center">
-                          {isDragActive
-                            ? "Drop your image here..."
-                            : "Drag & drop an image here, or click to select"
-                          }
-                        </p>
-                      </div>
-                    </div>
-                    {pendingContent[field.key] && (
-                      <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
-                        <img
-                          src={pendingContent[field.key]}
-                          alt="Hero Background"
-                          className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                          onClick={() => {
-                            setCropImageUrl(pendingContent[field.key]);
-                            setShowCropper(true);
-                          }}
-                        />
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleContentChange(field.key, "");
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div
-                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
-                          onClick={() => {
-                            setCropImageUrl(pendingContent[field.key]);
-                            setShowCropper(true);
-                          }}
-                        />
-                      </div>
+              {field.key === "hero_background" ? (
+                <div className="space-y-4">
+                  <div
+                    {...getRootProps()}
+                    className={cn(
+                      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+                      isDragActive && "border-primary bg-accent"
                     )}
+                  >
+                    <input {...getInputProps()} />
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <Upload className="h-10 w-10" />
+                      <p className="text-sm text-center">
+                        {isDragActive
+                          ? "Drop your image here..."
+                          : "Drag & drop an image here, or click to select"
+                        }
+                      </p>
+                    </div>
                   </div>
+                  {pendingContent[field.key] && (
+                    <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={pendingContent[field.key]}
+                        alt="Hero Background"
+                        className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                        onClick={() => {
+                          setCropImageUrl(pendingContent[field.key]);
+                          setShowCropper(true);
+                        }}
+                      />
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContentChange(field.key, "");
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div
+                        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
+                        onClick={() => {
+                          setCropImageUrl(pendingContent[field.key]);
+                          setShowCropper(true);
+                        }}
+                      />
+                    </div>
+                  )}
                   {showCropper && cropImageUrl && (
                     <ImageCrop
                       imageUrl={cropImageUrl}
@@ -138,14 +135,18 @@ export function ContentSection({
                   )}
                 </div>
               ) : (
-                <Input
-                  id={field.key}
-                  value={pendingContent[field.key] || ''}
-                  onChange={(e) => handleContentChange(field.key, e.target.value)}
-                  className="mt-1.5"
+                <div> {/* Placeholder for FileUpload component */}
+                  {/*  Implement FileUpload component here if needed */}
+                  <Input type="file" onChange={(e) => handleContentChange(field.key, URL.createObjectURL(e.target.files[0]))}/>
+                </div>
+              )}
+              {pendingContent[field.key] && field.key !== "hero_background" && (
+                <img
+                  src={pendingContent[field.key]}
+                  alt="Preview"
+                  className="mt-2 rounded-lg max-h-48 object-cover"
                 />
               )}
-
             </div>
           ) : (
             <Input
