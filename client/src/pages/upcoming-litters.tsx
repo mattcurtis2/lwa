@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -25,8 +26,6 @@ export default function UpcomingLitters() {
     setSelectedDog(dog);
     setShowDogForm(true);
   };
-
-  
 
   const handleDogFormClose = () => {
     setShowDogForm(false);
@@ -116,13 +115,13 @@ export default function UpcomingLitters() {
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                         {litter.mother.profileImageUrl ? (
                           <img
-                            src={litter.mother.profileImageUrl}
+                            src={litter.mother.profileImageUrl.startsWith('http') ? litter.mother.profileImageUrl : litter.mother.profileImageUrl.startsWith('/') ? litter.mother.profileImageUrl : `/${litter.mother.profileImageUrl}`}
                             alt={litter.mother.name}
                             className="w-full h-full object-cover"
                           />
                         ) : litter.mother.media && litter.mother.media.length > 0 && litter.mother.media[0].type === 'image' ? (
                           <img
-                            src={litter.mother.media[0].url}
+                            src={litter.mother.media[0].url.startsWith('http') ? litter.mother.media[0].url : litter.mother.media[0].url.startsWith('/') ? litter.mother.media[0].url : `/${litter.mother.media[0].url}`}
                             alt={litter.mother.name}
                             className="w-full h-full object-cover"
                           />
@@ -148,13 +147,13 @@ export default function UpcomingLitters() {
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                         {litter.father.profileImageUrl ? (
                           <img
-                            src={litter.father.profileImageUrl}
+                            src={litter.father.profileImageUrl.startsWith('http') ? litter.father.profileImageUrl : litter.father.profileImageUrl.startsWith('/') ? litter.father.profileImageUrl : `/${litter.father.profileImageUrl}`}
                             alt={litter.father.name}
                             className="w-full h-full object-cover"
                           />
                         ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === 'image' ? (
                           <img
-                            src={litter.father.media[0].url}
+                            src={litter.father.media[0].url.startsWith('http') ? litter.father.media[0].url : litter.father.media[0].url.startsWith('/') ? litter.father.media[0].url : `/${litter.father.media[0].url}`}
                             alt={litter.father.name}
                             className="w-full h-full object-cover"
                           />
@@ -187,7 +186,7 @@ export default function UpcomingLitters() {
           onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
-          fromLitter={true} // Add this prop when opening from litter
+          fromLitter={true}
         />
       )}
     </>
