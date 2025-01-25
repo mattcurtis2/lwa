@@ -18,7 +18,7 @@ export default function Header() {
         <nav className="flex items-center justify-between">
           <Link href="/">
             <img 
-  src="/uploads/file-1737521150431-741452718.png"
+  src="/uploads/file-1737664945437-975207779.png"
   alt="Little Way Acres" 
   className="h-16 object-contain transition-transform duration-200 hover:scale-105"
 />
