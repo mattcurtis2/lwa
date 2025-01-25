@@ -413,7 +413,7 @@ function AdminDashboard() {
 
   const contentFields: ContentField[] = [
     { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent?.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
-    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? siteContent?.find(c => c.key === "hero_subtext")?.value ?? "", type: "textarea" },
+    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? "Living out God's great plan in small ways, daily.", type: "textarea" },
     { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
 
     { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent?.find(c => c.key === "about_title")?.value ?? "", type: "text" },
