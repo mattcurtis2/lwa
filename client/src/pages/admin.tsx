@@ -30,6 +30,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
+import GoatManagement from "@/components/admin/goat-management";
+import GoatLitterManagement from "@/components/admin/goat-litter-management";
 
 interface ContentField {
   key: string;
@@ -149,20 +151,20 @@ function AdminDashboard() {
       });
       setPendingContent(initialContent);
     }
-  }, [siteContent]); // Only depend on siteContent
+  }, [siteContent]);
 
   useEffect(() => {
     if (principlesData) {
       const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setPendingPrinciples(sortedPrinciples);
     }
-  }, [principlesData]); // Only depend on principlesData
+  }, [principlesData]);
 
   useEffect(() => {
     if (contactInfo) {
       setPendingContactInfo(contactInfo);
     }
-  }, [contactInfo]); // Only depend on contactInfo
+  }, [contactInfo]);
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -762,7 +764,7 @@ function AdminDashboard() {
                 {litterPuppies.map((puppy) => (
                   <div
                     key={puppy.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                    className="flex                    items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => handleEditDog(puppy)}
                   >
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
@@ -773,8 +775,8 @@ function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className={`w-full h-fullflex items-center justify-center ${
-                          puppy.gender=== 'female' ? 'bg-pink-100' :'bg-blue-100'
+                        <div className={`w-full h-full flex items-center justify-center ${
+                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
@@ -803,7 +805,8 @@ function AdminDashboard() {
                 setShowLitterForm(true);
               }}
             >
-              Edit Litter            </Button>
+              Edit Litter
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -844,8 +847,9 @@ function AdminDashboard() {
 
   const sidebarItems = [
     { id: "content", label: "Content", icon: LayoutDashboard },
+    { id: "carousel", label: "Carousel", icon: Image },
     { id: "dogs", label: "Dogs", icon: DogIcon },
-    { id: "animals", label: "Animals", icon: Cat },
+    { id: "goats", label: "Goats", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
   ];
@@ -853,48 +857,49 @@ function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-48 border-r bg-card">
-        <div className="p-4">
-          <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors mb-6 block">
-            {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
-          </Link>
-          <nav className="space-y-2">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={cn(
-                    "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
-                    activeTab === item.id
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="ml-3">{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+      <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
+        <div className="p-6 space-y-4">
+          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            orientation="vertical"
+            className="w-full"
+          >
+            <TabsList className="flex flex-col w-full gap-2">
+              <TabsTrigger value="content" className="w-full justify-start">
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Content
+              </TabsTrigger>
+              <TabsTrigger value="carousel" className="w-full justify-start">
+                <Image className="h-4 w-4 mr-2" />
+                Carousel
+              </TabsTrigger>
+              <TabsTrigger value="dogs" className="w-full justify-start">
+                <DogIcon className="h-4 w-4 mr-2" />
+                Dogs
+              </TabsTrigger>
+              <TabsTrigger value="goats" className="w-full justify-start">
+                <Cat className="h-4 w-4 mr-2" />
+                Goats
+              </TabsTrigger>
+              <TabsTrigger value="products" className="w-full justify-start">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Products
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="w-full justify-start">
+                <Contact className="h-4 w-4 mr-2" />
+                Contact
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto pl-5">
-        <div className="container py-6">
-          <div className="flex justify-end mb-6">
-            {hasUnsavedChanges && (
-              <Button onClick={handleSaveChanges}>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-            )}
-          </div>
-
-          {/* Content sections */}
-          {activeTab === "content" && (
+      <div className="flex-1 pl-64">
+        <div className="container mx-auto p-6 max-w-6xl">
+          <TabsContent value="content">
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
                 <TabsList className="grid w-full grid-cols-5">
@@ -1306,60 +1311,79 @@ function AdminDashboard() {
                 </TabsContent>
               </Tabs>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "dogs" && (
-            <div className="space-y-6">
-              <Tabs defaultValue="dogManagement">
-                <TabsList>
-                  <TabsTrigger value="dogManagement">Dog Management</TabsTrigger>
-                  <TabsTrigger value="litterManagement">Litter Management</TabsTrigger>
-                </TabsList>
-                <TabsContent value="dogManagement">
-                  <DogManagement />
-                </TabsContent>
-                <TabsContent value="litterManagement">
-                  <LitterManagement />
-                </TabsContent>
-              </Tabs>
+          <TabsContent value="carousel">
+            <div className="mb-6">
+              <Button onClick={() => {
+                setEditItem(null);
+                setShowForm(true);
+              }}>
+                Add Carousel Item
+              </Button>
             </div>
-          )}
-
-          {activeTab === "animals" && (
-            <div className="space-y-6">
-              <div className="mb-6">
-                <Button onClick={() => {
-                  setEditItem(null);
-                  setShowForm(true);
-                }}>
-                  Add New Animal
-                </Button>
-              </div>
-
-              {showForm && (
-                <AnimalForm
-                  animal={editItem as Animal}
-                  onClose={() => setShowForm(false)}
-                />
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {animals.map((animal) => (
-                  <AnimalCard
-                    key={animal.id}
-                    animal={animal}
-                    isAdmin
-                    onEdit={() => {
-                      setEditItem(animal);
-                      setShowForm(true);
-                    }}
-                  />
-                ))}
-              </div>
+            <div className="grid gap-4">
+              {carouselItems?.map((item) => (
+                <Card key={item.id}>
+                  <CardHeader>
+                    <CardTitle>{item.title}</CardTitle>
+                    <CardDescription>{item.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex justify-end mt-4">
+                      <Button
+                        onClick={() => {
+                          setEditItem(item);
+                          setShowForm(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "products" && (
+          <TabsContent value="dogs">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList>
+                <TabsTrigger value="overview">Dogs</TabsTrigger>
+                <TabsTrigger value="litters">Litters</TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview">
+                <DogManagement />
+              </TabsContent>
+              <TabsContent value="litters">
+                <LitterManagement />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="goats">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList>
+                <TabsTrigger value="overview">Goats</TabsTrigger>
+                <TabsTrigger value="litters">Litters</TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview">
+                <GoatManagement />
+              </TabsContent>
+              <TabsContent value="litters">
+                <GoatLitterManagement />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="products">
             <div className="space-y-6">
               <div className="mb-6">
                 <Button onClick={() => {
@@ -1391,168 +1415,63 @@ function AdminDashboard() {
                 ))}
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === "contact" && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>Manage contact details and social media links</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={pendingContactInfo.email ?? ''}
-                      onChange={(e) => handleContactChange('email', e.target.value)}
-                      placeholder="contact@littlewayacres.com"
-                    />
-                  </div>
+          <TabsContent value="contact">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+                <CardDescription>Manage contact details and social media links</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={pendingContactInfo.email ?? ''}
+                    onChange={(e) => handleContactChange('email', e.target.value)}
+                    placeholder="contact@littlewayacres.com"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={pendingContactInfo.phone ?? ''}
-                      onChange={(e) => handleContactChange('phone', e.target.value)}
-                      placeholder="(555) 123-4567"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={pendingContactInfo.phone ?? ''}
+                    onChange={(e) => handleContactChange('phone', e.target.value)}
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="facebook">Facebook URL</Label>
-                    <Input
-                      id="facebook"
-                      type="url"
-                      value={pendingContactInfo.facebook ?? ''}
-                      onChange={(e) => handleContactChange('facebook', e.target.value)}
-                      placeholder="https://facebook.com/littlewayacres"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook URL</Label>
+                  <Input
+                    id="facebook"
+                    type="url"
+                    value={pendingContactInfo.facebook ?? ''}
+                    onChange={(e) => handleContactChange('facebook', e.target.value)}
+                    placeholder="https://facebook.com/littlewayacres"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">Instagram URL</Label>
-                    <Input
-                      id="instagram"
-                      type="url"
-                      value={pendingContactInfo.instagram ?? ''}
-                      onChange={(e) => handleContactChange('instagram', e.target.value)}
-                      placeholder="https://instagram.com/littlewayacres"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram URL</Label>
+                  <Input
+                    id="instagram"
+                    type="url"
+                    value={pendingContactInfo.instagram ?? ''}
+                    onChange={(e) => handleContactChange('instagram', e.target.value)}
+                    placeholder="https://instagram.com/littlewayacres"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </div>
       </div>
-
-      {/* Forms */}
-      {showForm && (
-        <Sheet open={showForm} onOpenChange={setShowForm}>
-          <SheetContent className="sm:max-w-2xl">
-            <SheetHeader>
-              <SheetTitle>{editItem ? 'Edit' : 'Add New'}</SheetTitle>
-            </SheetHeader>
-            {activeTab === "carousel" && (
-              <CarouselForm
-                item={editItem as CarouselItem}
-                onClose={() => {
-                  setShowForm(false);
-                  setEditItem(null);
-                }}
-              />
-            )}
-            {activeTab === "animals" && (
-              <AnimalForm
-                animal={editItem as Animal}
-                onClose={() => setShowForm(false)}
-              />
-            )}
-            {activeTab === "products" && (
-              <ProductForm
-                product={editItem as Product}
-                onClose={() => setShowForm(false)}
-              />
-            )}
-          </SheetContent>
-        </Sheet>
-      )}
-      {showPuppyForm && (
-        <Sheet open={showPuppyForm} onOpenChange={(open) => {
-          setShowPuppyForm(open);
-          // Don't close the litter form when closing puppy dialog
-          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
-        }}>
-          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
-            <SheetHeader>
-              <SheetTitle>
-                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <Form
-                isPuppy={true}
-                defaultValues={{
-                  name: editItem?.name || '',
-                  gender: editItem?.gender as 'male' | 'female' || 'male',
-                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
-                  breed: editItem?.breed || 'Colorado Mountain Dog',
-                  color: editItem?.color || '',
-                  description: editItem?.description || '',
-                  narrativeDescription: editItem?.narrativeDescription || '',
-                  healthData: editItem?.healthData || '',
-                  height: editItem?.height?.toString() || '',
-                  weight: editItem?.weight?.toString() || '',
-                  furLength: editItem?.furLength || '',
-                  registrationName: editItem?.registrationName || '',
-                  profileImageUrl: editItem?.profileImageUrl || '',
-                  media: editItem?.media || [],
-                  outsideBreeder: Boolean(editItem?.outsideBreeder),
-                  available: Boolean(editItem?.available),
-                  price: editItem?.price?.toString() || '',
-                }}
-                onSubmit={async (values) => {
-                  try {
-                    const processedValues = {
-                      ...values,
-                      height: values.height ? Number(values.height) : null,
-                      weight: values.weight ? Number(values.weight) : null,
-                      price: values.price ? Number(values.price) : null,
-                    };
-
-                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
-                      method: editItem?.id ? 'PUT' : 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(processedValues),
-                    });
-
-                    if (!res.ok) throw new Error('Failed to save puppy');
-
-                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-                    toast({
-                      title: "Success",
-                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
-                    });
-                    setShowPuppyForm(false);
-                  } catch (error) {
-                    console.error('Error saving puppy:', error);
-                    toast({
-                      title: "Error",
-                      description: error instanceof Error ? error.message : 'Failed to save puppy',
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
     </div>
   );
 }

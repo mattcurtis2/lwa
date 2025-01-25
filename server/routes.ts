@@ -204,6 +204,84 @@ export function registerRoutes(app: Express): Server {
         await db.insert(dogs).values(dog);
       }
     }
+
+    // Add sample goats if none exist
+    const existingGoats = await db.query.goats.findMany();
+
+    if (existingGoats.length === 0) {
+      const sampleGoats = [
+        {
+          name: "Luna",
+          gender: "female",
+          birthDate: "2023-03-15",
+          breed: "Nigerian Dwarf",
+          description: "Luna is a beautiful Nigerian Dwarf doe with excellent milking genetics.",
+          color: "Black and white",
+          available: true,
+          kid: false,
+          outsideBreeder: false,
+          order: 1,
+        },
+        {
+          name: "Zeus",
+          gender: "male",
+          birthDate: "2022-06-20",
+          breed: "Nigerian Dwarf",
+          description: "Zeus is our primary breeding buck, known for producing quality offspring.",
+          color: "Brown and white",
+          available: false,
+          kid: false,
+          outsideBreeder: false,
+          order: 2,
+        },
+        {
+          name: "Daisy",
+          gender: "female",
+          birthDate: "2023-01-10",
+          breed: "Nigerian Dwarf",
+          description: "Daisy is a sweet-natured doe with great milking potential.",
+          color: "Tri-colored",
+          available: true,
+          kid: false,
+          outsideBreeder: false,
+          order: 3,
+        }
+      ];
+
+      for (const goat of sampleGoats) {
+        await db.insert(goats).values(goat);
+      }
+    }
+
+    // Add sample goat litters if none exist
+    const existingGoatLitters = await db.query.goatLitters.findMany();
+
+    if (existingGoatLitters.length === 0) {
+      const goatsList = await db.query.goats.findMany();
+      const mothers = goatsList.filter(g => g.gender === 'female');
+      const fathers = goatsList.filter(g => g.gender === 'male');
+
+      if (mothers.length > 0 && fathers.length > 0) {
+        const sampleLitters = [
+          {
+            motherId: mothers[0].id,
+            fatherId: fathers[0].id,
+            dueDate: "2024-04-15",
+            isVisible: true
+          },
+          {
+            motherId: mothers[mothers.length - 1].id,
+            fatherId: fathers[0].id,
+            dueDate: "2024-05-20",
+            isVisible: true
+          }
+        ];
+
+        for (const litter of sampleLitters) {
+          await db.insert(goatLitters).values(litter);
+        }
+      }
+    }
   })();
 
   // Site content routes
@@ -824,13 +902,13 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Invalid litter ID" });
       }
 
-      constlitter = await db.query.litters.findFirst({
+      const litter = await db.query.litters.findFirst({
         where: eq(litters.id, litterId),
         with: {
           mother: {
             with: {
               media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+                orderBy: (media, { asc }) => [asc(media.order)],
               },
               documents: true,
             },
@@ -838,7 +916,7 @@ export function registerRoutes(app: Express): Server {
           father: {
             with: {
               media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+                orderBy: (media, { asc }) => [asc(media.order)],
               },
               documents: true,
             },
@@ -855,7 +933,7 @@ export function registerRoutes(app: Express): Server {
         where: eq(dogs.litterId, litterId),
         with: {
           media: {
-            orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+            orderBy: (media, { asc }) => [asc(media.order)],
           },
           documents: true,
         },
