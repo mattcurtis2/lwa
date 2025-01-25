@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
@@ -30,7 +29,7 @@ export function FileUpload({
   accept = 'image/*,video/*',
   cropAspect,
   isUploading = false,
-  skipCrop = true
+  skipCrop = true // Changed default to true to make cropping optional
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
@@ -68,13 +67,14 @@ export function FileUpload({
         return;
       }
 
-      if (file.type.startsWith('image/') && !skipCrop) {
+      // If skipCrop is true or file is not an image, bypass cropping
+      if (skipCrop || !file.type.startsWith('image/')) {
+        onFileSelect(file);
+      } else {
         setSelectedFile(file);
         const tempUrl = URL.createObjectURL(file);
         setTempImageUrl(tempUrl);
         setShowCropper(true);
-      } else {
-        onFileSelect(file);
       }
     }
   }, [onFileSelect, toast, skipCrop]);
@@ -120,7 +120,7 @@ export function FileUpload({
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
     const croppedFile = new File([blob], selectedFile?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-    
+
     onFileSelect(croppedFile);
     setShowCropper(false);
     setTempImageUrl(null);
@@ -159,8 +159,10 @@ export function FileUpload({
             alt="Preview"
             className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
             onClick={() => {
-              setTempImageUrl(value);
-              setShowCropper(true);
+              if (!skipCrop) {
+                setTempImageUrl(value);
+                setShowCropper(true);
+              }
             }}
           />
           <Button

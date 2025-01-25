@@ -456,7 +456,7 @@ export default function DogForm({
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   const onSubmitWrapper = async (values: any) => {
-    console.log('Form submission started with values:', values); // Added logging
+    console.log('Form submission started with values:', values); 
     try {
       const processedValues = {
         ...values,
@@ -490,7 +490,7 @@ export default function DogForm({
       }
 
       const savedDog = await response.json();
-      console.log('Dog saved successfully:', savedDog); // Added logging
+      console.log('Dog saved successfully:', savedDog); 
 
       toast({
         title: "Success",
@@ -956,6 +956,7 @@ export default function DogForm({
                       onFileSelect={(file) => handleDocumentUpload(file, 'health')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
+                      skipCrop={true}
                     />
                     {healthDocuments.length > 0 && (
                       <div className="space-y-2">
@@ -1028,6 +1029,7 @@ export default function DogForm({
                     <FileUpload                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
+                      skipCrop={true}
                     />
                     {pedigreeDocuments.length > 0 && (
                       <div className="space-y-2">
