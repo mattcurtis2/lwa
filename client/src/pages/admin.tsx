@@ -775,7 +775,7 @@ export default function AdminDashboard() {
               }}
             >
               Edit Litter
-                        </Button>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -824,7 +824,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
+      <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
           <TabsList className="flex flex-col w-full gap-2">
@@ -850,7 +850,7 @@ export default function AdminDashboard() {
             </TabsTrigger>
           </TabsList>
         </div>
-      </Tabs>
+      </div>
 
       <div className="flex-1 pl-64">
         <div className="container mx-auto p-6 max-w-6xl">
