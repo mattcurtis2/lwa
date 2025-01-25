@@ -16,6 +16,8 @@ const formSchema = z.object({
 });
 
 export function CMDContentForm() {
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -36,6 +38,16 @@ export function CMDContentForm() {
       imageUrl: heroContent?.[0]?.imageUrl || "",
     },
   });
+
+  const handleImageSelect = (url: string) => {
+    setTempImageUrl(url);
+    setShowCropper(true);
+  };
+
+  const handleCropComplete = (croppedUrl: string) => {
+    form.setValue("imageUrl", croppedUrl);
+    setShowCropper(false);
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
@@ -68,7 +80,16 @@ export function CMDContentForm() {
   }
 
   return (
-    <Form {...form}>
+    <>
+      {showCropper && tempImageUrl && (
+        <ImageCrop
+          imageUrl={tempImageUrl}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setShowCropper(false)}
+          aspect={16/9}
+        />
+      )}
+      <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
@@ -120,5 +141,6 @@ export function CMDContentForm() {
         <Button type="submit">Save Changes</Button>
       </form>
     </Form>
+    </>
   );
 }
