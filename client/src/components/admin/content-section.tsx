@@ -6,6 +6,9 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/button";
 import { useContentManagement } from "@/hooks/use-content-management";
 import { ContentField, SiteContent, Principle, ContactInfo } from "@db/schema";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import ImageCropper from "@/components/ui/image-cropper";
 
 interface ContentSectionProps {
   siteContent: SiteContent[];
@@ -20,8 +23,12 @@ export function ContentSection({
   contactInfo,
   contentFields
 }: ContentSectionProps) {
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [imageToEdit, setImageToEdit] = useState("");
+  const { toast } = useToast();
   const {
-    pendingContent,
+    pendingContent: pendingContentFromHook,
     pendingPrinciples,
     pendingContactInfo,
     hasUnsavedChanges,
@@ -30,8 +37,21 @@ export function ContentSection({
     handleContactChange
   } = useContentManagement(siteContent, principlesData, contactInfo);
 
+  const handleCropComplete = (croppedUrl: string) => {
+    handleContentChange('hero_background', croppedUrl);
+    setCropperOpen(false);
+  };
+
   return (
     <div className="space-y-6">
+      <ImageCropper
+        imageUrl={imageToEdit}
+        onCropComplete={handleCropComplete}
+        open={cropperOpen}
+        onOpenChange={setCropperOpen}
+        aspect={16/9}
+      />
+      <div className="grid gap-4">
       {/* Principles Title and Description */}
       <div className="border p-4 rounded-lg space-y-4 mb-6">
         <h4 className="font-medium">Principles Section</h4>
@@ -67,15 +87,30 @@ export function ContentSection({
           ) : field.type === 'image' ? (
             <div className="mt-1.5 space-y-2">
               <FileUpload
-                value={pendingContent[field.key] || ''}
-                onChange={(url) => handleContentChange(field.key, url)}
+                value={pendingContent[field.key] || field.value}
+                onFileSelect={(file) => handleContentChange(field.key, file)}
+                onChange={(url) => {
+                  if (typeof url === 'string') {
+                    setImageToEdit(url);
+                    setCropperOpen(true);
+                  }
+                }}
               />
-              {pendingContent[field.key] && (
-                <img
-                  src={pendingContent[field.key]}
-                  alt="Preview"
-                  className="mt-2 rounded-lg max-h-48 object-cover"
-                />
+              {(pendingContent[field.key] || field.value) && (
+                <div className="relative group">
+                  <img
+                    src={pendingContent[field.key] || field.value}
+                    alt="Preview"
+                    className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
+                    onClick={() => {
+                      setImageToEdit(pendingContent[field.key] || field.value);
+                      setCropperOpen(true);
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white">Click to crop</p>
+                  </div>
+                </div>
               )}
             </div>
           ) : (
@@ -88,6 +123,7 @@ export function ContentSection({
           )}
         </div>
       ))}
+      </div>
     </div>
   );
 }
