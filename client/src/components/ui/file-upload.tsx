@@ -67,11 +67,15 @@ export function FileUpload({
         return;
       }
 
-      if (file.type.startsWith('image/') && !skipCrop) {
-        setSelectedFile(file);
-        const tempUrl = URL.createObjectURL(file);
-        setTempImageUrl(tempUrl);
-        setShowCropper(true);
+      if (file.type.startsWith('image/')) {
+        if (skipCrop) {
+          onFileSelect(file);
+        } else {
+          setSelectedFile(file);
+          const tempUrl = URL.createObjectURL(file);
+          setTempImageUrl(tempUrl);
+          setShowCropper(true);
+        }
       } else {
         onFileSelect(file);
       }
