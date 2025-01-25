@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
@@ -69,7 +68,24 @@ export function FileUpload({
 
       if (file.type.startsWith('image/')) {
         if (skipCrop) {
-          onFileSelect(file);
+          const formData = new FormData();
+          formData.append('file', file);
+
+          fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (onChange) onChange(data.url);
+          })
+          .catch(err => {
+            toast({
+              title: "Error",
+              description: "Failed to upload file",
+              variant: "destructive"
+            });
+          });
         } else {
           setSelectedFile(file);
           const tempUrl = URL.createObjectURL(file);
@@ -80,7 +96,7 @@ export function FileUpload({
         onFileSelect(file);
       }
     }
-  }, [onFileSelect, toast]);
+  }, [onFileSelect, toast, onChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -123,7 +139,7 @@ export function FileUpload({
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
     const croppedFile = new File([blob], selectedFile?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-    
+
     onFileSelect(croppedFile);
     setShowCropper(false);
     setTempImageUrl(null);
