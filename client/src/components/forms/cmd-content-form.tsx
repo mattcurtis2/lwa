@@ -8,7 +8,8 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import ImageCropper from "@/components/ui/image-cropper";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ImageCrop } from "@/components/ui/image-crop";
 
 const formSchema = z.object({
   title: z.string(),
@@ -17,18 +18,14 @@ const formSchema = z.object({
 });
 
 export function CMDContentForm() {
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [imageToEdit, setImageToEdit] = useState("");
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: heroContent } = useQuery({
     queryKey: ['/api/dogs-hero'],
-    queryFn: async () => {
-      const res = await fetch('/api/dogs-hero');
-      if (!res.ok) throw new Error('Failed to fetch hero content');
-      return res.json();
-    },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -40,10 +37,38 @@ export function CMDContentForm() {
     },
   });
 
-  const handleCropComplete = async (croppedUrl: string) => {
+  const handleFileSelect = async (file: File) => {
     try {
-      // Convert the cropped data URL to a blob
-      const response = await fetch(croppedUrl);
+      setIsUploadingImage(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error('Failed to upload image');
+
+      const { url } = await uploadRes.json();
+      setCropImageUrl(url);
+      setShowCropper(true);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload image',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleCroppedImage = async (croppedImageUrl: string) => {
+    try {
+      setIsUploadingImage(true);
+      const response = await fetch(croppedImageUrl);
       if (!response.ok) throw new Error('Failed to fetch cropped image');
 
       const blob = await response.blob();
@@ -58,46 +83,26 @@ export function CMDContentForm() {
       if (!uploadRes.ok) throw new Error('Failed to upload image');
 
       const { url } = await uploadRes.json();
-      form.setValue('imageUrl', url);
+      form.setValue("imageUrl", url);
 
       toast({
         title: 'Success',
         description: 'Hero image updated successfully',
       });
 
-      setCropperOpen(false);
+      URL.revokeObjectURL(croppedImageUrl);
+      URL.revokeObjectURL(cropImageUrl);
+      setCropImageUrl("");
+      setShowCropper(false);
     } catch (error) {
-      console.error('Error handling cropped image:', error);
+      console.error('Error uploading cropped image:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save cropped image',
+        description: 'Failed to upload cropped image',
         variant: 'destructive',
       });
-    }
-  };
-
-  const handleFileSelect = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadRes.ok) throw new Error('Failed to upload image');
-
-      const { url } = await uploadRes.json();
-      setImageToEdit(url);
-      setCropperOpen(true);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to upload image',
-        variant: 'destructive',
-      });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -133,12 +138,22 @@ export function CMDContentForm() {
 
   return (
     <>
-      <ImageCropper
-        imageUrl={imageToEdit}
-        onCropComplete={handleCropComplete}
-        open={cropperOpen}
-        onOpenChange={setCropperOpen}
-      />
+      {showCropper && (
+        <Sheet open={showCropper} onOpenChange={setShowCropper}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Crop Image</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <ImageCrop
+                imageUrl={cropImageUrl}
+                onCropComplete={handleCroppedImage}
+                aspect={16/9}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -176,6 +191,7 @@ export function CMDContentForm() {
                     value={field.value}
                     onChange={field.onChange}
                     onFileSelect={handleFileSelect}
+                    isUploading={isUploadingImage}
                   />
                 </FormControl>
                 {field.value && (
@@ -185,8 +201,8 @@ export function CMDContentForm() {
                       alt="Hero"
                       className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
                       onClick={() => {
-                        setImageToEdit(field.value);
-                        setCropperOpen(true);
+                        setCropImageUrl(field.value);
+                        setShowCropper(true);
                       }}
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
