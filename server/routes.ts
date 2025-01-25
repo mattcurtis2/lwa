@@ -646,13 +646,21 @@ export function registerRoutes(app: Express): Server {
     }
 
     try {
-      const fileUrl = `/uploads/${req.file.filename}`;
-      const fileType = req.file.mimetype.split('/')[0]; // 'image', 'video', 'application', etc.
-
       // Ensure uploads directory exists
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
+
+      // Create a copy in the uploads directory to ensure file persistence
+      const fileName = req.file.filename;
+      const targetPath = path.join(uploadDir, fileName);
+
+      if (req.file.path !== targetPath) {
+        fs.copyFileSync(req.file.path, targetPath);
+      }
+
+      const fileUrl = `/uploads/${fileName}`;
+      const fileType = req.file.mimetype.split('/')[0];
 
       res.json({
         url: fileUrl,
@@ -669,10 +677,19 @@ export function registerRoutes(app: Express): Server {
   // Serve uploaded files statically with proper MIME types
   app.use('/uploads', express.static(uploadDir, {
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
-        res.setHeader('Content-Type', 'image/jpeg');
-      } else if (filePath.endsWith('.png')) {
-        res.setHeader('Content-Type', 'image/png');
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeTypes = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.pdf': 'application/pdf',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime'
+      };
+      if (mimeTypes[ext]) {
+        res.setHeader('Content-Type', mimeTypes[ext]);
       }
     }
   }));
