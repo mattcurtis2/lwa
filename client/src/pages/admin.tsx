@@ -848,7 +848,8 @@ export default function AdminDashboard() {
               <Contact className="h-4 w-4 mr-2" />
               Contact
             </TabsTrigger>
-        </TabsList>
+          </TabsList>
+        </div>
       </Tabs>
 
       <div className="flex-1 pl-64">
