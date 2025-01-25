@@ -1,12 +1,16 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FileUpload } from "@/components/ui/file-upload";
 import { Button } from "@/components/ui/button";
 import { useContentManagement } from "@/hooks/use-content-management";
 import { ContentField, SiteContent, Principle, ContactInfo } from "@db/schema";
+import { useDropzone } from "@react-dropzone/dropzone";
+import { Upload, X } from "lucide-react";
+import { useState } from "react";
+import cn from "classnames";
+import { ImageCrop } from "@/components/ImageCrop"; // Assumed component
+
 
 interface ContentSectionProps {
   siteContent: SiteContent[];
@@ -31,6 +35,10 @@ export function ContentSection({
     handleContactChange
   } = useContentManagement(siteContent, principlesData, contactInfo);
 
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState("");
+
+
   return (
     <div className="space-y-6">
       {/* Content fields rendering */}
@@ -46,17 +54,98 @@ export function ContentSection({
             />
           ) : field.type === 'image' ? (
             <div className="mt-1.5 space-y-2">
-              <FileUpload
-                value={pendingContent[field.key] || ''}
-                onChange={(url) => handleContentChange(field.key, url)}
-              />
-              {pendingContent[field.key] && (
-                <img
-                  src={pendingContent[field.key]}
-                  alt="Preview"
-                  className="mt-2 rounded-lg max-h-48 object-cover"
+              {/* Added Dropzone functionality here */}
+              {field.key === "hero_background" ? ( //Conditional rendering for Home Hero Background
+                <div>
+                  <div className="space-y-4">
+                    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+                      onDrop: (acceptedFiles) => {
+                        const file = acceptedFiles[0];
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          handleContentChange(field.key, e.target.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      },
+                    });
+
+                    <div
+                      {...getRootProps()}
+                      className={cn(
+                        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+                        isDragActive && "border-primary bg-accent"
+                      )}
+                    >
+                      <input {...getInputProps()} />
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <Upload className="h-10 w-10" />
+                        <p className="text-sm text-center">
+                          {isDragActive
+                            ? "Drop your image here..."
+                            : "Drag & drop an image here, or click to select"
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    {pendingContent[field.key] && (
+                      <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
+                        <img
+                          src={pendingContent[field.key]}
+                          alt="Hero Background"
+                          className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                          onClick={() => {
+                            setCropImageUrl(pendingContent[field.key]);
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContentChange(field.key, "");
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
+                          onClick={() => {
+                            setCropImageUrl(pendingContent[field.key]);
+                            setShowCropper(true);
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {showCropper && cropImageUrl && (
+                    <ImageCrop
+                      imageUrl={cropImageUrl}
+                      onCropComplete={(croppedImage) => {
+                        handleContentChange(field.key, croppedImage);
+                        setShowCropper(false);
+                        setCropImageUrl("");
+                      }}
+                      onCancel={() => {
+                        setShowCropper(false);
+                        setCropImageUrl("");
+                      }}
+                    />
+                  )}
+                </div>
+              ) : (
+                <Input
+                  id={field.key}
+                  value={pendingContent[field.key] || ''}
+                  onChange={(e) => handleContentChange(field.key, e.target.value)}
+                  className="mt-1.5"
                 />
               )}
+
             </div>
           ) : (
             <Input
