@@ -144,7 +144,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
           <>
             {shouldShowFemales && females.length > 0 && (
               <div>
-                <div className="relative">
+                <div className="relative mb-12">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t"></div>
                   </div>
@@ -164,7 +164,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
             {shouldShowMales && males.length > 0 && (
               <div>
-                <div className="relative">
+                <div className="relative mb-12">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t"></div>
                   </div>
