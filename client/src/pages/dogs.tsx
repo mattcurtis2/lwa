@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Dog, DogMedia, Litter } from "@db/schema";
-import DogProfile from "@/components/cards/dog-profile";
+import DogDetails from "@/components/dog-details";
 import { useLocation } from "wouter";
 import { formatDisplayDate } from "@/lib/date-utils";
 
@@ -132,9 +132,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         {showAvailable && availableDogs.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Available Dogs</h2>
-            <div className="grid gap-8">
+            <div className="space-y-8">
               {availableDogs.map((dog) => (
-                <DogProfile key={dog.id} dog={dog} />
+                <DogDetails key={dog.id} dog={dog} />
               ))}
             </div>
           </div>
@@ -145,9 +145,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
             {shouldShowFemales && females.length > 0 && (
               <div>
                 <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Females</h2>
-                <div className="grid gap-8">
+                <div className="space-y-8">
                   {females.map((dog) => (
-                    <DogProfile key={dog.id} dog={dog} />
+                    <DogDetails key={dog.id} dog={dog} />
                   ))}
                 </div>
               </div>
@@ -156,9 +156,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
             {shouldShowMales && males.length > 0 && (
               <div>
                 <h2 className="text-3xl font-bold mb-8 text-stone-800">Meet Our Males</h2>
-                <div className="grid gap-8">
+                <div className="space-y-8">
                   {males.map((dog) => (
-                    <DogProfile key={dog.id} dog={dog} />
+                    <DogDetails key={dog.id} dog={dog} />
                   ))}
                 </div>
               </div>
