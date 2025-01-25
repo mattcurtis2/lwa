@@ -774,7 +774,7 @@ function AdminDashboard() {
                         />
                       ) : (
                         <div className={`w-full h-fullflex items-center justify-center ${
-                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                          puppy.gender=== 'female' ? 'bg-pink-100' :'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
@@ -941,6 +941,7 @@ function AdminDashboard() {
                                           handleContentChange(field.key, url);
                                         }
                                       }}
+                                      skipCrop={field.key === "hero_background"}
                                     />
                                   </div>
                                 ) : (

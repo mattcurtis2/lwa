@@ -18,6 +18,7 @@ interface FileUploadProps {
   accept?: string;
   cropAspect?: number;
   isUploading?: boolean;
+  skipCrop?: boolean;
 }
 
 export function FileUpload({ 
@@ -66,7 +67,7 @@ export function FileUpload({
         return;
       }
 
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith('image/') && !skipCrop) {
         setSelectedFile(file);
         const tempUrl = URL.createObjectURL(file);
         setTempImageUrl(tempUrl);
