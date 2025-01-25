@@ -1438,14 +1438,67 @@ function AdminDashboard() {
                       </div>
                       <div className="grid gap-4">
                         {carouselItems?.map((item) => (
-                          <Card key={item.id} className="cursor-pointer" onClick={() => {
-                            setEditItem(item);
-                            setShowForm(true);
-                          }}>
-                            <CardHeader>
-                              <CardTitle>{item.title}</CardTitle>
-                              <CardDescription>{item.description}</CardDescription>
-                            </CardHeader>
+                          <Card key={item.id} className="p-4">
+                            <form onSubmit={(e) => {
+                              e.preventDefault();
+                              const formData = new FormData(e.currentTarget);
+                              const updatedItem = {
+                                ...item,
+                                title: formData.get('title') as string,
+                                description: formData.get('description') as string,
+                              };
+                              fetch(`/api/carousel/${item.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(updatedItem),
+                              }).then(() => {
+                                queryClient.invalidateQueries({ queryKey: ['/api/carousel'] });
+                              });
+                            }}>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label htmlFor={`title-${item.id}`}>Title</Label>
+                                  <Input 
+                                    id={`title-${item.id}`}
+                                    name="title"
+                                    defaultValue={item.title}
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor={`description-${item.id}`}>Description</Label>
+                                  <Textarea
+                                    id={`description-${item.id}`}
+                                    name="description" 
+                                    defaultValue={item.description}
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor={`image-${item.id}`}>Current Image</Label>
+                                  <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover rounded-md" />
+                                </div>
+                                <div className="flex justify-between">
+                                  <Button type="submit">Save Changes</Button>
+                                  <Button 
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={() => {
+                                      if (confirm('Are you sure you want to delete this carousel item?')) {
+                                        fetch(`/api/carousel/${item.id}`, {
+                                          method: 'DELETE',
+                                        }).then(() => {
+                                          queryClient.invalidateQueries({ queryKey: ['/api/carousel'] });
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </div>
+                            </form>
+                          </Card>
                             <CardContent>
                               {item.imageUrl && (
                                 <img
