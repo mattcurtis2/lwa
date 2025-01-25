@@ -7,6 +7,26 @@ import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import multer from "multer";
+
+app.get("/api/files/:filename", async (req, res) => {
+  try {
+    const file = await db.query.fileStorage.findFirst({
+      where: eq(fileStorage.fileName, req.params.filename)
+    });
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const buffer = Buffer.from(file.data, 'base64');
+    res.setHeader('Content-Type', file.mimeType);
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error serving file:", error);
+    res.status(500).json({ message: "Failed to serve file" });
+  }
+});
+
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
@@ -639,40 +659,60 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add file upload endpoint with updated file types
-  app.post("/api/upload", upload.single("file"), (req, res) => {
+  app.post("/api/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
       console.error("Upload error: No file in request");
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     try {
-      // Ensure uploads directory exists
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      // For development, save locally
+      if (process.env.NODE_ENV !== 'production') {
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        const fileName = req.file.filename;
+        const targetPath = path.join(uploadDir, fileName);
+
+        if (req.file.path !== targetPath) {
+          fs.copyFileSync(req.file.path, targetPath);
+        }
+
+        const fileUrl = `/uploads/${fileName}`;
+        return res.json({
+          url: fileUrl,
+          type: req.file.mimetype.split('/')[0],
+          originalName: req.file.originalname,
+          mimeType: req.file.mimetype
+        });
       }
 
-      // Create a copy in the uploads directory to ensure file persistence
-      const fileName = req.file.filename;
-      const targetPath = path.join(uploadDir, fileName);
+      // For production, use Replit's Database
+      const fileBuffer = await fs.promises.readFile(req.file.path);
+      const base64Data = fileBuffer.toString('base64');
+      
+      // Store file data in Replit Database
+      await db.insert(fileStorage).values({
+        fileName: req.file.filename,
+        mimeType: req.file.mimetype,
+        data: base64Data,
+        createdAt: new Date()
+      }).returning();
 
-      if (req.file.path !== targetPath) {
-        fs.copyFileSync(req.file.path, targetPath);
-      }
-
-      const fileUrl = `/uploads/${fileName}`;
-      const fileType = req.file.mimetype.split('/')[0];
-
+      const fileUrl = `/api/files/${req.file.filename}`;
       res.json({
         url: fileUrl,
-        type: fileType,
+        type: req.file.mimetype.split('/')[0],
         originalName: req.file.originalname,
         mimeType: req.file.mimetype
       });
+
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ message: "Failed to process uploaded file" });
     }
-  });
+});
 
   // Serve uploaded files statically with proper MIME types
   app.use('/uploads', express.static(uploadDir, {
