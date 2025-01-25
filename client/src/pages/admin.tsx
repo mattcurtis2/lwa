@@ -824,37 +824,37 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
-        <div className="p-6">
-          <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
-          <TabsList className="flex flex-col w-full gap-2">
-            <TabsTrigger value="content" className="w-full justify-start">
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="dogs" className="w-full justify-start">
-              <DogIcon className="h-4 w-4 mr-2" />
-              Dogs
-            </TabsTrigger>
-            <TabsTrigger value="goats" className="w-full justify-start">
-              <Cat className="h-4 w-4 mr-2" />
-              Goats
-            </TabsTrigger>
-            <TabsTrigger value="market" className="w-full justify-start">
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Market
-            </TabsTrigger>
-            <TabsTrigger value="contact" className="w-full justify-start">
-              <Contact className="h-4 w-4 mr-2" />
-              Contact
-            </TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
+        <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
+            <TabsList className="flex flex-col w-full gap-2">
+              <TabsTrigger value="content" className="w-full justify-start">
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Content
+              </TabsTrigger>
+              <TabsTrigger value="dogs" className="w-full justify-start">
+                <DogIcon className="h-4 w-4 mr-2" />
+                Dogs
+              </TabsTrigger>
+              <TabsTrigger value="goats" className="w-full justify-start">
+                <Cat className="h-4 w-4 mr-2" />
+                Goats
+              </TabsTrigger>
+              <TabsTrigger value="market" className="w-full justify-start">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Market
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="w-full justify-start">
+                <Contact className="h-4 w-4 mr-2" />
+                Contact
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
-      </div>
 
-      <div className="flex-1 pl-64">
-        <div className="container mx-auto p-6 max-w-6xl">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex-1 pl-64">
+          <div className="container mx-auto p-6 max-w-6xl">
             <TabsContent value="content">
               <Card>
                 <CardHeader>
@@ -1278,47 +1278,11 @@ export default function AdminDashboard() {
             </TabsContent>
 
             <TabsContent value="dogs">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Dog Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="overview" className="w-full">
-                    <TabsList>
-                      <TabsTrigger value="overview">Dogs</TabsTrigger>
-                      <TabsTrigger value="litters">Litters</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="overview">
-                      <DogManagement />
-                    </TabsContent>
-                    <TabsContent value="litters">
-                      <LitterManagement />
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+              <DogManagement />
             </TabsContent>
 
             <TabsContent value="goats">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Goat Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="overview" className="w-full">
-                    <TabsList>
-                      <TabsTrigger value="overview">Goats</TabsTrigger>
-                      <TabsTrigger value="litters">Litters</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="overview">
-                      <GoatManagement />
-                    </TabsContent>
-                    <TabsContent value="litters">
-                      <GoatLitterManagement />
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+              <GoatManagement />
             </TabsContent>
 
             <TabsContent value="market">
@@ -1409,9 +1373,9 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
-          </Tabs>
+          </div>
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 }
