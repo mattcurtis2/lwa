@@ -1324,8 +1324,9 @@ export default function DogForm({
           </div>
         )}
 
-        <div className="flex gap-4">
-          <Button type="submit">
+        <div className="flex gap-4 pt-6 sticky bottom-0 bg-background border-t">
+          <Button type="submit" className="gap-2">
+            <Save className="h-4 w-4" />
             {mode === 'edit' ? 'Save Changes' : 'Create Dog'}
           </Button>
           {onCancel && (
