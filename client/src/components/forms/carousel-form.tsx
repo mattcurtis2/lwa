@@ -182,6 +182,8 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                       onFileSelect={handleImageUpload}
                       onChange={field.onChange}
                       disabled={isUploading}
+                      accept="image/*"
+                      className="min-h-[200px] flex items-center justify-center"
                     />
                     {isUploading && (
                       <div className="text-sm text-muted-foreground">
