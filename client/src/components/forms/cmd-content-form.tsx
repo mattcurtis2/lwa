@@ -132,7 +132,11 @@ export function CMDContentForm() {
                 <img
                   src={field.value}
                   alt="Hero"
-                  className="mt-2 rounded-lg max-h-48 object-cover"
+                  className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => {
+                    setTempImageUrl(field.value);
+                    setShowCropper(true);
+                  }}
                 />
               )}
             </FormItem>
