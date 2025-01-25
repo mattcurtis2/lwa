@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { ImageCropper } from "@/components/ImageCropper"; // Assumed component
 
 const formSchema = z.object({
   title: z.string(),
@@ -17,7 +18,7 @@ const formSchema = z.object({
 
 export function CMDContentForm() {
   const [cropperOpen, setCropperOpen] = useState(false);
-  const [tempImageUrl, setTempImageUrl] = useState("");
+  const [imageToEdit, setImageToEdit] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -30,6 +31,11 @@ export function CMDContentForm() {
     },
   });
 
+  const handleCropComplete = (croppedUrl: string) => {
+    form.setValue('imageUrl', croppedUrl);
+    setCropperOpen(false);
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
@@ -38,16 +44,6 @@ export function CMDContentForm() {
       imageUrl: heroContent?.[0]?.imageUrl || "",
     },
   });
-
-  const handleImageSelect = (url: string) => {
-    setTempImageUrl(url);
-    setCropperOpen(true);
-  };
-
-  const handleCropComplete = (croppedUrl: string) => {
-    form.setValue("imageUrl", croppedUrl);
-    setShowCropper(false);
-  };
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
@@ -82,7 +78,7 @@ export function CMDContentForm() {
   return (
     <>
       <ImageCropper
-        imageUrl={tempImageUrl}
+        imageUrl={imageToEdit}
         onCropComplete={handleCropComplete}
         open={cropperOpen}
         onOpenChange={setCropperOpen}
@@ -128,15 +124,20 @@ export function CMDContentForm() {
                 />
               </FormControl>
               {field.value && (
-                <img
-                  src={field.value}
-                  alt="Hero"
-                  className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    setTempImageUrl(field.value);
-                    setShowCropper(true);
-                  }}
-                />
+                <div className="relative group">
+                  <img
+                    src={field.value}
+                    alt="Hero"
+                    className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
+                    onClick={() => {
+                      setImageToEdit(field.value);
+                      setCropperOpen(true);
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white">Click to crop</p>
+                  </div>
+                </div>
               )}
             </FormItem>
           )}
