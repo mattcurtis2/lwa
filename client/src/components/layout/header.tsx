@@ -21,7 +21,7 @@ export default function Header() {
               <img 
                 src={logo.value} 
                 alt="Little Way Acres" 
-                className="h-12 object-contain transition-transform duration-200 hover:scale-105"
+                className="h-16 object-contain transition-transform duration-200 hover:scale-105"
               />
             ) : (
               <a className="text-2xl font-bold transition-colors duration-200" style={{ color: '#476251' }}>Little Way Acres</a>
