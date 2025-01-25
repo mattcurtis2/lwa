@@ -1438,7 +1438,10 @@ function AdminDashboard() {
                       </div>
                       <div className="grid gap-4">
                         {carouselItems?.map((item) => (
-                          <Card key={item.id}>
+                          <Card key={item.id} className="cursor-pointer" onClick={() => {
+                            setEditItem(item);
+                            setShowForm(true);
+                          }}>
                             <CardHeader>
                               <CardTitle>{item.title}</CardTitle>
                               <CardDescription>{item.description}</CardDescription>
