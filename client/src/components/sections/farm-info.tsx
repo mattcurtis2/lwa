@@ -42,7 +42,7 @@ export default function FarmInfo() {
               <h3 className="text-xl font-bold mb-4">
                 {getContent("animals_title") || "Our Animals"}
               </h3>
-              <p className="text-stone-600 mb-6 line-clamp-4 flex-grow">
+              <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
                 {getContent("animals_text") || 
                   "Home to our wonderful Colorado Mountain Dogs and Nigerian Dwarf Goats, raised with love and care in a natural environment."}
               </p>
@@ -66,7 +66,7 @@ export default function FarmInfo() {
               <h3 className="text-xl font-bold mb-4">
                 {getContent("bakery_title") || "Our Goats"}
               </h3>
-              <p className="text-stone-600 mb-6 line-clamp-4 flex-grow">
+              <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
                 {getContent("bakery_text") || 
                   "Fresh bread and delicious pastries baked daily using traditional methods and the finest ingredients."}
               </p>
@@ -90,7 +90,7 @@ export default function FarmInfo() {
               <h3 className="text-xl font-bold mb-4">
                 {getContent("products_title") || "Farm Products"}
               </h3>
-              <p className="text-stone-600 mb-6 line-clamp-4 flex-grow">
+              <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
                 {getContent("products_text") || 
                   "Fresh, seasonal vegetables and farm products grown with care using sustainable practices."}
               </p>
