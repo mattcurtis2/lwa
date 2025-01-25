@@ -30,8 +30,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
-import GoatManagement from "@/components/admin/goat-management";
-import GoatLitterManagement from "@/components/admin/goat-litter-management";
 
 interface ContentField {
   key: string;
@@ -847,40 +845,56 @@ function AdminDashboard() {
   const sidebarItems = [
     { id: "content", label: "Content", icon: LayoutDashboard },
     { id: "dogs", label: "Dogs", icon: DogIcon },
-    { id: "goats", label: "Goats", icon: Cat },
+    { id: "animals", label: "Animals", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
   ];
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8">
-            <TabsTrigger value="content" className="flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="dogs" className="flex items-center gap-2">
-              <DogIcon className="h-4 w-4" />
-              Dogs
-            </TabsTrigger>
-            <TabsTrigger value="goats" className="flex items-center gap-2">
-              <Cat className="h-4 w-4" />
-              Goats
-            </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              Products
-            </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2">
-              <Contact className="h-4 w-4" />
-              Contact
-            </TabsTrigger>
-          </TabsList>
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-48 border-r bg-card">
+        <div className="p-4">
+          <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors mb-6 block">
+            {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
+          </Link>
+          <nav className="space-y-2">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={cn(
+                    "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
+                    activeTab === item.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="ml-3">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
 
-          {/* Content Management Tab */}
-          <TabsContent value="content">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto pl-5">
+        <div className="container py-6">
+          <div className="flex justify-end mb-6">
+            {hasUnsavedChanges && (
+              <Button onClick={handleSaveChanges}>
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            )}
+          </div>
+
+          {/* Content sections */}
+          {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
                 <TabsList className="grid w-full grid-cols-5">
@@ -1292,38 +1306,60 @@ function AdminDashboard() {
                 </TabsContent>
               </Tabs>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Dogs Management Tab */}
-          <TabsContent value="dogs" className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">Dogs Management</h2>
-              <p className="text-muted-foreground mb-6">Manage your Colorado Mountain Dogs</p>
-              <DogManagement />
+          {activeTab === "dogs" && (
+            <div className="space-y-6">
+              <Tabs defaultValue="dogManagement">
+                <TabsList>
+                  <TabsTrigger value="dogManagement">Dog Management</TabsTrigger>
+                  <TabsTrigger value="litterManagement">Litter Management</TabsTrigger>
+                </TabsList>
+                <TabsContent value="dogManagement">
+                  <DogManagement />
+                </TabsContent>
+                <TabsContent value="litterManagement">
+                  <LitterManagement />
+                </TabsContent>
+              </Tabs>
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">Litters Management</h2>
-              <p className="text-muted-foreground mb-6">Manage dog litters</p>
-              <LitterManagement />
-            </div>
-          </TabsContent>
+          )}
 
-          {/* Goats Management Tab - New Section */}
-          <TabsContent value="goats" className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">Goats Management</h2>
-              <p className="text-muted-foreground mb-6">Manage your Nigerian Dwarf Goats</p>
-              <GoatManagement />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">Goat Litters Management</h2>
-              <p className="text-muted-foreground mb-6">Manage goat litters</p>
-              <GoatLitterManagement />
-            </div>
-          </TabsContent>
+          {activeTab === "animals" && (
+            <div className="space-y-6">
+              <div className="mb-6">
+                <Button onClick={() => {
+                  setEditItem(null);
+                  setShowForm(true);
+                }}>
+                  Add New Animal
+                </Button>
+              </div>
 
-          {/* Products Management Tab */}
-          <TabsContent value="products">
+              {showForm && (
+                <AnimalForm
+                  animal={editItem as Animal}
+                  onClose={() => setShowForm(false)}
+                />
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {animals.map((animal) => (
+                  <AnimalCard
+                    key={animal.id}
+                    animal={animal}
+                    isAdmin
+                    onEdit={() => {
+                      setEditItem(animal);
+                      setShowForm(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "products" && (
             <div className="space-y-6">
               <div className="mb-6">
                 <Button onClick={() => {
@@ -1355,10 +1391,9 @@ function AdminDashboard() {
                 ))}
               </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Contact Management Tab */}
-          <TabsContent value="contact">
+          {activeTab === "contact" && (
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -1412,9 +1447,10 @@ function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
+
       {/* Forms */}
       {showForm && (
         <Sheet open={showForm} onOpenChange={setShowForm}>
