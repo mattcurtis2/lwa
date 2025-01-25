@@ -764,7 +764,8 @@ export default function AdminDashboard() {
               <div className="grid gap-4">
                 {litterPuppies.map((puppy) => renderPuppyCard(puppy, litterPuppies.indexOf(puppy)))}
               </div>
-            </div          )}
+            </div>
+          )}
           <div className="flex justify-end mt-4">
             <Button
               onClick={() => {
@@ -774,7 +775,7 @@ export default function AdminDashboard() {
               }}
             >
               Edit Litter
-            </Button>
+                        </Button>
           </div>
         </CardContent>
       </Card>
