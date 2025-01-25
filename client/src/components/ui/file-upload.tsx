@@ -77,11 +77,12 @@ export function FileUpload({
           })
           .then(res => res.json())
           .then(data => {
+            setPreviewUrl(data.url);
             if (onChange) onChange(data.url);
           })
           .catch(err => {
             toast({
-              title: "Error",
+              title: "Error", 
               description: "Failed to upload file",
               variant: "destructive"
             });
@@ -171,10 +172,10 @@ export function FileUpload({
         </div>
       </div>
 
-      {value && (
+      {(value || previewUrl) && (
         <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
           <img
-            src={value}
+            src={previewUrl || value}
             alt="Preview"
             className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
             onClick={() => {
