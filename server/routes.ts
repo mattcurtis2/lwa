@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -682,8 +682,8 @@ export function registerRoutes(app: Express): Server {
 
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ 
-        message: "Failed to process uploaded file", 
+      res.status(500).json({
+        message: "Failed to process uploaded file",
         details: error instanceof Error ? error.message : String(error)
       });
     } finally {
@@ -824,7 +824,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Invalid litter ID" });
       }
 
-      const litter = await db.query.litters.findFirst({
+      constlitter = await db.query.litters.findFirst({
         where: eq(litters.id, litterId),
         with: {
           mother: {

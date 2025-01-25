@@ -261,3 +261,122 @@ export const insertContactInfoSchema = createInsertSchema(contactInfo);
 export const selectContactInfoSchema = createSelectSchema(contactInfo);
 export type ContactInfo = typeof contactInfo.$inferSelect;
 export type NewContactInfo = typeof contactInfo.$inferInsert;
+
+export const goats = pgTable("goats", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  registrationName: text("registration_name"),
+  breed: text("breed").notNull(),
+  gender: text("gender").notNull(),
+  birthDate: date("birth_date").notNull(),
+  description: text("description"),
+  motherId: integer("mother_id").references(() => goats.id),
+  fatherId: integer("father_id").references(() => goats.id),
+  litterId: integer("litter_id").references(() => goatLitters.id),
+  kid: boolean("kid").default(false).notNull(),
+  available: boolean("available").default(false).notNull(),
+  price: text("price"),
+  profileImageUrl: text("profile_image_url"),
+  healthData: text("health_data"),
+  color: text("color"),
+  milkProduction: text("milk_production"),
+  height: decimal("height", { precision: 5, scale: 2 }),
+  weight: decimal("weight", { precision: 5, scale: 2 }),
+  pedigree: text("pedigree"),
+  narrativeDescription: text("narrative_description"),
+  order: integer("order").notNull().default(0),
+  outsideBreeder: boolean("outside_breeder").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const goatMedia = pgTable("goat_media", {
+  id: serial("id").primaryKey(),
+  goatId: integer("goat_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // "image" or "video"
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const goatDocuments = pgTable("goat_documents", {
+  id: serial("id").primaryKey(),
+  goatId: integer("goat_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // 'health' or 'pedigree'
+  name: text("name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const goatLitters = pgTable("goat_litters", {
+  id: serial("id").primaryKey(),
+  dueDate: date("due_date").notNull(),
+  motherId: integer("mother_id").notNull(),
+  fatherId: integer("father_id").notNull(),
+  isVisible: boolean("is_visible").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const goatRelations = relations(goats, ({ many, one }) => ({
+  media: many(goatMedia),
+  documents: many(goatDocuments),
+  mother: one(goats, {
+    fields: [goats.motherId],
+    references: [goats.id],
+  }),
+  father: one(goats, {
+    fields: [goats.fatherId],
+    references: [goats.id],
+  }),
+  litter: one(goatLitters, {
+    fields: [goats.litterId],
+    references: [goatLitters.id],
+  }),
+  motherOf: many(goats, { relationName: "mother" }),
+  fatherOf: many(goats, { relationName: "father" }),
+}));
+
+export const goatMediaRelations = relations(goatMedia, ({ one }) => ({
+  goat: one(goats, {
+    fields: [goatMedia.goatId],
+    references: [goats.id],
+  }),
+}));
+
+export const goatLitterRelations = relations(goatLitters, ({ one }) => ({
+  mother: one(goats, {
+    fields: [goatLitters.motherId],
+    references: [goats.id],
+  }),
+  father: one(goats, {
+    fields: [goatLitters.fatherId],
+    references: [goats.id],
+  }),
+}));
+
+export const goatDocumentsRelations = relations(goatDocuments, ({ one }) => ({
+  goat: one(goats, {
+    fields: [goatDocuments.goatId],
+    references: [goats.id],
+  }),
+}));
+
+export const insertGoatSchema = createInsertSchema(goats);
+export const selectGoatSchema = createSelectSchema(goats);
+export const insertGoatMediaSchema = createInsertSchema(goatMedia);
+export const selectGoatMediaSchema = createSelectSchema(goatMedia);
+export const insertGoatDocumentSchema = createInsertSchema(goatDocuments);
+export const selectGoatDocumentSchema = createSelectSchema(goatDocuments);
+export const insertGoatLitterSchema = createInsertSchema(goatLitters);
+export const selectGoatLitterSchema = createSelectSchema(goatLitters);
+
+export type Goat = typeof goats.$inferSelect;
+export type NewGoat = typeof goats.$inferInsert;
+export type GoatMedia = typeof goatMedia.$inferSelect;
+export type NewGoatMedia = typeof goatMedia.$inferInsert;
+export type GoatDocument = typeof goatDocuments.$inferSelect;
+export type NewGoatDocument = typeof goatDocuments.$inferInsert;
+export type GoatLitter = typeof goatLitters.$inferSelect;
+export type NewGoatLitter = typeof goatLitters.$inferInsert;
