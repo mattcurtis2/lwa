@@ -1324,15 +1324,15 @@ export default function DogForm({
           </div>
         )}
 
-        <div className="flex justify-between pt-6">
+        <div className="flex gap-4">
+          <Button type="submit">
+            {mode === 'edit' ? 'Save Changes' : 'Create Dog'}
+          </Button>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
           )}
-          <Button type="submit" className="ml-auto">
-            {mode === 'edit' ? 'Save Changes' : 'Create Dog'}
-          </Button>
         </div>
       </form>
     </Form>
