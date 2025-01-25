@@ -651,29 +651,56 @@ export function registerRoutes(app: Express): Server {
         });
       }
 
-      // For production, use Replit's Database
-      const fileBuffer = await fs.promises.readFile(req.file.path);
-      const base64Data = fileBuffer.toString('base64');
+      // For production, use PostgreSQL storage
+      try {
+        const fileBuffer = await fs.promises.readFile(req.file.path);
+        if (!fileBuffer) {
+          throw new Error("Could not read file buffer");
+        }
 
-      // Store file data in Replit Database
-      await db.insert(fileStorage).values({
-        fileName: req.file.filename,
-        mimeType: req.file.mimetype,
-        data: base64Data,
-        createdAt: new Date()
-      }).returning();
+        console.log("File size:", fileBuffer.length, "bytes");
+        console.log("File MIME type:", req.file.mimetype);
 
-      const fileUrl = `/api/files/${req.file.filename}`;
-      res.json({
-        url: fileUrl,
-        type: req.file.mimetype.split('/')[0],
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype
-      });
+        const base64Data = fileBuffer.toString('base64');
+
+        // Store file data in PostgreSQL
+        const [storedFile] = await db.insert(fileStorage)
+          .values({
+            fileName: req.file.filename,
+            mimeType: req.file.mimetype,
+            data: base64Data,
+            createdAt: new Date()
+          })
+          .returning();
+
+        if (!storedFile) {
+          throw new Error("Failed to store file in database");
+        }
+
+        const fileUrl = `/api/files/${req.file.filename}`;
+        res.json({
+          url: fileUrl,
+          type: req.file.mimetype.split('/')[0],
+          originalName: req.file.originalname,
+          mimeType: req.file.mimetype
+        });
+      } catch (dbError) {
+        console.error("Database storage error:", dbError);
+        throw new Error(`Failed to store file in database: ${dbError.message}`);
+      }
 
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ message: "Failed to process uploaded file" });
+      res.status(500).json({ message: `Failed to process uploaded file: ${error.message}` });
+    } finally {
+      // Clean up the temporary file
+      if (req.file && req.file.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Failed to cleanup temporary file:", cleanupError);
+        }
+      }
     }
   });
 
