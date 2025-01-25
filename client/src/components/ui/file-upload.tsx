@@ -76,7 +76,7 @@ export function FileUpload({
         onFileSelect(file);
       }
     }
-  }, [onFileSelect, toast]);
+  }, [onFileSelect, toast, skipCrop]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,

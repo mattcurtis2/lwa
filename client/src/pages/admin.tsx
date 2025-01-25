@@ -941,7 +941,7 @@ function AdminDashboard() {
                                           handleContentChange(field.key, url);
                                         }
                                       }}
-                                      skipCrop={field.key === "hero_background"}
+                                      skipCrop={field.key === 'hero_background' ? true : undefined}
                                     />
                                   </div>
                                 ) : (
