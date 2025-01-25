@@ -8,7 +8,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import ImageCropper from "@/components/ui/image-cropper"; // Assumed component
+import ImageCropper from "@/components/ui/image-cropper";
 
 const formSchema = z.object({
   title: z.string(),
@@ -31,11 +31,6 @@ export function CMDContentForm() {
     },
   });
 
-  const handleCropComplete = (croppedUrl: string) => {
-    form.setValue('imageUrl', croppedUrl);
-    setCropperOpen(false);
-  };
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
@@ -44,6 +39,67 @@ export function CMDContentForm() {
       imageUrl: heroContent?.[0]?.imageUrl || "",
     },
   });
+
+  const handleCropComplete = async (croppedUrl: string) => {
+    try {
+      // Convert the cropped data URL to a blob
+      const response = await fetch(croppedUrl);
+      if (!response.ok) throw new Error('Failed to fetch cropped image');
+
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', blob, 'hero-image.jpg');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error('Failed to upload image');
+
+      const { url } = await uploadRes.json();
+      form.setValue('imageUrl', url);
+
+      toast({
+        title: 'Success',
+        description: 'Hero image updated successfully',
+      });
+
+      setCropperOpen(false);
+    } catch (error) {
+      console.error('Error handling cropped image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save cropped image',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleFileSelect = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error('Failed to upload image');
+
+      const { url } = await uploadRes.json();
+      setImageToEdit(url);
+      setCropperOpen(true);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload image',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
@@ -82,69 +138,68 @@ export function CMDContentForm() {
         onCropComplete={handleCropComplete}
         open={cropperOpen}
         onOpenChange={setCropperOpen}
-        aspect={16/9}
       />
       <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hero Title</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="subtitle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hero Subtitle</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hero Image</FormLabel>
-              <FormControl>
-                <FileUpload
-                  value={field.value}
-                  onChange={field.onChange}
-                  onFileSelect={(file) => field.onChange(file)}
-                />
-              </FormControl>
-              {field.value && (
-                <div className="relative group">
-                  <img
-                    src={field.value}
-                    alt="Hero"
-                    className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
-                    onClick={() => {
-                      setImageToEdit(field.value);
-                      setCropperOpen(true);
-                    }}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hero Title</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="subtitle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hero Subtitle</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hero Image</FormLabel>
+                <FormControl>
+                  <FileUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onFileSelect={handleFileSelect}
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <p className="text-white">Click to crop</p>
+                </FormControl>
+                {field.value && (
+                  <div className="relative group">
+                    <img
+                      src={field.value}
+                      alt="Hero"
+                      className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
+                      onClick={() => {
+                        setImageToEdit(field.value);
+                        setCropperOpen(true);
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <p className="text-white">Click to crop</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Save Changes</Button>
-      </form>
-    </Form>
+                )}
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Save Changes</Button>
+        </form>
+      </Form>
     </>
   );
 }
