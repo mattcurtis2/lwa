@@ -17,15 +17,11 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
-            {logo?.value ? (
-              <img 
-                src={logo.value} 
-                alt="Little Way Acres" 
-                className="h-16 object-contain transition-transform duration-200 hover:scale-105"
-              />
-            ) : (
-              <a className="text-2xl font-bold transition-colors duration-200" style={{ color: '#476251' }}>Little Way Acres</a>
-            )}
+            <img 
+  src="/uploads/file-1737521150431-741452718.png"
+  alt="Little Way Acres" 
+  className="h-16 object-contain transition-transform duration-200 hover:scale-105"
+/>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
