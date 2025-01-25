@@ -1499,26 +1499,6 @@ function AdminDashboard() {
                               </div>
                             </form>
                           </Card>
-                            <CardContent>
-                              {item.imageUrl && (
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.title}
-                                  className="w-full h-48 object-cover rounded-lg"
-                                />
-                              )}
-                              <div className="flex justify-end mt-4">
-                                <Button
-                                  onClick={() => {
-                                    setEditItem(item);
-                                    setShowForm(true);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
                         ))}
                       </div>
                     </TabsContent>
