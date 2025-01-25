@@ -33,6 +33,7 @@ interface CarouselFormProps {
 export default function CarouselForm({ item, onClose }: CarouselFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<z.infer<typeof carouselItemSchema>>({
     resolver: zodResolver(carouselItemSchema),
@@ -66,6 +67,7 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
   });
 
   const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
 
@@ -79,6 +81,22 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
 
       const { url } = await uploadRes.json();
       form.setValue("imageUrl", url, { shouldValidate: true });
+      
+      if (item?.id) {
+        const updateRes = await fetch(`/api/carousel/${item.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...item, imageUrl: url }),
+        });
+
+        if (!updateRes.ok) throw new Error("Failed to update carousel item");
+        
+        queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+        toast({
+          title: "Success",
+          description: "Image updated successfully",
+        });
+      }
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
@@ -86,6 +104,8 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
         description: "Failed to upload image",
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -161,7 +181,13 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                       value={field.value}
                       onFileSelect={handleImageUpload}
                       onChange={field.onChange}
+                      disabled={isUploading}
                     />
+                    {isUploading && (
+                      <div className="text-sm text-muted-foreground">
+                        Uploading image...
+                      </div>
+                    )}
                     {field.value && (
                       <div className="w-full aspect-video rounded-lg overflow-hidden border">
                         <img
