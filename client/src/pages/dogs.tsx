@@ -144,7 +144,16 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
           <>
             {shouldShowFemales && females.length > 0 && (
               <div>
-                <h2 className="text-3xl font-bold mb-8 text-stone-800 text-center">Meet Our Females</h2>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t"></div>
+                  </div>
+                  <div className="relative flex justify-center text-center">
+                    <div className="bg-background px-6">
+                      <h2 className="text-3xl font-bold text-stone-800">Meet Our Females</h2>
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-8">
                   {females.map((dog) => (
                     <DogDetails key={dog.id} dog={dog} />
@@ -155,7 +164,16 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
             {shouldShowMales && males.length > 0 && (
               <div>
-                <h2 className="text-3xl font-bold mb-8 text-stone-800 text-center">Meet Our Males</h2>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t"></div>
+                  </div>
+                  <div className="relative flex justify-center text-center">
+                    <div className="bg-background px-6">
+                      <h2 className="text-3xl font-bold text-stone-800">Meet Our Males</h2>
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-8">
                   {males.map((dog) => (
                     <DogDetails key={dog.id} dog={dog} />
