@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
 import {
@@ -143,6 +142,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
   const handleThumbnailClick = (index: number) => {
     setActiveMediaIndex(index);
+    setIsMediaDialogOpen(true);
   };
 
   return (
@@ -156,10 +156,10 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             className="w-full h-full object-cover"
           />
         </div>
-        
+
         {/* Image Thumbnails */}
         {imageMedia.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2 h-[160px] overflow-y-auto"> {/* Added height and overflow */}
             {imageMedia.map((media, index) => (
               <button
                 key={index}
@@ -397,7 +397,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         {dog.media && dog.media.length > 0 && (
           <div className="md:hidden">
             <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2 h-[160px] overflow-y-auto"> {/* Added height and overflow */}
               {dog.media.map((item, index) => (
                 item.type === 'image' && (
                   <button
