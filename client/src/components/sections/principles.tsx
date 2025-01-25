@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Principle, SiteContent } from "@db/schema";
+import { Principle } from "@db/schema";
 
 const fadeInUp = {
   initial: {
@@ -29,10 +29,6 @@ export default function Principles() {
     queryKey: ["/api/principles"],
   });
 
-  const { data: siteContent } = useQuery<SiteContent[]>({
-    queryKey: ["/api/site-content"],
-  });
-
   return (
     <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
       {/* Add decorative bottom edge */}
@@ -58,9 +54,9 @@ export default function Principles() {
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <h2 className="text-4xl font-bold mb-4">{siteContent?.find(c => c.key === "principles_title")?.value || "Our Principles"}</h2>
+          <h2 className="text-4xl font-bold mb-4">Our Principles</h2>
           <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-            {siteContent?.find(c => c.key === "principles_description")?.value || "These foundational principles guide our daily operations and long-term vision at Little Way Acres."}
+            These foundational principles guide our daily operations and long-term vision at Little Way Acres.
           </p>
         </motion.div>
 

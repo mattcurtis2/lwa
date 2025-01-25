@@ -113,7 +113,7 @@ export default function DogProfile({ dog }: DogProfileProps) {
           {dog.narrativeDescription && (
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Details</p>
-              <p className="text-sm whitespace-pre-wrap">{dog.narrativeDescription}</p>
+              <p className="text-sm">{dog.narrativeDescription}</p>
             </div>
           )}
 

@@ -109,10 +109,6 @@ function AdminDashboard() {
     queryKey: ["/api/site-content"]
   });
 
-  const { data: siteSettings } = useQuery({
-    queryKey: ["/api/site-settings"]
-  });
-
   const { data: dogsHero = [] } = useQuery<DogsHero[]>({
     queryKey: ["/api/dogs-hero"],
   });
@@ -777,8 +773,8 @@ function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${
-                          puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
+                        <div className={`w-full h-fullflex items-center justify-center ${
+                          puppy.gender=== 'female' ? 'bg-pink-100' : 'bg-blue-100'
                         }`}>
                           <span className={`text-xl ${
                             puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
@@ -901,175 +897,13 @@ function AdminDashboard() {
           {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
-                <TabsList className="grid w-full grid-cols-7">
-                  <TabsTrigger value="site">Site</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="home">Home</TabsTrigger>
                   <TabsTrigger value="dogs">CMD</TabsTrigger>
                   <TabsTrigger value="goats">NDG</TabsTrigger>
                   <TabsTrigger value="market">Market</TabsTrigger>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
-                  <TabsTrigger value="seo">SEO</TabsTrigger>
                 </TabsList>
-
-                <TabsContent value="site" className="space-y-6 pb-20">
-                  {hasUnsavedChanges && (
-                    <Button
-                      onClick={handleSaveChanges}
-                      className="fixed bottom-6 right-6 shadow-lg z-50 px-6"
-                    >
-                      SAVE
-                    </Button>
-                  )}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Branding</CardTitle>
-                      <CardDescription>Manage your site's logo and favicon</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="grid gap-6">
-                        <div>
-                          <Label>Site Logo</Label>
-                          <div className="flex flex-col gap-4">
-                            <FileUpload
-                              value={siteSettings?.logoUrl || ""}
-                              onFileSelect={async (file) => {
-                                const formData = new FormData();
-                                formData.append('logo', file);
-                                const res = await fetch('/api/site-settings', {
-                                  method: 'PUT',
-                                  body: formData
-                                });
-                                if (res.ok) {
-                                  queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
-                                  toast({
-                                    title: "Success",
-                                    description: "Logo updated successfully"
-                                  });
-                                }
-                              }}
-                            />
-                            {siteSettings?.logoUrl && (
-                              <div className="space-y-4">
-                                <div className="p-4 border rounded-lg bg-muted/50">
-                                  <img
-                                    src={siteSettings.logoUrl}
-                                    alt="Site Logo"
-                                    className="h-12 object-contain"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label>Favicon</Label>
-                          <div className="flex flex-col gap-4">
-                            <FileUpload
-                              value={siteSettings?.faviconUrl || ""}
-                              onFileSelect={async (file) => {
-                                const formData = new FormData();
-                                formData.append('favicon', file);
-                                const res = await fetch('/api/site-settings', {
-                                  method: 'PUT',
-                                  body: formData
-                                });
-                                if (res.ok) {
-                                  queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
-                                  toast({
-                                    title: "Success",
-                                    description: "Favicon updated successfully"
-                                  });
-                                }
-                              }}
-                            />
-                            {pendingContent["favicon_url"] && (
-                              <div className="p-4 border rounded-lg bg-muted/50 flex items-center gap-4">
-                                <img
-                                  src={pendingContent["favicon_url"]}
-                                  alt="Favicon"
-                                  className="h-8 w-8 object-contain"
-                                />
-                                <span className="text-sm text-muted-foreground">Preview of favicon at 32x32px</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="seo" className="space-y-6 pb-20">
-                  {hasUnsavedChanges && (
-                    <Button
-                      onClick={handleSaveChanges}
-                      className="fixed bottom-6 right-6 shadow-lg z-50 px-6"
-                    >
-                      SAVE
-                    </Button>
-                  )}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>SEO Settings</CardTitle>
-                      <CardDescription>Manage search engine optimization and social sharing</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="grid gap-6">
-                        <div>
-                          <Label>Site Title</Label>
-                          <Input
-                            value={pendingContent["site_title"] || ""}
-                            onChange={(e) => handleContentChange("site_title", e.target.value)}
-                            placeholder="Little Way Acres"
-                          />
-                          <p className="text-sm text-muted-foreground mt-2">
-                            The name of your site, displayed in browser tabs and search results
-                          </p>
-                        </div>
-
-                        <div>
-                          <Label>Site Description</Label>
-                          <Textarea
-                            value={pendingContent["site_description"] || ""}
-                            onChange={(e) => handleContentChange("site_description", e.target.value)}
-                            placeholder="Experience sustainable farming and meet our beloved animals at Little Way Acres"
-                          />
-                          <p className="text-sm text-muted-foreground mt-2">
-                            A brief description of your site, shown in search results and social shares
-                          </p>
-                        </div>
-
-                        <div>
-                          <Label>Social Image</Label>
-                          <div className="flex flex-col gap-4">
-                            <FileUpload
-                              value={pendingContent["og_image"] || ""}
-                              onFileSelect={(file) => handleContentChange("og_image", file)}
-                              onChange={(url) => {
-                                if (typeof url === 'string') {
-                                  handleContentChange("og_image", url);
-                                }
-                              }}
-                            />
-                            {pendingContent["og_image"] && (
-                              <div className="p-4 border rounded-lg bg-muted/50">
-                                <img
-                                  src={pendingContent["og_image"]}
-                                  alt="Social Preview"
-                                  className="rounded-lg max-h-48 object-cover w-full"
-                                />
-                                <p className="text-sm text-muted-foreground mt-2">
-                                  This image will be shown when your site is shared on social media
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
 
                 <TabsContent value="home" className="space-y-6">
                   <Tabs defaultValue="hero">
@@ -1335,32 +1169,6 @@ function AdminDashboard() {
                     </TabsContent>
 
                     <TabsContent value="principles" className="space-y-4 pt-4">
-                      <Card className="mb-6">
-                        <CardHeader>
-                          <CardTitle>Principles Section Settings</CardTitle>
-                          <CardDescription>Edit the main title and description for the principles section</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
-                            <Label htmlFor="principles_title">Section Title</Label>
-                            <Input
-                              id="principles_title"
-                              value={pendingContent["principles_title"] || ""}
-                              onChange={(e) => handleContentChange("principles_title", e.target.value)}
-                              placeholder="Our Principles"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="principles_description">Section Description</Label>
-                            <Textarea
-                              id="principles_description"
-                              value={pendingContent["principles_description"] || ""}
-                              onChange={(e) => handleContentChange("principles_description", e.target.value)}
-                              placeholder="These foundational principles guide our daily operations and long-term vision at Little Way Acres."
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
                       <div className="flex justify-end mb-4">
                         <Button onClick={handleAddPrinciple}>
                           Add Principle
@@ -1438,66 +1246,30 @@ function AdminDashboard() {
                       </div>
                       <div className="grid gap-4">
                         {carouselItems?.map((item) => (
-                          <Card key={item.id} className="p-4">
-                            <form onSubmit={(e) => {
-                              e.preventDefault();
-                              const formData = new FormData(e.currentTarget);
-                              const updatedItem = {
-                                ...item,
-                                title: formData.get('title') as string,
-                                description: formData.get('description') as string,
-                              };
-                              fetch(`/api/carousel/${item.id}`, {
-                                method: 'PUT',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(updatedItem),
-                              }).then(() => {
-                                queryClient.invalidateQueries({ queryKey: ['/api/carousel'] });
-                              });
-                            }}>
-                              <div className="space-y-4">
-                                <div>
-                                  <Label htmlFor={`title-${item.id}`}>Title</Label>
-                                  <Input 
-                                    id={`title-${item.id}`}
-                                    name="title"
-                                    defaultValue={item.title}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor={`description-${item.id}`}>Description</Label>
-                                  <Textarea
-                                    id={`description-${item.id}`}
-                                    name="description" 
-                                    defaultValue={item.description}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor={`image-${item.id}`}>Current Image</Label>
-                                  <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover rounded-md" />
-                                </div>
-                                <div className="flex justify-between">
-                                  <Button type="submit">Save Changes</Button>
-                                  <Button 
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={() => {
-                                      if (confirm('Are you sure you want to delete this carousel item?')) {
-                                        fetch(`/api/carousel/${item.id}`, {
-                                          method: 'DELETE',
-                                        }).then(() => {
-                                          queryClient.invalidateQueries({ queryKey: ['/api/carousel'] });
-                                        });
-                                      }
-                                    }}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
+                          <Card key={item.id}>
+                            <CardHeader>
+                              <CardTitle>{item.title}</CardTitle>
+                              <CardDescription>{item.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              {item.imageUrl && (
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="w-full h-48 object-cover rounded-lg"
+                                />
+                              )}
+                              <div className="flex justify-end mt-4">
+                                <Button
+                                  onClick={() => {
+                                    setEditItem(item);
+                                    setShowForm(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
                               </div>
-                            </form>
+                            </CardContent>
                           </Card>
                         ))}
                       </div>
@@ -1783,8 +1555,9 @@ function AdminDashboard() {
                     const processedValues = {
                       ...values,
                       height: values.height ? Number(values.height) : null,
-                      weight: values.weight ? Number(values.weight) :null,
-                      price: values.price ? Number(values.price) : null,                    };
+                      weight: values.weight ? Number(values.weight) : null,
+                      price: values.price ? Number(values.price) : null,
+                    };
 
                     const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
                       method: editItem?.id ? 'PUT' : 'POST',

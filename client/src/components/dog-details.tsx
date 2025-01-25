@@ -289,7 +289,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <p className="text-lg leading-relaxed whitespace-pre-wrap">
+                <p className="text-lg leading-relaxed">
                   {dog.narrativeDescription || dog.description}
                 </p>
               </div>

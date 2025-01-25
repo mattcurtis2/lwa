@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
@@ -22,7 +21,7 @@ export default function PastLitters() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
+        <h1 className="text-3xl font-bold mb-8">Past Litters</h1>
         <div className="space-y-8">
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="overflow-hidden animate-pulse">
@@ -55,9 +54,9 @@ export default function PastLitters() {
   if (!litters?.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
+        <h1 className="text-3xl font-bold mb-4">No Past Litters</h1>
         <p className="text-muted-foreground">
-          We don't have any current litters to display at this time.
+          We don't have any past litters to display at this time.
         </p>
       </div>
     );
@@ -65,7 +64,7 @@ export default function PastLitters() {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
+      <h1 className="text-3xl font-bold mb-8">Past Litters</h1>
       <div className="grid gap-8">
         {litters.map((litter) => (
           <Link

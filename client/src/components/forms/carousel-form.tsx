@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,7 +21,6 @@ const carouselItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().min(1, "Image is required"),
-  order: z.number().optional(),
 });
 
 interface CarouselFormProps {
@@ -33,15 +31,13 @@ interface CarouselFormProps {
 export default function CarouselForm({ item, onClose }: CarouselFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
 
-  const form = useForm<z.infer<typeof carouselItemSchema>>({
+  const form = useForm({
     resolver: zodResolver(carouselItemSchema),
     defaultValues: {
       title: item?.title ?? "",
       description: item?.description ?? "",
       imageUrl: item?.imageUrl ?? "",
-      order: item?.order ?? undefined,
     },
   });
 
@@ -67,7 +63,6 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
   });
 
   const handleImageUpload = async (file: File) => {
-    setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
 
@@ -81,57 +76,11 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
 
       const { url } = await uploadRes.json();
       form.setValue("imageUrl", url, { shouldValidate: true });
-      
-      if (item?.id) {
-        const updateRes = await fetch(`/api/carousel/${item.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...item, imageUrl: url }),
-        });
-
-        if (!updateRes.ok) throw new Error("Failed to update carousel item");
-        
-        queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-        toast({
-          title: "Success",
-          description: "Image updated successfully",
-        });
-      }
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
         title: "Error",
         description: "Failed to upload image",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!item?.id) return;
-    
-    if (!confirm("Are you sure you want to delete this carousel item?")) return;
-
-    try {
-      const res = await fetch(`/api/carousel/${item.id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Failed to delete carousel item");
-
-      queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-      toast({
-        title: "Success",
-        description: "Carousel item deleted successfully",
-      });
-      onClose();
-    } catch (error) {
-      console.error('Error deleting carousel item:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete carousel item",
         variant: "destructive",
       });
     }
@@ -181,44 +130,34 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                       value={field.value}
                       onFileSelect={handleImageUpload}
                       onChange={field.onChange}
-                      disabled={isUploading}
-                      accept="image/*"
-                      className="min-h-[200px] flex items-center justify-center"
                     />
-                    {isUploading && (
-                      <div className="text-sm text-muted-foreground">
-                        Uploading image...
-                      </div>
-                    )}
-                    {field.value && (
-                      <div className="w-full aspect-video rounded-lg overflow-hidden border">
-                        <img
-                          src={field.value}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
+                    <div className="text-center text-sm text-muted-foreground">or</div>
+                    <Input
+                      placeholder="Enter image URL..."
+                      {...field}
+                    />
                   </div>
                 </FormControl>
+                {field.value && (
+                  <div className="w-full aspect-video rounded-lg overflow-hidden border">
+                    <img
+                      src={field.value}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <FormMessage />
               </div>
             </FormItem>
           )}
         />
 
-        <div className="flex justify-between">
-          <div className="flex gap-4">
-            <Button type="submit">Save</Button>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          </div>
-          {item && (
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          )}
+        <div className="flex gap-4">
+          <Button type="submit">Save</Button>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
         </div>
       </form>
     </Form>
