@@ -154,7 +154,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     </div>
                   </div>
                 </div>
-                <div className="space-y-8">
+                <div className="space-y-16">
                   {females.map((dog) => (
                     <DogDetails key={dog.id} dog={dog} />
                   ))}
@@ -174,7 +174,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     </div>
                   </div>
                 </div>
-                <div className="space-y-8">
+                <div className="space-y-16">
                   {males.map((dog) => (
                     <DogDetails key={dog.id} dog={dog} />
                   ))}
