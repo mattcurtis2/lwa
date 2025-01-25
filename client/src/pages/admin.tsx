@@ -762,41 +762,9 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <h4 className="font-medium">Puppies</h4>
               <div className="grid gap-4">
-                {litterPuppies.map((puppy) => (
-                  <div
-                    key={puppy.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleEditDog(puppy)}
-                  >
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">                    {puppy.profileImageUrl ? (
-                      <img
-                        src={puppy.profileImageUrl}
-                        alt={puppy.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className={`w-full h-full flex items-center justify-center ${
-                        puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                      }`}>
-                        <span className={`text-xl ${
-                          puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-                        }`}>
-                          {puppy.gender === 'female' ? '♀' : '♂'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium">{puppy.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {puppy.gender} • {puppy.color || 'No color set'}
-                    </p>
-                  </div>
-                </div>
-                ))}
+                {litterPuppies.map((puppy) => renderPuppyCard(puppy, litterPuppies.indexOf(puppy)))}
               </div>
-            </div>
-          )}
+            </div          )}
           <div className="flex justify-end mt-4">
             <Button
               onClick={() => {
@@ -847,52 +815,45 @@ export default function AdminDashboard() {
 
   const sidebarItems = [
     { id: "content", label: "Content", icon: LayoutDashboard },
-    { id: "carousel", label: "Carousel", icon: Image },
     { id: "dogs", label: "Dogs", icon: DogIcon },
     { id: "goats", label: "Goats", icon: Cat },
-    { id: "products", label: "Products", icon: ShoppingBag },
+    { id: "market", label: "Market", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
   ];
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
-        {/* Sidebar */}
-        <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
-          <div className="p-6 space-y-4">
-            <h2 className="text-lg font-semibold">Admin Dashboard</h2>
-            <TabsList className="flex flex-col w-full gap-2">
-              <TabsTrigger value="content" className="w-full justify-start">
-                <LayoutDashboard className="h-4 w-4 mr-2" />
-                Content
-              </TabsTrigger>
-              <TabsTrigger value="carousel" className="w-full justify-start">
-                <Image className="h-4 w-4 mr-2" />
-                Carousel
-              </TabsTrigger>
-              <TabsTrigger value="dogs" className="w-full justify-start">
-                <DogIcon className="h-4 w-4 mr-2" />
-                Dogs
-              </TabsTrigger>
-              <TabsTrigger value="goats" className="w-full justify-start">
-                <Cat className="h-4 w-4 mr-2" />
-                Goats
-              </TabsTrigger>
-              <TabsTrigger value="products" className="w-full justify-start">
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                Products
-              </TabsTrigger>
-              <TabsTrigger value="contact" className="w-full justify-start">
-                <Contact className="h-4 w-4 mr-2" />
-                Contact
-              </TabsTrigger>
-            </TabsList>
-          </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
+        <div className="p-6 space-y-4">
+          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
+          <TabsList className="flex flex-col w-full gap-2">
+            <TabsTrigger value="content" className="w-full justify-start">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="dogs" className="w-full justify-start">
+              <DogIcon className="h-4 w-4 mr-2" />
+              Dogs
+            </TabsTrigger>
+            <TabsTrigger value="goats" className="w-full justify-start">
+              <Cat className="h-4 w-4 mr-2" />
+              Goats
+            </TabsTrigger>
+            <TabsTrigger value="market" className="w-full justify-start">
+              <ShoppingBag className="h-4 w-4 mr-2" />
+              Market
+            </TabsTrigger>
+            <TabsTrigger value="contact" className="w-full justify-start">
+              <Contact className="h-4 w-4 mr-2" />
+              Contact
+            </TabsTrigger>
+          </TabsList>
         </div>
+      </Tabs>
 
-        {/* Main Content Area */}
-        <div className="flex-1 pl-64">
-          <div className="container mx-auto p-6 max-w-6xl">
+      <div className="flex-1 pl-64">
+        <div className="container mx-auto p-6 max-w-6xl">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="content">
               <Card>
                 <CardHeader>
@@ -1315,54 +1276,6 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="carousel">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Carousel Management</CardTitle>
-                  <CardDescription>Manage carousel items and images</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-6">
-                    <Button onClick={() => {
-                      setEditItem(null);
-                      setShowForm(true);
-                    }}>
-                      Add Carousel Item
-                    </Button>
-                  </div>
-                  <div className="grid gap-4">
-                    {carouselItems?.map((item) => (
-                      <Card key={item.id}>
-                        <CardHeader>
-                          <CardTitle>{item.title}</CardTitle>
-                          <CardDescription>{item.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          {item.imageUrl && (
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          )}
-                          <div className="flex justify-end mt-4">
-                            <Button
-                              onClick={() => {
-                                setEditItem(item);
-                                setShowForm(true);
-                              }}
-                            >
-                              Edit
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             <TabsContent value="dogs">
               <Card>
                 <CardHeader>
@@ -1407,7 +1320,7 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="products">
+            <TabsContent value="market">
               <Card>
                 <CardHeader>
                   <CardTitle>Product Management</CardTitle>
@@ -1495,9 +1408,9 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
-          </div>
+          </Tabs>
         </div>
-      </Tabs>
+      </div>
     </div>
   );
 }
