@@ -942,13 +942,6 @@ function AdminDashboard() {
                                         }
                                       }}
                                     />
-                                    {(pendingContent[field.key] || field.value) && (
-                                      <img
-                                        src={pendingContent[field.key] || field.value}
-                                        alt="Preview"
-                                        className="mt-2 rounded-lg max-h-48 object-cover"
-                                      />
-                                    )}
                                   </div>
                                 ) : (
                                   <Input
@@ -1026,13 +1019,6 @@ function AdminDashboard() {
                                     }
                                   }}
                                 />
-                                {pendingContent["animals_image"] && (
-                                  <img
-                                    src={pendingContent["animals_image"]}
-                                    alt="Colorado Mountain Dogs"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
-                                  />
-                                )}
                               </div>
                               <div>
                                 <Label htmlFor="animals_button_text">Button Text</Label>
@@ -1082,13 +1068,6 @@ function AdminDashboard() {
                                     }
                                   }}
                                 />
-                                {pendingContent["bakery_image"] && (
-                                  <img
-                                    src={pendingContent["bakery_image"]}
-                                    alt="Nigerian Dwarf Goats"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
-                                  />
-                                )}
                               </div>
                               <div>
                                 <Label htmlFor="bakery_button_text">Button Text</Label>
@@ -1138,13 +1117,6 @@ function AdminDashboard() {
                                     }
                                   }}
                                 />
-                                {pendingContent["products_image"] && (
-                                  <img
-                                    src={pendingContent["products_image"]}
-                                    alt="Products"
-                                    className="mt-2 rounded-lg max-h-48 object-cover"
-                                  />
-                                )}
                               </div>
                               <div>
                                 <Label htmlFor="products_button_text">Button Text</Label>
@@ -1216,13 +1188,6 @@ function AdminDashboard() {
                                 }
                               }}
                             />
-                            {principle.imageUrl && (
-                              <img
-                                src={principle.imageUrl}
-                                alt={principle.title}
-                                className="mt-2 rounded-lg max-h-48 object-cover"
-                              />
-                            )}
                           </div>
                           <div className="flex justify-end">
                             <Button
