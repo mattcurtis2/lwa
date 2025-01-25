@@ -129,14 +129,21 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       )}
 
       <div className="container mx-auto px-4 py-16 space-y-16">
-        {showAvailable && availableDogs.length > 0 && (
+        {showAvailable && (
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Available Dogs</h2>
-            <div className="space-y-8">
-              {availableDogs.map((dog) => (
-                <DogDetails key={dog.id} dog={dog} />
-              ))}
-            </div>
+            {availableDogs.length > 0 ? (
+              <div className="space-y-8">
+                {availableDogs.map((dog) => (
+                  <DogDetails key={dog.id} dog={dog} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-stone-50 rounded-lg border border-stone-200">
+                <p className="text-lg text-stone-600">We currently don't have any available dogs.</p>
+                <p className="text-stone-500 mt-2">Please check back later or contact us for more information.</p>
+              </div>
+            )}
           </div>
         )}
 
