@@ -825,10 +825,9 @@ export default function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
-        <div className="p-6 pb-4">
-          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
-        </div>
-        <TabsList className="flex flex-col w-full gap-2 px-6">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
+          <TabsList className="flex flex-col w-full gap-2">
             <TabsTrigger value="content" className="w-full justify-start">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Content
