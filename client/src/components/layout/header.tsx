@@ -37,33 +37,34 @@ export default function Header() {
                 }`}
                 onMouseEnter={() => setIsDropdownOpen(true)}
                 onMouseLeave={() => setIsDropdownOpen(false)}
+                onClick={() => setIsDropdownOpen(false)}
               >
-                <Link href="/dogs" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     About
                   </a>
                 </Link>
-                <Link href="/dogs/males" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs/males">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Males
                   </a>
                 </Link>
-                <Link href="/dogs/females" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs/females">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Females
                   </a>
                 </Link>
-                <Link href="/dogs/litters/upcoming" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs/litters/upcoming">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Upcoming Litters
                   </a>
                 </Link>
-                <Link href="/dogs/litters/past" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs/litters/past">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Past Litters
                   </a>
                 </Link>
-                <Link href="/dogs/available" onClick={() => setIsDropdownOpen(false)}>
+                <Link href="/dogs/available">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Available Dogs
                   </a>
