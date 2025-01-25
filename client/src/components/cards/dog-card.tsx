@@ -41,7 +41,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
           <div className="relative group">
             {dog.media && dog.media.length > 0 ? (
               <>
-                <DogMediaCarousel media={dog.media.map(media => ({...media, url: media.url.startsWith('http') ? media.url : `${window.location.origin}${media.url}`}))} />
+                <DogMediaCarousel media={dog.media.map(media => ({...media, url: media.url.startsWith('http') ? media.url : media.url.startsWith('/') ? media.url : `/${media.url}`}))} />
                 {showPrice && dog.price && (
                   <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
                     <p className="text-lg font-semibold text-white">
