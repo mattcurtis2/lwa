@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -87,7 +86,7 @@ export function CMDContentForm() {
 
       const data = await res.json();
       form.setValue("imageUrl", data.url);
-      
+
       toast({
         title: "Success",
         description: "Image uploaded successfully",
@@ -234,12 +233,21 @@ export function CMDContentForm() {
                         variant="destructive"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => field.onChange("")}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering the image click
+                          field.onChange("");
+                        }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                    <div 
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
+                      onClick={() => {
+                        setCropImageUrl(field.value);
+                        setShowCropper(true);
+                      }}
+                    />
                   </div>
                 )}
               </div>
