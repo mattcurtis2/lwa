@@ -666,8 +666,16 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Serve uploaded files statically
-  app.use('/uploads', express.static(uploadDir));
+  // Serve uploaded files statically with proper MIME types
+  app.use('/uploads', express.static(uploadDir, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+        res.setHeader('Content-Type', 'image/jpeg');
+      } else if (filePath.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
+      }
+    }
+  }));
 
   // Add litter routes
   app.get("/api/litters", async (_req, res) => {
