@@ -14,12 +14,7 @@ import express from 'express';
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
-try {
-  fs.ensureDirSync(uploadDir);
-  fs.chmodSync(uploadDir, 0o777); // Ensure directory has write permissions
-} catch (error) {
-  console.error('Error setting up uploads directory:', error);
-}
+fs.ensureDirSync(uploadDir); // Create uploads directory if it doesn't exist
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {

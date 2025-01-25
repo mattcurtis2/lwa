@@ -1,3 +1,4 @@
+
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
@@ -66,38 +67,16 @@ export function FileUpload({
         return;
       }
 
-      if (file.type.startsWith('image/')) {
-        if (skipCrop) {
-          const formData = new FormData();
-          formData.append('file', file);
-
-          fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          })
-          .then(res => res.json())
-          .then(data => {
-            setPreviewUrl(data.url);
-            if (onChange) onChange(data.url);
-          })
-          .catch(err => {
-            toast({
-              title: "Error", 
-              description: "Failed to upload file",
-              variant: "destructive"
-            });
-          });
-        } else {
-          setSelectedFile(file);
-          const tempUrl = URL.createObjectURL(file);
-          setTempImageUrl(tempUrl);
-          setShowCropper(true);
-        }
+      if (file.type.startsWith('image/') && !skipCrop) {
+        setSelectedFile(file);
+        const tempUrl = URL.createObjectURL(file);
+        setTempImageUrl(tempUrl);
+        setShowCropper(true);
       } else {
         onFileSelect(file);
       }
     }
-  }, [onFileSelect, toast, onChange]);
+  }, [onFileSelect, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -140,7 +119,7 @@ export function FileUpload({
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
     const croppedFile = new File([blob], selectedFile?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-
+    
     onFileSelect(croppedFile);
     setShowCropper(false);
     setTempImageUrl(null);
@@ -172,10 +151,10 @@ export function FileUpload({
         </div>
       </div>
 
-      {(value || previewUrl) && (
+      {value && (
         <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
           <img
-            src={previewUrl || value}
+            src={value}
             alt="Preview"
             className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
             onClick={() => {
