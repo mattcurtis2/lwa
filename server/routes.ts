@@ -1,94 +1,36 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import multer from "multer";
-
-app.get("/api/files/:filename", async (req, res) => {
-  try {
-    const file = await db.query.fileStorage.findFirst({
-      where: eq(fileStorage.fileName, req.params.filename)
-    });
-
-    if (!file) {
-      return res.status(404).json({ message: "File not found" });
-    }
-
-    const buffer = Buffer.from(file.data, 'base64');
-    res.setHeader('Content-Type', file.mimeType);
-    res.send(buffer);
-  } catch (error) {
-    console.error("Error serving file:", error);
-    res.status(500).json({ message: "Failed to serve file" });
-  }
-});
-
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
 
-
-// Multer configuration for file uploads
-const uploadDir = path.join(process.cwd(), "uploads");
-fs.ensureDirSync(uploadDir); // Create uploads directory if it doesn't exist
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (_req, file, cb) => {
-    const allowedTypes = [
-      // Images
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      // Videos
-      'video/mp4',
-      'video/quicktime',
-      'video/x-msvideo',
-      'video/x-ms-wmv',
-      // Documents
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.google-apps.document',
-      'text/plain',
-      // Spreadsheets
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.google-apps.spreadsheet'
-    ];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Supported formats: images, videos, PDFs, Word docs, and Google docs.'));
-    }
-  },
-  limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB limit
-  }
-});
-
-declare module "express-session" {
-  interface SessionData {
-    userId: number;
-  }
-}
-
 export function registerRoutes(app: Express): Server {
+  app.get("/api/files/:filename", async (req, res) => {
+    try {
+      const file = await db.query.fileStorage.findFirst({
+        where: eq(fileStorage.fileName, req.params.filename)
+      });
+
+      if (!file) {
+        return res.status(404).json({ message: "File not found" });
+      }
+
+      const buffer = Buffer.from(file.data, 'base64');
+      res.setHeader('Content-Type', file.mimeType);
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error serving file:", error);
+      res.status(500).json({ message: "Failed to serve file" });
+    }
+  });
+
   const SessionStore = MemoryStore(session);
 
   app.use(session({
@@ -691,7 +633,7 @@ export function registerRoutes(app: Express): Server {
       // For production, use Replit's Database
       const fileBuffer = await fs.promises.readFile(req.file.path);
       const base64Data = fileBuffer.toString('base64');
-      
+
       // Store file data in Replit Database
       await db.insert(fileStorage).values({
         fileName: req.file.filename,
@@ -712,7 +654,7 @@ export function registerRoutes(app: Express): Server {
       console.error("Upload error:", error);
       res.status(500).json({ message: "Failed to process uploaded file" });
     }
-});
+  });
 
   // Serve uploaded files statically with proper MIME types
   app.use('/uploads', express.static(uploadDir, {
