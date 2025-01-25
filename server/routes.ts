@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, litterInterestSignups } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -682,8 +682,8 @@ export function registerRoutes(app: Express): Server {
 
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ 
-        message: "Failed to process uploaded file", 
+      res.status(500).json({
+        message: "Failed to process uploaded file",
         details: error instanceof Error ? error.message : String(error)
       });
     } finally {
@@ -764,9 +764,6 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/litters/:id", async (req, res) => {
     try {
-      console.log("Updating litter - Request body:", req.body);
-      console.log("Litter ID:", req.params.id);
-
       // Extract only the fields we want to update
       const { dueDate, motherId, fatherId, isVisible } = req.body;
 
@@ -778,14 +775,10 @@ export function registerRoutes(app: Express): Server {
         updatedAt: new Date(),
       };
 
-      console.log("Update data being set:", updateData);
-
       const litter = await db.update(litters)
         .set(updateData)
         .where(eq(litters.id, parseInt(req.params.id)))
         .returning();
-
-      console.log("Updated litter result:", litter);
 
       const litterWithParents = await db.query.litters.findFirst({
         where: eq(litters.id, litter[0].id),
@@ -798,8 +791,6 @@ export function registerRoutes(app: Express): Server {
       res.json(litterWithParents);
     } catch (error) {
       console.error("Error updating litter - Full error:", error);
-      console.error("Error updating litter - Error message:", error.message);
-      console.error("Error updating litter - Error stack:", error.stack);
       res.status(500).json({ message: "Failed to update litter", error: error.message });
     }
   });
@@ -1045,6 +1036,53 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error updating contact info:", error);
       res.status(500).json({ message: "Failed to update contact info" });
+    }
+  });
+
+  // Add new routes for litter interest signups
+  app.post("/api/litter-interest-signup", async (req, res) => {
+    try {
+      const { litterId, ...signupData } = req.body;
+
+      // Validate the litter exists
+      const existingLitter = await db.query.litters.findFirst({
+        where: eq(litters.id, parseInt(litterId)),
+      });
+
+      if (!existingLitter) {
+        return res.status(404).json({ message: "Litter not found" });
+      }
+
+      // Create the signup
+      const signup = await db.insert(litterInterestSignups)
+        .values({
+          litterId: parseInt(litterId),
+          ...signupData,
+          status: "pending",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      res.json(signup[0]);
+    } catch (error) {
+      console.error("Error creating litter interest signup:", error);
+      res.status(500).json({ message: "Failed to submit interest form" });
+    }
+  });
+
+  // Get signups for a specific litter
+  app.get("/api/litters/:id/interest-signups", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+      const signups = await db.query.litterInterestSignups.findMany({
+        where: eq(litterInterestSignups.litterId, litterId),
+        orderBy: (litterInterestSignups, { desc }) => [desc(litterInterestSignups.createdAt)],
+      });
+      res.json(signups);
+    } catch (error) {
+      console.error("Error fetching litter interest signups:", error);
+      res.status(500).json({ message: "Failed to fetch interest signups" });
     }
   });
 

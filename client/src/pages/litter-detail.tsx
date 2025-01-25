@@ -4,6 +4,7 @@ import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogDetails from "@/components/dog-details";
+import { LitterInterestForm } from "@/components/forms/litter-interest-form";
 
 interface Document {
   id?: number;
@@ -94,10 +95,13 @@ export default function LitterDetail() {
           </div>
 
           {!isPastDueDate && (
-            <p className="text-amber-800 text-center sm:text-left mt-4 text-sm sm:text-base">
-              We're excited to announce this upcoming litter from our breeding program.
-              Please contact us for more information about reserving a puppy.
-            </p>
+            <div className="mt-4 flex flex-col items-center sm:items-start">
+              <p className="text-amber-800 text-center sm:text-left text-sm sm:text-base mb-4">
+                We're excited to announce this upcoming litter from our breeding program.
+                Please use the form below to express your interest in reserving a puppy.
+              </p>
+              <LitterInterestForm litterId={litter.id} />
+            </div>
           )}
         </div>
       </div>
