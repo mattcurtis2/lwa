@@ -30,7 +30,7 @@ export function FileUpload({
   accept = 'image/*,video/*',
   cropAspect,
   isUploading = false,
-  skipCrop = false
+  skipCrop = true
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
