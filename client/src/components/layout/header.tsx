@@ -22,13 +22,15 @@ export default function Header() {
 
           <div className="hidden md:flex items-center gap-6">
             <div className="relative">
-              <button
-                onMouseEnter={() => setIsDropdownOpen(true)}
-                onMouseLeave={() => setIsDropdownOpen(false)}
-                className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
-              >
-                Colorado Mountain Dogs
-              </button>
+              <Link href="/dogs">
+                <button
+                  onMouseEnter={() => setIsDropdownOpen(true)}
+                  onMouseLeave={() => setIsDropdownOpen(false)}
+                  className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
+                >
+                  Colorado Mountain Dogs
+                </button>
+              </Link>
               <div 
                 className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
                   isDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
