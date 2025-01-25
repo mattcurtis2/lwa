@@ -17,11 +17,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
-            <img 
-  src="/uploads/file-1737664945437-975207779.png"
-  alt="Little Way Acres" 
-  className="h-16 object-contain transition-transform duration-200 hover:scale-105"
-/>
+            <span className="text-xl font-semibold text-stone-600 hover:text-stone-900 transition-colors">Little Way Acres</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
