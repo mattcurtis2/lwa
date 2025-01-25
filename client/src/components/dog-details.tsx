@@ -143,7 +143,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
   const handleThumbnailClick = (index: number) => {
     setActiveMediaIndex(index);
-    setIsMediaDialogOpen(true);
   };
 
   return (
@@ -152,7 +151,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
       <div className="space-y-6">
         <div className="aspect-square rounded-lg overflow-hidden bg-muted">
           <img
-            src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
             alt={dog.name}
             className="w-full h-full object-cover"
           />

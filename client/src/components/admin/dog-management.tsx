@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dog } from "@db/schema";
@@ -65,7 +64,12 @@ export default function DogManagement() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-              .map(renderDogCard)}
+              .map((dog, index) => (
+                <div key={dog.id}>
+                  {renderDogCard(dog)}
+                  {index < dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length -1 && <div className="h-px bg-gray-200 my-4" />}
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -77,7 +81,12 @@ export default function DogManagement() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
-              .map(renderDogCard)}
+              .map((dog, index) => (
+                <div key={dog.id}>
+                  {renderDogCard(dog)}
+                  {index < dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length - 1 && <div className="h-px bg-gray-200 my-4" />}
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -89,7 +98,12 @@ export default function DogManagement() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.outsideBreeder)
-              .map(renderDogCard)}
+              .map((dog, index) => (
+                <div key={dog.id}>
+                  {renderDogCard(dog)}
+                  {index < dogs.filter(dog => dog.outsideBreeder).length - 1 && <div className="h-px bg-gray-200 my-4" />}
+                </div>
+              ))}
           </div>
         </div>
       )}
