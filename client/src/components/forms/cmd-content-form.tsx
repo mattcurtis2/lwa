@@ -20,7 +20,7 @@ const formSchema = z.object({
 export function CMDContentForm() {
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -39,7 +39,7 @@ export function CMDContentForm() {
 
   const handleFileSelect = async (file: File) => {
     try {
-      setIsUploadingImage(true);
+      setIsUploading(true);
       const formData = new FormData();
       formData.append('file', file);
 
@@ -61,13 +61,13 @@ export function CMDContentForm() {
         variant: 'destructive',
       });
     } finally {
-      setIsUploadingImage(false);
+      setIsUploading(false);
     }
   };
 
-  const handleCroppedImage = async (croppedImageUrl: string) => {
+  const handleCropComplete = async (croppedImageUrl: string) => {
     try {
-      setIsUploadingImage(true);
+      setIsUploading(true);
       const response = await fetch(croppedImageUrl);
       if (!response.ok) throw new Error('Failed to fetch cropped image');
 
@@ -90,6 +90,7 @@ export function CMDContentForm() {
         description: 'Hero image updated successfully',
       });
 
+      // Cleanup
       URL.revokeObjectURL(croppedImageUrl);
       URL.revokeObjectURL(cropImageUrl);
       setCropImageUrl("");
@@ -102,7 +103,7 @@ export function CMDContentForm() {
         variant: 'destructive',
       });
     } finally {
-      setIsUploadingImage(false);
+      setIsUploading(false);
     }
   };
 
@@ -142,13 +143,14 @@ export function CMDContentForm() {
         <Sheet open={showCropper} onOpenChange={setShowCropper}>
           <SheetContent side="right" className="w-[95vw] sm:max-w-[600px] overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>Crop Image</SheetTitle>
+              <SheetTitle>Crop Hero Image</SheetTitle>
             </SheetHeader>
             <div className="mt-6">
               <ImageCrop
                 imageUrl={cropImageUrl}
-                onCropComplete={handleCroppedImage}
+                onCropComplete={handleCropComplete}
                 aspect={16/9}
+                onCancel={() => setShowCropper(false)}
               />
             </div>
           </SheetContent>
@@ -185,20 +187,20 @@ export function CMDContentForm() {
             name="imageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hero Image</FormLabel>
+                <FormLabel>Hero Background Image</FormLabel>
                 <FormControl>
                   <FileUpload
                     value={field.value}
                     onChange={field.onChange}
                     onFileSelect={handleFileSelect}
-                    isUploading={isUploadingImage}
+                    isUploading={isUploading}
                   />
                 </FormControl>
                 {field.value && (
                   <div className="relative group">
                     <img
                       src={field.value}
-                      alt="Hero"
+                      alt="Hero Background"
                       className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
                       onClick={() => {
                         setCropImageUrl(field.value);
