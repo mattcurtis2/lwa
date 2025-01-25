@@ -146,37 +146,26 @@ export default function DogDetails({ dog }: DogDetailsProps) {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-6">
-          <Avatar className="h-24 w-24">
-            <AvatarImage
-              src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
-              alt={dog.name}
-            />
-            <AvatarFallback>
-              {genderSymbol}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-4xl font-bold flex items-center gap-2">
-              {dog.name} {genderSymbol}
-            </h1>
-            {dog.registrationName && (
-              <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
-            )}
-          </div>
+    <div className="grid md:grid-cols-3 gap-8">
+      {/* Left column - Images */}
+      <div className="space-y-6">
+        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+          <img
+            src={dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            alt={dog.name}
+            className="w-full h-full object-cover"
+          />
         </div>
-
-        {/* Desktop/Tablet Image Thumbnails */}
+        
+        {/* Image Thumbnails */}
         {imageMedia.length > 0 && (
-          <div className="hidden md:flex gap-2 items-center">
+          <div className="grid grid-cols-3 gap-2">
             {imageMedia.map((media, index) => (
               <button
                 key={index}
                 onClick={() => handleThumbnailClick(index)}
                 className={cn(
-                  "relative w-16 h-16 rounded-md overflow-hidden transition-transform hover:scale-105",
+                  "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
                   activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
                 )}
               >
@@ -190,6 +179,17 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           </div>
         )}
       </div>
+
+      {/* Right column - Content */}
+      <div className="md:col-span-2 space-y-8">
+        <div>
+          <h1 className="text-4xl font-bold flex items-center gap-2">
+            {dog.name} {genderSymbol}
+          </h1>
+          {dog.registrationName && (
+            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+          )}
+        </div>
 
       {/* Media Dialog */}
       <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
