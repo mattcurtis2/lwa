@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
-import { Upload, Crop } from "lucide-react";
+import { Upload, Crop, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./dialog";
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
