@@ -621,7 +621,6 @@ export function registerRoutes(app: Express): Server {
     res.json(dog[0]);
   });
 
-  // Add file upload endpoint with updated file types
   app.post("/api/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
       console.error("Upload error: No file in request");
@@ -652,49 +651,44 @@ export function registerRoutes(app: Express): Server {
       }
 
       // For production, use PostgreSQL storage
-      try {
-        const fileBuffer = await fs.promises.readFile(req.file.path);
-        if (!fileBuffer) {
-          throw new Error("Could not read file buffer");
-        }
-
-        console.log("File size:", fileBuffer.length, "bytes");
-        console.log("File MIME type:", req.file.mimetype);
-
-        const base64Data = fileBuffer.toString('base64');
-
-        // Store file data in PostgreSQL
-        const [storedFile] = await db.insert(fileStorage)
-          .values({
-            fileName: req.file.filename,
-            mimeType: req.file.mimetype,
-            data: base64Data,
-            createdAt: new Date()
-          })
-          .returning();
-
-        if (!storedFile) {
-          throw new Error("Failed to store file in database");
-        }
-
-        const fileUrl = `/api/files/${req.file.filename}`;
-        res.json({
-          url: fileUrl,
-          type: req.file.mimetype.split('/')[0],
-          originalName: req.file.originalname,
-          mimeType: req.file.mimetype
-        });
-      } catch (dbError) {
-        console.error("Database storage error:", dbError);
-        throw new Error(`Failed to store file in database: ${dbError.message}`);
+      const fileBuffer = await fs.promises.readFile(req.file.path);
+      if (!fileBuffer) {
+        throw new Error("Could not read file buffer");
       }
+
+      const base64Data = fileBuffer.toString('base64');
+      console.log(`Storing file (${fileBuffer.length} bytes) in PostgreSQL`);
+
+      const [storedFile] = await db.insert(fileStorage)
+        .values({
+          fileName: req.file.filename,
+          mimeType: req.file.mimetype,
+          data: base64Data,
+          createdAt: new Date()
+        })
+        .returning();
+
+      if (!storedFile) {
+        throw new Error("Failed to store file in database");
+      }
+
+      const fileUrl = `/api/files/${req.file.filename}`;
+      res.json({
+        url: fileUrl,
+        type: req.file.mimetype.split('/')[0],
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype
+      });
 
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ message: `Failed to process uploaded file: ${error.message}` });
+      res.status(500).json({ 
+        message: "Failed to process uploaded file", 
+        details: error instanceof Error ? error.message : String(error)
+      });
     } finally {
-      // Clean up the temporary file
-      if (req.file && req.file.path) {
+      // Clean up temporary file only in production
+      if (process.env.NODE_ENV === 'production' && req.file?.path) {
         try {
           fs.unlinkSync(req.file.path);
         } catch (cleanupError) {
