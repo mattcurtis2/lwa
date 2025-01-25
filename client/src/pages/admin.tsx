@@ -30,7 +30,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
-import InterestManagement from "@/components/admin/interest-management";
 
 interface ContentField {
   key: string;
@@ -150,20 +149,20 @@ function AdminDashboard() {
       });
       setPendingContent(initialContent);
     }
-  }, [siteContent]);
+  }, [siteContent]); // Only depend on siteContent
 
   useEffect(() => {
     if (principlesData) {
       const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setPendingPrinciples(sortedPrinciples);
     }
-  }, [principlesData]);
+  }, [principlesData]); // Only depend on principlesData
 
   useEffect(() => {
     if (contactInfo) {
       setPendingContactInfo(contactInfo);
     }
-  }, [contactInfo]);
+  }, [contactInfo]); // Only depend on contactInfo
 
   const updateSiteContent = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
@@ -845,10 +844,8 @@ function AdminDashboard() {
 
   const sidebarItems = [
     { id: "content", label: "Content", icon: LayoutDashboard },
-    { id: "carousel", label: "Carousel", icon: Image },
     { id: "dogs", label: "Dogs", icon: DogIcon },
-    { id: "litters", label: "Litters", icon: DogIcon },
-    { id: "interest", label: "Interest Forms", icon: DogIcon },
+    { id: "animals", label: "Animals", icon: Cat },
     { id: "products", label: "Products", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
   ];
@@ -856,79 +853,47 @@ function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 border-r bg-card">
-        <div className="p-6">
-          <h1 className="text-lg font-semibold mb-6">Admin Dashboard</h1>
-          <div className="space-y-2">
-            <Button
-              variant={activeTab === "content" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("content")}
-            >
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Content
-            </Button>
-
-            <Button
-              variant={activeTab === "carousel" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("carousel")}
-            >
-              <Image className="h-4 w-4 mr-2" />
-              Carousel
-            </Button>
-
-            <Button
-              variant={activeTab === "dogs" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("dogs")}
-            >
-              <DogIcon className="h-4 w-4 mr-2" />
-              Dogs
-            </Button>
-
-            <Button
-              variant={activeTab === "litters" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("litters")}
-            >
-              <DogIcon className="h-4 w-4 mr-2" />
-              Litters
-            </Button>
-
-            <Button
-              variant={activeTab === "interest" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("interest")}
-            >
-              <DogIcon className="h-4 w-4 mr-2" />
-              Interest Forms
-            </Button>
-
-            <Button
-              variant={activeTab === "products" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("products")}
-            >
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Products
-            </Button>
-
-            <Button
-              variant={activeTab === "contact" ? "default" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setActiveTab("contact")}
-            >
-              <Contact className="h-4 w-4 mr-2" />
-              Contact
-            </Button>
-          </div>
+      <div className="w-48 border-r bg-card">
+        <div className="p-4">
+          <Link href="/" className="text-lg font-semibold hover:text-primary transition-colors mb-6 block">
+            {siteContent?.find(content => content.key === "hero_text")?.value || "Dashboard"}
+          </Link>
+          <nav className="space-y-2">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={cn(
+                    "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
+                    activeTab === item.id
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="ml-3">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-auto">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto pl-5">
         <div className="container py-6">
+          <div className="flex justify-end mb-6">
+            {hasUnsavedChanges && (
+              <Button onClick={handleSaveChanges}>
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            )}
+          </div>
+
+          {/* Content sections */}
           {activeTab === "content" && (
             <div className="space-y-6">
               <Tabs defaultValue="home" className="w-full">
@@ -1483,54 +1448,111 @@ function AdminDashboard() {
               </Card>
             </div>
           )}
-          {activeTab === "carousel" && (
-            <div className="space-y-6">
-              <div className="mb-6">
-                <Button onClick={() => {
-                  setEditItem(null);
-                  setShowForm(true);
-                }}>
-                  Add Carousel Item
-                </Button>
-              </div>
-              <div className="grid gap-4">
-                {carouselItems?.map((item) => (
-                  <Card key={item.id}>
-                    <CardHeader>
-                      <CardTitle>{item.title}</CardTitle>
-                      <CardDescription>{item.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {item.imageUrl && (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex justify-end mt-4">
-                        <Button
-                          onClick={() => {
-                            setEditItem(item);
-                            setShowForm(true);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-          {activeTab === "interest" && (
-            <div>
-              <InterestManagement />
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Forms */}
+      {showForm && (
+        <Sheet open={showForm} onOpenChange={setShowForm}>
+          <SheetContent className="sm:max-w-2xl">
+            <SheetHeader>
+              <SheetTitle>{editItem ? 'Edit' : 'Add New'}</SheetTitle>
+            </SheetHeader>
+            {activeTab === "carousel" && (
+              <CarouselForm
+                item={editItem as CarouselItem}
+                onClose={() => {
+                  setShowForm(false);
+                  setEditItem(null);
+                }}
+              />
+            )}
+            {activeTab === "animals" && (
+              <AnimalForm
+                animal={editItem as Animal}
+                onClose={() => setShowForm(false)}
+              />
+            )}
+            {activeTab === "products" && (
+              <ProductForm
+                product={editItem as Product}
+                onClose={() => setShowForm(false)}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
+      )}
+      {showPuppyForm && (
+        <Sheet open={showPuppyForm} onOpenChange={(open) => {
+          setShowPuppyForm(open);
+          // Don't close the litter form when closing puppy dialog
+          if (!open) setEditLitter(prev => ({ ...prev, puppies: [] }));
+        }}>
+          <SheetContent side="right" className="w-[95vw] sm:max-w-[600px]">
+            <SheetHeader>
+              <SheetTitle>
+                {editItem?.id ? 'Edit Puppy' : 'Add New Puppy'}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <Form
+                isPuppy={true}
+                defaultValues={{
+                  name: editItem?.name || '',
+                  gender: editItem?.gender as 'male' | 'female' || 'male',
+                  birthDate: editItem?.birthDate || new Date().toISOString().split('T')[0],
+                  breed: editItem?.breed || 'Colorado Mountain Dog',
+                  color: editItem?.color || '',
+                  description: editItem?.description || '',
+                  narrativeDescription: editItem?.narrativeDescription || '',
+                  healthData: editItem?.healthData || '',
+                  height: editItem?.height?.toString() || '',
+                  weight: editItem?.weight?.toString() || '',
+                  furLength: editItem?.furLength || '',
+                  registrationName: editItem?.registrationName || '',
+                  profileImageUrl: editItem?.profileImageUrl || '',
+                  media: editItem?.media || [],
+                  outsideBreeder: Boolean(editItem?.outsideBreeder),
+                  available: Boolean(editItem?.available),
+                  price: editItem?.price?.toString() || '',
+                }}
+                onSubmit={async (values) => {
+                  try {
+                    const processedValues = {
+                      ...values,
+                      height: values.height ? Number(values.height) : null,
+                      weight: values.weight ? Number(values.weight) : null,
+                      price: values.price ? Number(values.price) : null,
+                    };
+
+                    const res = await fetch(editItem?.id ? `/api/dogs/${editItem.id}` : '/api/dogs', {
+                      method: editItem?.id ? 'PUT' : 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(processedValues),
+                    });
+
+                    if (!res.ok) throw new Error('Failed to save puppy');
+
+                    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+                    toast({
+                      title: "Success",
+                      description: `Puppy ${editItem?.id ? 'updated' : 'created'} successfully`,
+                    });
+                    setShowPuppyForm(false);
+                  } catch (error) {
+                    console.error('Error saving puppy:', error);
+                    toast({
+                      title: "Error",
+                      description: error instanceof Error ? error.message : 'Failed to save puppy',
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ export const fileStorage = pgTable("file_storage", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
@@ -166,47 +167,13 @@ export const litters = pgTable("litters", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const litterInterestSignups = pgTable("litter_interest_signups", {
-  id: serial("id").primaryKey(),
-  litterId: integer("litter_id").notNull().references(() => litters.id),
-  fullName: text("full_name").notNull(),
-  farmName: text("farm_name"),
-  address: text("address").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
-  desiredPurpose: text("desired_purpose").notNull(),
-  experience: text("experience"),
-  currentDogs: text("current_dogs"),
-  preferredGender: text("preferred_gender"),
-  status: text("status").default("pending").notNull(), // pending, approved, rejected
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const litterInterestSignupRelations = relations(litterInterestSignups, ({ one }) => ({
-  litter: one(litters, {
-    fields: [litterInterestSignups.litterId],
-    references: [litters.id],
-  }),
-}));
-
-export const litterRelations = relations(litters, ({ one, many }) => ({
+export const litterRelations = relations(litters, ({ one }) => ({
   mother: one(dogs, {
     fields: [litters.motherId],
     references: [dogs.id],
   }),
   father: one(dogs, {
     fields: [litters.fatherId],
-    references: [dogs.id],
-  }),
-  interestSignups: many(litterInterestSignups),
-}));
-
-
-export const dogDocumentsRelations = relations(dogDocuments, ({ one }) => ({
-  dog: one(dogs, {
-    fields: [dogDocuments.dogId],
     references: [dogs.id],
   }),
 }));
@@ -228,41 +195,15 @@ export const selectDogSchema = createSelectSchema(dogs);
 export const insertDogMediaSchema = createInsertSchema(dogMedia);
 export const selectDogMediaSchema = createSelectSchema(dogMedia);
 
-export const insertLitterSchema = createInsertSchema(litters);
-export const selectLitterSchema = createSelectSchema(litters);
-
-export const insertLitterInterestSignupSchema = createInsertSchema(litterInterestSignups);
-export const selectLitterInterestSignupSchema = createSelectSchema(litterInterestSignups);
-
-export const principles = pgTable("principles", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  imageUrl: text("image_url").notNull(),
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const principleRelations = relations(principles, ({ }) => ({
-  // No relations for now, but defining empty relations object to satisfy type requirements
+export const dogDocumentsRelations = relations(dogDocuments, ({ one }) => ({
+  dog: one(dogs, {
+    fields: [dogDocuments.dogId],
+    references: [dogs.id],
+  }),
 }));
 
-export const insertPrincipleSchema = createInsertSchema(principles);
-export const selectPrincipleSchema = createSelectSchema(principles);
-
-export const contactInfo = pgTable("contact_info", {
-  id: serial("id").primaryKey(),
-  email: text("email"),
-  phone: text("phone"),
-  facebook: text("facebook"),
-  instagram: text("instagram"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertContactInfoSchema = createInsertSchema(contactInfo);
-export const selectContactInfoSchema = createSelectSchema(contactInfo);
+export const insertDogDocumentSchema = createInsertSchema(dogDocuments);
+export const selectDogDocumentSchema = createSelectSchema(dogDocuments);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -282,11 +223,41 @@ export type DogMedia = typeof dogMedia.$inferSelect;
 export type NewDogMedia = typeof dogMedia.$inferInsert;
 export type Litter = typeof litters.$inferSelect;
 export type NewLitter = typeof litters.$inferInsert;
+export const insertLitterSchema = createInsertSchema(litters);
+export const selectLitterSchema = createSelectSchema(litters);
 export type DogDocument = typeof dogDocuments.$inferSelect;
 export type NewDogDocument = typeof dogDocuments.$inferInsert;
+
+export const principles = pgTable("principles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const principleRelations = relations(principles, ({ }) => ({
+  // No relations for now, but defining empty relations object to satisfy type requirements
+}));
+
+export const insertPrincipleSchema = createInsertSchema(principles);
+export const selectPrincipleSchema = createSelectSchema(principles);
 export type Principle = typeof principles.$inferSelect;
 export type NewPrinciple = typeof principles.$inferInsert;
+
+export const contactInfo = pgTable("contact_info", {
+  id: serial("id").primaryKey(),
+  email: text("email"),
+  phone: text("phone"),
+  facebook: text("facebook"),
+  instagram: text("instagram"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertContactInfoSchema = createInsertSchema(contactInfo);
+export const selectContactInfoSchema = createSelectSchema(contactInfo);
 export type ContactInfo = typeof contactInfo.$inferSelect;
 export type NewContactInfo = typeof contactInfo.$inferInsert;
-export type LitterInterestSignup = typeof litterInterestSignups.$inferSelect;
-export type NewLitterInterestSignup = typeof litterInterestSignups.$inferInsert;
