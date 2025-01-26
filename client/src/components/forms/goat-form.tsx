@@ -21,9 +21,9 @@ import { UploadDropzone } from "@/components/ui/upload-dropzone";
 
 const goatSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  gender: z.enum(["male", "female"]).optional().default("female"),
+  gender: z.enum(["male", "female"]),
   birthDate: z.string().optional(),
-  breed: z.string().optional().default("Nigerian Dwarf"),
+  breed: z.string().optional(),
   color: z.string().optional(),
   description: z.string().optional(),
   narrativeDescription: z.string().optional(),
@@ -31,12 +31,12 @@ const goatSchema = z.object({
   height: z.string().optional(),
   weight: z.string().optional(),
   registrationName: z.string().optional(),
-  kid: z.boolean().optional().default(false),
-  available: z.boolean().optional().default(false),
-  outsideBreeder: z.boolean().optional().default(false),
+  kid: z.boolean().optional(),
+  available: z.boolean().optional(),
+  outsideBreeder: z.boolean().optional(),
   profileImageUrl: z.string().optional(),
-  media: z.array(z.string()).optional().default([]),
-  documents: z.array(z.string()).optional().default([]),
+  media: z.array(z.string()).optional(),
+  documents: z.array(z.string()).optional(),
   litterId: z.number().optional(),
   motherId: z.number().optional(),
   fatherId: z.number().optional(),
@@ -87,21 +87,25 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       const processedValues = {
         ...values,
-        height: values.height ? Number(values.height) : null,
-        weight: values.weight ? Number(values.weight) : null,
+        height: values.height ? parseFloat(values.height) : null,
+        weight: values.weight ? parseFloat(values.weight) : null,
       };
 
       const endpoint = goat?.id ? `/api/goats/${goat.id}` : '/api/goats';
+      const method = goat?.id ? 'PUT' : 'POST';
 
       const res = await fetch(endpoint, {
-        method: goat?.id ? 'PUT' : 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(processedValues),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || 'Failed to save goat');
+      }
 
-      queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
 
       toast({
         title: "Success",
@@ -328,6 +332,24 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="kid"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+              <div className="space-y-0.5">
+                <FormLabel>Kid</FormLabel>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
