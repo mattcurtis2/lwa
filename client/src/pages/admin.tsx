@@ -828,24 +828,24 @@ export default function AdminDashboard() {
         <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
           <div className="p-6">
             <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
-            <TabsList className="flex flex-col w-full gap-2">
-              <TabsTrigger value="content" className="w-full justify-start">
+            <TabsList className="flex flex-col w-full gap-2 bg-transparent p-0">
+              <TabsTrigger value="content" className="w-full justify-start data-[state=active]:bg-muted">
                 <LayoutDashboard className="h-4 w-4 mr-2" />
                 Content
               </TabsTrigger>
-              <TabsTrigger value="dogs" className="w-full justify-start">
+              <TabsTrigger value="dogs" className="w-full justify-start data-[state=active]:bg-muted">
                 <DogIcon className="h-4 w-4 mr-2" />
                 Dogs
               </TabsTrigger>
-              <TabsTrigger value="goats" className="w-full justify-start">
+              <TabsTrigger value="goats" className="w-full justify-start data-[state=active]:bg-muted">
                 <Cat className="h-4 w-4 mr-2" />
                 Goats
               </TabsTrigger>
-              <TabsTrigger value="market" className="w-full justify-start">
+              <TabsTrigger value="market" className="w-full justify-start data-[state=active]:bg-muted">
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Market
               </TabsTrigger>
-              <TabsTrigger value="contact" className="w-full justify-start">
+              <TabsTrigger value="contact" className="w-full justify-start data-[state=active]:bg-muted">
                 <Contact className="h-4 w-4 mr-2" />
                 Contact
               </TabsTrigger>
