@@ -14,15 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { UploadDropzone } from "@/components/ui/upload-dropzone";
 
 const goatSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  gender: z.enum(["male", "female"]),
-  birthDate: z.string(),
-  breed: z.string().default("Nigerian Dwarf"),
+  gender: z.enum(["male", "female"]).optional().default("female"),
+  birthDate: z.string().optional(),
+  breed: z.string().optional().default("Nigerian Dwarf"),
   color: z.string().optional(),
   description: z.string().optional(),
   narrativeDescription: z.string().optional(),
@@ -30,12 +30,12 @@ const goatSchema = z.object({
   height: z.string().optional(),
   weight: z.string().optional(),
   registrationName: z.string().optional(),
-  kid: z.boolean().default(false),
-  available: z.boolean().default(false),
-  outsideBreeder: z.boolean().default(false),
+  kid: z.boolean().optional().default(false),
+  available: z.boolean().optional().default(false),
+  outsideBreeder: z.boolean().optional().default(false),
   profileImageUrl: z.string().optional(),
-  media: z.array(z.string()).default([]),
-  documents: z.array(z.string()).default([]),
+  media: z.array(z.string()).optional().default([]),
+  documents: z.array(z.string()).optional().default([]),
   litterId: z.number().optional(),
   motherId: z.number().optional(),
   fatherId: z.number().optional(),
@@ -90,8 +90,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         weight: values.weight ? Number(values.weight) : null,
       };
 
-      // Fix: Use string concatenation instead of template literals
-      const endpoint = goat?.id ? '/api/goats/' + goat.id : '/api/goats';
+      const endpoint = goat?.id ? `/api/goats/${goat.id}` : '/api/goats';
 
       const res = await fetch(endpoint, {
         method: goat?.id ? 'PUT' : 'POST',
@@ -116,6 +115,37 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save goat',
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpload = async (files: File[]) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", files[0]);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      const data = await res.json();
+      form.setValue('profileImageUrl', data.url);
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Error",
+        description: 'Failed to upload image',
         variant: "destructive",
       });
     }
@@ -305,30 +335,22 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             <FormItem>
               <FormLabel>Profile Image</FormLabel>
               <FormControl>
-                <FileUpload
-                  value={field.value}
-                  onChange={field.onChange}
-                  accept="image/*"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="media"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Additional Images</FormLabel>
-              <FormControl>
-                <FileUpload
-                  value={field.value}
-                  onChange={(urls: string[]) => field.onChange(urls)}
-                  accept="image/*"
-                  multiple
-                />
+                <div className="space-y-4">
+                  <UploadDropzone
+                    onUpload={handleUpload}
+                    accept="image/*"
+                    maxFiles={1}
+                  />
+                  {field.value && (
+                    <div className="relative w-40 h-40">
+                      <img
+                        src={field.value}
+                        alt="Profile"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
