@@ -2,16 +2,51 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
+import {
+  SiteContent,
+  Dog,
+  DogsHero,
+  Litter,
+  CarouselItem,
+  Animal,
+  Product,
+  Principle,
+  ContactInfo,
+} from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import { Save, GripVertical, X, Plus, Edit, LayoutDashboard, Image, Dog as DogIcon, Cat, ShoppingBag, Contact } from "lucide-react";
+import {
+  Save,
+  GripVertical,
+  X,
+  Plus,
+  Edit,
+  LayoutDashboard,
+  Image,
+  Dog as DogIcon,
+  Cat,
+  ShoppingBag,
+  Contact,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -22,9 +57,25 @@ import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
@@ -37,12 +88,12 @@ interface ContentField {
   key: string;
   label: string;
   value: string;
-  type: 'text' | 'textarea' | 'image';
+  type: "text" | "textarea" | "image";
 }
 
 interface PuppyFormData {
   name: string | undefined;
-  gender: 'male' | 'female' | undefined;
+  gender: "male" | "female" | undefined;
   birthDate: string | undefined;
   color: string | undefined;
   description: string | undefined;
@@ -92,24 +143,38 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
   const [showPuppyForm, setShowPuppyForm] = useState(false);
-  const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
-  const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
-  const [editLitter, setEditLitter] = useState<Litter & {
-    mother?: Dog;
-    father?: Dog;
-    puppies?: Dog[];
-  } | null>(null);
-  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [litterFormMode, setLitterFormMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [editItem, setEditItem] = useState<
+    Dog | CarouselItem | Animal | Product | null
+  >(null);
+  const [editLitter, setEditLitter] = useState<
+    | (Litter & {
+        mother?: Dog;
+        father?: Dog;
+        puppies?: Dog[];
+      })
+    | null
+  >(null);
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>(
+    {},
+  );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
-  const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
+  const [pendingContactInfo, setPendingContactInfo] = useState<
+    Partial<ContactInfo>
+  >({});
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
 
-
   // Data queries
-  const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
-    queryKey: ["/api/site-content"]
+  const {
+    data: siteContent = [],
+    isLoading: isLoadingSiteContent,
+    error,
+  } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"],
   });
 
   const { data: dogsHero = [] } = useQuery<DogsHero[]>({
@@ -132,16 +197,19 @@ export default function AdminDashboard() {
     queryKey: ["/api/products"],
   });
 
-  const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
-    queryKey: ["/api/principles"]
-  });
+  const { data: principlesData = [], isLoading: isLoadingPrinciples } =
+    useQuery<Principle[]>({
+      queryKey: ["/api/principles"],
+    });
 
   const { data: contactInfoData } = useQuery<ContactInfo>({
     queryKey: ["/api/contact-info"],
   });
 
-  const { data: carouselItems = [], isLoading: isLoadingCarousel } = useQuery<CarouselItem[]>({
-    queryKey: ["/api/carousel"]
+  const { data: carouselItems = [], isLoading: isLoadingCarousel } = useQuery<
+    CarouselItem[]
+  >({
+    queryKey: ["/api/carousel"],
   });
 
   useEffect(() => {
@@ -156,7 +224,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (principlesData) {
-      const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const sortedPrinciples = [...principlesData].sort(
+        (a, b) => (a.order ?? 0) - (b.order ?? 0),
+      );
       setPendingPrinciples(sortedPrinciples);
     }
   }, [principlesData]);
@@ -175,11 +245,11 @@ export default function AdminDashboard() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value }),
-          }).then(res => {
+          }).then((res) => {
             if (!res.ok) throw new Error(`Failed to update ${key}`);
             return res.json();
-          })
-        )
+          }),
+        ),
       );
       return results;
     },
@@ -190,7 +260,7 @@ export default function AdminDashboard() {
         title: "Success",
         description: "Content updated successfully",
       });
-    }
+    },
   });
 
   const updatePrinciples = useMutation({
@@ -203,7 +273,7 @@ export default function AdminDashboard() {
             description: principle.description,
             imageUrl: principle.imageUrl,
             order: principle.order,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
 
           return fetch(`/api/principles/${principle.id}`, {
@@ -212,10 +282,13 @@ export default function AdminDashboard() {
             body: JSON.stringify(updatedPrinciple),
           }).then(async (res) => {
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || `Failed to update principle ${principle.id}`);
+            if (!res.ok)
+              throw new Error(
+                data.message || `Failed to update principle ${principle.id}`,
+              );
             return data;
           });
-        })
+        }),
       );
       return results;
     },
@@ -233,7 +306,7 @@ export default function AdminDashboard() {
         description: error.message || "Failed to update principles",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const updateContactInfo = useMutation({
@@ -245,7 +318,7 @@ export default function AdminDashboard() {
           email: info.email?.trim() || null,
           phone: info.phone?.trim() || null,
           facebook: info.facebook?.trim() || null,
-          instagram: info.instagram?.trim() || null
+          instagram: info.instagram?.trim() || null,
         }),
       });
 
@@ -263,34 +336,35 @@ export default function AdminDashboard() {
       });
     },
     onError: (error: Error) => {
-      console.error('Contact info update error:', error);
+      console.error("Contact info update error:", error);
       toast({
         title: "Error",
-        description: "Could not update contact information. All fields are optional - try again or contact support if the issue persists.",
+        description:
+          "Could not update contact information. All fields are optional - try again or contact support if the issue persists.",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const handleContentChange = async (key: string, value: string | File) => {
     if (value instanceof File) {
       // For image uploads, we need to handle the file upload first
       const formData = new FormData();
-      formData.append('file', value);
+      formData.append("file", value);
 
       try {
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
           body: formData,
         });
 
-        if (!uploadRes.ok) throw new Error('Failed to upload image');
+        if (!uploadRes.ok) throw new Error("Failed to upload image");
 
         const { url } = await uploadRes.json();
-        setPendingContent(prev => ({ ...prev, [key]: url }));
+        setPendingContent((prev) => ({ ...prev, [key]: url }));
         setHasUnsavedChanges(true);
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error("Error uploading image:", error);
         toast({
           title: "Error",
           description: "Failed to upload image",
@@ -299,33 +373,34 @@ export default function AdminDashboard() {
         return;
       }
     } else {
-      setPendingContent(prev => ({ ...prev, [key]: value }));
+      setPendingContent((prev) => ({ ...prev, [key]: value }));
       setHasUnsavedChanges(true);
     }
   };
 
   const handlePrincipleChange = (id: number, field: string, value: string) => {
-    setPendingPrinciples(prev =>
-      prev.map(p => p.id === id ? { ...p, [field]: value } : p)
+    setPendingPrinciples((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     );
     setHasUnsavedChanges(true);
   };
 
   const handleContactChange = (field: keyof ContactInfo, value: string) => {
-    setPendingContactInfo(prev => ({ ...prev, [field]: value }));
+    setPendingContactInfo((prev) => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
   };
 
   const handleSaveChanges = async () => {
     try {
-      const hasContactChanges = JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfoData);
+      const hasContactChanges =
+        JSON.stringify(pendingContactInfo) !== JSON.stringify(contactInfoData);
       if (hasContactChanges) {
         await updateContactInfo.mutateAsync(pendingContactInfo);
       }
 
       const contentUpdates = Object.entries(pendingContent)
         .filter(([key, value]) => {
-          const currentContent = siteContent?.find(c => c.key === key);
+          const currentContent = siteContent?.find((c) => c.key === key);
           return currentContent && currentContent.value !== value;
         })
         .map(([key, value]) => ({ key, value }));
@@ -334,10 +409,15 @@ export default function AdminDashboard() {
         await updateSiteContent.mutateAsync(contentUpdates);
       }
 
-      const hasPrincipleChanges = pendingPrinciples.some((pendingPrinciple, index) => {
-        const originalPrinciple = principlesData[index];
-        return JSON.stringify(pendingPrinciple) !== JSON.stringify(originalPrinciple);
-      });
+      const hasPrincipleChanges = pendingPrinciples.some(
+        (pendingPrinciple, index) => {
+          const originalPrinciple = principlesData[index];
+          return (
+            JSON.stringify(pendingPrinciple) !==
+            JSON.stringify(originalPrinciple)
+          );
+        },
+      );
 
       if (hasPrincipleChanges) {
         await updatePrinciples.mutateAsync(pendingPrinciples);
@@ -345,7 +425,7 @@ export default function AdminDashboard() {
 
       setHasUnsavedChanges(false);
     } catch (error) {
-      console.error('Error saving changes:', error);
+      console.error("Error saving changes:", error);
       toast({
         title: "Error",
         description: "Failed to save some changes. Please try again.",
@@ -363,7 +443,7 @@ export default function AdminDashboard() {
 
     const reorderedItems = items.map((item, index) => ({
       ...item,
-      order: index
+      order: index,
     }));
 
     setPendingPrinciples(reorderedItems);
@@ -378,7 +458,7 @@ export default function AdminDashboard() {
       imageUrl: "",
       order: pendingPrinciples.length,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as Principle;
 
     setPendingPrinciples([...pendingPrinciples, newPrinciple]);
@@ -388,7 +468,7 @@ export default function AdminDashboard() {
   const handleDeletePrinciple = (id: number) => {
     if (!confirm("Are you sure you want to delete this principle?")) return;
 
-    setPendingPrinciples(prev => prev.filter(p => p.id !== id));
+    setPendingPrinciples((prev) => prev.filter((p) => p.id !== id));
     setHasUnsavedChanges(true);
   };
 
@@ -415,58 +495,233 @@ export default function AdminDashboard() {
   );
 
   const contentFields: ContentField[] = [
-    { key: "hero_text", label: "Hero Title", value: pendingContent["hero_text"] ?? siteContent?.find(c => c.key === "hero_text")?.value ?? "", type: "text" },
-    { key: "hero_subtext", label: "Hero Subtitle", value: pendingContent["hero_subtext"] ?? "Living out God's great plan in small ways, daily.", type: "textarea" },
-    { key: "hero_background", label: "Hero Background", value: pendingContent["hero_background"] ?? siteContent?.find(c => c.key === "hero_background")?.value ?? "", type: "image" },
+    {
+      key: "hero_text",
+      label: "Hero Title",
+      value:
+        pendingContent["hero_text"] ??
+        siteContent?.find((c) => c.key === "hero_text")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "hero_subtext",
+      label: "Hero Subtitle",
+      value:
+        pendingContent["hero_subtext"] ??
+        "Living out God's great plan in small ways, daily.",
+      type: "textarea",
+    },
+    {
+      key: "hero_background",
+      label: "Hero Background",
+      value:
+        pendingContent["hero_background"] ??
+        siteContent?.find((c) => c.key === "hero_background")?.value ??
+        "",
+      type: "image",
+    },
 
-    { key: "about_title", label: "About Title", value: pendingContent["about_title"] ?? siteContent?.find(c => c.key === "about_title")?.value ?? "", type: "text" },
-    { key: "mission_text", label: "About Text", value: pendingContent["mission_text"] ?? siteContent?.find(c => c.key === "mission_text")?.value ?? "", type: "textarea" },
+    {
+      key: "about_title",
+      label: "About Title",
+      value:
+        pendingContent["about_title"] ??
+        siteContent?.find((c) => c.key === "about_title")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "mission_text",
+      label: "About Text",
+      value:
+        pendingContent["mission_text"] ??
+        siteContent?.find((c) => c.key === "mission_text")?.value ??
+        "",
+      type: "textarea",
+    },
 
-    { key: "animals_title", label: "Dogs Title", value: pendingContent["animals_title"] ?? siteContent?.find(c => c.key === "animals_title")?.value ?? "", type: "text" },
-    { key: "animals_text", label: "Dogs Description", value: pendingContent["animals_text"] ?? siteContent?.find(c => c.key === "animals_text")?.value ?? "", type: "textarea" },
-    { key: "animals_image", label: "Dogs Image", value: pendingContent["animals_image"] ?? siteContent?.find(c => c.key === "animals_image")?.value ?? "", type: "image" },
-    { key: "animals_button_text", label: "Dogs Button Text", value: pendingContent["animals_button_text"] ?? siteContent?.find(c => c.key === "animals_button_text")?.value ?? "", type: "text" },
-    { key: "animals_redirect", label: "Dogs Button Link", value: pendingContent["animals_redirect"] ?? siteContent?.find(c => c.key === "animals_redirect")?.value ?? "", type: "text" },
+    {
+      key: "animals_title",
+      label: "Dogs Title",
+      value:
+        pendingContent["animals_title"] ??
+        siteContent?.find((c) => c.key === "animals_title")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "animals_text",
+      label: "Dogs Description",
+      value:
+        pendingContent["animals_text"] ??
+        siteContent?.find((c) => c.key === "animals_text")?.value ??
+        "",
+      type: "textarea",
+    },
+    {
+      key: "animals_image",
+      label: "Dogs Image",
+      value:
+        pendingContent["animals_image"] ??
+        siteContent?.find((c) => c.key === "animals_image")?.value ??
+        "",
+      type: "image",
+    },
+    {
+      key: "animals_button_text",
+      label: "Dogs Button Text",
+      value:
+        pendingContent["animals_button_text"] ??
+        siteContent?.find((c) => c.key === "animals_button_text")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "animals_redirect",
+      label: "Dogs Button Link",
+      value:
+        pendingContent["animals_redirect"] ??
+        siteContent?.find((c) => c.key === "animals_redirect")?.value ??
+        "",
+      type: "text",
+    },
 
-    { key: "bakery_title", label: "Goats Title", value: pendingContent["bakery_title"] ?? siteContent?.find(c => c.key === "bakery_title")?.value ?? "", type: "text" },
-    { key: "bakery_text", label: "Goats Description", value: pendingContent["bakery_text"] ?? siteContent?.find(c => c.key === "bakery_text")?.value ?? "", type: "textarea" },
-    { key: "bakery_image", label: "Goats Image", value: pendingContent["bakery_image"] ?? siteContent?.find(c => c.key === "bakery_image")?.value ?? "", type: "image" },
-    { key: "bakery_button_text", label: "Goats Button Text", value: pendingContent["bakery_button_text"] ?? siteContent?.find(c => c.key === "bakery_button_text")?.value ?? "", type: "text" },
-    { key: "bakery_redirect", label: "Goats Button Link", value: pendingContent["bakery_redirect"] ?? siteContent?.find(c => c.key === "bakery_redirect")?.value ?? "", type: "text" },
+    {
+      key: "bakery_title",
+      label: "Goats Title",
+      value:
+        pendingContent["bakery_title"] ??
+        siteContent?.find((c) => c.key === "bakery_title")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "bakery_text",
+      label: "Goats Description",
+      value:
+        pendingContent["bakery_text"] ??
+        siteContent?.find((c) => c.key === "bakery_text")?.value ??
+        "",
+      type: "textarea",
+    },
+    {
+      key: "bakery_image",
+      label: "Goats Image",
+      value:
+        pendingContent["bakery_image"] ??
+        siteContent?.find((c) => c.key === "bakery_image")?.value ??
+        "",
+      type: "image",
+    },
+    {
+      key: "bakery_button_text",
+      label: "Goats Button Text",
+      value:
+        pendingContent["bakery_button_text"] ??
+        siteContent?.find((c) => c.key === "bakery_button_text")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "bakery_redirect",
+      label: "Goats Button Link",
+      value:
+        pendingContent["bakery_redirect"] ??
+        siteContent?.find((c) => c.key === "bakery_redirect")?.value ??
+        "",
+      type: "text",
+    },
 
-    { key: "products_title", label: "Products Title", value: pendingContent["products_title"] ?? siteContent?.find(c => c.key === "products_title")?.value ?? "", type: "text" },
-    { key: "products_text", label: "Products Description", value: pendingContent["products_text"] ?? siteContent?.find(c => c.key === "products_text")?.value ?? "", type: "textarea" },
-    { key: "products_image", label: "Products Image", value: pendingContent["products_image"] ?? siteContent?.find(c => c.key === "products_image")?.value ?? "", type: "image" },
-    { key: "products_button_text", label: "Products Button Text", value: pendingContent["products_button_text"] ?? siteContent?.find(c => c.key === "products_button_text")?.value ?? "", type: "text" },
-    { key: "products_redirect", label: "Products Button Link", value: pendingContent["products_redirect"] ?? siteContent?.find(c => c.key === "products_redirect")?.value ?? "", type: "text" },
-    { key: "market_title", label: "Market Title", value: pendingContent["market_title"] ?? siteContent?.find(c => c.key === "market_title")?.value ?? "", type: "text" },
-    { key: "market_text", label: "Market Description", value: pendingContent["market_text"] ?? siteContent?.find(c => c.key === "market_text")?.value ?? "", type: "textarea" },
+    {
+      key: "products_title",
+      label: "Products Title",
+      value:
+        pendingContent["products_title"] ??
+        siteContent?.find((c) => c.key === "products_title")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "products_text",
+      label: "Products Description",
+      value:
+        pendingContent["products_text"] ??
+        siteContent?.find((c) => c.key === "products_text")?.value ??
+        "",
+      type: "textarea",
+    },
+    {
+      key: "products_image",
+      label: "Products Image",
+      value:
+        pendingContent["products_image"] ??
+        siteContent?.find((c) => c.key === "products_image")?.value ??
+        "",
+      type: "image",
+    },
+    {
+      key: "products_button_text",
+      label: "Products Button Text",
+      value:
+        pendingContent["products_button_text"] ??
+        siteContent?.find((c) => c.key === "products_button_text")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "products_redirect",
+      label: "Products Button Link",
+      value:
+        pendingContent["products_redirect"] ??
+        siteContent?.find((c) => c.key === "products_redirect")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "market_title",
+      label: "Market Title",
+      value:
+        pendingContent["market_title"] ??
+        siteContent?.find((c) => c.key === "market_title")?.value ??
+        "",
+      type: "text",
+    },
+    {
+      key: "market_text",
+      label: "Market Description",
+      value:
+        pendingContent["market_text"] ??
+        siteContent?.find((c) => c.key === "market_text")?.value ??
+        "",
+      type: "textarea",
+    },
   ];
 
   const handleCreateLitter = async () => {
     try {
-      const res = await fetch('/api/litters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/litters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editLitter),
       });
 
-      if (!res.ok) throw new Error('Failed to create litter');
+      if (!res.ok) throw new Error("Failed to create litter");
 
       const newLitter = await res.json();
-      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
       toast({
-        title: 'Success',
-        description: 'Litter created successfully',
+        title: "Success",
+        description: "Litter created successfully",
       });
-      setLitterFormMode('edit');
+      setLitterFormMode("edit");
       setEditLitter({ ...newLitter, puppies: [] });
     } catch (error) {
-      console.error('Error creating litter:', error);
+      console.error("Error creating litter:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to create litter',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to create litter",
+        variant: "destructive",
       });
     }
   };
@@ -480,7 +735,7 @@ export default function AdminDashboard() {
       // Ensure dueDate is a valid date before converting to ISO string
       const dueDate = new Date(litterData.dueDate);
       if (isNaN(dueDate.getTime())) {
-        throw new Error('Invalid due date');
+        throw new Error("Invalid due date");
       }
 
       // Format the litter data, ensuring date is valid
@@ -490,14 +745,14 @@ export default function AdminDashboard() {
       };
 
       // Create a separate array for existing and new puppies
-      const existingPuppies = puppies?.filter(p => p.id) || [];
-      const newPuppies = puppies?.filter(p => !p.id) || [];
+      const existingPuppies = puppies?.filter((p) => p.id) || [];
+      const newPuppies = puppies?.filter((p) => !p.id) || [];
 
       // Process existing puppies
-      const processedPuppies = existingPuppies.map(puppy => {
+      const processedPuppies = existingPuppies.map((puppy) => {
         const birthDate = new Date(puppy.birthDate);
         if (isNaN(birthDate.getTime())) {
-          throw new Error('Invalid birth date for puppy');
+          throw new Error("Invalid birth date for puppy");
         }
 
         return {
@@ -505,8 +760,8 @@ export default function AdminDashboard() {
           name: puppy.name,
           gender: puppy.gender,
           birthDate: birthDate.toISOString(),
-          description: puppy.description || '',
-          color: puppy.color || '',
+          description: puppy.description || "",
+          color: puppy.color || "",
           height: puppy.height ? parseFloat(puppy.height.toString()) : null,
           weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
           price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
@@ -514,15 +769,15 @@ export default function AdminDashboard() {
           motherId: formattedLitter.motherId,
           fatherId: formattedLitter.fatherId,
           litterId: formattedLitter.id,
-          breed: puppy.breed || '',
-          profileImageUrl: puppy.profileImageUrl || '',
+          breed: puppy.breed || "",
+          profileImageUrl: puppy.profileImageUrl || "",
         };
       });
 
       // Update the litter with processed data
       const res = await fetch(`/api/litters/${formattedLitter.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formattedLitter,
           puppies: processedPuppies,
@@ -531,12 +786,12 @@ export default function AdminDashboard() {
 
       if (!res.ok) {
         const error = await res.text();
-        throw new Error(error || 'Failed to update litter');
+        throw new Error(error || "Failed to update litter");
       }
 
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
 
       toast({
         title: "Success",
@@ -546,10 +801,10 @@ export default function AdminDashboard() {
       setShowLitterForm(false);
       setShowPuppyForm(false);
     } catch (error: any) {
-      console.error('Error updating litter:', error);
+      console.error("Error updating litter:", error);
       toast({
         title: "Error",
-        description: error.message || 'Failed to update litter',
+        description: error.message || "Failed to update litter",
         variant: "destructive",
       });
     }
@@ -563,7 +818,7 @@ export default function AdminDashboard() {
         // Ensure numerical fields are properly converted to strings for form inputs
         const selectedPuppy: PuppyFormData = {
           name: puppy.name,
-          gender: puppy.gender as 'male' | 'female',
+          gender: puppy.gender as "male" | "female",
           birthDate: puppy.birthDate,
           color: puppy.color || undefined,
           description: puppy.description || undefined,
@@ -598,7 +853,7 @@ export default function AdminDashboard() {
           trainingStatus: puppy.trainingStatus || undefined,
           specialNeeds: puppy.specialNeeds || undefined,
           registrationName: puppy.registrationName || undefined,
-          media: puppy.media || []
+          media: puppy.media || [],
         };
         setEditItem(selectedPuppy);
         setShowPuppyForm(true);
@@ -613,13 +868,17 @@ export default function AdminDashboard() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className={`w-full h-full flex items-center justify-center ${
-              puppy.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-            }`}>
-              <span className={`text-xl ${
-                puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
-              }`}>
-                {puppy.gender === 'female' ? '♀' : '♂'}
+            <div
+              className={`w-full h-full flex items-center justify-center ${
+                puppy.gender === "female" ? "bg-pink-100" : "bg-blue-100"
+              }`}
+            >
+              <span
+                className={`text-xl ${
+                  puppy.gender === "female" ? "text-pink-500" : "text-blue-500"
+                }`}
+              >
+                {puppy.gender === "female" ? "♀" : "♂"}
               </span>
             </div>
           )}
@@ -627,7 +886,7 @@ export default function AdminDashboard() {
         <div>
           <p className="font-medium">{puppy.name}</p>
           <p className="text-sm text-muted-foreground">
-            {puppy.gender} • {puppy.color || 'No color set'}
+            {puppy.gender} • {puppy.color || "No color set"}
           </p>
         </div>
       </div>
@@ -636,8 +895,8 @@ export default function AdminDashboard() {
         size="icon"
         onClick={(e) => {
           e.stopPropagation(); // Prevent opening the edit form
-          if (!confirm('Are you sure you want to remove this puppy?')) return;
-          setEditLitter(prev => ({
+          if (!confirm("Are you sure you want to remove this puppy?")) return;
+          setEditLitter((prev) => ({
             ...prev!,
             puppies: prev!.puppies!.filter((_, i) => i !== index),
           }));
@@ -654,8 +913,8 @@ export default function AdminDashboard() {
   };
 
   const handleAddPuppy = (litter: Litter) => {
-    const mother = dogs.find(d => d.id === litter.motherId);
-    const father = dogs.find(d => d.id === litter.fatherId);
+    const mother = dogs.find((d) => d.id === litter.motherId);
+    const father = dogs.find((d) => d.id === litter.fatherId);
 
     setSelectedDog({
       puppy: true,
@@ -664,26 +923,28 @@ export default function AdminDashboard() {
       fatherId: litter.fatherId,
       mother,
       father,
-      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
-      gender: 'male',
+      birthDate: new Date(litter.dueDate).toISOString().split("T")[0],
+      gender: "male",
       available: false,
       breed: "Colorado Mountain Dogs",
-      outsideBreeder: false
+      outsideBreeder: false,
     });
     setShowDogForm(true);
   };
 
   const handleDogFormClose = () => {
-    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
-    queryClient.invalidateQueries({ queryKey: ['/api/litters'] });
+    queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/litters"] });
     setShowDogForm(false);
     setSelectedDog(null);
   };
 
-  const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
-    const mother = dogs.find(d => d.id === litter.motherId);
-    const father = dogs.find(d => d.id === litter.fatherId);
-    const litterPuppies = dogs.filter(d => d.litterId === litter.id);
+  const renderLitterCard = (
+    litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] },
+  ) => {
+    const mother = dogs.find((d) => d.id === litter.motherId);
+    const father = dogs.find((d) => d.id === litter.fatherId);
+    const litterPuppies = dogs.filter((d) => d.litterId === litter.id);
 
     return (
       <Card key={litter.id} className="mb-4">
@@ -716,8 +977,7 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                 {mother?.profileImageUrl ? (
                   <img
-                    src={mother.profileImageUrl}
-                    alt={mother.name}
+                    src={mother.profileImageUrl}                    alt={mother.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -762,15 +1022,22 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <h4 className="font-medium">Puppies</h4>
               <div className="grid gap-4">
-                {litterPuppies.map((puppy) => renderPuppyCard(puppy, litterPuppies.indexOf(puppy)))}
+                {litterPuppies.map((puppy) =>
+                  renderPuppyCard(puppy, litterPuppies.indexOf(puppy)),
+                )}
               </div>
             </div>
           )}
           <div className="flex justify-end mt-4">
             <Button
               onClick={() => {
-                setLitterFormMode('edit');
-                setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
+                setLitterFormMode("edit");
+                setEditLitter({
+                  ...litter,
+                  mother,
+                  father,
+                  puppies: litterPuppies,
+                });
                 setShowLitterForm(true);
               }}
             >
@@ -809,7 +1076,9 @@ export default function AdminDashboard() {
     return (
       <div className="container mx-auto py-8">
         <h1 className="text-4xl font-bold mb-8">Content Management</h1>
-        <p className="text-red-500">Error loading content. Please try refreshing the page.</p>
+        <p className="text-red-500">
+          Error loading content. Please try refreshing the page.
+        </p>
       </div>
     );
   }
@@ -824,28 +1093,48 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        orientation="vertical"
+        className="w-full"
+      >
         <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
           <div className="p-6">
             <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
-            <TabsList className="flex flex-col w-full gap-2 bg-transparent p-0">
-              <TabsTrigger value="content" className="w-full justify-start data-[state=active]:bg-muted">
+            <TabsList className="flex-col w-full gap-2 bg-transparent p-0">
+              <TabsTrigger
+                value="content"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
                 <LayoutDashboard className="h-4 w-4 mr-2" />
                 Content
               </TabsTrigger>
-              <TabsTrigger value="dogs" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="dogs"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
                 <DogIcon className="h-4 w-4 mr-2" />
                 Dogs
               </TabsTrigger>
-              <TabsTrigger value="goats" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="goats"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
                 <Cat className="h-4 w-4 mr-2" />
                 Goats
               </TabsTrigger>
-              <TabsTrigger value="market" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="market"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Market
               </TabsTrigger>
-              <TabsTrigger value="contact" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="contact"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
                 <Contact className="h-4 w-4 mr-2" />
                 Contact
               </TabsTrigger>
@@ -859,7 +1148,9 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Content Management</CardTitle>
-                  <CardDescription>Edit website content and settings</CardDescription>
+                  <CardDescription>
+                    Edit website content and settings
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -877,45 +1168,78 @@ export default function AdminDashboard() {
                           <TabsList>
                             <TabsTrigger value="hero">Hero</TabsTrigger>
                             <TabsTrigger value="about">About</TabsTrigger>
-                            <TabsTrigger value="principles">Principles</TabsTrigger>
+                            <TabsTrigger value="principles">
+                              Principles
+                            </TabsTrigger>
                             <TabsTrigger value="carousel">Carousel</TabsTrigger>
                           </TabsList>
 
                           <TabsContent value="hero" className="space-y-4 pt-4">
                             <div className="mt-8">
                               {contentFields
-                                .filter(field =>
-                                  ['hero_text', 'hero_subtext', 'hero_background'].includes(field.key)
+                                .filter((field) =>
+                                  [
+                                    "hero_text",
+                                    "hero_subtext",
+                                    "hero_background",
+                                  ].includes(field.key),
                                 )
                                 .map((field) => {
                                   return (
                                     <div key={field.key}>
-                                      <Label htmlFor={field.key}>{field.label}</Label>
-                                      {field.type === 'textarea' ? (
+                                      <Label htmlFor={field.key}>
+                                        {field.label}
+                                      </Label>
+                                      {field.type === "textarea" ? (
                                         <Textarea
                                           id={field.key}
                                           value={field.value}
-                                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                          onChange={(e) =>
+                                            handleContentChange(
+                                              field.key,
+                                              e.target.value,
+                                            )
+                                          }
                                           className="mt-1.5"
                                         />
-                                      ) : field.type === 'image' ? (
+                                      ) : field.type === "image" ? (
                                         <div className="mt-1.5 space-y-2">
                                           <FileUpload
-                                            value={pendingContent[field.key] || field.value}
-                                            onFileSelect={(file) => handleContentChange(field.key, file)}
+                                            value={
+                                              pendingContent[field.key] ||
+                                              field.value
+                                            }
+                                            onFileSelect={(file) =>
+                                              handleContentChange(
+                                                field.key,
+                                                file,
+                                              )
+                                            }
                                             onChange={(url) => {
-                                              if (typeof url === 'string') {
-                                                handleContentChange(field.key, url);
+                                              if (typeof url === "string") {
+                                                handleContentChange(
+                                                  field.key,
+                                                  url,
+                                                );
                                               }
                                             }}
-                                            skipCrop={field.key === 'hero_background' ? true : undefined}
+                                            skipCrop={
+                                              field.key === "hero_background"
+                                                ? true
+                                                : undefined
+                                            }
                                           />
                                         </div>
                                       ) : (
                                         <Input
                                           id={field.key}
                                           value={field.value}
-                                          onChange={(e) => handleContentChange(field.key, e.target.value)}
+                                          onChange={(e) =>
+                                            handleContentChange(
+                                              field.key,
+                                              e.target.value,
+                                            )
+                                          }
                                           className="mt-1.5"
                                         />
                                       )}
@@ -929,128 +1253,256 @@ export default function AdminDashboard() {
                             <Card>
                               <CardHeader>
                                 <CardTitle>About Section</CardTitle>
-                                <CardDescription>Manage the About section content</CardDescription>
+                                <CardDescription>
+                                  Manage the About section content
+                                </CardDescription>
                               </CardHeader>
                               <CardContent className="space-y-6">
                                 {/* What We Offer Section */}
                                 <div className="space-y-4">
-                                  <h3 className="text-lg font-medium">What We Offer</h3>
+                                  <h3 className="text-lg font-medium">
+                                    What We Offer
+                                  </h3>
                                   <div>
                                     <Label htmlFor="about_title">Title</Label>
                                     <Input
                                       id="about_title"
-                                      value={pendingContent["about_title"] || ""}
-                                      onChange={(e) => handleContentChange("about_title", e.target.value)}
+                                      value={
+                                        pendingContent["about_title"] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleContentChange(
+                                          "about_title",
+                                          e.target.value,
+                                        )
+                                      }
                                     />
                                   </div>
                                   <div>
-                                    <Label htmlFor="mission_text">Description</Label>
+                                    <Label htmlFor="mission_text">
+                                      Description
+                                    </Label>
                                     <Textarea
                                       id="mission_text"
-                                      value={pendingContent["mission_text"] || ""}
-                                      onChange={(e) => handleContentChange("mission_text", e.target.value)}
+                                      value={
+                                        pendingContent["mission_text"] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleContentChange(
+                                          "mission_text",
+                                          e.target.value,
+                                        )
+                                      }
                                     />
                                   </div>
                                 </div>
 
                                 {/* Feature Cards Section */}
                                 <div className="space-y-4 mt-6">
-                                  <h3 className="text-lg font-medium">Feature Cards</h3>
+                                  <h3 className="text-lg font-medium">
+                                    Feature Cards
+                                  </h3>
 
                                   {/* Dogs Card */}
                                   <div className="border p-4 rounded-lg space-y-4">
-                                    <h4 className="font-medium">Colorado Mountain Dogs</h4>
+                                    <h4 className="font-medium">
+                                      Colorado Mountain Dogs
+                                    </h4>
                                     <div>
-                                      <Label htmlFor="animals_title">Title</Label>
+                                      <Label htmlFor="animals_title">
+                                        Title
+                                      </Label>
                                       <Input
                                         id="animals_title"
-                                        value={pendingContent["animals_title"] || ""}
-                                        onChange={(e) => handleContentChange("animals_title", e.target.value)}
+                                        value={
+                                          pendingContent["animals_title"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "animals_title",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="animals_text">Description</Label>
+                                      <Label htmlFor="animals_text">
+                                        Description
+                                      </Label>
                                       <Textarea
                                         id="animals_text"
-                                        value={pendingContent["animals_text"] || ""}
-                                        onChange={(e) => handleContentChange("animals_text", e.target.value)}
+                                        value={
+                                          pendingContent["animals_text"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "animals_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="animals_image">Image</Label>
+                                      <Label htmlFor="animals_image">
+                                        Image
+                                      </Label>
                                       <FileUpload
-                                        value={pendingContent["animals_image"] || ""}
-                                        onFileSelect={(file) => handleContentChange("animals_image", file)}
+                                        value={
+                                          pendingContent["animals_image"] || ""
+                                        }
+                                        onFileSelect={(file) =>
+                                          handleContentChange(
+                                            "animals_image",
+                                            file,
+                                          )
+                                        }
                                         onChange={(url) => {
-                                          if (typeof url === 'string') {
-                                            handleContentChange("animals_image", url);
+                                          if (typeof url === "string") {
+                                            handleContentChange(
+                                              "animals_image",
+                                              url,
+                                            );
                                           }
                                         }}
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="animals_button_text">Button Text</Label>
+                                      <Label htmlFor="animals_button_text">
+                                        Button Text
+                                      </Label>
                                       <Input
                                         id="animals_button_text"
-                                        value={pendingContent["animals_button_text"] || ""}
-                                        onChange={(e) => handleContentChange("animals_button_text", e.target.value)}
+                                        value={
+                                          pendingContent[
+                                            "animals_button_text"
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "animals_button_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="animals_redirect">Button Link</Label>
+                                      <Label htmlFor="animals_redirect">
+                                        Button Link
+                                      </Label>
                                       <Input
                                         id="animals_redirect"
-                                        value={pendingContent["animals_redirect"] || ""}
-                                        onChange={(e) => handleContentChange("animals_redirect", e.target.value)}
+                                        value={
+                                          pendingContent["animals_redirect"] ||
+                                          ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "animals_redirect",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
 
                                   {/* Goats Card */}
                                   <div className="border p-4 rounded-lg space-y-4">
-                                    <h4 className="font-medium">Nigerian Dwarf Goats</h4>
+                                    <h4 className="font-medium">
+                                      Nigerian Dwarf Goats
+                                    </h4>
                                     <div>
-                                      <Label htmlFor="bakery_title">Title</Label>
+                                      <Label htmlFor="bakery_title">
+                                        Title
+                                      </Label>
                                       <Input
                                         id="bakery_title"
-                                        value={pendingContent["bakery_title"] || ""}
-                                        onChange={(e) => handleContentChange("bakery_title", e.target.value)}
+                                        value={
+                                          pendingContent["bakery_title"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "bakery_title",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="bakery_text">Description</Label>
+                                      <Label htmlFor="bakery_text">
+                                        Description
+                                      </Label>
                                       <Textarea
                                         id="bakery_text"
-                                        value={pendingContent["bakery_text"] || ""}
-                                        onChange={(e) => handleContentChange("bakery_text", e.target.value)}
+                                        value={
+                                          pendingContent["bakery_text"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "bakery_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="bakery_image">Image</Label>
+                                      <Label htmlFor="bakery_image">
+                                        Image
+                                      </Label>
                                       <FileUpload
-                                        value={pendingContent["bakery_image"] || ""}
-                                        onFileSelect={(file) => handleContentChange("bakery_image", file)}
+                                        value={
+                                          pendingContent["bakery_image"] || ""
+                                        }
+                                        onFileSelect={(file) =>
+                                          handleContentChange(
+                                            "bakery_image",
+                                            file,
+                                          )
+                                        }
                                         onChange={(url) => {
-                                          if (typeof url === 'string') {
-                                            handleContentChange("bakery_image", url);
+                                          if (typeof url === "string") {
+                                            handleContentChange(
+                                              "bakery_image",
+                                              url,
+                                            );
                                           }
                                         }}
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="bakery_button_text">Button Text</Label>
+                                      <Label htmlFor="bakery_button_text">
+                                        Button Text
+                                      </Label>
                                       <Input
                                         id="bakery_button_text"
-                                        value={pendingContent["bakery_button_text"] || ""}
-                                        onChange={(e) => handleContentChange("bakery_button_text", e.target.value)}
+                                        value={
+                                          pendingContent[
+                                            "bakery_button_text"
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "bakery_button_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="bakery_redirect">Button Link</Label>
+                                      <Label htmlFor="bakery_redirect">
+                                        Button Link
+                                      </Label>
                                       <Input
                                         id="bakery_redirect"
-                                        value={pendingContent["bakery_redirect"] || ""}
-                                        onChange={(e) => handleContentChange("bakery_redirect", e.target.value)}
+                                        value={
+                                          pendingContent["bakery_redirect"] ||
+                                          ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "bakery_redirect",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -1059,47 +1511,98 @@ export default function AdminDashboard() {
                                   <div className="border p-4 rounded-lg space-y-4">
                                     <h4 className="font-medium">Products</h4>
                                     <div>
-                                      <Label htmlFor="products_title">Title</Label>
+                                      <Label htmlFor="products_title">
+                                        Title
+                                      </Label>
                                       <Input
                                         id="products_title"
-                                        value={pendingContent["products_title"] || ""}
-                                        onChange={(e) => handleContentChange("products_title", e.target.value)}
+                                        value={
+                                          pendingContent["products_title"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "products_title",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="products_text">Description</Label>
+                                      <Label htmlFor="products_text">
+                                        Description
+                                      </Label>
                                       <Textarea
                                         id="products_text"
-                                        value={pendingContent["products_text"] || ""}
-                                        onChange={(e) => handleContentChange("products_text", e.target.value)}
+                                        value={
+                                          pendingContent["products_text"] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "products_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="products_image">Image</Label>
+                                      <Label htmlFor="products_image">
+                                        Image
+                                      </Label>
                                       <FileUpload
-                                        value={pendingContent["products_image"] || ""}
-                                        onFileSelect={(file) => handleContentChange("products_image", file)}
+                                        value={
+                                          pendingContent["products_image"] || ""
+                                        }
+                                        onFileSelect={(file) =>
+                                          handleContentChange(
+                                            "products_image",
+                                            file,
+                                          )
+                                        }
                                         onChange={(url) => {
-                                          if (typeof url === 'string') {
-                                            handleContentChange("products_image", url);
+                                          if (typeof url === "string") {
+                                            handleContentChange(
+                                              "products_image",
+                                              url,
+                                            );
                                           }
                                         }}
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="products_button_text">Button Text</Label>
+                                      <Label htmlFor="products_button_text">
+                                        Button Text
+                                      </Label>
                                       <Input
                                         id="products_button_text"
-                                        value={pendingContent["products_button_text"] || ""}
-                                        onChange={(e) => handleContentChange("products_button_text", e.target.value)}
+                                        value={
+                                          pendingContent[
+                                            "products_button_text"
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "products_button_text",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                     <div>
-                                      <Label htmlFor="products_redirect">Button Link</Label>
+                                      <Label htmlFor="products_redirect">
+                                        Button Link
+                                      </Label>
                                       <Input
                                         id="products_redirect"
-                                        value={pendingContent["products_redirect"] || ""}
-                                        onChange={(e) => handleContentChange("products_redirect", e.target.value)}
+                                        value={
+                                          pendingContent["products_redirect"] ||
+                                          ""
+                                        }
+                                        onChange={(e) =>
+                                          handleContentChange(
+                                            "products_redirect",
+                                            e.target.value,
+                                          )
+                                        }
                                       />
                                     </div>
                                   </div>
@@ -1108,7 +1611,10 @@ export default function AdminDashboard() {
                             </Card>
                           </TabsContent>
 
-                          <TabsContent value="principles" className="space-y-4 pt-4">
+                          <TabsContent
+                            value="principles"
+                            className="space-y-4 pt-4"
+                          >
                             <div className="flex justify-end mb-4">
                               <Button onClick={handleAddPrinciple}>
                                 Add Principle
@@ -1119,12 +1625,24 @@ export default function AdminDashboard() {
                                 <Label>Title</Label>
                                 <Input
                                   value={principle.title}
-                                  onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                                  onChange={(e) =>
+                                    handlePrincipleChange(
+                                      principle.id,
+                                      "title",
+                                      e.target.value,
+                                    )
+                                  }
                                 />
                                 <Label>Description</Label>
                                 <Textarea
                                   value={principle.description}
-                                  onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                                  onChange={(e) =>
+                                    handlePrincipleChange(
+                                      principle.id,
+                                      "description",
+                                      e.target.value,
+                                    )
+                                  }
                                 />
                                 <Label>Image</Label>
                                 <div className="space-y-2">
@@ -1132,27 +1650,39 @@ export default function AdminDashboard() {
                                     value={principle.imageUrl}
                                     onFileSelect={(file) => {
                                       const formData = new FormData();
-                                      formData.append('file', file);
-                                      fetch('/api/upload', {
-                                        method: 'POST',
+                                      formData.append("file", file);
+                                      fetch("/api/upload", {
+                                        method: "POST",
                                         body: formData,
                                       })
-                                        .then(res => res.json())
-                                        .then(data => {
-                                          handlePrincipleChange(principle.id, 'imageUrl', data.url);
+                                        .then((res) => res.json())
+                                        .then((data) => {
+                                          handlePrincipleChange(
+                                            principle.id,
+                                            "imageUrl",
+                                            data.url,
+                                          );
                                         })
-                                        .catch(error => {
-                                          console.error('Error uploading image:', error);
+                                        .catch((error) => {
+                                          console.error(
+                                            "Error uploading image:",
+                                            error,
+                                          );
                                           toast({
                                             title: "Error",
-                                            description: "Failed to upload image",
+                                            description:
+                                              "Failed to upload image",
                                             variant: "destructive",
                                           });
                                         });
                                     }}
                                     onChange={(url) => {
-                                      if (typeof url === 'string') {
-                                        handlePrincipleChange(principle.id, 'imageUrl', url);
+                                      if (typeof url === "string") {
+                                        handlePrincipleChange(
+                                          principle.id,
+                                          "imageUrl",
+                                          url,
+                                        );
                                       }
                                     }}
                                   />
@@ -1160,7 +1690,9 @@ export default function AdminDashboard() {
                                 <div className="flex justify-end">
                                   <Button
                                     variant="destructive"
-                                    onClick={() => handleDeletePrinciple(principle.id)}
+                                    onClick={() =>
+                                      handleDeletePrinciple(principle.id)
+                                    }
                                   >
                                     Delete
                                   </Button>
@@ -1168,12 +1700,17 @@ export default function AdminDashboard() {
                               </div>
                             ))}
                           </TabsContent>
-                          <TabsContent value="carousel" className="space-y-4 pt-4">
+                          <TabsContent
+                            value="carousel"
+                            className="space-y-4 pt-4"
+                          >
                             <div className="mb-6">
-                              <Button onClick={() => {
-                                setEditItem(null);
-                                setShowForm(true);
-                              }}>
+                              <Button
+                                onClick={() => {
+                                  setEditItem(null);
+                                  setShowForm(true);
+                                }}
+                              >
                                 Add Carousel Item
                               </Button>
                             </div>
@@ -1182,7 +1719,9 @@ export default function AdminDashboard() {
                                 <Card key={item.id}>
                                   <CardHeader>
                                     <CardTitle>{item.title}</CardTitle>
-                                    <CardDescription>{item.description}</CardDescription>
+                                    <CardDescription>
+                                      {item.description}
+                                    </CardDescription>
                                   </CardHeader>
                                   <CardContent>
                                     {item.imageUrl && (
@@ -1222,7 +1761,9 @@ export default function AdminDashboard() {
                         <Card>
                           <CardHeader>
                             <CardTitle>Contact Information</CardTitle>
-                            <CardDescription>Manage contact details and social media links</CardDescription>
+                            <CardDescription>
+                              Manage contact details and social media links
+                            </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-6">
                             <div className="space-y-2">
@@ -1230,8 +1771,10 @@ export default function AdminDashboard() {
                               <Input
                                 id="email"
                                 type="email"
-                                value={pendingContactInfo.email ?? ''}
-                                onChange={(e) => handleContactChange('email', e.target.value)}
+                                value={pendingContactInfo.email ?? ""}
+                                onChange={(e) =>
+                                  handleContactChange("email", e.target.value)
+                                }
                                 placeholder="contact@littlewayacres.com"
                               />
                             </div>
@@ -1241,8 +1784,10 @@ export default function AdminDashboard() {
                               <Input
                                 id="phone"
                                 type="tel"
-                                value={pendingContactInfo.phone ?? ''}
-                                onChange={(e) => handleContactChange('phone', e.target.value)}
+                                value={pendingContactInfo.phone ?? ""}
+                                onChange={(e) =>
+                                  handleContactChange("phone", e.target.value)
+                                }
                                 placeholder="(555) 123-4567"
                               />
                             </div>
@@ -1252,8 +1797,13 @@ export default function AdminDashboard() {
                               <Input
                                 id="facebook"
                                 type="url"
-                                value={pendingContactInfo.facebook ?? ''}
-                                onChange={(e) => handleContactChange('facebook', e.target.value)}
+                                value={pendingContactInfo.facebook ?? ""}
+                                onChange={(e) =>
+                                  handleContactChange(
+                                    "facebook",
+                                    e.target.value,
+                                  )
+                                }
                                 placeholder="https://facebook.com/littlewayacres"
                               />
                             </div>
@@ -1263,8 +1813,13 @@ export default function AdminDashboard() {
                               <Input
                                 id="instagram"
                                 type="url"
-                                value={pendingContactInfo.instagram ?? ''}
-                                onChange={(e) => handleContactChange('instagram', e.target.value)}
+                                value={pendingContactInfo.instagram ?? ""}
+                                onChange={(e) =>
+                                  handleContactChange(
+                                    "instagram",
+                                    e.target.value,
+                                  )
+                                }
                                 placeholder="https://instagram.com/littlewayacres"
                               />
                             </div>
@@ -1278,25 +1833,65 @@ export default function AdminDashboard() {
             </TabsContent>
 
             <TabsContent value="dogs">
-              <DogManagement />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Dog Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="overview" className="w-full">
+                    <TabsList>
+                      <TabsTrigger value="overview">Dogs</TabsTrigger>
+                      <TabsTrigger value="litters">Litters</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview">
+                      <DogManagement />
+                    </TabsContent>
+                    <TabsContent value="litters">
+                      <LitterManagement />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="goats">
-              <GoatManagement />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Goat Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="overview" className="w-full">
+                    <TabsList>
+                      <TabsTrigger value="overview">Goats</TabsTrigger>
+                      <TabsTrigger value="litters">Litters</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview">
+                      <GoatManagement />
+                    </TabsContent>
+                    <TabsContent value="litters">
+                      <GoatLitterManagement />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="market">
               <Card>
                 <CardHeader>
                   <CardTitle>Product Management</CardTitle>
-                  <CardDescription>Manage products and inventory</CardDescription>
+                  <CardDescription>
+                    Manage products and inventory
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="mb-6">
-                    <Button onClick={() => {
-                      setEditItem(null);
-                      setShowForm(true);
-                    }}>
+                    <Button
+                      onClick={() => {
+                        setEditItem(null);
+                        setShowForm(true);
+                      }}
+                    >
                       Add New Product
                     </Button>
                   </div>
@@ -1329,7 +1924,9 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Contact Information</CardTitle>
-                  <CardDescription>Manage contact details and social media links</CardDescription>
+                  <CardDescription>
+                    Manage contact details and social media links
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -1337,36 +1934,44 @@ export default function AdminDashboard() {
                       <FormLabel>Email Address</FormLabel>
                       <Input
                         type="email"
-                        value={contactInfoData?.email ?? ''}
+                        value={contactInfoData?.email ?? ""}
                         placeholder="contact@example.com"
-                        onChange={(e) => handleContactChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleContactChange("email", e.target.value)
+                        }
                       />
                     </FormItem>
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <Input
                         type="tel"
-                        value={contactInfoData?.phone ?? ''}
+                        value={contactInfoData?.phone ?? ""}
                         placeholder="(555) 123-4567"
-                        onChange={(e) => handleContactChange('phone', e.target.value)}
+                        onChange={(e) =>
+                          handleContactChange("phone", e.target.value)
+                        }
                       />
                     </FormItem>
                     <FormItem>
                       <FormLabel>Facebook URL</FormLabel>
                       <Input
                         type="url"
-                        value={contactInfoData?.facebook ?? ''}
+                        value={contactInfoData?.facebook ?? ""}
                         placeholder="https://facebook.com/littlewayacres"
-                        onChange={(e) => handleContactChange('facebook', e.target.value)}
+                        onChange={(e) =>
+                          handleContactChange("facebook", e.target.value)
+                        }
                       />
                     </FormItem>
                     <FormItem>
                       <FormLabel>Instagram URL</FormLabel>
                       <Input
                         type="url"
-                        value={contactInfoData?.instagram ?? ''}
+                        value={contactInfoData?.instagram ?? ""}
                         placeholder="https://instagram.com/littlewayacres"
-                        onChange={(e) => handleContactChange('instagram', e.target.value)}
+                        onChange={(e) =>
+                          handleContactChange("instagram", e.target.value)
+                        }
                       />
                     </FormItem>
                   </div>

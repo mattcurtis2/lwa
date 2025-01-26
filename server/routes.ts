@@ -221,6 +221,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 1,
+          profileImageUrl: "/images/goats/luna.jpg",
         },
         {
           name: "Zeus",
@@ -233,6 +234,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 2,
+          profileImageUrl: "/images/goats/zeus.jpg",
         },
         {
           name: "Daisy",
@@ -245,6 +247,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 3,
+          profileImageUrl: "/images/goats/daisy.jpg",
         }
       ];
 
@@ -825,7 +828,7 @@ export function registerRoutes(app: Express): Server {
         .values(req.body)
         .returning();
 
-      const litterWithParents = await db.query.litters.findFirst({
+      const litterWithParents = awaitdb.query.litters.findFirst({
         where: eq(litters.id, litter[0].id),
         with: {
           mother: true,
@@ -1123,6 +1126,213 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error updating contact info:", error);
       res.status(500).json({ message: "Failed to update contact info" });
+    }
+  });
+
+  // Add these routes after the litter routes
+  // Goat routes
+  app.get("/api/goats", async (_req, res) => {
+    try {
+      const allGoats = await db.query.goats.findMany({
+        orderBy: (goats, { asc }) => [asc(goats.order)],
+        with: {
+          media: {
+            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+          },
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        }
+      });
+
+      // Set first media image as profile picture if none exists
+      const processedGoats = allGoats.map(goat => {
+        if (!goat.profileImageUrl && goat.media && goat.media.length > 0) {
+          const firstImage = goat.media.find(m => m.type === 'image');
+          if (firstImage) {
+            return {
+              ...goat,
+              profileImageUrl: firstImage.url
+            };
+          }
+        }
+        return goat;
+      });
+
+      res.json(processedGoats);
+    } catch (error) {
+      console.error("Error fetching goats:", error);
+      res.status(500).json({ message: "Failed to fetch goats" });
+    }
+  });
+
+  // Get specific goat
+  app.get("/api/goats/:id", async (req, res) => {
+    try {
+      const goatId = parseInt(req.params.id);
+      const goat = await db.query.goats.findFirst({
+        where: eq(goats.id, goatId),
+        with: {
+          media: {
+            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+          },
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        }
+      });
+
+      if (!goat) {
+        return res.status(404).json({ message: "Goat not found" });
+      }
+
+      res.json(goat);
+    } catch (error) {
+      console.error("Error fetching goat:", error);
+      res.status(500).json({ message: "Failed to fetch goat" });
+    }
+  });
+
+  // Create new goat
+  app.post("/api/goats", async (req, res) => {
+    try {
+      const goat = await db.insert(goats)
+        .values(req.body)
+        .returning();
+
+      const goatWithRelations = await db.query.goats.findFirst({
+        where: eq(goats.id, goat[0].id),
+        with: {
+          media: true,
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        },
+      });
+
+      res.json(goatWithRelations);
+    } catch (error) {
+      console.error("Error creating goat:", error);
+      res.status(500).json({ message: "Failed to create goat" });
+    }
+  });
+
+  // Update goat
+  app.put("/api/goats/:id", async (req, res) => {
+    try {
+      const goatId = parseInt(req.params.id);
+      const goat = await db.update(goats)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(goats.id, goatId))
+        .returning();
+
+      const goatWithRelations = await db.query.goats.findFirst({
+        where: eq(goats.id, goat[0].id),
+        with: {
+          media: true,
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        },
+      });
+
+      res.json(goatWithRelations);
+    } catch (error) {
+      console.error("Error updating goat:", error);
+      res.status(500).json({ message: "Failed to update goat" });
+    }
+  });
+
+  // Delete goat
+  app.delete("/api/goats/:id", async (req, res) => {
+    try {
+      await db.delete(goats)
+        .where(eq(goats.id, parseInt(req.params.id)));
+      res.json({ message: "Goat deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting goat:", error);
+      res.status(500).json({ message: "Failed to delete goat" });
+    }
+  });
+
+  // Goat Litter routes
+  app.get("/api/goat-litters", async (_req, res) => {
+    try {
+      const allLitters = await db.query.goatLitters.findMany({
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+      res.json(allLitters);
+    } catch (error) {
+      console.error("Error fetching goat litters:", error);
+      res.status(500).json({ message: "Failed to fetch goat litters" });
+    }
+  });
+
+  app.post("/api/goat-litters", async (req, res) => {
+    try {
+      const litter = await db.insert(goatLitters)
+        .values(req.body)
+        .returning();
+
+      const litterWithRelations = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithRelations);
+    } catch (error) {
+      console.error("Error creating goat litter:", error);
+      res.status(500).json({ message: "Failed to create goat litter" });
+    }
+  });
+
+  app.put("/api/goat-litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+      const litter = await db.update(goatLitters)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(goatLitters.id, litterId))
+        .returning();
+
+      const litterWithRelations = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithRelations);
+    } catch (error) {
+      console.error("Error updating goat litter:", error);
+      res.status(500).json({ message: "Failed to update goat litter" });
+    }
+  });
+
+  app.delete("/api/goat-litters/:id", async (req, res) => {
+    try {
+      await db.delete(goatLitters)
+        .where(eq(goatLitters.id, parseInt(req.params.id)));
+      res.json({ message: "Goat litter deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting goat litter:", error);
+      res.status(500).json({ message: "Failed to delete goat litter" });
     }
   });
 
