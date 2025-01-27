@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, ImageIcon, FileText, ExternalLink } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -537,7 +537,7 @@ export default function DogForm({
       'video/*': []
     },
     maxSize: 10485760, // 10MB
-    onDrop: async (acceptedFiles) => {
+    onDrop: useCallback(async (acceptedFiles: File[]) => {
       try {
         for (const file of acceptedFiles) {
           const formData = new FormData();
@@ -549,21 +549,22 @@ export default function DogForm({
           });
 
           if (!res.ok) {
-            throw new Error("Failed to upload file");
+            throw new Error("Upload failed");
           }
 
           const data = await res.json();
-          const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+          if (data && data[0]?.url) {
+            const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+            const newMedia = {
+              url: data[0].url,
+              type: fileType,
+              fileName: file.name,
+              isNew: true,
+            };
 
-          const newMedia = {
-            url: data.url,
-            type: fileType,
-            fileName: file.name,
-            isNew: true,
-          };
-
-          setMediaInputs(prev => [newMedia, ...prev]);
-          form.setValue("media", [newMedia, ...form.getValues("media")]);
+            setMediaInputs(prev => [newMedia, ...prev]);
+            form.setValue("media", [newMedia, ...form.getValues("media")]);
+          }
         }
       } catch (error) {
         console.error('Error uploading files:', error);
@@ -573,7 +574,7 @@ export default function DogForm({
           variant: "destructive",
         });
       }
-    },
+    }, [form, toast]),
     onDropRejected: (rejectedFiles) => {
       toast({
         title: "Error",
@@ -1171,10 +1172,10 @@ export default function DogForm({
                   ref={provided.innerRef}
                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                 >
-                  {mediaInputs.map((input, index) => (
+                  {mediaInputs.filter(input => input?.url).map((input, index) => (
                     <Draggable
-                      key={input.url}
-                      draggableId={input.url}
+                      key={input.url || `media-${index}`}
+                      draggableId={input.url || `media-${index}`}
                       index={index}
                     >
                       {(provided) => (
