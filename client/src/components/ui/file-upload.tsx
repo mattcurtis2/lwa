@@ -29,7 +29,7 @@ export function FileUpload({
   accept = 'image/*,video/*',
   cropAspect,
   isUploading = false,
-  skipCrop = true // Changed default to true to make cropping optional
+  skipCrop = false // Set default to false to enable cropping
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
