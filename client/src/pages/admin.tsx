@@ -1466,21 +1466,37 @@ export default function AdminDashboard() {
                                         Image
                                       </Label>
                                       <FileUpload
-                                        value={
-                                          pendingContent["bakery_image"] || ""
-                                        }
-                                        onFileSelect={(file) =>
-                                          handleContentChange(
-                                            "bakery_image",
-                                            file,
-                                          )
-                                        }
+                                        value={pendingContent["bakery_image"] || ""}
+                                        onFileSelect={async (file) => {
+                                          const formData = new FormData();
+                                          formData.append("file", file);
+                                          
+                                          try {
+                                            const response = await fetch("/api/upload", {
+                                              method: "POST",
+                                              body: formData,
+                                            });
+                                            
+                                            if (!response.ok) throw new Error("Upload failed");
+                                            
+                                            const data = await response.json();
+                                            const uploadedFile = Array.isArray(data) ? data[0] : data;
+                                            
+                                            if (uploadedFile?.url) {
+                                              handleContentChange("bakery_image", uploadedFile.url);
+                                            }
+                                          } catch (error) {
+                                            console.error("Upload error:", error);
+                                            toast({
+                                              title: "Error",
+                                              description: "Failed to upload image",
+                                              variant: "destructive",
+                                            });
+                                          }
+                                        }}
                                         onChange={(url) => {
                                           if (typeof url === "string") {
-                                            handleContentChange(
-                                              "bakery_image",
-                                              url,
-                                            );
+                                            handleContentChange("bakery_image", url);
                                           }
                                         }}
                                       />
