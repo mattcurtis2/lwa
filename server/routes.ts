@@ -705,33 +705,27 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
-      if (!req.files || req.files.length === 0) {
-        console.error("Upload error: No files in request");
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      const uploadedFiles = [];
-      const files = Array.isArray(req.files) ? req.files : [req.files];
-
-      for (const file of files) {
-        const fileName = file.filename;
-        const targetPath = path.join(uploadDir, fileName);
-
+      const uploadedFiles = await Promise.all(req.files.map(async (file) => {
+        const targetPath = path.join(uploadDir, file.filename);
         await fs.ensureDir(uploadDir);
-
+        
         if (file.path !== targetPath) {
           await fs.copy(file.path, targetPath);
         }
 
-        uploadedFiles.push({
-          url: `/uploads/${fileName}`,
+        return {
+          url: `/uploads/${file.filename}`,
           type: file.mimetype.split('/')[0],
           originalName: file.originalname,
           mimeType: file.mimetype
-        });
-      }
+        };
+      }));
 
-      return res.json(uploadedFiles);
+      return res.status(200).json(uploadedFiles);
     } catch (error) {
       console.error("Upload error:", error);
       return res.status(500).json({
