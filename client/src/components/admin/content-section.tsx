@@ -9,8 +9,7 @@ import { useDropzone } from "@react-dropzone/dropzone";
 import { Upload, X } from "lucide-react";
 import { useState } from "react";
 import cn from "classnames";
-import { ImageCrop } from "@/components/ImageCrop"; // Assumed component
-
+import { ImageCrop } from "@/components/ImageCrop";
 
 interface ContentSectionProps {
   siteContent: SiteContent[];
@@ -43,7 +42,7 @@ export function ContentSection({
       const file = acceptedFiles[0];
       const reader = new FileReader();
       reader.onload = (e) => {
-        handleContentChange("hero_background", e.target.result as string); // Assumed hero_background is the key
+        handleContentChange("hero_background", e.target.result as string);
       };
       reader.readAsDataURL(file);
     },
@@ -57,7 +56,6 @@ export function ContentSection({
 
   return (
     <div className="space-y-6">
-      {/* Content fields rendering */}
       {contentFields.map((field) => (
         <div key={field.key}>
           <Label htmlFor={field.key}>{field.label}</Label>
@@ -70,7 +68,7 @@ export function ContentSection({
             />
           ) : field.type === 'image' ? (
             <div className="mt-1.5 space-y-2">
-              {field.key === "hero_background" && (
+              {field.key === "hero_background" ? (
                 <div className="space-y-4">
                   <div
                     {...getRootProps()}
@@ -127,65 +125,6 @@ export function ContentSection({
                   {showCropper && cropImageUrl && (
                     <ImageCrop
                       imageUrl={cropImageUrl}
-                      onCropComplete={(croppedImage) => {
-                        handleContentChange(field.key, croppedImage);
-                        setShowCropper(false);
-                        setCropImageUrl("");
-                      }}
-                      onCancel={() => {
-                        setShowCropper(false);
-                        setCropImageUrl("");
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-              {field.key !== "hero_background" && (
-                <div>
-                  <Input
-                    type="text"
-                    id={field.key}
-                    value={pendingContent[field.key] || ''}
-                    onChange={(e) => handleContentChange(field.key, e.target.value)}
-                    className="mt-1.5"
-                  />
-                  {pendingContent[field.key] && (
-                    <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={pendingContent[field.key]}
-                        alt="Preview"
-                        className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                        onClick={() => {
-                          setCropImageUrl(pendingContent[field.key]);
-                          setShowCropper(true);
-                        }}
-                      />
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContentChange(field.key, "");
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div
-                        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"
-                        onClick={() => {
-                          setCropImageUrl(pendingContent[field.key]);
-                          setShowCropper(true);
-                        }}
-                      />
-                    </div>
-                  )}
-                  {showCropper && cropImageUrl && (
-                    <ImageCrop
-                      imageUrl={cropImageUrl}
                       onCropComplete={handleCroppedImage}
                       onCancel={() => {
                         setShowCropper(false);
@@ -194,9 +133,9 @@ export function ContentSection({
                     />
                   )}
                 </div>
-              )}
-              {(field.type !== 'textarea' && field.type !== 'image') && (
+              ) : (
                 <Input
+                  type="text"
                   id={field.key}
                   value={pendingContent[field.key] || ''}
                   onChange={(e) => handleContentChange(field.key, e.target.value)}
@@ -204,6 +143,13 @@ export function ContentSection({
                 />
               )}
             </div>
+          ) : (
+            <Input
+              id={field.key}
+              value={pendingContent[field.key] || ''}
+              onChange={(e) => handleContentChange(field.key, e.target.value)}
+              className="mt-1.5"
+            />
           )}
         </div>
       ))}
