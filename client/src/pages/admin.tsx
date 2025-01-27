@@ -79,18 +79,20 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="market">
-              <Tabs value={activeMarketTab} onValueChange={setActiveMarketTab}>
-                <TabsList className="mb-4">
-                  <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                  <TabsTrigger value="items">Items</TabsTrigger>
-                </TabsList>
-                <TabsContent value="schedule">
-                  <MarketScheduleManager />
-                </TabsContent>
-                <TabsContent value="items">
-                  <MarketItemsManager />
-                </TabsContent>
-              </Tabs>
+              <div>
+                <Tabs value={activeMarketTab} onValueChange={setActiveMarketTab}>
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="schedule">Schedule</TabsTrigger>
+                    <TabsTrigger value="items">Items</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="schedule">
+                    <MarketScheduleManager />
+                  </TabsContent>
+                  <TabsContent value="items">
+                    <MarketItemsManager />
+                  </TabsContent>
+                </Tabs>
+              </div>
             </TabsContent>
 
             <TabsContent value="content">
