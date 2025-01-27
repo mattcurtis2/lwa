@@ -714,53 +714,21 @@ export function registerRoutes(app: Express): Server {
       const files = Array.isArray(req.files) ? req.files : [req.files];
 
       for (const file of files) {
-        if (process.env.NODE_ENV !== 'production') {
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
+        const fileName = file.filename;
+        const targetPath = path.join(uploadDir, fileName);
 
-          const fileName = file.filename;
-          const targetPath = path.join(uploadDir, fileName);
+        await fs.ensureDir(uploadDir);
 
-          if (file.path !== targetPath) {
-            fs.copyFileSync(file.path, targetPath);
-          }
-
-          uploadedFiles.push({
-            url: `/uploads/${fileName}`,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          });
-        } else {
-          const fileBuffer = await fs.promises.readFile(file.path);
-          if (!fileBuffer) {
-            throw new Error("Could not read file buffer");
-          }
-
-          const base64Data = fileBuffer.toString('base64');
-          console.log(`Storing file (${fileBuffer.length} bytes) in PostgreSQL`);
-
-          const [storedFile] = await db.insert(fileStorage)
-            .values({
-              fileName: file.filename,
-              mimeType: file.mimetype,
-              data: base64Data,
-              createdAt: new Date()
-            })
-            .returning();
-
-          if (!storedFile) {
-            throw new Error("Failed to store file in database");
-          }
-
-          uploadedFiles.push({
-            url: `/api/files/${file.filename}`,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          });
+        if (file.path !== targetPath) {
+          await fs.copy(file.path, targetPath);
         }
+
+        uploadedFiles.push({
+          url: `/uploads/${fileName}`,
+          type: file.mimetype.split('/')[0],
+          originalName: file.originalname,
+          mimeType: file.mimetype
+        });
       }
 
       return res.json(uploadedFiles);
@@ -770,17 +738,6 @@ export function registerRoutes(app: Express): Server {
         message: "Failed to process uploaded files",
         details: error instanceof Error ? error.message : String(error)
       });
-    } finally {
-      if (process.env.NODE_ENV === 'production' && req.files) {
-        const files = Array.isArray(req.files) ? req.files : [req.files];
-        for (const file of files) {
-          try {
-            fs.unlinkSync(file.path);
-          } catch (cleanupError) {
-            console.error("Failed to cleanup temporary file:", cleanupError);
-          }
-        }
-      }
     }
   });
 
