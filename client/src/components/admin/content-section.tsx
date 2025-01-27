@@ -556,22 +556,27 @@ export default function ContentSection() {
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
-                    <div className="relative group">
-                      <PrincipleDropzone 
-                        onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
-                        currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
-                      />
-                      {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
-                        <div
-                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
-                          onClick={() => {
-                            setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
-                            setPendingPrincipleId(principle.id);
-                            setShowCropper(true);
-                          }}
+                    <PrincipleDropzone 
+                      onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
+                      currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                    />
+                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
+                      <div 
+                        className="mt-4 relative group cursor-pointer"
+                        onClick={() => {
+                          setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
+                          setPendingPrincipleId(principle.id);
+                          setShowCropper(true);
+                        }}
+                      >
+                        <img
+                          src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                          alt="Principle Image Preview"
+                          className="rounded-lg max-h-48 object-cover w-full"
                         />
-                      )}
-                    </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
