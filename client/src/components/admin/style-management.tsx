@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useThemePreview } from "@/hooks/use-theme-preview";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -62,6 +63,7 @@ interface ThemeConfig {
 export default function StyleManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isPreviewMode, previewStyles } = useThemePreview();
   const [themeConfig, setThemeConfig] = useState<ThemeConfig>({
     variant: "professional",
     primary: "hsl(222.2 47.4% 11.2%)",
@@ -107,7 +109,6 @@ export default function StyleManagement() {
     fetch("/api/theme")
       .then((res) => res.json())
       .then((data) => {
-        // Handle both theme structures
         if (data.customColors) {
           setThemeConfig(data);
         } else {
@@ -126,6 +127,21 @@ export default function StyleManagement() {
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (isPreviewMode && previewStyles) {
+      const root = document.documentElement;
+      Object.entries(previewStyles).forEach(([key, value]) => {
+        root.style.setProperty(key, value);
+      });
+
+      return () => {
+        Object.keys(previewStyles).forEach((key) => {
+          root.style.removeProperty(key);
+        });
+      };
+    }
+  }, [isPreviewMode, previewStyles]);
 
   const updateTheme = useMutation({
     mutationFn: async (newTheme: ThemeConfig) => {
@@ -177,6 +193,22 @@ export default function StyleManagement() {
 
   return (
     <div className="space-y-6">
+      {isPreviewMode && (
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="pt-6">
+            <p className="text-yellow-800">
+              Preview mode active. These styles are temporary and won't be saved unless you click "Save Changes".
+            </p>
+            <Button
+              variant="outline"
+              className="mt-2"
+              onClick={() => window.location.search = ''}
+            >
+              Exit Preview Mode
+            </Button>
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Theme Settings</CardTitle>
