@@ -81,10 +81,12 @@ export function FileUpload({
         }
 
         const data = await response.json();
-        if (data && data[0]?.url) {
-          setPreviewUrl(data[0].url);
+        const uploadedFile = Array.isArray(data) ? data[0] : data;
+        
+        if (uploadedFile?.url) {
+          setPreviewUrl(uploadedFile.url);
           if (onChange) {
-            onChange(data[0].url);
+            onChange(uploadedFile.url);
           }
           onFileSelect(file);
         }
