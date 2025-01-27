@@ -5,7 +5,8 @@ import MobileNav from "./mobile-nav";
 import { useState } from "react";
 
 export default function Header() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
+  const [isGoatDropdownOpen, setIsGoatDropdownOpen] = useState(false);
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
@@ -21,11 +22,12 @@ export default function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
+            {/* Colorado Mountain Dogs Dropdown */}
             <div className="relative">
               <Link href="/dogs">
                 <button
-                  onMouseEnter={() => setIsDropdownOpen(true)}
-                  onMouseLeave={() => setIsDropdownOpen(false)}
+                  onMouseEnter={() => setIsDogDropdownOpen(true)}
+                  onMouseLeave={() => setIsDogDropdownOpen(false)}
                   className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
                 >
                   Colorado Mountain Dogs
@@ -33,13 +35,13 @@ export default function Header() {
               </Link>
               <div 
                 className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
-                  isDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  isDogDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                 }`}
-                onMouseEnter={() => setIsDropdownOpen(true)}
-                onMouseLeave={() => setIsDropdownOpen(false)}
+                onMouseEnter={() => setIsDogDropdownOpen(true)}
+                onMouseLeave={() => setIsDogDropdownOpen(false)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsDropdownOpen(false);
+                  setIsDogDropdownOpen(false);
                 }}
               >
                 <Link href="/dogs">
@@ -74,9 +76,62 @@ export default function Header() {
                 </Link>
               </div>
             </div>
-            <Link href="/#goats">
-              <a className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1">Nigerian Dwarfs</a>
-            </Link>
+
+            {/* Nigerian Dwarfs Dropdown */}
+            <div className="relative">
+              <Link href="/goats">
+                <button
+                  onMouseEnter={() => setIsGoatDropdownOpen(true)}
+                  onMouseLeave={() => setIsGoatDropdownOpen(false)}
+                  className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
+                >
+                  Nigerian Dwarfs
+                </button>
+              </Link>
+              <div 
+                className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
+                  isGoatDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+                onMouseEnter={() => setIsGoatDropdownOpen(true)}
+                onMouseLeave={() => setIsGoatDropdownOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsGoatDropdownOpen(false);
+                }}
+              >
+                <Link href="/goats">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    About
+                  </a>
+                </Link>
+                <Link href="/goats/males">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Males
+                  </a>
+                </Link>
+                <Link href="/goats/females">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Females
+                  </a>
+                </Link>
+                <Link href="/goats/litters/upcoming">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Upcoming Litters
+                  </a>
+                </Link>
+                <Link href="/goats/litters/past">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Past Litters
+                  </a>
+                </Link>
+                <Link href="/goats/available">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Available Goats
+                  </a>
+                </Link>
+              </div>
+            </div>
+
             <Link href="/#market">
               <a className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1">Farmers Market</a>
             </Link>

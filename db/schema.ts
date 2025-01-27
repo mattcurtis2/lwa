@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, timestamp, date, jsonb, boolean, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { relations } from "drizzle-orm";
+import { relations, type InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
 
 export const fileStorage = pgTable("file_storage", {
@@ -345,7 +345,7 @@ export const goatMediaRelations = relations(goatMedia, ({ one }) => ({
   }),
 }));
 
-export const goatLitterRelations = relations(goatLitters, ({ one }) => ({
+export const goatLitterRelations = relations(goatLitters, ({ one, many }) => ({
   mother: one(goats, {
     fields: [goatLitters.motherId],
     references: [goats.id],
@@ -353,6 +353,10 @@ export const goatLitterRelations = relations(goatLitters, ({ one }) => ({
   father: one(goats, {
     fields: [goatLitters.fatherId],
     references: [goats.id],
+  }),
+  puppies: many(goats, {
+    fields: [goatLitters.id],
+    references: [goats.litterId],
   }),
 }));
 
@@ -372,11 +376,26 @@ export const selectGoatDocumentSchema = createSelectSchema(goatDocuments);
 export const insertGoatLitterSchema = createInsertSchema(goatLitters);
 export const selectGoatLitterSchema = createSelectSchema(goatLitters);
 
-export type Goat = typeof goats.$inferSelect;
+export type GoatWithRelations = InferSelectModel<typeof goats> & {
+  media?: GoatMedia[];
+  documents?: GoatDocument[];
+  mother?: GoatWithRelations | null;
+  father?: GoatWithRelations | null;
+  litter?: GoatLitterWithRelations | null;
+};
+
+export type GoatLitterWithRelations = InferSelectModel<typeof goatLitters> & {
+  mother?: GoatWithRelations;
+  father?: GoatWithRelations;
+  puppies?: GoatWithRelations[];
+};
+
+
+export type Goat = GoatWithRelations;
 export type NewGoat = typeof goats.$inferInsert;
 export type GoatMedia = typeof goatMedia.$inferSelect;
 export type NewGoatMedia = typeof goatMedia.$inferInsert;
 export type GoatDocument = typeof goatDocuments.$inferSelect;
 export type NewGoatDocument = typeof goatDocuments.$inferInsert;
-export type GoatLitter = typeof goatLitters.$inferSelect;
+export type GoatLitter = GoatLitterWithRelations;
 export type NewGoatLitter = typeof goatLitters.$inferInsert;

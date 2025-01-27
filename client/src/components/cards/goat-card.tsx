@@ -11,7 +11,7 @@ interface GoatCardProps {
   onDelete?: (goat: Goat) => void;
 }
 
-export default function GoatCard({ goat, isAdmin, onEdit, onDelete }: GoatCardProps) {
+export function GoatCard({ goat, isAdmin, onEdit, onDelete }: GoatCardProps) {
   return (
     <Card className="overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden">

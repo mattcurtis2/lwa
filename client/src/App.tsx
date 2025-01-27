@@ -10,6 +10,11 @@ import DogDetail from "@/pages/dog-detail";
 import LitterDetail from "@/pages/litter-detail";
 import UpcomingLitters from "@/pages/upcoming-litters";
 import PastLitters from "@/pages/past-litters";
+import Goats from "@/pages/goats";
+import GoatDetail from "@/pages/goat-detail";
+import GoatLitterDetail from "@/pages/goat-litter-detail";
+import GoatUpcomingLitters from "@/pages/goat-upcoming-litters";
+import GoatPastLitters from "@/pages/goat-past-litters";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
@@ -33,6 +38,7 @@ function Router() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
+          {/* Dog Routes */}
           <Route path="/dogs">
             {() => <Dogs />}
           </Route>
@@ -49,6 +55,23 @@ function Router() {
           <Route path="/dogs/litters/past" component={PastLitters} />
           <Route path="/dogs/litters/:id" component={LitterDetail} />
           <Route path="/dogs/:id" component={DogDetail} />
+          {/* Goat Routes */}
+          <Route path="/goats">
+            {() => <Goats />}
+          </Route>
+          <Route path="/goats/males">
+            {() => <Goats genderFilter="male" />}
+          </Route>
+          <Route path="/goats/females">
+            {() => <Goats genderFilter="female" />}
+          </Route>
+          <Route path="/goats/available">
+            {() => <Goats showAvailable={true} />}
+          </Route>
+          <Route path="/goats/litters/upcoming" component={GoatUpcomingLitters} />
+          <Route path="/goats/litters/past" component={GoatPastLitters} />
+          <Route path="/goats/litters/:id" component={GoatLitterDetail} />
+          <Route path="/goats/:id" component={GoatDetail} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
