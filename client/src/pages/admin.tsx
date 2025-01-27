@@ -2,51 +2,16 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  SiteContent,
-  Dog,
-  DogsHero,
-  Litter,
-  CarouselItem,
-  Animal,
-  Product,
-  Principle,
-  ContactInfo,
-} from "@db/schema";
+import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
 import DogCard from "@/components/cards/dog-card";
-import {
-  Save,
-  GripVertical,
-  X,
-  Plus,
-  Edit,
-  LayoutDashboard,
-  Image,
-  Dog as DogIcon,
-  Cat,
-  ShoppingBag,
-  Contact,
-} from "lucide-react";
+import { Save, GripVertical, X, Plus, Edit, LayoutDashboard, Image, Dog as DogIcon, Cat, ShoppingBag, Contact } from "lucide-react";
 import { useLocation } from "wouter";
 import AnimalForm from "@/components/forms/animal-form";
 import ProductForm from "@/components/forms/product-form";
@@ -57,25 +22,9 @@ import { formatDisplayDate } from "@/lib/date-utils";
 import LitterForm from "@/components/forms/litter-form";
 import { Switch } from "@/components/ui/switch";
 import { FileUpload } from "@/components/ui/file-upload";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "react-beautiful-dnd";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { CMDContentForm } from "@/components/forms/cmd-content-form";
@@ -145,12 +94,8 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [showLitterForm, setShowLitterForm] = useState(false);
   const [showPuppyForm, setShowPuppyForm] = useState(false);
-  const [litterFormMode, setLitterFormMode] = useState<"create" | "edit">(
-    "create",
-  );
-  const [editItem, setEditItem] = useState<
-    Dog | CarouselItem | Animal | Product | null
-  >(null);
+  const [litterFormMode, setLitterFormMode] = useState<"create" | "edit">("create");
+  const [editItem, setEditItem] = useState<Dog | CarouselItem | Animal | Product | null>(null);
   const [editLitter, setEditLitter] = useState<
     | (Litter & {
         mother?: Dog;
@@ -159,23 +104,15 @@ export default function AdminDashboard() {
       })
     | null
   >(null);
-  const [pendingContent, setPendingContent] = useState<Record<string, string>>(
-    {},
-  );
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingPrinciples, setPendingPrinciples] = useState<Principle[]>([]);
-  const [pendingContactInfo, setPendingContactInfo] = useState<
-    Partial<ContactInfo>
-  >({});
+  const [pendingContactInfo, setPendingContactInfo] = useState<Partial<ContactInfo>>({});
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
 
   // Data queries
-  const {
-    data: siteContent = [],
-    isLoading: isLoadingSiteContent,
-    error,
-  } = useQuery<SiteContent[]>({
+  const { data: siteContent = [], isLoading: isLoadingSiteContent, error } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
 
@@ -199,18 +136,15 @@ export default function AdminDashboard() {
     queryKey: ["/api/products"],
   });
 
-  const { data: principlesData = [], isLoading: isLoadingPrinciples } =
-    useQuery<Principle[]>({
-      queryKey: ["/api/principles"],
-    });
+  const { data: principlesData = [], isLoading: isLoadingPrinciples } = useQuery<Principle[]>({
+    queryKey: ["/api/principles"],
+  });
 
   const { data: contactInfoData } = useQuery<ContactInfo>({
     queryKey: ["/api/contact-info"],
   });
 
-  const { data: carouselItems = [], isLoading: isLoadingCarousel } = useQuery<
-    CarouselItem[]
-  >({
+  const { data: carouselItems = [], isLoading: isLoadingCarousel } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
   });
 
@@ -226,9 +160,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (principlesData) {
-      const sortedPrinciples = [...principlesData].sort(
-        (a, b) => (a.order ?? 0) - (b.order ?? 0),
-      );
+      const sortedPrinciples = [...principlesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       setPendingPrinciples(sortedPrinciples);
     }
   }, [principlesData]);
@@ -1113,44 +1045,35 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="bg-background">
+    <div className="flex min-h-screen bg-background">
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="w-full"
+        orientation="vertical"
+        className="w-64 border-r bg-card fixed h-screen overflow-y-auto"
       >
-        <div className="border-b">
-          <div className="container mx-auto px-4">
-            <TabsList className="h-16">
-              <TabsTrigger value="content" className="gap-2">
-                <LayoutDashboard className="h-4 w-4" />
-                Content
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-6">Admin Dashboard</h2>
+          <TabsList className="flex flex-col gap-2">
+            {sidebarItems.map((item) => (
+              <TabsTrigger
+                key={item.id}
+                value={item.id}
+                className={cn(
+                  "w-full justify-start",
+                  activeTab === item.id && "bg-muted",
+                )}
+              >
+                <item.icon className="h-4 w-4 mr-2" />
+                {item.label}
               </TabsTrigger>
-              <TabsTrigger value="carousel" className="gap-2">
-                <Image className="h-4 w-4" />
-                Carousel
-              </TabsTrigger>
-              <TabsTrigger value="dogs" className="gap-2">
-                <DogIcon className="h-4 w-4" />
-                Dogs
-              </TabsTrigger>
-              <TabsTrigger value="goats" className="gap-2">
-                <Cat className="h-4 w-4" />
-                Goats
-              </TabsTrigger>
-              <TabsTrigger value="market" className="gap-2">
-                <ShoppingBag className="h-4 w-4" />
-                Market
-              </TabsTrigger>
-              <TabsTrigger value="contact" className="gap-2">
-                <Contact className="h-4 w-4" />
-                Contact
-              </TabsTrigger>
-            </TabsList>
-          </div>
+            ))}
+          </TabsList>
         </div>
+      </Tabs>
 
-        <div className="container mx-auto px-4 py-6 space-y-8">
+      <div className="flex-1 pl-64">
+        <div className="container mx-auto p-6 max-w-6xl">
           <TabsContent value="content">
             <Card>
               <CardHeader>
@@ -2023,7 +1946,8 @@ export default function AdminDashboard() {
             <StyleManagement />
           </TabsContent>
         </div>
-      </Tabs>
-    </div>
-  );
+      </div>
+    </Tabs>
+  </div>
+);
 }
