@@ -1010,12 +1010,18 @@ export function registerRoutes(app: Express): Server {
 
   app.delete("/api/principles/:id", async (req, res) => {
     try {
-      await db.delete(principles)
-        .where(eq(principles.id, parseInt(req.params.id)));
-      res.json({ message: "Deleted successfully" });
+      const result = await db.delete(principles)
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+      
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Principle not found" });
+      }
+      
+      res.json(result[0]);
     } catch (error) {
       console.error("Error deleting principle:", error);
-      res.status(500).json({ message: "Failedto delete principle" });
+      res.status(500).json({ message: "Failed to delete principle" });
     }
   });
 

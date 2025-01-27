@@ -465,11 +465,28 @@ export default function AdminDashboard() {
     setHasUnsavedChanges(true);
   };
 
-  const handleDeletePrinciple = (id: number) => {
-    if (!confirm("Are you sure you want to delete this principle?")) return;
+  const handleDeletePrinciple = async (id: number) => {
+    try {
+      if (!confirm("Are you sure you want to delete this principle?")) return;
 
-    setPendingPrinciples((prev) => prev.filter((p) => p.id !== id));
-    setHasUnsavedChanges(true);
+      await fetch(`/api/principles/${id}`, {
+        method: "DELETE",
+      });
+
+      setPendingPrinciples((prev) => prev.filter((p) => p.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      toast({
+        title: "Success",
+        description: "Principle deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting principle:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete principle",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderDogCard = (dog: Dog) => (
