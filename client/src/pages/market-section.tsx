@@ -8,6 +8,13 @@ export default function MarketSectionPage() {
   const [, params] = useRoute("/market/:section");
   const currentSection = params?.section || "";
 
+  // Convert URL path to section name
+  const sectionNameMap: Record<string, string> = {
+    'bakery': 'bakery',
+    'market-garden': 'market_garden',
+    'animal-products': 'animal_products'
+  };
+
   const { data: sections = [] } = useQuery<MarketSection[]>({
     queryKey: ["/api/market-sections"],
   });
@@ -16,7 +23,8 @@ export default function MarketSectionPage() {
     queryKey: ["/api/products"],
   });
 
-  const section = sections.find(s => s.name.toLowerCase() === currentSection);
+  // Find the section using the mapped section name
+  const section = sections.find(s => s.name === sectionNameMap[currentSection]);
   const sectionProducts = products.filter(p => p.section === section?.name);
 
   if (!section) return null;

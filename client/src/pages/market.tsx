@@ -12,16 +12,36 @@ export default function Market() {
     queryKey: ["/api/products"],
   });
 
+  const aboutSection = sections.find(s => s.name === 'about');
+  const productSections = sections.filter(s => s.name !== 'about');
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">Farmers Market</h1>
-        <p className="text-lg text-muted-foreground mb-12">
-          Discover our fresh, locally sourced products from our farm to your table.
-        </p>
+      {/* About Section with Hero Image */}
+      {aboutSection && (
+        <div className="relative h-[500px] mb-16">
+          {aboutSection.imageUrl && (
+            <img
+              src={aboutSection.imageUrl}
+              alt={aboutSection.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/50 flex items-center">
+            <div className="container mx-auto px-4">
+              <div className="max-w-2xl text-white">
+                <h1 className="text-4xl font-bold mb-4">{aboutSection.title}</h1>
+                <p className="text-xl text-white/90">{aboutSection.description}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Product Sections */}
+      <div className="container mx-auto px-4 py-8">
         <div className="space-y-16">
-          {sections.map(section => (
+          {productSections.map(section => (
             <div key={section.name} className="space-y-8">
               <div className="flex items-center justify-between">
                 <div>
@@ -35,16 +55,14 @@ export default function Market() {
                 </Link>
               </div>
 
-              {section.name !== 'about' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products
-                    .filter(p => p.section === section.name)
-                    .slice(0, 3)
-                    .map(product => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products
+                  .filter(p => p.section === section.name)
+                  .slice(0, 3)
+                  .map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+              </div>
             </div>
           ))}
         </div>

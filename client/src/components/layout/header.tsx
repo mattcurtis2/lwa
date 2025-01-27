@@ -163,12 +163,12 @@ export default function Header() {
                     Bakery
                   </a>
                 </Link>
-                <Link href="/market/marketgarden">
+                <Link href="/market/market-garden">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Market Garden
                   </a>
                 </Link>
-                <Link href="/market/animalproducts">
+                <Link href="/market/animal-products">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Animal Products
                   </a>

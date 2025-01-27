@@ -77,13 +77,13 @@ function Router() {
           {/* Market Routes */}
           <Route path="/market" component={Market} />
           <Route path="/market/bakery" component={MarketSection} />
-          <Route path="/market/marketgarden" component={MarketSection} />
-          <Route path="/market/animalproducts" component={MarketSection} />
+          <Route path="/market/market-garden" component={MarketSection} />
+          <Route path="/market/animal-products" component={MarketSection} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
       </main>
-      <Footer />
+      {location !== '/admin' && <Footer />}
     </div>
   );
 }
