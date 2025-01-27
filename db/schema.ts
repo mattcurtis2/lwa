@@ -11,7 +11,6 @@ export const fileStorage = pgTable("file_storage", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
@@ -409,7 +408,6 @@ export type NewGoatDocument = typeof goatDocuments.$inferInsert;
 export type GoatLitter = GoatLitterWithRelations;
 export type NewGoatLitter = typeof goatLitters.$inferInsert;
 
-// Newly added code from the edited snippet
 export const marketSections = pgTable("market_sections", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(), // "about", "bakery", "market_garden", "animal_products"
@@ -430,3 +428,27 @@ export const selectMarketSectionSchema = createSelectSchema(marketSections);
 
 export type MarketSection = typeof marketSections.$inferSelect;
 export type NewMarketSection = typeof marketSections.$inferInsert;
+
+export const marketSchedules = pgTable("market_schedules", {
+  id: serial("id").primaryKey(),
+  location: text("location").notNull(),
+  address: text("address").notNull(),
+  dayOfWeek: text("day_of_week").notNull(),
+  startTime: text("start_time").notNull(),
+  endTime: text("end_time").notNull(),
+  seasonStart: date("season_start"),
+  seasonEnd: date("season_end"),
+  description: text("description"),
+  order: integer("order").notNull().default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const marketSchedulesRelations = relations(marketSchedules, ({}) => ({}));
+
+export const insertMarketScheduleSchema = createInsertSchema(marketSchedules);
+export const selectMarketScheduleSchema = createSelectSchema(marketSchedules);
+
+export type MarketSchedule = typeof marketSchedules.$inferSelect;
+export type NewMarketSchedule = typeof marketSchedules.$inferInsert;
