@@ -14,6 +14,7 @@ interface ImageCropperProps {
   imageUrl: string;
   aspectRatio?: number;
   onCropComplete: (croppedImageUrl: string) => void;
+  onSkip?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   circularCrop?: boolean;
@@ -180,6 +181,11 @@ export default function ImageCropper({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
+              {onSkip && (
+                <Button variant="secondary" onClick={onSkip}>
+                  Skip Cropping
+                </Button>
+              )}
               <Button onClick={handleCropComplete}>
                 Apply Crop
               </Button>

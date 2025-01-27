@@ -663,6 +663,40 @@ export default function DogForm({
               setShowCropper(false);
               setCropImageUrl("");
             }}
+            onSkip={async () => {
+              const formData = new FormData();
+              const response = await fetch(cropImageUrl);
+              const blob = await response.blob();
+              formData.append('file', blob);
+
+              const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!uploadRes.ok) {
+                throw new Error('Failed to upload image');
+              }
+
+              const data = await uploadRes.json();
+              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+              if (cropImageUrl === form.getValues("profileImageUrl")) {
+                form.setValue("profileImageUrl", uploadedUrl);
+              } else {
+                const updatedMediaInputs = [...mediaInputs, {
+                  url: uploadedUrl,
+                  type: 'image',
+                  fileName: 'image.jpg',
+                  isNew: true,
+                }];
+                setMediaInputs(updatedMediaInputs);
+                form.setValue("media", updatedMediaInputs);
+              }
+
+              setShowCropper(false);
+              setCropImageUrl("");
+            }}
             aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
             circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
           />
