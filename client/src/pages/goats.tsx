@@ -34,9 +34,13 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
   const filteredGoats = goats.filter(goat => {
     if (genderFilter && goat.gender !== genderFilter) return false;
     if (showAvailable && !goat.available) return false;
-    if (goat.kid) return false; // Don't show kids in main listing
     return true;
   });
+
+  // Filter goats for different sections on main page
+  const kids = goats.filter(goat => goat.kid === true);
+  const females = goats.filter(goat => goat.gender === 'female' && !goat.kid);
+  const males = goats.filter(goat => goat.gender === 'male' && !goat.kid);
 
   // Determine the page title and description
   let pageTitle = "Our Nigerian Dwarf Goats";
@@ -106,22 +110,66 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
           </div>
         )}
 
-        <div className="mt-16">
-          {filteredGoats.length > 0 ? (
-            <div className="grid grid-cols-1 gap-8">
-              {filteredGoats.map(goat => (
-                <GoatDetails key={goat.id} goat={goat} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-lg text-stone-600">
-                No goats currently available in this category.
-                Check back later or contact us for more information.
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Show filtered content for specific pages */}
+        {(genderFilter || showAvailable) && (
+          <div className="mt-16">
+            {filteredGoats.length > 0 ? (
+              <div className="grid grid-cols-1 gap-8">
+                {filteredGoats.map(goat => (
+                  <GoatDetails key={goat.id} goat={goat} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-lg text-stone-600">
+                  No goats currently available in this category.
+                  Check back later or contact us for more information.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Show categorized sections on main page */}
+        {!genderFilter && !showAvailable && (
+          <div className="mt-16 space-y-16">
+            {/* Kids Section */}
+            {kids.length > 0 && (
+              <div>
+                <h2 className="text-3xl font-semibold mb-8">Kids</h2>
+                <div className="grid grid-cols-1 gap-8">
+                  {kids.map(goat => (
+                    <GoatDetails key={goat.id} goat={goat} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Females Section */}
+            {females.length > 0 && (
+              <div>
+                <h2 className="text-3xl font-semibold mb-8">Females</h2>
+                <div className="grid grid-cols-1 gap-8">
+                  {females.map(goat => (
+                    <GoatDetails key={goat.id} goat={goat} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Males Section */}
+            {males.length > 0 && (
+              <div>
+                <h2 className="text-3xl font-semibold mb-8">Males</h2>
+                <div className="grid grid-cols-1 gap-8">
+                  {males.map(goat => (
+                    <GoatDetails key={goat.id} goat={goat} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );
