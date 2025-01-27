@@ -19,13 +19,12 @@ export function ImageCrop({
   onCropComplete,
   onCancel 
 }: ImageCropProps) {
-  // Initialize a perfect circular crop area
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 80, // Slightly smaller initial size for better visibility
-    height: 80,
-    x: 10,
-    y: 10,
+    width: 90,
+    height: 70,
+    x: 5,
+    y: 15,
   });
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
 
@@ -105,8 +104,6 @@ export function ImageCrop({
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
-            aspect={aspect}
-            circularCrop={circularCrop}
             className={circularCrop ? "rounded-full overflow-hidden" : ""}
           >
             <img
