@@ -933,7 +933,7 @@ export default function AdminDashboard() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                  <div className="w-full h-full bg-pink-100 flex-100 flex items-center justify-center">
                     <span className="text-2xl text-pink-500">♀</span>
                   </div>
                 )}
