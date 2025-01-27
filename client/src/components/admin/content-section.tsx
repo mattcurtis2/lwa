@@ -542,6 +542,34 @@ export default function ContentSection() {
                   </div>
                 </div>
               ))}
+              {showCropper && cropImageUrl && (
+                <ImageCrop
+                  imageUrl={cropImageUrl}
+                  aspect={16/9}
+                  onCropComplete={(croppedImageUrl) => {
+                    if (pendingPrincipleId !== null) {
+                      setPendingChanges(prev => ({
+                        ...prev,
+                        principles: {
+                          ...prev.principles,
+                          [pendingPrincipleId]: {
+                            ...prev.principles[pendingPrincipleId],
+                            imageUrl: croppedImageUrl
+                          }
+                        }
+                      }));
+                    }
+                    setShowCropper(false);
+                    setCropImageUrl("");
+                    setPendingPrincipleId(null);
+                  }}
+                  onCancel={() => {
+                    setShowCropper(false);
+                    setCropImageUrl("");
+                    setPendingPrincipleId(null);
+                  }}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="about" className="space-y-6">
