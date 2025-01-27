@@ -4,7 +4,7 @@ import { Goat } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import GoatForm from "@/components/forms/goat-form";
-import GoatCard from "@/components/cards/goat-card";
+import { GoatCard } from "@/components/cards/goat-card";
 
 export default function GoatManagement() {
   const [showGoatForm, setShowGoatForm] = useState(false);
