@@ -10,7 +10,6 @@ import { Upload, Save } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ImageCrop } from "@/components/ui/image-crop";
 
 type SiteContent = {
   id: number;
@@ -62,9 +61,6 @@ export default function ContentSection() {
     aboutCards: {},
     carouselItems: {},
   });
-  const [showImageCrop, setShowImageCrop] = useState(false);
-  const [cropTarget, setCropTarget] = useState<{ type: string; id?: number; key?: string } | null>(null);
-  const [tempImage, setTempImage] = useState<string | null>(null);
 
   // Fetch all content
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
@@ -82,6 +78,19 @@ export default function ContentSection() {
   const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
   });
+
+  // Helper functions for file handling
+  const handleFileUpload = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        resolve(result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   // Update mutations
   const updateSiteContent = useMutation({
@@ -114,18 +123,6 @@ export default function ContentSection() {
     }
   });
 
-  const updateCarouselItem = useMutation({
-    mutationFn: async (item: CarouselItem) => {
-      const res = await fetch(`/api/carousel/${item.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
-      if (!res.ok) throw new Error("Failed to update carousel item");
-      return res.json();
-    }
-  });
-
   const updateAboutCard = useMutation({
     mutationFn: async (card: AboutCard) => {
       const res = await fetch(`/api/about-cards/${card.id}`, {
@@ -134,6 +131,18 @@ export default function ContentSection() {
         body: JSON.stringify(card),
       });
       if (!res.ok) throw new Error("Failed to update about card");
+      return res.json();
+    }
+  });
+
+  const updateCarouselItem = useMutation({
+    mutationFn: async (item: CarouselItem) => {
+      const res = await fetch(`/api/carousel/${item.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      if (!res.ok) throw new Error("Failed to update carousel item");
       return res.json();
     }
   });
@@ -190,21 +199,75 @@ export default function ContentSection() {
     }
   };
 
-  // File upload handling
-  const onDrop = async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setTempImage(result);
-      setShowImageCrop(true);
-    };
-    reader.readAsDataURL(file);
+  // File upload handling for each section
+  const handleHeroImageUpload = async (file: File) => {
+    try {
+      const imageUrl = await handleFileUpload(file);
+      setPendingChanges(prev => ({
+        ...prev,
+        siteContent: {
+          ...prev.siteContent,
+          hero_background: imageUrl
+        }
+      }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const handlePrincipleImageUpload = async (file: File, principleId: number) => {
+    try {
+      const imageUrl = await handleFileUpload(file);
+      setPendingChanges(prev => ({
+        ...prev,
+        principles: {
+          ...prev.principles,
+          [principleId]: {
+            ...prev.principles[principleId],
+            imageUrl
+          }
+        }
+      }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
+  };
+
+  const handleAboutCardImageUpload = async (file: File, cardId: number) => {
+    try {
+      const imageUrl = await handleFileUpload(file);
+      setPendingChanges(prev => ({
+        ...prev,
+        aboutCards: {
+          ...prev.aboutCards,
+          [cardId]: {
+            ...prev.aboutCards[cardId],
+            imageUrl
+          }
+        }
+      }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
+  };
+
+  const handleCarouselImageUpload = async (file: File, itemId: number) => {
+    try {
+      const imageUrl = await handleFileUpload(file);
+      setPendingChanges(prev => ({
+        ...prev,
+        carouselItems: {
+          ...prev.carouselItems,
+          [itemId]: {
+            ...prev.carouselItems[itemId],
+            imageUrl
+          }
+        }
+      }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
+  };
 
   // Helper function to get content value
   const getContentValue = (key: string) => {
@@ -222,55 +285,12 @@ export default function ContentSection() {
     }));
   };
 
-  const handleCroppedImage = async (croppedImage: string) => {
-    if (!cropTarget) return;
-
-    if (cropTarget.type === 'hero') {
-      handleContentChange('hero_background', croppedImage);
-    } else if (cropTarget.type === 'principle' && cropTarget.id) {
-      setPendingChanges(prev => ({
-        ...prev,
-        principles: {
-          ...prev.principles,
-          [cropTarget.id!]: {
-            ...prev.principles[cropTarget.id!],
-            imageUrl: croppedImage
-          }
-        }
-      }));
-    } else if (cropTarget.type === 'about' && cropTarget.id) {
-      setPendingChanges(prev => ({
-        ...prev,
-        aboutCards: {
-          ...prev.aboutCards,
-          [cropTarget.id!]: {
-            ...prev.aboutCards[cropTarget.id!],
-            imageUrl: croppedImage
-          }
-        }
-      }));
-    } else if (cropTarget.type === 'carousel' && cropTarget.id) {
-      setPendingChanges(prev => ({
-        ...prev,
-        carouselItems: {
-          ...prev.carouselItems,
-          [cropTarget.id!]: {
-            ...prev.carouselItems[cropTarget.id!],
-            imageUrl: croppedImage
-          }
-        }
-      }));
-    }
-
-    setShowImageCrop(false);
-    setCropTarget(null);
-    setTempImage(null);
-  };
-
   const hasPendingChanges = Object.keys(pendingChanges.siteContent).length > 0 ||
     Object.keys(pendingChanges.principles).length > 0 ||
     Object.keys(pendingChanges.aboutCards).length > 0 ||
     Object.keys(pendingChanges.carouselItems).length > 0;
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({});
 
   return (
     <>
@@ -305,21 +325,18 @@ export default function ContentSection() {
 
                 <div className="space-y-2">
                   <Label>Hero Background Image</Label>
-                  <div
-                    {...getRootProps()}
-                    className={cn(
-                      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                      isDragActive && "border-primary bg-accent"
-                    )}
-                  >
+                  <div {...useDropzone({
+                    onDrop: ([file]) => file && handleHeroImageUpload(file)
+                  }).getRootProps()} 
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+                    isDragActive && "border-primary bg-accent"
+                  )}>
                     <input {...getInputProps()} />
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <Upload className="h-10 w-10" />
                       <p className="text-sm text-center">
-                        {isDragActive
-                          ? "Drop your image here..."
-                          : "Drag & drop an image here, or click to select"
-                        }
+                        {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
                       </p>
                     </div>
                   </div>
@@ -327,12 +344,7 @@ export default function ContentSection() {
                     <img
                       src={getContentValue('hero_background')}
                       alt="Hero background"
-                      className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
-                      onClick={() => {
-                        setTempImage(getContentValue('hero_background'));
-                        setCropTarget({ type: 'hero' });
-                        setShowImageCrop(true);
-                      }}
+                      className="mt-4 rounded-lg max-h-48 object-cover"
                     />
                   )}
                 </div>
@@ -377,7 +389,10 @@ export default function ContentSection() {
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
-                    <div {...getRootProps()} className={cn(
+                    <div {...useDropzone({
+                      onDrop: ([file]) => file && handlePrincipleImageUpload(file, principle.id)
+                    }).getRootProps()} 
+                    className={cn(
                       "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
                       isDragActive && "border-primary bg-accent"
                     )}>
@@ -393,12 +408,7 @@ export default function ContentSection() {
                       <img
                         src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                         alt={principle.title}
-                        className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
-                        onClick={() => {
-                          setTempImage(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
-                          setCropTarget({ type: 'principle', id: principle.id });
-                          setShowImageCrop(true);
-                        }}
+                        className="mt-2 rounded-lg max-h-48 object-cover"
                       />
                     )}
                   </div>
@@ -474,7 +484,10 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <div {...getRootProps()} className={cn(
+                  <div {...useDropzone({
+                    onDrop: ([file]) => file && handleAboutCardImageUpload(file, card.id)
+                  }).getRootProps()} 
+                  className={cn(
                     "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
                     isDragActive && "border-primary bg-accent"
                   )}>
@@ -490,12 +503,7 @@ export default function ContentSection() {
                     <img
                       src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
                       alt={card.title}
-                      className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
-                      onClick={() => {
-                        setTempImage(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl);
-                        setCropTarget({ type: 'about', id: card.id });
-                        setShowImageCrop(true);
-                      }}
+                      className="mt-2 rounded-lg max-h-48 object-cover"
                     />
                   )}
                 </div>
@@ -538,7 +546,10 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <div {...getRootProps()} className={cn(
+                  <div {...useDropzone({
+                    onDrop: ([file]) => file && handleCarouselImageUpload(file, item.id)
+                  }).getRootProps()} 
+                  className={cn(
                     "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
                     isDragActive && "border-primary bg-accent"
                   )}>
@@ -554,12 +565,7 @@ export default function ContentSection() {
                     <img
                       src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
                       alt={item.title}
-                      className="mt-2 rounded-lg max-h-48 object-cover cursor-pointer"
-                      onClick={() => {
-                        setTempImage(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl);
-                        setCropTarget({ type: 'carousel', id: item.id });
-                        setShowImageCrop(true);
-                      }}
+                      className="mt-2 rounded-lg max-h-48 object-cover"
                     />
                   )}
                 </div>
@@ -581,19 +587,6 @@ export default function ContentSection() {
             Save Changes
           </Button>
         </div>
-      )}
-
-      {/* Image Crop Modal */}
-      {showImageCrop && tempImage && (
-        <ImageCrop
-          imageUrl={tempImage}
-          onCropComplete={handleCroppedImage}
-          onCancel={() => {
-            setShowImageCrop(false);
-            setCropTarget(null);
-            setTempImage(null);
-          }}
-        />
       )}
     </>
   );
