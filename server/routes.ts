@@ -28,8 +28,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
-    files: 10 // Allow up to 10 files at once
+    fileSize: 50 * 1024 * 1024 // 50MB limit
   }
 });
 
@@ -703,35 +702,80 @@ export function registerRoutes(app: Express): Server {
     res.json(dog[0]);
   });
 
-  app.post("/api/upload", upload.array("file", 10), async (req, res) => {
-    try {
-      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-        return res.status(400).json({ message: "No files uploaded" });
-      }
+  app.post("/api/upload", upload.single("file"), async (req, res) => {
+    if (!req.file) {
+      console.error("Upload error: No file in request");
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-      const uploadedFiles = await Promise.all(req.files.map(async (file) => {
-        const targetPath = path.join(uploadDir, file.filename);
-        await fs.ensureDir(uploadDir);
-        
-        if (file.path !== targetPath) {
-          await fs.copy(file.path, targetPath);
+    try {
+      // For development, save locally
+      if (process.env.NODE_ENV !== 'production') {
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
         }
 
-        return {
-          url: `/uploads/${file.filename}`,
-          type: file.mimetype.split('/')[0],
-          originalName: file.originalname,
-          mimeType: file.mimetype
-        };
-      }));
+        const fileName = req.file.filename;
+        const targetPath = path.join(uploadDir, fileName);
 
-      return res.status(200).json(uploadedFiles);
+        if (req.file.path !== targetPath) {
+          fs.copyFileSync(req.file.path, targetPath);
+        }
+
+        const fileUrl = `/uploads/${fileName}`;
+        return res.json({
+          url: fileUrl,
+          type: req.file.mimetype.split('/')[0],
+          originalName: req.file.originalname,
+          mimeType: req.file.mimetype
+        });
+      }
+
+      // For production, use PostgreSQL storage
+      const fileBuffer = await fs.promises.readFile(req.file.path);
+      if (!fileBuffer) {
+        throw new Error("Could not read file buffer");
+      }
+
+      const base64Data = fileBuffer.toString('base64');
+      console.log(`Storing file (${fileBuffer.length} bytes) in PostgreSQL`);
+
+      const [storedFile] = await db.insert(fileStorage)
+        .values({
+          fileName: req.file.filename,
+          mimeType: req.file.mimetype,
+          data: base64Data,
+          createdAt: new Date()
+        })
+        .returning();
+
+      if (!storedFile) {
+        throw new Error("Failed to store file in database");
+      }
+
+      const fileUrl = `/api/files/${req.file.filename}`;
+      res.json({
+        url: fileUrl,
+        type: req.file.mimetype.split('/')[0],
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype
+      });
+
     } catch (error) {
       console.error("Upload error:", error);
-      return res.status(500).json({
-        message: "Failed to process uploaded files",
+      res.status(500).json({
+        message: "Failed to process uploaded file",
         details: error instanceof Error ? error.message : String(error)
       });
+    } finally {
+      // Clean up temporary file only in production
+      if (process.env.NODE_ENV === 'production' && req.file?.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Failed to cleanup temporary file:", cleanupError);
+        }
+      }
     }
   });
 
