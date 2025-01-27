@@ -703,7 +703,7 @@ export function registerRoutes(app: Express): Server {
     res.json(dog[0]);
   });
 
-  app.post("/api/upload", upload.array("files", 10), async (req, res) => {
+  app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     if (!req.files || req.files.length === 0) {
       console.error("Upload error: No files in request");
       return res.status(400).json({ message: "No files uploaded" });
