@@ -51,7 +51,7 @@ type PendingChanges = {
   carouselItems: Record<number, Partial<CarouselItem>>;
 };
 
-const PrincipleDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]) => void; currentImageUrl?: string }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
   });
@@ -67,6 +67,13 @@ const PrincipleDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
           {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
         </p>
       </div>
+      {currentImageUrl && (
+        <img
+          src={currentImageUrl}
+          alt="Principle Image Preview"
+          className="mt-4 rounded-lg max-h-48 object-cover"
+        />
+      )}
     </div>
   );
 };
@@ -449,14 +456,10 @@ export default function ContentSection() {
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
-                    <PrincipleDropzone onDrop={(file) => handlePrincipleImageUpload(file, principle.id)} />
-                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
-                      <img
-                        src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
-                        alt={principle.title}
-                        className="mt-2 rounded-lg max-h-48 object-cover"
-                      />
-                    )}
+                    <PrincipleDropzone 
+                      onDrop={(files) => files[0] && handlePrincipleImageUpload(files[0], principle.id)}
+                      currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                    />
                   </div>
                 </div>
               ))}
