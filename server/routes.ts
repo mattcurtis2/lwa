@@ -704,9 +704,24 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
-    if (!req.files || req.files.length === 0) {
-      console.error("Upload error: No files in request");
-      return res.status(400).json({ message: "No files uploaded" });
+    try {
+      if (!req.files || req.files.length === 0) {
+        console.error("Upload error: No files in request");
+        return res.status(400).json({ message: "No files uploaded" });
+      }
+
+      const files = Array.isArray(req.files) ? req.files : [req.files];
+      const uploadedFiles = files.map(file => ({
+        url: `/uploads/${file.filename}`,
+        type: file.mimetype.startsWith('image/') ? 'image' : 'video',
+        originalName: file.originalname,
+        mimeType: file.mimetype
+      }));
+
+      res.json(uploadedFiles);
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Failed to process upload" });
     }
 
     try {
