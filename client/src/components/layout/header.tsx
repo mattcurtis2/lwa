@@ -153,22 +153,22 @@ export default function Header() {
                   setIsMarketDropdownOpen(false);
                 }}
               >
-                <Link href="/market?section=about">
+                <Link href="/market">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     About
                   </a>
                 </Link>
-                <Link href="/market?section=bakery">
+                <Link href="/market/bakery">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Bakery
                   </a>
                 </Link>
-                <Link href="/market?section=market_garden">
+                <Link href="/market/marketgarden">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Market Garden
                   </a>
                 </Link>
-                <Link href="/market?section=animal_products">
+                <Link href="/market/animalproducts">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Animal Products
                   </a>
