@@ -18,7 +18,7 @@ interface ContentSectionProps {
   contentFields: ContentField[];
 }
 
-export function ContentSection({
+export default function ContentSection({
   siteContent,
   principlesData,
   contactInfo,
