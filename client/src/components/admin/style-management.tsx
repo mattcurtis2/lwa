@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -120,7 +119,7 @@ export default function StyleManagement() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTheme),
       });
-      
+
       if (!res.ok) throw new Error("Failed to update theme");
       return res.json();
     },
