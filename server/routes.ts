@@ -299,8 +299,16 @@ export function registerRoutes(app: Express): Server {
     try {
       let value = req.body.value;
 
+      // Handle base64 image data from cropper
+      if (value && value.startsWith('data:image')) {
+        const base64Data = value.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `file-${Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
+        await fs.writeFile(path.join(uploadDir, filename), buffer);
+        value = `/uploads/${filename}`;
+      }
       // If this is a file upload (for hero_background or other images)
-      if (req.file && (key === 'hero_background' || key.includes('image'))) {
+      else if (req.file && (key === 'hero_background' || key.includes('image'))) {
         value = `/uploads/${req.file.filename}`;
       }
 
