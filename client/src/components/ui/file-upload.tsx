@@ -81,7 +81,8 @@ export function FileUpload({
         }
 
         const data = await response.json();
-        const uploadedFile = Array.isArray(data) ? data[0] : data;
+        const uploadedFiles = Array.isArray(data) ? data : [data];
+        const uploadedFile = uploadedFiles[0];
         
         if (uploadedFile?.url) {
           setPreviewUrl(uploadedFile.url);
@@ -89,6 +90,8 @@ export function FileUpload({
             onChange(uploadedFile.url);
           }
           onFileSelect(file);
+        } else {
+          throw new Error("Invalid upload response");
         }
       } catch (error) {
         toast({
