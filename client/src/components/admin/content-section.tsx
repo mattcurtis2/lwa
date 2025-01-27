@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useContentManagement } from "@/hooks/use-content-management";
 import { ContentField, SiteContent, Principle, ContactInfo } from "@db/schema";
-import { useDropzone } from "@react-dropzone/dropzone";
+import { useDropzone } from "react-dropzone";
 import { Upload, X } from "lucide-react";
 import { useState } from "react";
 import cn from "classnames";
