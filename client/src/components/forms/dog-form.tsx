@@ -375,7 +375,7 @@ export default function DogForm({
 
       // Find if this is a media section image
       const mediaIndex = mediaInputs.findIndex(input => input.url === cropImageUrl);
-      
+
       if (mediaIndex !== -1) {
         // Update media section image
         const updatedMediaInputs = [...mediaInputs];
@@ -1018,7 +1018,7 @@ export default function DogForm({
                                 <img
                                   src={doc.url}
                                   alt={doc.name}
-                                  className="w-12 h-12 object-cover rounded"
+                                  classNameclassName="w-12 h-12 object-cover rounded"
                                 />
                               ) : doc.mimeType.startsWith('video/') ? (
                                 <video
