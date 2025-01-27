@@ -56,7 +56,7 @@ export default function ContentSection({
 
   return (
     <div className="space-y-6">
-      {contentFields.map((field) => (
+      {contentFields?.map((field) => (
         <div key={field.key}>
           <Label htmlFor={field.key}>{field.label}</Label>
           {field.type === 'textarea' ? (
