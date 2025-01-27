@@ -703,85 +703,35 @@ export function registerRoutes(app: Express): Server {
     res.json(dog[0]);
   });
 
-  app.post("/api/upload", upload.array("files", 10), async (req, res) => {
-    if (!req.files || req.files.length === 0) {
-      console.error("Upload error: No files in request");
-      return res.status(400).json({ message: "No files uploaded" });
-    }
-
+  app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
-      const uploadedFiles = [];
-      const files = Array.isArray(req.files) ? req.files : [req.files];
-
-      for (const file of files) {
-        if (process.env.NODE_ENV !== 'production') {
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
-
-          const fileName = file.filename;
-          const targetPath = path.join(uploadDir, fileName);
-
-          if (file.path !== targetPath) {
-            fs.copyFileSync(file.path, targetPath);
-          }
-
-          uploadedFiles.push({
-            url: `/uploads/${fileName}`,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          });
-        } else {
-          const fileBuffer = await fs.promises.readFile(file.path);
-          if (!fileBuffer) {
-            throw new Error("Could not read file buffer");
-          }
-
-          const base64Data = fileBuffer.toString('base64');
-          console.log(`Storing file (${fileBuffer.length} bytes) in PostgreSQL`);
-
-          const [storedFile] = await db.insert(fileStorage)
-            .values({
-              fileName: file.filename,
-              mimeType: file.mimetype,
-              data: base64Data,
-              createdAt: new Date()
-            })
-            .returning();
-
-          if (!storedFile) {
-            throw new Error("Failed to store file in database");
-          }
-
-          uploadedFiles.push({
-            url: `/api/files/${file.filename}`,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          });
-        }
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ message: "No files uploaded" });
       }
 
-      res.json(uploadedFiles);
+      const uploadedFiles = await Promise.all(req.files.map(async (file) => {
+        const targetPath = path.join(uploadDir, file.filename);
+        await fs.ensureDir(uploadDir);
+        
+        if (file.path !== targetPath) {
+          await fs.copy(file.path, targetPath);
+        }
+
+        return {
+          url: `/uploads/${file.filename}`,
+          type: file.mimetype.split('/')[0],
+          originalName: file.originalname,
+          mimeType: file.mimetype
+        };
+      }));
+
+      return res.status(200).json(uploadedFiles);
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({
+      return res.status(500).json({
         message: "Failed to process uploaded files",
         details: error instanceof Error ? error.message : String(error)
       });
-    } finally {
-      // Clean up temporary files only in production
-      if (process.env.NODE_ENV === 'production' && req.files) {
-        const files = Array.isArray(req.files) ? req.files : [req.files];
-        for (const file of files) {
-          try {
-            fs.unlinkSync(file.path);
-          } catch (cleanupError) {
-            console.error("Failed to cleanup temporary file:", cleanupError);
-          }
-        }
-      }
     }
   });
 
