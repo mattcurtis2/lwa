@@ -83,6 +83,7 @@ import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
 import GoatLitterManagement from "@/components/admin/goat-litter-management";
+import StyleManagement from "@/components/admin/style-management";
 
 interface ContentField {
   key: string;
@@ -994,7 +995,8 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
                 {mother?.profileImageUrl ? (
                   <img
-                    src={mother.profileImageUrl}                    alt={mother.name}
+                    src={mother.profileImageUrl}
+                    alt={mother.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -1106,6 +1108,7 @@ export default function AdminDashboard() {
     { id: "goats", label: "Goats", icon: Cat },
     { id: "market", label: "Market", icon: ShoppingBag },
     { id: "contact", label: "Contact", icon: Contact },
+    { id: "style", label: "Style", icon: Image },
   ];
 
   return (
@@ -1154,6 +1157,13 @@ export default function AdminDashboard() {
               >
                 <Contact className="h-4 w-4 mr-2" />
                 Contact
+              </TabsTrigger>
+              <TabsTrigger
+                value="style"
+                className="w-full justify-start data-[state=active]:bg-muted"
+              >
+                <Image className="h-4 w-4 mr-2" />
+                Style
               </TabsTrigger>
             </TabsList>
           </div>
@@ -2010,6 +2020,9 @@ export default function AdminDashboard() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+            <TabsContent value="style" className="space-y-4">
+              <StyleManagement />
             </TabsContent>
           </div>
         </div>

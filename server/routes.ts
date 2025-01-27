@@ -712,7 +712,7 @@ export function registerRoutes(app: Express): Server {
       const uploadedFiles = await Promise.all(req.files.map(async (file) => {
         const targetPath = path.join(uploadDir, file.filename);
         await fs.ensureDir(uploadDir);
-        
+
         if (file.path !== targetPath) {
           await fs.copy(file.path, targetPath);
         }
@@ -784,7 +784,7 @@ export function registerRoutes(app: Express): Server {
         .values(req.body)
         .returning();
 
-      const litterWithParents = awaitdb.query.litters.findFirst({
+      const litterWithParents = await db.query.litters.findFirst({
         where: eq(litters.id, litter[0].id),
         with: {
           mother: true,
@@ -801,9 +801,6 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/litters/:id", async (req, res) => {
     try {
-      console.log("Updating litter - Request body:", req.body);
-      console.log("Litter ID:", req.params.id);
-
       // Extract only the fields we want to update
       const { dueDate, motherId, fatherId, isVisible } = req.body;
 
@@ -815,14 +812,10 @@ export function registerRoutes(app: Express): Server {
         updatedAt: new Date(),
       };
 
-      console.log("Update data being set:", updateData);
-
       const litter = await db.update(litters)
         .set(updateData)
         .where(eq(litters.id, parseInt(req.params.id)))
         .returning();
-
-      console.log("Updated litter result:", litter);
 
       const litterWithParents = await db.query.litters.findFirst({
         where: eq(litters.id, litter[0].id),
@@ -835,8 +828,6 @@ export function registerRoutes(app: Express): Server {
       res.json(litterWithParents);
     } catch (error) {
       console.error("Error updating litter - Full error:", error);
-      console.error("Error updating litter - Error message:", error.message);
-      console.error("Error updating litter - Error stack:", error.stack);
       res.status(500).json({ message: "Failed to update litter", error: error.message });
     }
   });
@@ -1013,11 +1004,11 @@ export function registerRoutes(app: Express): Server {
       const result = await db.delete(principles)
         .where(eq(principles.id, parseInt(req.params.id)))
         .returning();
-      
+
       if (result.length === 0) {
         return res.status(404).json({ message: "Principle not found" });
       }
-      
+
       res.json(result[0]);
     } catch (error) {
       console.error("Error deleting principle:", error);
@@ -1295,6 +1286,29 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error deleting goat litter:", error);
       res.status(500).json({ message: "Failed to delete goat litter" });
+    }
+  });
+
+  // Theme management routes
+  app.get("/api/theme", (_req, res) => {
+    try {
+      const themeFilePath = path.join(process.cwd(), "theme.json");
+      const themeConfig = fs.readJsonSync(themeFilePath);
+      res.json(themeConfig);
+    } catch (error) {
+      console.error("Error reading theme config:", error);
+      res.status(500).json({ message: "Failed to read theme configuration" });
+    }
+  });
+
+  app.put("/api/theme", async (req, res) => {
+    try {
+      const themeFilePath = path.join(process.cwd(), "theme.json");
+      await fs.writeJson(themeFilePath, req.body, { spaces: 2 });
+      res.json({ message: "Theme updated successfully" });
+    } catch (error) {
+      console.error("Error updating theme:", error);
+      res.status(500).json({ message: "Failed to update theme configuration" });
     }
   });
 
