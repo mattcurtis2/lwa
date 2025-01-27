@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { GoatCard } from "@/components/cards/goat-card";
 import type { Goat } from "@db/schema";
+import { formatDisplayDate } from "@/lib/date-utils";
 
 interface GoatsPageProps {
   genderFilter?: 'male' | 'female';
@@ -26,7 +27,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
   });
 
   const goatDescription = siteContent.find(
-    (content) => content.key === "goat_description"
+    (content: any) => content.key === "goat_description"
   )?.value;
 
   // Filter goats based on props
@@ -53,11 +54,68 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     pageDescription = "Browse our currently available Nigerian Dwarf goats. Each goat is raised with care and attention.";
   }
 
+  const renderDetailedGoatInfo = (goat: Goat) => (
+    <div key={goat.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
+        {goat.profileImageUrl ? (
+          <img
+            src={goat.profileImageUrl}
+            alt={goat.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center bg-pink-100">
+            <span className="text-4xl text-pink-500">
+              {goat.gender === 'female' ? '♀' : '♂'}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="p-6">
+        <h3 className="text-2xl font-semibold mb-4">{goat.name}</h3>
+        <div className="space-y-3">
+          {goat.registrationName && (
+            <p className="text-gray-600">
+              <span className="font-medium">Registration Name:</span> {goat.registrationName}
+            </p>
+          )}
+          <p className="text-gray-600">
+            <span className="font-medium">Birth Date:</span> {formatDisplayDate(new Date(goat.birthDate))}
+          </p>
+          {goat.color && (
+            <p className="text-gray-600">
+              <span className="font-medium">Color:</span> {goat.color}
+            </p>
+          )}
+          {goat.height && (
+            <p className="text-gray-600">
+              <span className="font-medium">Height:</span> {goat.height} inches
+            </p>
+          )}
+          {goat.weight && (
+            <p className="text-gray-600">
+              <span className="font-medium">Weight:</span> {goat.weight} lbs
+            </p>
+          )}
+          {goat.milkProduction && (
+            <p className="text-gray-600">
+              <span className="font-medium">Milk Production:</span> {goat.milkProduction}
+            </p>
+          )}
+          {goat.description && (
+            <p className="text-gray-600 mt-4">{goat.description}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      <GoatHero />
+      {/* Only show hero on main goats page */}
+      {!genderFilter && !showAvailable && <GoatHero />}
 
-      <section className="container mx-auto px-4 py-12">
+      <section className={`container mx-auto px-4 ${!genderFilter && !showAvailable ? 'py-12' : 'pt-24'}`}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
           <div className="prose prose-stone mx-auto">
@@ -106,10 +164,10 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
 
         <div className="mt-16">
           {filteredGoats.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredGoats.map((goat) => (
-                <GoatCard key={goat.id} goat={goat} />
-              ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {filteredGoats.map(goat => 
+                genderFilter ? renderDetailedGoatInfo(goat) : <GoatCard key={goat.id} goat={goat} />
+              )}
             </div>
           ) : (
             <div className="text-center py-12">
