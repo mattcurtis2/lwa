@@ -1092,6 +1092,7 @@ export default function AdminDashboard() {
                       <TabsTrigger value="market">Market</TabsTrigger>
                       <TabsTrigger value="contact">Contact</TabsTrigger>
                     </TabsList>
+                    <div>
 
                     <TabsContent value="home" className="space-y-6">
                       <Tabs defaultValue="hero">
