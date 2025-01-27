@@ -51,6 +51,81 @@ type PendingChanges = {
   carouselItems: Record<number, Partial<CarouselItem>>;
 };
 
+const PrincipleDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+  });
+  return (
+    <div {...getRootProps()} className={cn(
+      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+      isDragActive && "border-primary bg-accent"
+    )}>
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  return (
+    <div {...getRootProps()} className={cn(
+      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+      isDragActive && "border-primary bg-accent"
+    )}>
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  return (
+    <div {...getRootProps()} className={cn(
+      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+      isDragActive && "border-primary bg-accent"
+    )}>
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  return (
+    <div {...getRootProps()} className={cn(
+      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+      isDragActive && "border-primary bg-accent"
+    )}>
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+
 export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -290,7 +365,6 @@ export default function ContentSection() {
     Object.keys(pendingChanges.aboutCards).length > 0 ||
     Object.keys(pendingChanges.carouselItems).length > 0;
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({});
 
   return (
     <>
@@ -325,21 +399,7 @@ export default function ContentSection() {
 
                 <div className="space-y-2">
                   <Label>Hero Background Image</Label>
-                  <div {...useDropzone({
-                    onDrop: ([file]) => file && handleHeroImageUpload(file)
-                  }).getRootProps()} 
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                    isDragActive && "border-primary bg-accent"
-                  )}>
-                    <input {...getInputProps()} />
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <Upload className="h-10 w-10" />
-                      <p className="text-sm text-center">
-                        {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
-                      </p>
-                    </div>
-                  </div>
+                  <HeroDropzone onDrop={handleHeroImageUpload} />
                   {getContentValue('hero_background') && (
                     <img
                       src={getContentValue('hero_background')}
@@ -389,21 +449,7 @@ export default function ContentSection() {
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
-                    <div {...useDropzone({
-                      onDrop: ([file]) => file && handlePrincipleImageUpload(file, principle.id)
-                    }).getRootProps()} 
-                    className={cn(
-                      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                      isDragActive && "border-primary bg-accent"
-                    )}>
-                      <input {...getInputProps()} />
-                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                        <Upload className="h-10 w-10" />
-                        <p className="text-sm text-center">
-                          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
-                        </p>
-                      </div>
-                    </div>
+                    <PrincipleDropzone onDrop={(file) => handlePrincipleImageUpload(file, principle.id)} />
                     {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
                       <img
                         src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
@@ -484,21 +530,7 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <div {...useDropzone({
-                    onDrop: ([file]) => file && handleAboutCardImageUpload(file, card.id)
-                  }).getRootProps()} 
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                    isDragActive && "border-primary bg-accent"
-                  )}>
-                    <input {...getInputProps()} />
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <Upload className="h-10 w-10" />
-                      <p className="text-sm text-center">
-                        {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
-                      </p>
-                    </div>
-                  </div>
+                  <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
                   {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
                     <img
                       src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
@@ -546,21 +578,7 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <div {...useDropzone({
-                    onDrop: ([file]) => file && handleCarouselImageUpload(file, item.id)
-                  }).getRootProps()} 
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-                    isDragActive && "border-primary bg-accent"
-                  )}>
-                    <input {...getInputProps()} />
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <Upload className="h-10 w-10" />
-                      <p className="text-sm text-center">
-                        {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
-                      </p>
-                    </div>
-                  </div>
+                  <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
                   {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
                     <img
                       src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
