@@ -483,6 +483,7 @@ export default function ContentSection() {
                   {showCropper && cropImageUrl && (
                     <ImageCrop
                       imageUrl={cropImageUrl}
+                      aspect={undefined}
                       onCropComplete={(croppedImageUrl) => {
                         handleContentChange('hero_background', croppedImageUrl);
                         setShowCropper(false);
