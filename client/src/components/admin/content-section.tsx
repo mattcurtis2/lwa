@@ -72,13 +72,6 @@ const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]
           {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
         </p>
       </div>
-      {currentImageUrl && (
-        <img
-          src={currentImageUrl}
-          alt="Principle Image Preview"
-          className="mt-4 rounded-lg max-h-48 object-cover"
-        />
-      )}
     </div>
   );
 };
@@ -167,9 +160,8 @@ export default function ContentSection() {
     aboutCards: {},
     carouselItems: {},
   });
-  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null); // Added state for principle ID
+  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null); 
 
-  // Fetch all content
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
@@ -186,7 +178,6 @@ export default function ContentSection() {
     queryKey: ["/api/carousel"],
   });
 
-  // Helper function for file handling
   const handleFileUpload = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -199,7 +190,6 @@ export default function ContentSection() {
     });
   };
 
-  // Update mutations
   const updateSiteContent = useMutation({
     mutationFn: async ({ key, value, file }: { key: string; value: string; file?: File }) => {
       const formData = new FormData();
@@ -254,15 +244,12 @@ export default function ContentSection() {
     }
   });
 
-  // Save all changes
   const saveAllChanges = async () => {
     try {
-      // Update site content
       for (const [key, value] of Object.entries(pendingChanges.siteContent)) {
         await updateSiteContent.mutateAsync({ key, value });
       }
 
-      // Update principles
       for (const [id, changes] of Object.entries(pendingChanges.principles)) {
         const principle = principles.find(p => p.id === parseInt(id));
         if (principle) {
@@ -270,7 +257,6 @@ export default function ContentSection() {
         }
       }
 
-      // Update about cards
       for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
         const card = aboutCards.find(c => c.id === parseInt(id));
         if (card) {
@@ -278,7 +264,6 @@ export default function ContentSection() {
         }
       }
 
-      // Update carousel items
       for (const [id, changes] of Object.entries(pendingChanges.carouselItems)) {
         const item = carouselItems.find(i => i.id === parseInt(id));
         if (item) {
@@ -286,7 +271,6 @@ export default function ContentSection() {
         }
       }
 
-      // Clear pending changes
       setPendingChanges({
         siteContent: {},
         principles: {},
@@ -294,7 +278,6 @@ export default function ContentSection() {
         carouselItems: {},
       });
 
-      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
       queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
@@ -306,7 +289,6 @@ export default function ContentSection() {
     }
   };
 
-  // File upload handling for each section
   const handleHeroImageUpload = async (file: File) => {
     try {
       const imageUrl = await handleFileUpload(file);
@@ -397,12 +379,10 @@ export default function ContentSection() {
     }
   };
 
-  // Helper function to get content value
   const getContentValue = (key: string) => {
     return pendingChanges.siteContent[key] ?? siteContent.find(item => item.key === key)?.value ?? '';
   };
 
-  // Handle content changes
   const handleContentChange = (key: string, value: string) => {
     setPendingChanges(prev => ({
       ...prev,
@@ -444,7 +424,6 @@ export default function ContentSection() {
               <TabsTrigger value="carousel">Carousel</TabsTrigger>
             </TabsList>
 
-            {/* Hero Section */}
             <TabsContent value="hero" className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -518,7 +497,6 @@ export default function ContentSection() {
               </div>
             </TabsContent>
 
-            {/* Principles Section */}
             <TabsContent value="principles" className="space-y-6">
               {principles.map((principle) => (
                 <div key={principle.id} className="space-y-4 border rounded-lg p-4">
@@ -526,39 +504,20 @@ export default function ContentSection() {
                     <Label>Title</Label>
                     <Input
                       value={pendingChanges.principles[principle.id]?.title ?? principle.title}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        principles: {
-                          ...prev.principles,
-                          [principle.id]: {
-                            ...prev.principles[principle.id],
-                            title: e.target.value
-                          }
-                        }
-                      }))}
+                      onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Description</Label>
                     <Textarea
                       value={pendingChanges.principles[principle.id]?.description ?? principle.description}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        principles: {
-                          ...prev.principles,
-                          [principle.id]: {
-                            ...prev.principles[principle.id],
-                            description: e.target.value
-                          }
-                        }
-                      }))}
+                      onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
                     <PrincipleDropzone 
                       onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
-                      currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                     />
                     {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
                       <div className="relative group">
@@ -570,9 +529,12 @@ export default function ContentSection() {
                         <div
                           className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                           onClick={() => {
-                            setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
-                            setPendingPrincipleId(principle.id);
-                            setShowCropper(true);
+                            const imageUrl = pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl;
+                            if (imageUrl) {
+                              setCropImageUrl(imageUrl);
+                              setPendingPrincipleId(principle.id);
+                              setShowCropper(true);
+                            }
                           }}
                         />
                       </div>
@@ -582,7 +544,6 @@ export default function ContentSection() {
               ))}
             </TabsContent>
 
-            {/* About Section */}
             <TabsContent value="about" className="space-y-6">
               {aboutCards.map((card) => (
                 <div key={card.id} className="space-y-4 border rounded-lg p-4">
@@ -665,7 +626,6 @@ export default function ContentSection() {
               ))}
             </TabsContent>
 
-            {/* Carousel Section */}
             <TabsContent value="carousel" className="space-y-6">
               {carouselItems.map((item) => (
                 <div key={item.id} className="space-y-4 border rounded-lg p-4">
@@ -719,7 +679,6 @@ export default function ContentSection() {
         </CardContent>
       </Card>
 
-      {/* Floating Save Button */}
       {hasPendingChanges && (
         <div className="fixed bottom-6 right-6">
           <Button
