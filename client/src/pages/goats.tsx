@@ -136,7 +136,11 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
             {/* Kids Section */}
             {kids.length > 0 && (
               <div>
-                <h2 className="text-3xl font-semibold mb-8">Kids</h2>
+                <div className="relative flex py-5 items-center mb-8">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Kids</h2>
+                  <div className="flex-grow border-t border-gray-200"></div>
+                </div>
                 <div className="grid grid-cols-1 gap-8">
                   {kids.map(goat => (
                     <GoatDetails key={goat.id} goat={goat} />
@@ -148,7 +152,11 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
             {/* Females Section */}
             {females.length > 0 && (
               <div>
-                <h2 className="text-3xl font-semibold mb-8">Females</h2>
+                <div className="relative flex py-5 items-center mb-8">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Females</h2>
+                  <div className="flex-grow border-t border-gray-200"></div>
+                </div>
                 <div className="grid grid-cols-1 gap-8">
                   {females.map(goat => (
                     <GoatDetails key={goat.id} goat={goat} />
@@ -160,7 +168,11 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
             {/* Males Section */}
             {males.length > 0 && (
               <div>
-                <h2 className="text-3xl font-semibold mb-8">Males</h2>
+                <div className="relative flex py-5 items-center mb-8">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Males</h2>
+                  <div className="flex-grow border-t border-gray-200"></div>
+                </div>
                 <div className="grid grid-cols-1 gap-8">
                   {males.map(goat => (
                     <GoatDetails key={goat.id} goat={goat} />
