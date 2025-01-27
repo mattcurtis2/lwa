@@ -167,6 +167,7 @@ export default function ContentSection() {
     aboutCards: {},
     carouselItems: {},
   });
+  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null); // Added state for principle ID
 
   // Fetch all content
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
@@ -412,6 +413,19 @@ export default function ContentSection() {
     }));
   };
 
+  const handlePrincipleChange = (principleId: number, key: string, value: string | undefined) => {
+    setPendingChanges(prev => ({
+      ...prev,
+      principles: {
+        ...prev.principles,
+        [principleId]: {
+          ...prev.principles[principleId],
+          [key]: value
+        }
+      }
+    }));
+  };
+
   const hasPendingChanges = Object.keys(pendingChanges.siteContent).length > 0 ||
     Object.keys(pendingChanges.principles).length > 0 ||
     Object.keys(pendingChanges.aboutCards).length > 0 ||
@@ -485,13 +499,18 @@ export default function ContentSection() {
                       imageUrl={cropImageUrl}
                       aspect={undefined}
                       onCropComplete={(croppedImageUrl) => {
-                        handleContentChange('hero_background', croppedImageUrl);
+                        if (pendingPrincipleId !== null) {
+                          handlePrincipleChange(pendingPrincipleId, 'imageUrl', croppedImageUrl);
+                        } else {
+                          handleContentChange('hero_background', croppedImageUrl);
+                        }
                         setShowCropper(false);
-                        setCropImageUrl('');
+                        setPendingPrincipleId(null);
                       }}
                       onCancel={() => {
                         setShowCropper(false);
-                        setCropImageUrl('');
+                        setCropImageUrl("");
+                        setPendingPrincipleId(null);
                       }}
                     />
                   )}
@@ -541,6 +560,23 @@ export default function ContentSection() {
                       onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
                       currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                     />
+                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
+                      <div className="relative group">
+                        <img
+                          src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                          alt="Principle Image Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
+                        />
+                        <div
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                          onClick={() => {
+                            setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
+                            setPendingPrincipleId(principle.id);
+                            setShowCropper(true);
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
