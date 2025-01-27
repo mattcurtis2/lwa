@@ -561,20 +561,20 @@ export default function ContentSection() {
                       currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                     />
                     {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
-                      <div 
-                        className="mt-4 relative group cursor-pointer"
-                        onClick={() => {
-                          setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
-                          setPendingPrincipleId(principle.id);
-                          setShowCropper(true);
-                        }}
-                      >
+                      <div className="relative group">
                         <img
                           src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                           alt="Principle Image Preview"
-                          className="rounded-lg max-h-48 object-cover w-full"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                        <div
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                          onClick={() => {
+                            setCropImageUrl(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl);
+                            setPendingPrincipleId(principle.id);
+                            setShowCropper(true);
+                          }}
+                        />
                       </div>
                     )}
                   </div>
