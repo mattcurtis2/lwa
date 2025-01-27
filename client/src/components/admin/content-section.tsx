@@ -54,6 +54,10 @@ type PendingChanges = {
 const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]) => void; currentImageUrl?: string }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+    },
+    multiple: false
   });
   return (
     <div {...getRootProps()} className={cn(
@@ -79,7 +83,13 @@ const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]
 };
 
 const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop: files => files[0] && onDrop(files[0]),
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+    },
+    multiple: false
+  });
   return (
     <div {...getRootProps()} className={cn(
       "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
@@ -97,7 +107,13 @@ const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 };
 
 const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop: files => files[0] && onDrop(files[0]),
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+    },
+    multiple: false
+  });
   return (
     <div {...getRootProps()} className={cn(
       "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
@@ -115,7 +131,13 @@ const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 };
 
 const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop: files => files[0] && onDrop(files[0]),
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+    },
+    multiple: false
+  });
   return (
     <div {...getRootProps()} className={cn(
       "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
@@ -131,7 +153,6 @@ const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
     </div>
   );
 };
-
 
 export default function ContentSection() {
   const { toast } = useToast();
@@ -161,7 +182,7 @@ export default function ContentSection() {
     queryKey: ["/api/carousel"],
   });
 
-  // Helper functions for file handling
+  // Helper function for file handling
   const handleFileUpload = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -294,12 +315,18 @@ export default function ContentSection() {
       }));
     } catch (error) {
       console.error('Upload failed:', error);
+      toast({
+        title: "Upload failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
-  const handlePrincipleImageUpload = async (file: File, principleId: number) => {
+  const handlePrincipleImageUpload = async (files: File[], principleId: number) => {
+    if (!files.length) return;
     try {
-      const imageUrl = await handleFileUpload(file);
+      const imageUrl = await handleFileUpload(files[0]);
       setPendingChanges(prev => ({
         ...prev,
         principles: {
@@ -312,6 +339,11 @@ export default function ContentSection() {
       }));
     } catch (error) {
       console.error('Upload failed:', error);
+      toast({
+        title: "Upload failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -330,6 +362,11 @@ export default function ContentSection() {
       }));
     } catch (error) {
       console.error('Upload failed:', error);
+      toast({
+        title: "Upload failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -348,6 +385,11 @@ export default function ContentSection() {
       }));
     } catch (error) {
       console.error('Upload failed:', error);
+      toast({
+        title: "Upload failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -392,7 +434,13 @@ export default function ContentSection() {
                   <Label>Hero Title</Label>
                   <Input
                     value={getContentValue('hero_text')}
-                    onChange={(e) => handleContentChange('hero_text', e.target.value)}
+                    onChange={(e) => setPendingChanges(prev => ({
+                      ...prev,
+                      siteContent: {
+                        ...prev.siteContent,
+                        hero_text: e.target.value
+                      }
+                    }))}
                   />
                 </div>
 
@@ -400,7 +448,13 @@ export default function ContentSection() {
                   <Label>Hero Subtitle</Label>
                   <Textarea
                     value={getContentValue('hero_subtext')}
-                    onChange={(e) => handleContentChange('hero_subtext', e.target.value)}
+                    onChange={(e) => setPendingChanges(prev => ({
+                      ...prev,
+                      siteContent: {
+                        ...prev.siteContent,
+                        hero_subtext: e.target.value
+                      }
+                    }))}
                   />
                 </div>
 
@@ -457,7 +511,7 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Image</Label>
                     <PrincipleDropzone 
-                      onDrop={(files) => files[0] && handlePrincipleImageUpload(files[0], principle.id)}
+                      onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
                       currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
                     />
                   </div>
@@ -533,14 +587,17 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
-                  {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
-                    <img
-                      src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
-                      alt={card.title}
-                      className="mt-2 rounded-lg max-h-48 object-cover"
-                    />
-                  )}
+                  <div className="space-y-2">
+                    <Label>Image</Label>
+                    <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
+                    {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
+                      <img
+                        src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
+                        alt={card.title}
+                        className="mt-2 rounded-lg max-h-48 object-cover"
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
             </TabsContent>
@@ -581,14 +638,17 @@ export default function ContentSection() {
                       }))}
                     />
                   </div>
-                  <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
-                  {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
-                    <img
-                      src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
-                      alt={item.title}
-                      className="mt-2 rounded-lg max-h-48 object-cover"
-                    />
-                  )}
+                  <div className="space-y-2">
+                    <Label>Image</Label>
+                    <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
+                    {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
+                      <img
+                        src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
+                        alt={item.title}
+                        className="mt-2 rounded-lg max-h-48 object-cover"
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
             </TabsContent>
