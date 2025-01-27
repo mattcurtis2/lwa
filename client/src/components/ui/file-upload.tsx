@@ -78,26 +78,32 @@ export function FileUpload({
         });
 
         if (!response.ok) {
-          throw new Error("Upload failed");
+          const error = await response.text();
+          throw new Error(error || "Upload failed");
         }
 
         const data = await response.json();
-        const uploadedFile = Array.isArray(data) ? data[0] : data;
-        
-        if (uploadedFile?.url) {
-          if (!skipCrop && file.type.startsWith('image/')) {
-            setTempImageUrl(uploadedFile.url);
-            setSelectedFile(file);
-            setShowCropper(true);
-          } else {
-            setPreviewUrl(uploadedFile.url);
-            if (onChange) {
-              onChange(uploadedFile.url);
-            }
-            onFileSelect(file);
-          }
+        if (!data) {
+          throw new Error("No response data");
+        }
+
+        const uploadedFiles = Array.isArray(data) ? data : [data];
+        const uploadedFile = uploadedFiles[0];
+
+        if (!uploadedFile?.url) {
+          throw new Error("Invalid upload response - no URL");
+        }
+
+        if (!skipCrop && file.type.startsWith('image/')) {
+          setTempImageUrl(uploadedFile.url);
+          setSelectedFile(file);
+          setShowCropper(true);
         } else {
-          throw new Error("Invalid upload response");
+          setPreviewUrl(uploadedFile.url);
+          if (onChange) {
+            onChange(uploadedFile.url);
+          }
+          onFileSelect(file);
         }
       } catch (error) {
         toast({
