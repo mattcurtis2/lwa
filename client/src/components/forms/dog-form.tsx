@@ -371,6 +371,7 @@ export default function DogForm({
       }
 
       const data = await uploadRes.json();
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
       // Find if this is a media section image
       const mediaIndex = mediaInputs.findIndex(input => input.url === cropImageUrl);
@@ -380,13 +381,13 @@ export default function DogForm({
         const updatedMediaInputs = [...mediaInputs];
         updatedMediaInputs[mediaIndex] = {
           ...updatedMediaInputs[mediaIndex],
-          url: data.url
+          url: uploadedUrl
         };
         setMediaInputs(updatedMediaInputs);
         form.setValue("media", updatedMediaInputs);
-      } else if (cropImageUrl === form.getValues("profileImageUrl")) {
+      } else {
         // Update profile image
-        form.setValue("profileImageUrl", data.url);
+        form.setValue("profileImageUrl", uploadedUrl);
       }
 
       setShowCropper(false);
