@@ -1946,9 +1946,7 @@ export default function AdminDashboard() {
             <StyleManagement />
           </TabsContent>
         </div>
-          </div>
-        </div>
-      </div>
+      </Tabs>
     </div>
   );
 }
