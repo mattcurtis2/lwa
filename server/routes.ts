@@ -1441,6 +1441,73 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to update theme configuration" });
     }
   });
+  // Add the pages endpoint to the existing routes
+  app.get("/api/pages", async (_req, res) => {
+    try {
+      const pages = [
+        {
+          id: 1,
+          name: "Home",
+          fields: {
+            hero_title: "Welcome to Little Way Acres",
+            hero_subtitle: "Experience sustainable farming and community",
+            hero_image: "/images/hero.jpg",
+            about_content: "Discover our commitment to sustainable farming...",
+            contact_info: "Get in touch with us...",
+          },
+        },
+        {
+          id: 2,
+          name: "Dogs",
+          fields: {
+            title: "Our Colorado Mountain Dogs",
+            description: "Learn about our exceptional working dogs...",
+            hero_image: "/images/dogs-hero.jpg",
+            breeding_info: "Our breeding program focuses on...",
+          },
+        },
+        {
+          id: 3,
+          name: "Goats",
+          fields: {
+            title: "Nigerian Dwarf Goats",
+            description: "Explore our goat breeding program...",
+            hero_image: "/images/goats-hero.jpg",
+            care_info: "Our approach to goat care...",
+          },
+        },
+        {
+          id: 4,
+          name: "Market",
+          fields: {
+            title: "Farm Market",
+            description: "Fresh produce and products...",
+            hero_image: "/images/market-hero.jpg",
+            schedule_info: "Market hours and locations...",
+          },
+        },
+      ];
+
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Failed to fetch pages" });
+    }
+  });
+
+  app.put("/api/pages/:id/fields/:field", async (req, res) => {
+    try {
+      const { id, field } = req.params;
+      const { value } = req.body;
+
+      // Here you would typically update the database
+      // For now, we'll just return success
+      res.json({ id, field, value });
+    } catch (error) {
+      console.error("Error updating page field:", error);
+      res.status(500).json({ message: "Failed to update page field" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
