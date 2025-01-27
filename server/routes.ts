@@ -725,7 +725,7 @@ export function registerRoutes(app: Express): Server {
         };
       }));
 
-      return res.status(200).json(uploadedFiles);
+      res.json(uploadedFiles);
     } catch (error) {
       console.error("Upload error:", error);
       return res.status(500).json({
