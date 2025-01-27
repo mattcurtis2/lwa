@@ -556,17 +556,12 @@ export default function ContentSection() {
                   </div>
                   <div className="space-y-2">
                     <Label>Image</Label>
-                    <PrincipleDropzone 
-                      onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
-                      currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
-                    />
-                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
-                      <div className="relative group">
-                        <img
-                          src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
-                          alt="Principle Image Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover"
-                        />
+                    <div className="relative group">
+                      <PrincipleDropzone 
+                        onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
+                        currentImageUrl={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                      />
+                      {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
                         <div
                           className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                           onClick={() => {
@@ -575,8 +570,8 @@ export default function ContentSection() {
                             setShowCropper(true);
                           }}
                         />
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
