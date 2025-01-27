@@ -158,6 +158,8 @@ export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("hero");
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState('');
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({
     siteContent: {},
     principles: {},
@@ -462,10 +464,33 @@ export default function ContentSection() {
                   <Label>Hero Background Image</Label>
                   <HeroDropzone onDrop={handleHeroImageUpload} />
                   {getContentValue('hero_background') && (
-                    <img
-                      src={getContentValue('hero_background')}
-                      alt="Hero background"
-                      className="mt-4 rounded-lg max-h-48 object-cover"
+                    <div className="relative group">
+                      <img
+                        src={getContentValue('hero_background')}
+                        alt="Hero background"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                      <div
+                        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue('hero_background'));
+                          setShowCropper(true);
+                        }}
+                      />
+                    </div>
+                  )}
+                  {showCropper && cropImageUrl && (
+                    <ImageCrop
+                      imageUrl={cropImageUrl}
+                      onCropComplete={(croppedImageUrl) => {
+                        handleContentChange('hero_background', croppedImageUrl);
+                        setShowCropper(false);
+                        setCropImageUrl('');
+                      }}
+                      onCancel={() => {
+                        setShowCropper(false);
+                        setCropImageUrl('');
+                      }}
                     />
                   )}
                 </div>
