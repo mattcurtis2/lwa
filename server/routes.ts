@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -468,6 +468,58 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+
+  // Market Schedule routes
+  app.get("/api/market-schedules", async (_req, res) => {
+    try {
+      const schedules = await db.query.marketSchedules.findMany({
+        orderBy: (marketSchedules, { asc }) => [asc(marketSchedules.order)],
+      });
+      res.json(schedules);
+    } catch (error) {
+      console.error("Error fetching market schedules:", error);
+      res.status(500).json({ message: "Failed to fetch market schedules" });
+    }
+  });
+
+  app.post("/api/market-schedules", async (req, res) => {
+    try {
+      const schedule = await db.insert(marketSchedules)
+        .values(req.body)
+        .returning();
+      res.json(schedule[0]);
+    } catch (error) {
+      console.error("Error creating market schedule:", error);
+      res.status(500).json({ message: "Failed to create market schedule" });
+    }
+  });
+
+  app.put("/api/market-schedules/:id", async (req, res) => {
+    try {
+      const schedule = await db.update(marketSchedules)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(marketSchedules.id, parseInt(req.params.id)))
+        .returning();
+      res.json(schedule[0]);
+    } catch (error) {
+      console.error("Error updating market schedule:", error);
+      res.status(500).json({ message: "Failed to update market schedule" });
+    }
+  });
+
+  app.delete("/api/market-schedules/:id", async (req, res) => {
+    try {
+      await db.delete(marketSchedules)
+        .where(eq(marketSchedules.id, parseInt(req.params.id)));
+      res.json({ message: "Market schedule deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting market schedule:", error);
+      res.status(500).json({ message: "Failed to delete market schedule" });
+    }
+  });
 
   // Products routes
   app.get("/api/products", async (req, res) => {
