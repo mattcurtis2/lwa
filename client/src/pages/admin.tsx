@@ -11,12 +11,7 @@ import ContentSection from "@/components/admin/content-section";
 export default function AdminDashboard() {
   const [_, navigate] = useLocation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate]);
+  // Removed auto-redirect to allow access to admin page
 
   return (
     <div className="container mx-auto py-6">
