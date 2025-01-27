@@ -359,7 +359,7 @@ export default function DogForm({
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
       const formData = new FormData();
-      formData.append('file', blob, 'profile-picture.jpg');
+      formData.append('file', blob, 'cropped-image.jpg');
 
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
@@ -371,16 +371,32 @@ export default function DogForm({
       }
 
       const data = await uploadRes.json();
-      form.setValue("profileImageUrl", data.url);
-      setShowCropper(false);
 
+      // Find if this is a media section image
+      const mediaIndex = mediaInputs.findIndex(input => input.url === cropImageUrl);
+      
+      if (mediaIndex !== -1) {
+        // Update media section image
+        const updatedMediaInputs = [...mediaInputs];
+        updatedMediaInputs[mediaIndex] = {
+          ...updatedMediaInputs[mediaIndex],
+          url: data.url
+        };
+        setMediaInputs(updatedMediaInputs);
+        form.setValue("media", updatedMediaInputs);
+      } else if (cropImageUrl === form.getValues("profileImageUrl")) {
+        // Update profile image
+        form.setValue("profileImageUrl", data.url);
+      }
+
+      setShowCropper(false);
       URL.revokeObjectURL(croppedImageUrl);
       URL.revokeObjectURL(cropImageUrl);
       setCropImageUrl("");
 
       toast({
         title: 'Success',
-        description: 'Profile picture updated successfully',
+        description: 'Image cropped and saved successfully',
       });
     } catch (error) {
       console.error('Error uploading cropped image:', error);
