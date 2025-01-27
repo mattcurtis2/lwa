@@ -71,6 +71,7 @@ export function FileUpload({
       formData.append("file", file);
 
       try {
+        setIsUploading(true);
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
@@ -81,15 +82,20 @@ export function FileUpload({
         }
 
         const data = await response.json();
-        const uploadedFiles = Array.isArray(data) ? data : [data];
-        const uploadedFile = uploadedFiles[0];
+        const uploadedFile = Array.isArray(data) ? data[0] : data;
         
         if (uploadedFile?.url) {
-          setPreviewUrl(uploadedFile.url);
-          if (onChange) {
-            onChange(uploadedFile.url);
+          if (!skipCrop && file.type.startsWith('image/')) {
+            setTempImageUrl(uploadedFile.url);
+            setSelectedFile(file);
+            setShowCropper(true);
+          } else {
+            setPreviewUrl(uploadedFile.url);
+            if (onChange) {
+              onChange(uploadedFile.url);
+            }
+            onFileSelect(file);
           }
-          onFileSelect(file);
         } else {
           throw new Error("Invalid upload response");
         }
