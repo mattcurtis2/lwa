@@ -791,7 +791,7 @@ export function registerRoutes(app: Express): Server {
         }
 
         if (documents && documents.length > 0) {
-          await tx.insert(dogDocuments).values(
+                    await tx.insert(dogDocuments).values(
             documents.map((doc: any) => ({
               dogId: dogId,
               url: doc.url,
@@ -1126,10 +1126,21 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/principles/:id", async (req, res) => {
     try {
+      const { id } = req.params;
+      const { title, description, imageUrl } = req.body;
+
+      const updateData = {
+        title,
+        description,
+        imageUrl,
+        updatedAt: new Date(),
+      };
+
       const principle = await db.update(principles)
-        .set({ ...req.body, updatedAt: new Date() })
-        .where(eq(principles.id, parseInt(req.params.id)))
+        .set(updateData)
+        .where(eq(principles.id, parseInt(id)))
         .returning();
+
       res.json(principle[0]);
     } catch (error) {
       console.error("Error updating principle:", error);
