@@ -9,7 +9,7 @@ import { useDropzone } from "react-dropzone";
 import { Upload, X } from "lucide-react";
 import { useState } from "react";
 import cn from "classnames";
-import { ImageCrop } from "@/components/ImageCrop";
+import { ImageCrop } from "@/components/ui/image-crop";
 
 interface ContentSectionProps {
   siteContent: SiteContent[];
