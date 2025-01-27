@@ -188,7 +188,7 @@ export default function MarketItemsManager() {
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-lg">{product.title}</h3>
                         <span className="text-sm text-muted-foreground">
-                          ${product.price.toFixed(2)}
+                          ${Number(product.price).toFixed(2)}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">{product.description}</p>
