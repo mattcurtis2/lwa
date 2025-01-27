@@ -132,7 +132,7 @@ export default function Header() {
               </div>
             </div>
 
-            <Link href="/#market">
+            <Link href="/market">
               <a className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1">Farmers Market</a>
             </Link>
           </div>

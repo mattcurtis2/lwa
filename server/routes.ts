@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -416,31 +416,109 @@ export function registerRoutes(app: Express): Server {
     res.json({ message: "Deleted successfully" });
   });
 
+  // Market Section routes
+  app.get("/api/market-sections", async (_req, res) => {
+    try {
+      const sections = await db.query.marketSections.findMany({
+        orderBy: (marketSections, { asc }) => [asc(marketSections.order)],
+      });
+      res.json(sections);
+    } catch (error) {
+      console.error("Error fetching market sections:", error);
+      res.status(500).json({ message: "Failed to fetch market sections" });
+    }
+  });
+
+  app.post("/api/market-sections", async (req, res) => {
+    try {
+      const section = await db.insert(marketSections)
+        .values(req.body)
+        .returning();
+      res.json(section[0]);
+    } catch (error) {
+      console.error("Error creating market section:", error);
+      res.status(500).json({ message: "Failed to create market section" });
+    }
+  });
+
+  app.put("/api/market-sections/:id", async (req, res) => {
+    try {
+      const section = await db.update(marketSections)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(marketSections.id, parseInt(req.params.id)))
+        .returning();
+      res.json(section[0]);
+    } catch (error) {
+      console.error("Error updating market section:", error);
+      res.status(500).json({ message: "Failed to update market section" });
+    }
+  });
+
+  app.delete("/api/market-sections/:id", async (req, res) => {
+    try {
+      await db.delete(marketSections)
+        .where(eq(marketSections.id, parseInt(req.params.id)));
+      res.json({ message: "Market section deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting market section:", error);
+      res.status(500).json({ message: "Failed to delete market section" });
+    }
+  });
+
+
   // Products routes
   app.get("/api/products", async (req, res) => {
-    const category = req.query.category as string;
-    const allProducts = await db.query.products.findMany({
-      where: category ? eq(products.category, category) : undefined,
-    });
-    res.json(allProducts);
+    const section = req.query.section as string;
+    try {
+      const allProducts = await db.query.products.findMany({
+        where: section ? eq(products.section, section) : undefined,
+        orderBy: (products, { asc }) => [asc(products.order)],
+      });
+      res.json(allProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
   });
 
   app.post("/api/products", async (req, res) => {
-    const product = await db.insert(products).values(req.body).returning();
-    res.json(product[0]);
+    try {
+      const product = await db.insert(products).values(req.body).returning();
+      res.json(product[0]);
+    } catch (error) {
+      console.error("Error creating product:", error);
+      res.status(500).json({ message: "Failed to create product" });
+    }
   });
 
   app.put("/api/products/:id", async (req, res) => {
-    const product = await db.update(products)
-      .set(req.body)
-      .where(eq(products.id, parseInt(req.params.id)))
-      .returning();
-    res.json(product[0]);
+    try {
+      const product = await db.update(products)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(products.id, parseInt(req.params.id)))
+        .returning();
+      res.json(product[0]);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ message: "Failed to update product" });
+    }
   });
 
   app.delete("/api/products/:id", async (req, res) => {
-    await db.delete(products).where(eq(products.id, parseInt(req.params.id)));
-    res.json({ message: "Deleted successfully" });
+    try {
+      await db.delete(products)
+        .where(eq(products.id, parseInt(req.params.id)));
+      res.json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ message: "Failed to delete product" });
+    }
   });
 
   // Add a new route to check deployment status

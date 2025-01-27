@@ -52,11 +52,20 @@ export const animals = pgTable("animals", {
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  category: text("category").notNull(), // "bread", "pastry", "vegetable"
+  section: text("section").notNull(), // "bakery", "market_garden", "animal_products"
+  category: text("category").notNull(),
   description: text("description"),
   price: text("price"),
+  unit: text("unit"), // e.g., "loaf", "dozen", "lb"
   imageUrl: text("image_url"),
   inStock: boolean("in_stock").default(true),
+  seasonal: boolean("seasonal").default(false),
+  availableFrom: date("available_from"),
+  availableTo: date("available_to"),
+  ingredients: text("ingredients"),
+  nutritionInfo: text("nutrition_info"),
+  allergens: text("allergens"),
+  order: integer("order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -125,9 +134,9 @@ export const animalRelations = relations(animals, ({ one }) => ({
 }));
 
 export const productRelations = relations(products, ({ one }) => ({
-  user: one(users, {
-    fields: [products.id],
-    references: [users.id],
+  section: one(marketSections, {
+    fields: [products.section],
+    references: [marketSections.name],
   }),
 }));
 
@@ -399,3 +408,25 @@ export type GoatDocument = typeof goatDocuments.$inferSelect;
 export type NewGoatDocument = typeof goatDocuments.$inferInsert;
 export type GoatLitter = GoatLitterWithRelations;
 export type NewGoatLitter = typeof goatLitters.$inferInsert;
+
+// Newly added code from the edited snippet
+export const marketSections = pgTable("market_sections", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // "about", "bakery", "market_garden", "animal_products"
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url"),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const marketSectionsRelations = relations(marketSections, ({ many }) => ({
+  products: many(products),
+}));
+
+export const insertMarketSectionSchema = createInsertSchema(marketSections);
+export const selectMarketSectionSchema = createSelectSchema(marketSections);
+
+export type MarketSection = typeof marketSections.$inferSelect;
+export type NewMarketSection = typeof marketSections.$inferInsert;

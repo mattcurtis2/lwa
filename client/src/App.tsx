@@ -15,6 +15,7 @@ import GoatDetail from "@/pages/goat-detail";
 import GoatLitterDetail from "@/pages/goat-litter-detail";
 import GoatUpcomingLitters from "@/pages/goat-upcoming-litters";
 import GoatPastLitters from "@/pages/goat-past-litters";
+import Market from "@/pages/market";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
@@ -72,6 +73,8 @@ function Router() {
           <Route path="/goats/litters/past" component={GoatPastLitters} />
           <Route path="/goats/litters/:id" component={GoatLitterDetail} />
           <Route path="/goats/:id" component={GoatDetail} />
+          {/* Market Route */}
+          <Route path="/market" component={Market} />
           <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
