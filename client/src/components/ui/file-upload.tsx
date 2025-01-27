@@ -67,17 +67,36 @@ export function FileUpload({
         return;
       }
 
-      // If skipCrop is true or file is not an image, bypass cropping
-      if (skipCrop || !file.type.startsWith('image/')) {
-        onFileSelect(file);
-      } else {
-        setSelectedFile(file);
-        const tempUrl = URL.createObjectURL(file);
-        setTempImageUrl(tempUrl);
-        setShowCropper(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const data = await response.json();
+        if (data && data[0]?.url) {
+          setPreviewUrl(data[0].url);
+          if (onChange) {
+            onChange(data[0].url);
+          }
+          onFileSelect(file);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to upload file",
+          variant: "destructive"
+        });
       }
     }
-  }, [onFileSelect, toast, skipCrop]);
+  }, [onFileSelect, onChange, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
