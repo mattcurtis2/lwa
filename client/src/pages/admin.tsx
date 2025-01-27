@@ -922,7 +922,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             {/* Mother */}
             <div
-              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors">
+              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
               onClick={() => mother && handleEditDog(mother)}
             >
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
