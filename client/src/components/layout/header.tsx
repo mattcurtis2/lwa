@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
   const [isGoatDropdownOpen, setIsGoatDropdownOpen] = useState(false);
+  const [isMarketDropdownOpen, setIsMarketDropdownOpen] = useState(false);
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
@@ -132,9 +133,48 @@ export default function Header() {
               </div>
             </div>
 
-            <Link href="/market">
-              <a className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1">Farmers Market</a>
-            </Link>
+            {/* Farmers Market Dropdown */}
+            <div className="relative">
+              <button
+                  onMouseEnter={() => setIsMarketDropdownOpen(true)}
+                  onMouseLeave={() => setIsMarketDropdownOpen(false)}
+                  className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
+                >
+                  Farmers Market
+                </button>
+              <div 
+                className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
+                  isMarketDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+                onMouseEnter={() => setIsMarketDropdownOpen(true)}
+                onMouseLeave={() => setIsMarketDropdownOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMarketDropdownOpen(false);
+                }}
+              >
+                <Link href="/market?section=about">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    About
+                  </a>
+                </Link>
+                <Link href="/market?section=bakery">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Bakery
+                  </a>
+                </Link>
+                <Link href="/market?section=market_garden">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Market Garden
+                  </a>
+                </Link>
+                <Link href="/market?section=animal_products">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Animal Products
+                  </a>
+                </Link>
+              </div>
+            </div>
           </div>
 
           <MobileNav />
