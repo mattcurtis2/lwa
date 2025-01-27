@@ -1,0 +1,426 @@
+import { useState, useEffect } from "react";
+import { Goat, GoatMedia } from "@db/schema";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  FileText,
+  FileImage,
+  FileVideo,
+  File,
+  ExternalLink,
+  X,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/date-utils";
+import { parseISO } from "date-fns";
+
+interface Document {
+  id?: number;
+  type: string;
+  url: string;
+  name: string;
+  mimeType: string;
+}
+
+interface GoatDetailsProps {
+  goat: Goat & {
+    media?: GoatMedia[];
+    documents?: Document[];
+  };
+}
+
+function DocumentLink({ document }: { document: Document }) {
+  const isImage = document.mimeType.startsWith('image/');
+  const isVideo = document.mimeType.startsWith('video/');
+  const isPdf = document.mimeType === 'application/pdf';
+
+  const getIcon = () => {
+    if (isPdf) return <FileText className="h-5 w-5" />;
+    if (isImage) return <FileImage className="h-5 w-5" />;
+    if (isVideo) return <FileVideo className="h-5 w-5" />;
+    return <File className="h-5 w-5" />;
+  };
+
+  return (
+    <div className="border rounded-lg p-4 space-y-3">
+      <div className="flex items-start gap-4">
+        <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+          {isImage ? (
+            <img
+              src={document.url}
+              alt={document.name}
+              className="w-full h-full object-cover"
+            />
+          ) : isVideo ? (
+            <video
+              src={document.url}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              {getIcon()}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium truncate">{document.name}</h4>
+          <p className="text-sm text-muted-foreground">
+            {document.mimeType.split('/')[1].toUpperCase()}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            asChild
+          >
+            <a href={document.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Document
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function GoatDetails({ goat }: GoatDetailsProps) {
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
+  const healthDocuments = goat.documents?.filter((doc) => doc.type === 'health') || [];
+  const pedigreeDocuments = goat.documents?.filter((doc) => doc.type === 'pedigree') || [];
+  const imageMedia = goat.media?.filter(m => m.type === 'image') || [];
+
+  const genderSymbol = goat.gender === 'male' ? (
+    <span className="text-blue-500">♂</span>
+  ) : (
+    <span className="text-pink-500">♀</span>
+  );
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (isMediaDialogOpen) {
+      if (e.key === 'ArrowLeft') {
+        setActiveMediaIndex((prev) =>
+          prev === 0 ? imageMedia.length - 1 : prev - 1
+        );
+      } else if (e.key === 'ArrowRight') {
+        setActiveMediaIndex((prev) =>
+          prev === imageMedia.length - 1 ? 0 : prev + 1
+        );
+      } else if (e.key === 'Escape') {
+        setIsMediaDialogOpen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isMediaDialogOpen]);
+
+  const handleThumbnailClick = (index: number) => {
+    setActiveMediaIndex(index);
+    setIsMediaDialogOpen(true);
+  };
+
+  return (
+    <div className="grid md:grid-cols-3 gap-8">
+      {/* Left column - Images */}
+      <div className="space-y-6">
+        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+          <img
+            src={imageMedia[activeMediaIndex]?.url || goat.profileImageUrl || (goat.media && goat.media[0]?.url)}
+            alt={goat.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Image Thumbnails */}
+        {imageMedia.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {imageMedia.map((media, index) => (
+              <button
+                key={index}
+                onClick={() => handleThumbnailClick(index)}
+                className={cn(
+                  "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
+                  activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
+                )}
+              >
+                <img
+                  src={media.url}
+                  alt={`${goat.name} - photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Right column - Content */}
+      <div className="md:col-span-2 space-y-8">
+        <div>
+          <h1 className="text-4xl font-bold flex items-center gap-2">
+            {goat.name} {genderSymbol}
+          </h1>
+          {goat.registrationName && (
+            <p className="text-xl text-muted-foreground">{goat.registrationName}</p>
+          )}
+        </div>
+
+        {/* Media Dialog */}
+        <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
+          <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
+            <DialogHeader className="mb-2">
+              <DialogTitle>{goat.name}'s Gallery</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex items-center justify-center h-[calc(100%-3rem)] w-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 z-10"
+                onClick={() => setActiveMediaIndex((prev) =>
+                  prev === 0 ? imageMedia.length - 1 : prev - 1
+                )}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <img
+                  src={imageMedia[activeMediaIndex]?.url}
+                  alt={`${goat.name} - photo ${activeMediaIndex + 1}`}
+                  className="max-h-[50vh] max-w-[600px] w-auto h-auto object-contain rounded-lg"
+                />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 z-10"
+                onClick={() => setActiveMediaIndex((prev) =>
+                  prev === imageMedia.length - 1 ? 0 : prev + 1
+                )}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {imageMedia.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveMediaIndex(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      index === activeMediaIndex
+                        ? "bg-primary"
+                        : "bg-muted hover:bg-muted-foreground/50"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Tabs defaultValue="basic" className="w-full">
+          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
+            <TabsTrigger value="basic">Basic Information</TabsTrigger>
+            <TabsTrigger value="story">Story</TabsTrigger>
+            <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
+            <TabsTrigger value="health">Health Information</TabsTrigger>
+            <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="basic">
+            <Card>
+              <CardHeader>
+                <CardTitle>Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-2">Breed</h3>
+                    <p>Nigerian Dwarf Goat</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Gender</h3>
+                    <p className="flex items-center gap-1">
+                      {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)} {genderSymbol}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Birth Date</h3>
+                    <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+                  </div>
+                  {goat.milkProduction && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Milk Production</h3>
+                      <p>{goat.milkProduction}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="story">
+            <Card>
+              <CardHeader>
+                <CardTitle>Story</CardTitle>
+                <CardDescription>Learn more about {goat.name}'s personality and background</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="prose max-w-none">
+                  <p className="text-lg leading-relaxed">
+                    {goat.narrativeDescription || goat.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="physical">
+            <Card>
+              <CardHeader>
+                <CardTitle>Physical Characteristics</CardTitle>
+                <CardDescription>Detailed physical attributes and measurements</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-2">Color</h3>
+                    <p>{goat.color || "Not specified"}</p>
+                  </div>
+                  {goat.coatType && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Coat Type</h3>
+                      <p>{goat.coatType}</p>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-semibold mb-2">Height</h3>
+                    <p>{goat.height ? `${goat.height} inches` : "Not specified"}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Weight</h3>
+                    <p>{goat.weight ? `${goat.weight} lbs` : "Not specified"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="health">
+            <Card>
+              <CardHeader>
+                <CardTitle>Health Information</CardTitle>
+                <CardDescription>Health records and certifications</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {goat.healthData && (
+                    <div className="prose max-w-none mb-6">
+                      <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
+                    </div>
+                  )}
+                  {healthDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Health Documents</h3>
+                      <div className="grid gap-4">
+                        {healthDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!goat.healthData && healthDocuments.length === 0 && (
+                    <p>No health information available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pedigree">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pedigree Information</CardTitle>
+                <CardDescription>Family history and lineage</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {goat.pedigree && (
+                    <div className="prose max-w-none mb-6">
+                      <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
+                    </div>
+                  )}
+                  {pedigreeDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Pedigree Documents</h3>
+                      <div className="grid gap-4">
+                        {pedigreeDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!goat.pedigree && pedigreeDocuments.length === 0 && (
+                    <p>No pedigree information available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Mobile Media Gallery */}
+        {goat.media && goat.media.length > 0 && (
+          <div className="md:hidden">
+            <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
+            <div className="grid grid-cols-4 gap-2">
+              {goat.media.map((item, index) => (
+                item.type === 'image' && (
+                  <button
+                    key={index}
+                    onClick={() => handleThumbnailClick(index)}
+                    className={cn(
+                      "relative aspect-square group transition-transform hover:scale-105",
+                      activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
+                    )}
+                  >
+                    <img
+                      src={item.url}
+                      alt={`${goat.name} - photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
+                  </button>
+                )
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
