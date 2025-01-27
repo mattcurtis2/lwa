@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { SiteContent, Dog, DogsHero, Litter, CarouselItem, Animal, Product, Principle, ContactInfo } from "@db/schema";
 import DogForm from "@/components/forms/dog-form";
@@ -922,7 +922,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             {/* Mother */}
             <div
-              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
+              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors">
               onClick={() => mother && handleEditDog(mother)}
             >
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center relative group-hover:ring-2 ring-primary/20">
@@ -1092,9 +1092,7 @@ export default function AdminDashboard() {
                       <TabsTrigger value="market">Market</TabsTrigger>
                       <TabsTrigger value="contact">Contact</TabsTrigger>
                     </TabsList>
-                    <div>
-
-                    <TabsContent value="home" className="space-y-6">
+                    <TabsContent value="home">
                       <Tabs defaultValue="hero">
                         <TabsList>
                           <TabsTrigger value="hero">Hero</TabsTrigger>
@@ -1717,7 +1715,6 @@ export default function AdminDashboard() {
                               </h3>
                               <MarketScheduleManager />
                             </div>
-                            {/* Rest of the market management sections */}
                           </div>
                         </CardContent>
                       </Card>
@@ -1730,63 +1727,52 @@ export default function AdminDashboard() {
                             Manage contact details and social media links
                           </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                          <div className="space-y-2">
-                            <Label htmlFor="email">Email Address</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={pendingContactInfo.email ?? ""}
-                              onChange={(e) =>
-                                handleContactChange("email", e.target.value)
-                              }
-                              placeholder="contact@littlewayacres.com"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                              id="phone"
-                              type="tel"
-                              value={pendingContactInfo.phone ?? ""}
-                              onChange={(e) =>
-                                handleContactChange("phone", e.target.value)
-                              }
-                              placeholder="(555) 123-4567"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="facebook">Facebook URL</Label>
-                            <Input
-                              id="facebook"
-                              type="url"
-                              value={pendingContactInfo.facebook ?? ""}
-                              onChange={(e) =>
-                                handleContactChange(
-                                  "facebook",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="https://facebook.com/littlewayacres"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="instagram">Instagram URL</Label>
-                            <Input
-                              id="instagram"
-                              type="url"
-                              value={pendingContactInfo.instagram ?? ""}
-                              onChange={(e) =>
-                                handleContactChange(
-                                  "instagram",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="https://instagram.com/littlewayacres"
-                            />
+                        <CardContent>
+                          <div className="space-y-4">
+                            <FormItem>
+                              <FormLabel>Email Address</FormLabel>
+                              <Input
+                                type="email"
+                                value={contactInfoData?.email ?? ""}
+                                placeholder="contact@example.com"
+                                onChange={(e) =>
+                                  handleContactChange("email", e.target.value)
+                                }
+                              />
+                            </FormItem>
+                            <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <Input
+                                type="tel"
+                                value={contactInfoData?.phone ?? ""}
+                                placeholder="(555) 123-4567"
+                                onChange={(e) =>
+                                  handleContactChange("phone", e.target.value)
+                                }
+                              />
+                            </FormItem>
+                            <FormItem>
+                              <FormLabel>Facebook URL</FormLabel>
+                              <Input
+                                type="url"
+                                value={contactInfoData?.facebook ?? ""}
+                                placeholder="https://facebook.com/littlewayacres"
+                                onChange={(e) =>
+                                  handleContactChange("facebook", e.target.value)
+                                }
+                              />
+                            </FormItem>
+                            <FormItem>
+                              <FormLabel>Instagram URL</FormLabel>
+                              <Input
+                                type="url"
+                                value={contactInfoData?.instagram ?? ""}
+                                placeholder="https://instagram.com/littlewayacres"
+                                onChange={(e) =>
+                                  handleContactChange("instagram", e.target.value)
+                                }
+                              />
+                            </FormItem>
                           </div>
                         </CardContent>
                       </Card>
@@ -1943,11 +1929,12 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="style" className="space-y-4">
             <StyleManagement />
           </TabsContent>
         </div>
-      </Tabs>
+      </div>
     </div>
   );
 }
