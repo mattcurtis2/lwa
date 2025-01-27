@@ -3,7 +3,6 @@ import type { Metadata } from "@/lib/types";
 import { GoatHero } from "@/components/sections/goat-hero";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { GoatCard } from "@/components/cards/goat-card";
 import GoatDetails from "@/components/goat-details";
 import type { Goat } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
@@ -110,13 +109,9 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
         <div className="mt-16">
           {filteredGoats.length > 0 ? (
             <div className="grid grid-cols-1 gap-8">
-              {filteredGoats.map(goat => 
-                genderFilter ? (
-                  <GoatDetails key={goat.id} goat={goat} />
-                ) : (
-                  <GoatCard key={goat.id} goat={goat} />
-                )
-              )}
+              {filteredGoats.map(goat => (
+                <GoatDetails key={goat.id} goat={goat} />
+              ))}
             </div>
           ) : (
             <div className="text-center py-12">
