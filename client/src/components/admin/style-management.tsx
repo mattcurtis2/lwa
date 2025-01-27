@@ -107,7 +107,22 @@ export default function StyleManagement() {
     fetch("/api/theme")
       .then((res) => res.json())
       .then((data) => {
-        setThemeConfig((prev) => ({ ...prev, ...data }));
+        // Handle both theme structures
+        if (data.customColors) {
+          setThemeConfig(data);
+        } else {
+          setThemeConfig(prev => ({
+            ...prev,
+            customColors: {
+              ...prev.customColors,
+              background: data.background || prev.customColors.background,
+              foreground: data.text || prev.customColors.foreground,
+              primary: data.primary || prev.customColors.primary,
+              secondary: data.secondary || prev.customColors.secondary,
+              accent: data.accent || prev.customColors.accent,
+            }
+          }));
+        }
       })
       .catch(console.error);
   }, []);
