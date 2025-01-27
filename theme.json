@@ -2,5 +2,17 @@
   "variant": "professional",
   "primary": "hsl(147 26% 33%)",
   "appearance": "light",
-  "radius": 0.5
+  "radius": 0.5,
+  "fontFamily": "Inter, sans-serif",
+  "fontSize": {
+    "base": "16px",
+    "headings": "24px"
+  },
+  "customColors": {
+    "background": "hsl(0 0% 100%)",
+    "text": "hsl(222.2 47.4% 11.2%)",
+    "primary": "hsl(222.2 47.4% 11.2%)",
+    "secondary": "hsl(210 40% 96.1%)",
+    "accent": "hsl(210 40% 96.1%)"
+  }
 }
