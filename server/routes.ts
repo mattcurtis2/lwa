@@ -710,21 +710,6 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      const files = Array.isArray(req.files) ? req.files : [req.files];
-      const uploadedFiles = files.map(file => ({
-        url: `/uploads/${file.filename}`,
-        type: file.mimetype.startsWith('image/') ? 'image' : 'video',
-        originalName: file.originalname,
-        mimeType: file.mimetype
-      }));
-
-      res.json(uploadedFiles);
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ message: "Failed to process upload" });
-    }
-
-    try {
       const uploadedFiles = [];
       const files = Array.isArray(req.files) ? req.files : [req.files];
 
@@ -778,15 +763,14 @@ export function registerRoutes(app: Express): Server {
         }
       }
 
-      res.json(uploadedFiles);
+      return res.json(uploadedFiles);
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({
+      return res.status(500).json({
         message: "Failed to process uploaded files",
         details: error instanceof Error ? error.message : String(error)
       });
     } finally {
-      // Clean up temporary files only in production
       if (process.env.NODE_ENV === 'production' && req.files) {
         const files = Array.isArray(req.files) ? req.files : [req.files];
         for (const file of files) {
