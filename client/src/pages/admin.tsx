@@ -1095,16 +1095,15 @@ export default function AdminDashboard() {
                     <div>
 
                     <TabsContent value="home" className="space-y-6">
-                      <div>
-                        <Tabs defaultValue="hero">
-                          <TabsList>
-                            <TabsTrigger value="hero">Hero</TabsTrigger>
-                            <TabsTrigger value="about">About</TabsTrigger>
-                            <TabsTrigger value="principles">
-                              Principles
-                            </TabsTrigger>
-                            <TabsTrigger value="carousel">Carousel</TabsTrigger>
-                          </TabsList>
+                      <Tabs defaultValue="hero">
+                        <TabsList>
+                          <TabsTrigger value="hero">Hero</TabsTrigger>
+                          <TabsTrigger value="about">About</TabsTrigger>
+                          <TabsTrigger value="principles">
+                            Principles
+                          </TabsTrigger>
+                          <TabsTrigger value="carousel">Carousel</TabsTrigger>
+                        </TabsList>
 
                         <TabsContent value="hero" className="space-y-4 pt-4">
                           <div className="mt-8">
