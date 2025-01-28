@@ -923,7 +923,7 @@ export default function ContentSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <<Label>Description</Label>
+                  <Label>Description</Label>
                   <Textarea
                     value={pendingChanges.carouselItems[item.id]?.description ?? item.description}
                     onChange={(e) =>
