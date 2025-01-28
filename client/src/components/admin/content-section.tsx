@@ -995,8 +995,7 @@ export default function ContentSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Breeding Program Description</Label>
-                    <Textarea
+                    <Label>Breeding Program Description</Label<Textarea
                       value={getContentValue("dogs_breeding_program")}
                       onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
                     />
@@ -1022,15 +1021,17 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Hero Title</Label>
                     <Input
-                      value={getContentValue("goats_hero_title")}
-                      onChange={(e) => handleContentChange("goats_hero_title", e.target.value)}
+                      value={getContentValue("goat_hero_title") || "Nigerian Dwarf Goats"}
+                      onChange={(e) => handleContentChange("goat_hero_title", e.target.value)}
+                      placeholder="Enter hero title"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Hero Subtitle</Label>
                     <Textarea
-                      value={getContentValue("goats_hero_subtitle")}
-                      onChange={(e) => handleContentChange("goats_hero_subtitle", e.target.value)}
+                      value={getContentValue("goat_hero_subtitle") || "Discover our beloved Nigerian Dwarf goats, known for their friendly personalities and excellent milk production."}
+                      onChange={(e) => handleContentChange("goat_hero_subtitle", e.target.value)}
+                      placeholder="Enter hero subtitle"
                     />
                   </div>
                   <div className="space-y-2">
@@ -1039,16 +1040,16 @@ export default function ContentSection() {
                       onDrop={(files) => {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("goats_hero_image", imageUrl);
+                            handleContentChange("goat_hero_image", imageUrl);
                           });
                         }
                       }}
-                      currentImageUrl={getContentValue("goats_hero_image")}
+                      currentImageUrl={getContentValue("goat_hero_image")}
                     />
-                    {getContentValue("goats_hero_image") && (
+                    {getContentValue("goat_hero_image") && (
                       <div className="relative group">
                         <img
-                          src={getContentValue("goats_hero_image")}
+                          src={getContentValue("goat_hero_image")}
                           alt="Goats Hero Preview"
                           className="mt-4 rounded-lg max-h-48 object-cover"
                         />
@@ -1056,31 +1057,43 @@ export default function ContentSection() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label>Page Title</Label>
-                    <Input
-                      value={getContentValue("goats_page_title")}
-                      onChange={(e) => handleContentChange("goats_page_title", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label>Page Description</Label>
                     <Textarea
-                      value={getContentValue("goats_page_description")}
-                      onChange={(e) => handleContentChange("goats_page_description", e.target.value)}
+                      value={getContentValue("goat_description") || "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production."}
+                      onChange={(e) => handleContentChange("goat_description", e.target.value)}
+                      placeholder="Enter page description"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Breeding Program Information</Label>
+                    <Label>Breeding Program Description</Label>
                     <Textarea
-                      value={getContentValue("goats_breeding_program")}
-                      onChange={(e) => handleContentChange("goats_breeding_program", e.target.value)}
+                      value={getContentValue("goat_breeding_program") || "Our breeding program focuses on producing high-quality Nigerian Dwarf goats with excellent conformation, temperament, and milk production capabilities."}
+                      onChange={(e) => handleContentChange("goat_breeding_program", e.target.value)}
+                      placeholder="Enter breeding program description"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Available Goats Message</Label>
                     <Textarea
-                      value={getContentValue("goats_available_message")}
-                      onChange={(e) => handleContentChange("goats_available_message", e.target.value)}
+                      value={getContentValue("goat_available_message") || "Check out our currently available Nigerian Dwarf goats. Contact us for more information about any of our available animals."}
+                      onChange={(e) => handleContentChange("goat_available_message", e.target.value)}
+                      placeholder="Enter available goats message"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Male Goats (Bucks) Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_bucks_description") || "Meet our Nigerian Dwarf bucks. These handsome boys are carefully selected for their excellent genetics and conformation."}
+                      onChange={(e) => handleContentChange("goat_bucks_description", e.target.value)}
+                      placeholder="Enter bucks description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Female Goats (Does) Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_does_description") || "Meet our Nigerian Dwarf does. These lovely ladies are the foundation of our breeding program, known for their excellent milk production."}
+                      onChange={(e) => handleContentChange("goat_does_description", e.target.value)}
+                      placeholder="Enter does description"
                     />
                   </div>
                 </div>
