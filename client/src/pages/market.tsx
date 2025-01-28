@@ -1,10 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { MarketSection, Product, MarketSchedule } from "@db/schema";
+import { MarketSection, Product, MarketSchedule, SiteContent } from "@db/schema";
 import ProductCard from "@/components/cards/product-card";
 import { Calendar, Clock } from "lucide-react";
 
 export default function Market() {
+  const { data: siteContent = [] } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"],
+  });
+
+  const getContentValue = (key: string) => {
+    return siteContent.find(item => item.key === key)?.value || '';
+  };
   const { data: sections = [] } = useQuery<MarketSection[]>({
     queryKey: ["/api/market-sections"],
   });
@@ -27,7 +34,7 @@ export default function Market() {
         <div className="relative h-[500px]">
           {aboutSection.imageUrl && (
             <img
-              src={aboutSection.imageUrl}
+              src={getContentValue("market_hero_image") || aboutSection.imageUrl}
               alt={aboutSection.title}
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -36,7 +43,7 @@ export default function Market() {
             <div className="container mx-auto px-4">
               <div className="max-w-2xl text-white">
                 <h1 className="text-4xl font-bold mb-4">{aboutSection.title}</h1>
-                <p className="text-xl text-white/90">{aboutSection.description}</p>
+                <p className="text-xl text-white/90">{getContentValue("market_description")}</p>
               </div>
             </div>
           </div>

@@ -8,7 +8,12 @@ import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
-import { LayoutDashboard, Dog as DogIcon, Cat, ShoppingBag } from "lucide-react";
+import {
+  LayoutDashboard,
+  Dog as DogIcon,
+  Cat,
+  ShoppingBag,
+} from "lucide-react";
 
 export default function Admin() {
   const [_, navigate] = useLocation();
@@ -19,25 +24,42 @@ export default function Admin() {
 
   return (
     <div className="flex min-h-screen">
-      <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        orientation="vertical"
+        className="w-full"
+      >
         {/* Sidebar */}
         <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
-            <TabsList className="flex flex-col gap-2">
-              <TabsTrigger value="dogs" className="w-full justify-start data-[state=active]:bg-muted">
+            <TabsList className="flex-col gap-1 bg-transparent p-0">
+              <TabsTrigger
+                value="dogs"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+              >
                 <DogIcon className="h-4 w-4 mr-2" />
                 Dogs
               </TabsTrigger>
-              <TabsTrigger value="goats" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="goats"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+              >
                 <Cat className="h-4 w-4 mr-2" />
                 Goats
               </TabsTrigger>
-              <TabsTrigger value="market" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="market"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+              >
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Market
               </TabsTrigger>
-              <TabsTrigger value="content" className="w-full justify-start data-[state=active]:bg-muted">
+              <TabsTrigger
+                value="content"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+              >
                 <LayoutDashboard className="h-4 w-4 mr-2" />
                 Content
               </TabsTrigger>
@@ -80,7 +102,10 @@ export default function Admin() {
 
             <TabsContent value="market">
               <div>
-                <Tabs value={activeMarketTab} onValueChange={setActiveMarketTab}>
+                <Tabs
+                  value={activeMarketTab}
+                  onValueChange={setActiveMarketTab}
+                >
                   <TabsList className="mb-4">
                     <TabsTrigger value="schedule">Schedule</TabsTrigger>
                     <TabsTrigger value="items">Items</TabsTrigger>
