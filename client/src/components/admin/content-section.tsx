@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -62,24 +62,35 @@ type AboutCardsData = {
   }[];
 };
 
-const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]) => void; currentImageUrl?: string }) => {
+const PrincipleDropzone = ({
+  onDrop,
+  currentImageUrl,
+}: {
+  onDrop: (files: File[]) => void;
+  currentImageUrl?: string;
+}) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
     },
-    multiple: false
+    multiple: false,
   });
   return (
-    <div {...getRootProps()} className={cn(
-      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-      isDragActive && "border-primary bg-accent"
-    )}>
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
         <Upload className="h-10 w-10" />
         <p className="text-sm text-center">
-          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
         </p>
       </div>
     </div>
@@ -88,22 +99,27 @@ const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]
 
 const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: files => files[0] && onDrop(files[0]),
+    onDrop: (files) => files[0] && onDrop(files[0]),
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
     },
-    multiple: false
+    multiple: false,
   });
   return (
-    <div {...getRootProps()} className={cn(
-      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-      isDragActive && "border-primary bg-accent"
-    )}>
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
         <Upload className="h-10 w-10" />
         <p className="text-sm text-center">
-          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
         </p>
       </div>
     </div>
@@ -112,22 +128,27 @@ const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 
 const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: files => files[0] && onDrop(files[0]),
+    onDrop: (files) => files[0] && onDrop(files[0]),
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
     },
-    multiple: false
+    multiple: false,
   });
   return (
-    <div {...getRootProps()} className={cn(
-      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-      isDragActive && "border-primary bg-accent"
-    )}>
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
         <Upload className="h-10 w-10" />
         <p className="text-sm text-center">
-          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
         </p>
       </div>
     </div>
@@ -136,22 +157,27 @@ const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 
 const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: files => files[0] && onDrop(files[0]),
+    onDrop: (files) => files[0] && onDrop(files[0]),
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
     },
-    multiple: false
+    multiple: false,
   });
   return (
-    <div {...getRootProps()} className={cn(
-      "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
-      isDragActive && "border-primary bg-accent"
-    )}>
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
         <Upload className="h-10 w-10" />
         <p className="text-sm text-center">
-          {isDragActive ? "Drop your image here..." : "Drag & drop an image here, or click to select"}
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
         </p>
       </div>
     </div>
@@ -164,15 +190,18 @@ export default function ContentSection() {
   const [mainTab, setMainTab] = useState("global");
   const [activeTab, setActiveTab] = useState("hero");
   const [showCropper, setShowCropper] = useState(false);
-  const [cropImageUrl, setCropImageUrl] = useState('');
+  const [cropImageUrl, setCropImageUrl] = useState("");
   const [pendingChanges, setPendingChanges] = useState<PendingChanges>({
     siteContent: {},
     principles: {},
     aboutCards: {},
     carouselItems: {},
   });
-  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null);
-  const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(null);
+  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(
+    null,
+  );
+  const [pendingAboutCards, setPendingAboutCards] =
+    useState<AboutCardsData | null>(null);
 
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
@@ -186,7 +215,13 @@ export default function ContentSection() {
     queryKey: ["/api/about-cards-old"], //Use old endpoint for individual cards.
   });
 
-  const { data: aboutCardsData = {sectionTitle: "", sectionDescription: "", cards: []} } = useQuery<AboutCardsData>({
+  const {
+    data: aboutCardsData = {
+      sectionTitle: "",
+      sectionDescription: "",
+      cards: [],
+    },
+  } = useQuery<AboutCardsData>({
     queryKey: ["/api/about-cards"],
   });
 
@@ -199,7 +234,6 @@ export default function ContentSection() {
       setPendingAboutCards(aboutCardsData);
     }
   }, [aboutCardsData]);
-
 
   const handleFileUpload = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -214,21 +248,29 @@ export default function ContentSection() {
   };
 
   const updateSiteContent = useMutation({
-    mutationFn: async ({ key, value, file }: { key: string; value: string; file?: File }) => {
+    mutationFn: async ({
+      key,
+      value,
+      file,
+    }: {
+      key: string;
+      value: string;
+      file?: File;
+    }) => {
       const formData = new FormData();
       if (file) {
-        formData.append('file', file);
+        formData.append("file", file);
       }
-      formData.append('value', value);
+      formData.append("value", value);
 
       const res = await fetch(`/api/site-content/${key}`, {
         method: "PUT",
         body: file ? formData : JSON.stringify({ value }),
-        headers: file ? undefined : { 'Content-Type': 'application/json' },
+        headers: file ? undefined : { "Content-Type": "application/json" },
       });
       if (!res.ok) throw new Error("Failed to update content");
       return res.json();
-    }
+    },
   });
 
   const updatePrinciple = useMutation({
@@ -240,7 +282,7 @@ export default function ContentSection() {
       });
       if (!res.ok) throw new Error("Failed to update principle");
       return res.json();
-    }
+    },
   });
 
   const updateAboutCard = useMutation({
@@ -252,7 +294,7 @@ export default function ContentSection() {
       });
       if (!res.ok) throw new Error("Failed to update about card");
       return res.json();
-    }
+    },
   });
 
   const updateAboutCards = useMutation({
@@ -280,7 +322,7 @@ export default function ContentSection() {
       });
       if (!res.ok) throw new Error("Failed to update carousel item");
       return res.json();
-    }
+    },
   });
 
   const saveAllChanges = async () => {
@@ -290,7 +332,7 @@ export default function ContentSection() {
       }
 
       for (const [id, changes] of Object.entries(pendingChanges.principles)) {
-        const principle = principles.find(p => p.id === parseInt(id));
+        const principle = principles.find((p) => p.id === parseInt(id));
         if (principle) {
           await updatePrinciple.mutateAsync({ ...principle, ...changes });
         }
@@ -300,15 +342,17 @@ export default function ContentSection() {
         await updateAboutCards.mutateAsync(pendingAboutCards);
       } else {
         for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
-          const card = aboutCards.find(c => c.id === parseInt(id));
+          const card = aboutCards.find((c) => c.id === parseInt(id));
           if (card) {
             await updateAboutCard.mutateAsync({ ...card, ...changes });
           }
         }
       }
 
-      for (const [id, changes] of Object.entries(pendingChanges.carouselItems)) {
-        const item = carouselItems.find(i => i.id === parseInt(id));
+      for (const [id, changes] of Object.entries(
+        pendingChanges.carouselItems,
+      )) {
+        const item = carouselItems.find((i) => i.id === parseInt(id));
         if (item) {
           await updateCarouselItem.mutateAsync({ ...item, ...changes });
         }
@@ -336,15 +380,15 @@ export default function ContentSection() {
   const handleHeroImageUpload = async (file: File) => {
     try {
       const imageUrl = await handleFileUpload(file);
-      setPendingChanges(prev => ({
+      setPendingChanges((prev) => ({
         ...prev,
         siteContent: {
           ...prev.siteContent,
-          hero_background: imageUrl
-        }
+          hero_background: imageUrl,
+        },
       }));
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       toast({
         title: "Upload failed",
         description: "Please try again",
@@ -353,22 +397,25 @@ export default function ContentSection() {
     }
   };
 
-  const handlePrincipleImageUpload = async (files: File[], principleId: number) => {
+  const handlePrincipleImageUpload = async (
+    files: File[],
+    principleId: number,
+  ) => {
     if (!files.length) return;
     try {
       const imageUrl = await handleFileUpload(files[0]);
-      setPendingChanges(prev => ({
+      setPendingChanges((prev) => ({
         ...prev,
         principles: {
           ...prev.principles,
           [principleId]: {
             ...prev.principles[principleId],
-            imageUrl
-          }
-        }
+            imageUrl,
+          },
+        },
       }));
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       toast({
         title: "Upload failed",
         description: "Please try again",
@@ -380,18 +427,18 @@ export default function ContentSection() {
   const handleAboutCardImageUpload = async (file: File, cardId: number) => {
     try {
       const imageUrl = await handleFileUpload(file);
-      setPendingChanges(prev => ({
+      setPendingChanges((prev) => ({
         ...prev,
         aboutCards: {
           ...prev.aboutCards,
           [cardId]: {
             ...prev.aboutCards[cardId],
-            imageUrl
-          }
-        }
+            imageUrl,
+          },
+        },
       }));
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       toast({
         title: "Upload failed",
         description: "Please try again",
@@ -403,18 +450,18 @@ export default function ContentSection() {
   const handleCarouselImageUpload = async (file: File, itemId: number) => {
     try {
       const imageUrl = await handleFileUpload(file);
-      setPendingChanges(prev => ({
+      setPendingChanges((prev) => ({
         ...prev,
         carouselItems: {
           ...prev.carouselItems,
           [itemId]: {
             ...prev.carouselItems[itemId],
-            imageUrl
-          }
-        }
+            imageUrl,
+          },
+        },
       }));
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
       toast({
         title: "Upload failed",
         description: "Please try again",
@@ -424,36 +471,48 @@ export default function ContentSection() {
   };
 
   const getContentValue = (key: string) => {
-    return pendingChanges.siteContent[key] ?? siteContent.find(item => item.key === key)?.value ?? '';
+    return (
+      pendingChanges.siteContent[key] ??
+      siteContent.find((item) => item.key === key)?.value ??
+      ""
+    );
   };
 
   const handleContentChange = (key: string, value: string) => {
-    setPendingChanges(prev => ({
+    setPendingChanges((prev) => ({
       ...prev,
       siteContent: {
         ...prev.siteContent,
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
   };
 
-  const handlePrincipleChange = (principleId: number, key: string, value: string | undefined) => {
-    setPendingChanges(prev => ({
+  const handlePrincipleChange = (
+    principleId: number,
+    key: string,
+    value: string | undefined,
+  ) => {
+    setPendingChanges((prev) => ({
       ...prev,
       principles: {
         ...prev.principles,
         [principleId]: {
           ...prev.principles[principleId],
-          [key]: value
-        }
-      }
+          [key]: value,
+        },
+      },
     }));
   };
 
-  const handleAboutCardChange = (index: number, field: string, value: string) => {
+  const handleAboutCardChange = (
+    index: number,
+    field: string,
+    value: string,
+  ) => {
     if (!pendingAboutCards) return;
 
-    setPendingAboutCards(prev => {
+    setPendingAboutCards((prev) => {
       if (!prev) return prev;
       const newCards = [...prev.cards];
       newCards[index] = {
@@ -467,16 +526,17 @@ export default function ContentSection() {
     });
   };
 
-  const hasPendingChanges = Object.keys(pendingChanges.siteContent).length > 0 ||
+  const hasPendingChanges =
+    Object.keys(pendingChanges.siteContent).length > 0 ||
     Object.keys(pendingChanges.principles).length > 0 ||
     Object.keys(pendingChanges.aboutCards).length > 0 ||
-    Object.keys(pendingChanges.carouselItems).length > 0 || pendingAboutCards !== null;
+    Object.keys(pendingChanges.carouselItems).length > 0 ||
+    pendingAboutCards !== null;
 
   return (
     <>
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-6">
         <TabsList className="w-full justify-start mb-4 border-b">
-          <TabsTrigger value="global">Global Content</TabsTrigger>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="principles">Principles</TabsTrigger>
           <TabsTrigger value="about">About</TabsTrigger>
@@ -484,7 +544,7 @@ export default function ContentSection() {
           <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="goats">Goats</TabsTrigger>
           <TabsTrigger value="market">Market</TabsTrigger>
-</TabsList>
+        </TabsList>
 
         <TabsContent value="global">
           <div className="space-y-6">
@@ -493,7 +553,9 @@ export default function ContentSection() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Global Settings</Label>
-                    <p className="text-sm text-muted-foreground">Configure global website settings here.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Configure global website settings here.
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -502,7 +564,9 @@ export default function ContentSection() {
         </TabsContent>
 
         <TabsContent value="home">
-          <div className="space-y-6"> {/* Added closing div */}
+          <div className="space-y-6">
+            {" "}
+            {/* Added closing div */}
             {/* Home content here */}
           </div>
         </TabsContent>
@@ -512,31 +576,35 @@ export default function ContentSection() {
             <div className="space-y-2">
               <Label>Hero Title</Label>
               <Input
-                value={getContentValue('hero_text')}
-                onChange={(e) => handleContentChange('hero_text', e.target.value)}
+                value={getContentValue("hero_text")}
+                onChange={(e) =>
+                  handleContentChange("hero_text", e.target.value)
+                }
               />
             </div>
             <div className="space-y-2">
               <Label>Hero Subtitle</Label>
               <Textarea
-                value={getContentValue('hero_subtext')}
-                onChange={(e) => handleContentChange('hero_subtext', e.target.value)}
+                value={getContentValue("hero_subtext")}
+                onChange={(e) =>
+                  handleContentChange("hero_subtext", e.target.value)
+                }
               />
             </div>
             <div className="space-y-2">
               <Label>Hero Background Image</Label>
               <HeroDropzone onDrop={handleHeroImageUpload} />
-              {getContentValue('hero_background') && (
+              {getContentValue("hero_background") && (
                 <div className="relative group">
                   <img
-                    src={getContentValue('hero_background')}
+                    src={getContentValue("hero_background")}
                     alt="Hero background"
                     className="mt-4 rounded-lg max-h-48 object-cover"
                   />
                   <div
                     className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                     onClick={() => {
-                      setCropImageUrl(getContentValue('hero_background'));
+                      setCropImageUrl(getContentValue("hero_background"));
                       setShowCropper(true);
                     }}
                   />
@@ -552,33 +620,55 @@ export default function ContentSection() {
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input
-                  value={pendingChanges.principles[principle.id]?.title ?? principle.title}
-                  onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                  value={
+                    pendingChanges.principles[principle.id]?.title ??
+                    principle.title
+                  }
+                  onChange={(e) =>
+                    handlePrincipleChange(principle.id, "title", e.target.value)
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label>Description</Label>
                 <Textarea
-                  value={pendingChanges.principles[principle.id]?.description ?? principle.description}
-                  onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                  value={
+                    pendingChanges.principles[principle.id]?.description ??
+                    principle.description
+                  }
+                  onChange={(e) =>
+                    handlePrincipleChange(
+                      principle.id,
+                      "description",
+                      e.target.value,
+                    )
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label>Image</Label>
                 <PrincipleDropzone
-                  onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
+                  onDrop={(files) =>
+                    handlePrincipleImageUpload(files, principle.id)
+                  }
                 />
-                {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
+                {(pendingChanges.principles[principle.id]?.imageUrl ??
+                  principle.imageUrl) && (
                   <div className="relative group">
                     <img
-                      src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                      src={
+                        pendingChanges.principles[principle.id]?.imageUrl ??
+                        principle.imageUrl
+                      }
                       alt="Principle Image Preview"
                       className="mt-4 rounded-lg max-h-48 object-cover"
                     />
                     <div
                       className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                       onClick={() => {
-                        const imageUrl = pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl;
+                        const imageUrl =
+                          pendingChanges.principles[principle.id]?.imageUrl ??
+                          principle.imageUrl;
                         if (imageUrl) {
                           setCropImageUrl(imageUrl);
                           setPendingPrincipleId(principle.id);
@@ -632,10 +722,14 @@ export default function ContentSection() {
                       <Input
                         value={pendingAboutCards.sectionTitle}
                         onChange={(e) =>
-                          setPendingAboutCards(prev => prev ? {
-                            ...prev,
-                            sectionTitle: e.target.value,
-                          } : prev)
+                          setPendingAboutCards((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  sectionTitle: e.target.value,
+                                }
+                              : prev,
+                          )
                         }
                       />
                     </div>
@@ -644,10 +738,14 @@ export default function ContentSection() {
                       <Textarea
                         value={pendingAboutCards.sectionDescription}
                         onChange={(e) =>
-                          setPendingAboutCards(prev => prev ? {
-                            ...prev,
-                            sectionDescription: e.target.value,
-                          } : prev)
+                          setPendingAboutCards((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  sectionDescription: e.target.value,
+                                }
+                              : prev,
+                          )
                         }
                       />
                     </div>
@@ -658,27 +756,43 @@ export default function ContentSection() {
               {pendingAboutCards.cards.map((card, index) => (
                 <Card key={index}>
                   <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Card {index + 1}</h3>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Card {index + 1}
+                    </h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Title</Label>
                         <Input
                           value={card.title}
-                          onChange={(e) => handleAboutCardChange(index, 'title', e.target.value)}
+                          onChange={(e) =>
+                            handleAboutCardChange(
+                              index,
+                              "title",
+                              e.target.value,
+                            )
+                          }
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Description</Label>
                         <Textarea
                           value={card.description}
-                          onChange={(e) => handleAboutCardChange(index, 'description', e.target.value)}
+                          onChange={(e) =>
+                            handleAboutCardChange(
+                              index,
+                              "description",
+                              e.target.value,
+                            )
+                          }
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Icon</Label>
                         <Input
                           value={card.icon}
-                          onChange={(e) => handleAboutCardChange(index, 'icon', e.target.value)}
+                          onChange={(e) =>
+                            handleAboutCardChange(index, "icon", e.target.value)
+                          }
                           placeholder="Icon name (e.g., 'user' for a user icon)"
                         />
                       </div>
@@ -696,7 +810,9 @@ export default function ContentSection() {
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input
-                  value={pendingChanges.carouselItems[item.id]?.title ?? item.title}
+                  value={
+                    pendingChanges.carouselItems[item.id]?.title ?? item.title
+                  }
                   onChange={(e) =>
                     setPendingChanges((prev) => ({
                       ...prev,
@@ -714,7 +830,10 @@ export default function ContentSection() {
               <div className="space-y-2">
                 <Label>Description</Label>
                 <Textarea
-                  value={pendingChanges.carouselItems[item.id]?.description ?? item.description}
+                  value={
+                    pendingChanges.carouselItems[item.id]?.description ??
+                    item.description
+                  }
                   onChange={(e) =>
                     setPendingChanges((prev) => ({
                       ...prev,
@@ -731,10 +850,16 @@ export default function ContentSection() {
               </div>
               <div className="space-y-2">
                 <Label>Image</Label>
-                <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
-                {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
+                <CarouselItemDropzone
+                  onDrop={(file) => handleCarouselImageUpload(file, item.id)}
+                />
+                {(pendingChanges.carouselItems[item.id]?.imageUrl ??
+                  item.imageUrl) && (
                   <img
-                    src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
+                    src={
+                      pendingChanges.carouselItems[item.id]?.imageUrl ??
+                      item.imageUrl
+                    }
                     alt={item.title}
                     className="mt-2 rounded-lg max-h-48 object-cover"
                   />
@@ -744,7 +869,9 @@ export default function ContentSection() {
           ))}
         </TabsContent>
 
-        <TabsContent value="goats" className="space-y-6"> {/* Added closing div */}
+        <TabsContent value="goats" className="space-y-6">
+          {" "}
+          {/* Added closing div */}
           <div className="space-y-6">
             <Card>
               <CardContent className="pt-6">
@@ -752,15 +879,25 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Breeding Program Description</Label>
                     <Textarea
-                      value={getContentValue('goats_breeding_program')}
-                      onChange={(e) => handleContentChange('goats_breeding_program', e.target.value)}
+                      value={getContentValue("goats_breeding_program")}
+                      onChange={(e) =>
+                        handleContentChange(
+                          "goats_breeding_program",
+                          e.target.value,
+                        )
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Herd Management Information</Label>
                     <Textarea
-                      value={getContentValue('goats_herd_management')}
-                      onChange={(e) => handleContentChange('goats_herd_management', e.target.value)}
+                      value={getContentValue("goats_herd_management")}
+                      onChange={(e) =>
+                        handleContentChange(
+                          "goats_herd_management",
+                          e.target.value,
+                        )
+                      }
                     />
                   </div>
                 </div>
@@ -769,7 +906,9 @@ export default function ContentSection() {
           </div>
         </TabsContent>
 
-        <TabsContent value="market" className="space-y-6"> {/* Added closing div */}
+        <TabsContent value="market" className="space-y-6">
+          {" "}
+          {/* Added closing div */}
           <div className="space-y-6">
             <Card>
               <CardContent className="pt-6">
@@ -777,15 +916,22 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Market Overview</Label>
                     <Textarea
-                      value={getContentValue('market_overview')}
-                      onChange={(e) => handleContentChange('market_overview', e.target.value)}
+                      value={getContentValue("market_overview")}
+                      onChange={(e) =>
+                        handleContentChange("market_overview", e.target.value)
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Products Overview</Label>
                     <Textarea
-                      value={getContentValue('market_products_overview')}
-                      onChange={(e) => handleContentChange('market_products_overview', e.target.value)}
+                      value={getContentValue("market_products_overview")}
+                      onChange={(e) =>
+                        handleContentChange(
+                          "market_products_overview",
+                          e.target.value,
+                        )
+                      }
                     />
                   </div>
                 </div>
@@ -800,15 +946,19 @@ export default function ContentSection() {
                 <div className="space-y-2">
                   <Label>Welcome Message</Label>
                   <Input
-                    value={getContentValue('home_welcome')}
-                    onChange={(e) => handleContentChange('home_welcome', e.target.value)}
+                    value={getContentValue("home_welcome")}
+                    onChange={(e) =>
+                      handleContentChange("home_welcome", e.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Mission Statement</Label>
                   <Textarea
-                    value={getContentValue('home_mission')}
-                    onChange={(e) => handleContentChange('home_mission', e.target.value)}
+                    value={getContentValue("home_mission")}
+                    onChange={(e) =>
+                      handleContentChange("home_mission", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -832,9 +982,13 @@ export default function ContentSection() {
           aspect={16 / 9}
           onCropComplete={(croppedImageUrl) => {
             if (pendingPrincipleId !== null) {
-              handlePrincipleChange(pendingPrincipleId, 'imageUrl', croppedImageUrl);
+              handlePrincipleChange(
+                pendingPrincipleId,
+                "imageUrl",
+                croppedImageUrl,
+              );
             } else {
-              handleContentChange('hero_background', croppedImageUrl);
+              handleContentChange("hero_background", croppedImageUrl);
             }
             setShowCropper(false);
             setCropImageUrl("");
