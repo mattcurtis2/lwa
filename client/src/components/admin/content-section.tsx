@@ -187,7 +187,7 @@ const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [mainTab, setMainTab] = useState("home");
+  const [mainTab, setMainTab] = useState("hero");
   const [activeTab, setActiveTab] = useState("hero");
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
