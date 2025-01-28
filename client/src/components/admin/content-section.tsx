@@ -769,12 +769,17 @@ export default function ContentSection() {
     </>
   );
 }
-            <TabsTrigger value="hero">Hero Section</TabsTrigger>
-            <TabsTrigger value="principles">Principles</TabsTrigger>
-            <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="carousel">Carousel</TabsTrigger>
-            <TabsTrigger value="welcome">Welcome</TabsTrigger>
-          </TabsList>
+
+export default function ContentSection() {
+  return (
+    <div className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="hero">Hero Section</TabsTrigger>
+        <TabsTrigger value="principles">Principles</TabsTrigger>
+        <TabsTrigger value="about">About</TabsTrigger>
+        <TabsTrigger value="carousel">Carousel</TabsTrigger>
+        <TabsTrigger value="welcome">Welcome</TabsTrigger>
+      </TabsList>
 
           <TabsContent value="hero" className="space-y-6">
             <div className="space-y-4">
