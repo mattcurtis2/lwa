@@ -15,7 +15,7 @@ export function GoatHero() {
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url(${
-            getContentValue("goats_hero_image") ||
+            getContentValue("goat_hero_image") ||
             "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"
           })`,
         }}
