@@ -1052,8 +1052,13 @@ export default function ContentSection() {
                         <img
                           src={getContentValue("goat_hero_image")}
                           alt="Goats Hero Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("goat_hero_image"));
+                            setShowCropper(true);
+                          }}
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                       </div>
                     )}
                   </div>
@@ -1189,6 +1194,8 @@ export default function ContentSection() {
                 "imageUrl",
                 croppedImageUrl,
               );
+            } else if (activeTab === "goats") {
+              handleContentChange("goat_hero_image", croppedImageUrl);
             } else {
               handleContentChange("hero_background", croppedImageUrl);
             }
