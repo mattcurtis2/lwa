@@ -767,11 +767,26 @@ export default function ContentSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Image URL</Label>
-                  <Input
-                    value={getContentValue("animals_image")}
-                    onChange={(e) => handleContentChange("animals_image", e.target.value)}
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("animals_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("animals_image")}
                   />
+                  {getContentValue("animals_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("animals_image")}
+                        alt="Animals Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -811,11 +826,26 @@ export default function ContentSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Image URL</Label>
-                  <Input
-                    value={getContentValue("bakery_image")}
-                    onChange={(e) => handleContentChange("bakery_image", e.target.value)}
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("bakery_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("bakery_image")}
                   />
+                  {getContentValue("bakery_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("bakery_image")}
+                        alt="Goats Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -855,11 +885,26 @@ export default function ContentSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Image URL</Label>
-                  <Input
-                    value={getContentValue("products_image")}
-                    onChange={(e) => handleContentChange("products_image", e.target.value)}
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("products_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("products_image")}
                   />
+                  {getContentValue("products_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("products_image")}
+                        alt="Products Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
