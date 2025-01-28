@@ -735,7 +735,6 @@ export default function ContentSection() {
           ))}
         </TabsContent>
       </Tabs>
-      </TabsContent>
       <TabsContent value="home">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
