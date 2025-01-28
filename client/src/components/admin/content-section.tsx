@@ -371,7 +371,6 @@ export default function ContentSection() {
       queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
       queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/market"] }); //Invalidate market queries
 
       toast({ title: "All changes saved successfully" });
     } catch (error) {
@@ -1023,17 +1022,15 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Hero Title</Label>
                     <Input
-                      value={getContentValue("goat_hero_title") || "Nigerian Dwarf Goats"}
-                      onChange={(e) => handleContentChange("goat_hero_title", e.target.value)}
-                      placeholder="Enter hero title"
+                      value={getContentValue("goats_hero_title")}
+                      onChange={(e) => handleContentChange("goats_hero_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Hero Subtitle</Label>
                     <Textarea
-                      value={getContentValue("goat_hero_subtitle") || "Discover our beloved Nigerian Dwarf goats, known for their friendly personalities and excellent milk production."}
-                      onChange={(e) => handleContentChange("goat_hero_subtitle", e.target.value)}
-                      placeholder="Enter hero subtitle"
+                      value={getContentValue("goats_hero_subtitle")}
+                      onChange={(e) => handleContentChange("goats_hero_subtitle", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -1042,65 +1039,48 @@ export default function ContentSection() {
                       onDrop={(files) => {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("goat_hero_image", imageUrl);
+                            handleContentChange("goats_hero_image", imageUrl);
                           });
                         }
                       }}
-                      currentImageUrl={getContentValue("goat_hero_image")}
+                      currentImageUrl={getContentValue("goats_hero_image")}
                     />
-                    {getContentValue("goat_hero_image") && (
+                    {getContentValue("goats_hero_image") && (
                       <div className="relative group">
                         <img
-                          src={getContentValue("goat_hero_image")}
+                          src={getContentValue("goats_hero_image")}
                           alt="Goats Hero Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
-                          onClick={() => {
-                            setCropImageUrl(getContentValue("goat_hero_image"));
-                            setShowCropper(true);
-                          }}
+                          className="mt-4 rounded-lg max-h-48 object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                       </div>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label>Page Description</Label>
-                    <Textarea
-                      value={getContentValue("goat_description") || "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production."}
-                      onChange={(e) => handleContentChange("goat_description", e.target.value)}
-                      placeholder="Enter page description"
+                    <Label>Page Title</Label>
+                    <Input
+                      value={getContentValue("goats_page_title")}
+                      onChange={(e) => handleContentChange("goats_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Breeding Program Description</Label>
+                    <Label>Page Description</Label>
                     <Textarea
-                      value={getContentValue("goat_breeding_program") || "Our breeding program focuses on producing high-quality Nigerian Dwarf goats with excellent conformation, temperament, and milk production capabilities."}
-                      onChange={(e) => handleContentChange("goat_breeding_program", e.target.value)}
-                      placeholder="Enter breeding program description"
+                      value={getContentValue("goats_page_description")}
+                      onChange={(e) => handleContentChange("goats_page_description", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Breeding Program Information</Label>
+                    <Textarea
+                      value={getContentValue("goats_breeding_program")}
+                      onChange={(e) => handleContentChange("goats_breeding_program", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Available Goats Message</Label>
                     <Textarea
-                      value={getContentValue("goat_available_message") || "Check out our currently available Nigerian Dwarf goats. Contact us for more information about any of our available animals."}
-                      onChange={(e) => handleContentChange("goat_available_message", e.target.value)}
-                      placeholder="Enter available goats message"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Male Goats (Bucks) Description</Label>
-                    <Textarea
-                      value={getContentValue("goat_bucks_description") || "Meet our Nigerian Dwarf bucks. These handsome boys are carefully selected for their excellent genetics and conformation."}
-                      onChange={(e) => handleContentChange("goat_bucks_description", e.target.value)}
-                      placeholder="Enter bucks description"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Female Goats (Does) Description</Label>
-                    <Textarea
-                      value={getContentValue("goat_does_description") || "Meet our Nigerian Dwarf does. These lovely ladies are the foundation of our breeding program, known for their excellent milk production."}
-                      onChange={(e) => handleContentChange("goat_does_description", e.target.value)}
-                      placeholder="Enter does description"
+                      value={getContentValue("goats_available_message")}
+                      onChange={(e) => handleContentChange("goats_available_message", e.target.value)}
                     />
                   </div>
                 </div>
@@ -1111,142 +1091,35 @@ export default function ContentSection() {
 
         <TabsContent value="market" className="space-y-6">
           <div className="space-y-6">
-            {/* Main Market Content */}
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Market Page Title</Label>
                     <Input
-                      value={getContentValue("market_page_title") || "Market"}
+                      value={getContentValue("market_page_title")}
                       onChange={(e) => handleContentChange("market_page_title", e.target.value)}
-                      placeholder="Enter market page title"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Market Description</Label>
                     <Textarea
-                      value={getContentValue("market_description") || "Welcome to our market! Discover our fresh, locally sourced products."}
+                      value={getContentValue("market_description")}
                       onChange={(e) => handleContentChange("market_description", e.target.value)}
-                      placeholder="Enter market description"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Market Hero Image */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold mb-4">Hero Image</h3>
-                  <div className="space-y-2">
-                    <Label>Background Image</Label>
-                    <PrincipleDropzone
-                      onDrop={(files) => {
-                        if (files[0]) {
-                          handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("market_hero_image", imageUrl);
-                          });
-                        }
-                      }}
-                      currentImageUrl={getContentValue("market_hero_image")}
-                    />
-                    {getContentValue("market_hero_image") && (
-                      <div className="relative group">
-                        <img
-                          src={getContentValue("market_hero_image")}
-                          alt="Market Hero Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Market Sections */}
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Sections</h3>
-
-                {/* Bakery Section */}
-                <div className="space-y-4 mb-8">
-                  <h4 className="font-medium">Bakery Section</h4>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={getContentValue("market_bakery_title") || "Bakery"}
-                      onChange={(e) => handleContentChange("market_bakery_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>Products Overview</Label>
                     <Textarea
-                      value={getContentValue("market_bakery_description") || "Discover our freshly baked goods and treats."}
-                      onChange={(e) => handleContentChange("market_bakery_description", e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Market Garden Section */}
-                <div className="space-y-4 mb-8">
-                  <h4 className="font-medium">Market Garden Section</h4>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={getContentValue("market_garden_title") || "Market Garden"}
-                      onChange={(e) => handleContentChange("market_garden_title", e.target.value)}
+                      value={getContentValue("market_products_overview")}
+                      onChange={(e) => handleContentChange("market_products_overview", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>Market Schedule Information</Label>
                     <Textarea
-                      value={getContentValue("market_garden_description") || "Fresh vegetables and fruits from our garden."}
-                      onChange={(e) => handleContentChange("market_garden_description", e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Animal Products Section */}
-                <div className="space-y-4">
-                  <h4 className="font-medium">Animal Products Section</h4>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={getContentValue("market_animal_title") || "Animal Products"}
-                      onChange={(e) => handleContentChange("market_animal_title", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={getContentValue("market_animal_description") || "Farm-fresh eggs and other animal products."}
-                      onChange={(e) => handleContentChange("market_animal_description", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Market Schedule Section */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold mb-4">Schedule Section</h3>
-                  <div className="space-y-2">
-                    <Label>Schedule Title</Label>
-                    <Input
-                      value={getContentValue("market_schedule_title") || "Market Times & Locations"}
-                      onChange={(e) => handleContentChange("market_schedule_title", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Schedule Description</Label>
-                    <Textarea
-                      value={getContentValue("market_schedule_description") || "Find us at these locations throughout the week."}
-                      onChange={(e) => handleContentChange("market_schedule_description", e.target.value)}
+                      value={getContentValue("market_schedule_info")}
+                      onChange={(e) => handleContentChange("market_schedule_info", e.target.value)}
                     />
                   </div>
                 </div>
@@ -1302,8 +1175,6 @@ export default function ContentSection() {
                 "imageUrl",
                 croppedImageUrl,
               );
-            } else if (activeTab === "goats") {
-              handleContentChange("goat_hero_image", croppedImageUrl);
             } else {
               handleContentChange("hero_background", croppedImageUrl);
             }
