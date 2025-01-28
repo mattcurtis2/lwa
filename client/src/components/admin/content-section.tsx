@@ -735,9 +735,40 @@ export default function ContentSection() {
           ))}
         </TabsContent>
       </Tabs>
-      <TabsContent value="home">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
+
+      {hasPendingChanges && (
+        <div className="fixed bottom-6 right-6">
+          <Button onClick={saveAllChanges} className="shadow-lg" size="lg">
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      )}
+
+      {showCropper && cropImageUrl && (
+        <ImageCrop
+          imageUrl={cropImageUrl}
+          aspect={16 / 9}
+          onCropComplete={(croppedImageUrl) => {
+            if (pendingPrincipleId !== null) {
+              handlePrincipleChange(pendingPrincipleId, 'imageUrl', croppedImageUrl);
+            } else {
+              handleContentChange('hero_background', croppedImageUrl);
+            }
+            setShowCropper(false);
+            setCropImageUrl("");
+            setPendingPrincipleId(null);
+          }}
+          onCancel={() => {
+            setShowCropper(false);
+            setCropImageUrl("");
+            setPendingPrincipleId(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
             <TabsTrigger value="hero">Hero Section</TabsTrigger>
             <TabsTrigger value="principles">Principles</TabsTrigger>
             <TabsTrigger value="about">About</TabsTrigger>
@@ -1030,30 +1061,6 @@ export default function ContentSection() {
         </div>
       </TabsContent>
 
-      <TabsContent value="market">
-        <div className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Market Overview</Label>
-                  <Textarea
-                    value={getContentValue('market_overview')}
-                    onChange={(e) => handleContentChange('market_overview', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Products Overview</Label>
-                  <Textarea
-                    value={getContentValue('market_products_overview')}
-                    onChange={(e) => handleContentChange('market_products_overview', e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
       <TabsContent value="market">
         <div className="space-y-6">
           <Card>
