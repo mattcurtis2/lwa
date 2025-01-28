@@ -34,31 +34,31 @@ export default function Admin() {
         <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
-            <TabsList className=" flex-col gap-2">
+            <TabsList className="flex-col gap-1 bg-transparent p-0">
               <TabsTrigger
                 value="dogs"
-                className="w-full justify-start data-[state=active]:bg-muted"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
               >
                 <DogIcon className="h-4 w-4 mr-2" />
                 Dogs
               </TabsTrigger>
               <TabsTrigger
                 value="goats"
-                className="w-full justify-start data-[state=active]:bg-muted"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
               >
                 <Cat className="h-4 w-4 mr-2" />
                 Goats
               </TabsTrigger>
               <TabsTrigger
                 value="market"
-                className="w-full justify-start data-[state=active]:bg-muted"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
               >
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Market
               </TabsTrigger>
               <TabsTrigger
                 value="content"
-                className="w-full justify-start data-[state=active]:bg-muted"
+                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
               >
                 <LayoutDashboard className="h-4 w-4 mr-2" />
                 Content
