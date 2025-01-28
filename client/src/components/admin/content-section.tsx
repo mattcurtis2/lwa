@@ -1054,6 +1054,30 @@ export default function ContentSection() {
           </Card>
         </div>
       </TabsContent>
+      <TabsContent value="market">
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Market Overview</Label>
+                  <Textarea
+                    value={getContentValue('market_overview')}
+                    onChange={(e) => handleContentChange('market_overview', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Products Overview</Label>
+                  <Textarea
+                    value={getContentValue('market_products_overview')}
+                    onChange={(e) => handleContentChange('market_products_overview', e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
     </Tabs>
 
     {hasPendingChanges && (
