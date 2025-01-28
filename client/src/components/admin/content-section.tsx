@@ -1019,14 +1019,50 @@ export default function ContentSection() {
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Goats Page Title</Label>
+                    <Label>Hero Title</Label>
+                    <Input
+                      value={getContentValue("goats_hero_title")}
+                      onChange={(e) => handleContentChange("goats_hero_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Subtitle</Label>
+                    <Textarea
+                      value={getContentValue("goats_hero_subtitle")}
+                      onChange={(e) => handleContentChange("goats_hero_subtitle", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("goats_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("goats_hero_image")}
+                    />
+                    {getContentValue("goats_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("goats_hero_image")}
+                          alt="Goats Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Page Title</Label>
                     <Input
                       value={getContentValue("goats_page_title")}
                       onChange={(e) => handleContentChange("goats_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Goats Page Description</Label>
+                    <Label>Page Description</Label>
                     <Textarea
                       value={getContentValue("goats_page_description")}
                       onChange={(e) => handleContentChange("goats_page_description", e.target.value)}
