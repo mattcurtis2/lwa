@@ -982,28 +982,28 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Dogs Page Title</Label>
                     <Input
-                      value={getContentValue("dogs_page_title")}
+                      value={pendingContent["dogs_page_title"] ?? getContentValue("dogs_page_title")}
                       onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Dogs Page Description</Label>
                     <Textarea
-                      value={getContentValue("dogs_page_description")}
+                      value={pendingContent["dogs_page_description"] ?? getContentValue("dogs_page_description")}
                       onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Breeding Program Description</Label>
                     <Textarea
-                      value={getContentValue("dogs_breeding_program")}
+                      value={pendingContent["dogs_breeding_program"] ?? getContentValue("dogs_breeding_program")}
                       onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Available Dogs Message</Label>
                     <Textarea
-                      value={getContentValue("dogs_available_message")}
+                      value={pendingContent["dogs_available_message"] ?? getContentValue("dogs_available_message")}
                       onChange={(e) => handleContentChange("dogs_available_message", e.target.value)}
                     />
                   </div>
@@ -1021,28 +1021,28 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Goats Page Title</Label>
                     <Input
-                      value={getContentValue("goats_page_title")}
+                      value={pendingContent["goats_page_title"] ?? getContentValue("goats_page_title")}
                       onChange={(e) => handleContentChange("goats_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Goats Page Description</Label>
                     <Textarea
-                      value={getContentValue("goats_page_description")}
+                      value={pendingContent["goats_page_description"] ?? getContentValue("goats_page_description")}
                       onChange={(e) => handleContentChange("goats_page_description", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Breeding Program Information</Label>
                     <Textarea
-                      value={getContentValue("goats_breeding_program")}
+                      value={pendingContent["goats_breeding_program"] ?? getContentValue("goats_breeding_program")}
                       onChange={(e) => handleContentChange("goats_breeding_program", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Available Goats Message</Label>
                     <Textarea
-                      value={getContentValue("goats_available_message")}
+                      value={pendingContent["goats_available_message"] ?? getContentValue("goats_available_message")}
                       onChange={(e) => handleContentChange("goats_available_message", e.target.value)}
                     />
                   </div>
@@ -1060,28 +1060,28 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Market Page Title</Label>
                     <Input
-                      value={getContentValue("market_page_title")}
+                      value={pendingContent["market_page_title"] ?? getContentValue("market_page_title")}
                       onChange={(e) => handleContentChange("market_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Market Description</Label>
                     <Textarea
-                      value={getContentValue("market_description")}
+                      value={pendingContent["market_description"] ?? getContentValue("market_description")}
                       onChange={(e) => handleContentChange("market_description", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Products Overview</Label>
                     <Textarea
-                      value={getContentValue("market_products_overview")}
+                      value={pendingContent["market_products_overview"] ?? getContentValue("market_products_overview")}
                       onChange={(e) => handleContentChange("market_products_overview", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Market Schedule Information</Label>
                     <Textarea
-                      value={getContentValue("market_schedule_info")}
+                      value={pendingContent["market_schedule_info"] ?? getContentValue("market_schedule_info")}
                       onChange={(e) => handleContentChange("market_schedule_info", e.target.value)}
                     />
                   </div>
