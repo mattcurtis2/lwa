@@ -477,11 +477,14 @@ export default function ContentSection() {
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-6">
         <TabsList className="w-full justify-start mb-4 border-b">
           <TabsTrigger value="global">Global Content</TabsTrigger>
-          <TabsTrigger value="home">Home</TabsTrigger>
+          <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="principles">Principles</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel</TabsTrigger>
           <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="goats">Goats</TabsTrigger>
           <TabsTrigger value="market">Market</TabsTrigger>
-        </TabsList>
+</TabsList>
 
         <TabsContent value="global">
           <div className="space-y-6">
