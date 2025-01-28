@@ -371,6 +371,7 @@ export default function ContentSection() {
       queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
       queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/market"] }); //Invalidate market queries
 
       toast({ title: "All changes saved successfully" });
     } catch (error) {
@@ -1138,7 +1139,7 @@ export default function ContentSection() {
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-4">Sections</h3>
-                
+
                 {/* Bakery Section */}
                 <div className="space-y-4 mb-8">
                   <h4 className="font-medium">Bakery Section</h4>
@@ -1216,6 +1217,37 @@ export default function ContentSection() {
                       value={getContentValue("market_schedule_description") || "Find us at these locations throughout the week."}
                       onChange={(e) => handleContentChange("market_schedule_description", e.target.value)}
                     />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Hero Image */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold mb-4">Hero Image</h3>
+                  <div className="space-y-2">
+                    <Label>Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("market_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("market_hero_image")}
+                    />
+                    {getContentValue("market_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("market_hero_image")}
+                          alt="Market Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
