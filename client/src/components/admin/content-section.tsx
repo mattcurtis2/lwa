@@ -77,7 +77,7 @@ const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]
 };
 
 const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: files => files[0] && onDrop(files[0]),
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif']
@@ -101,7 +101,7 @@ const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 };
 
 const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: files => files[0] && onDrop(files[0]),
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif']
@@ -125,7 +125,7 @@ const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
 };
 
 const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: files => files[0] && onDrop(files[0]),
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif']
@@ -160,7 +160,7 @@ export default function ContentSection() {
     aboutCards: {},
     carouselItems: {},
   });
-  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null); 
+  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null);
 
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
@@ -411,313 +411,304 @@ export default function ContentSection() {
     Object.keys(pendingChanges.aboutCards).length > 0 ||
     Object.keys(pendingChanges.carouselItems).length > 0;
 
-
   return (
     <>
-      <Card>
-        <CardContent className="pt-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="hero">Hero Section</TabsTrigger>
-              <TabsTrigger value="principles">Principles</TabsTrigger>
-              <TabsTrigger value="about">About</TabsTrigger>
-              <TabsTrigger value="carousel">Carousel</TabsTrigger>
-            </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="hero">Hero Section</TabsTrigger>
+          <TabsTrigger value="principles">Principles</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="hero" className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Hero Title</Label>
-                  <Input
-                    value={getContentValue('hero_text')}
-                    onChange={(e) => setPendingChanges(prev => ({
-                      ...prev,
-                      siteContent: {
-                        ...prev.siteContent,
-                        hero_text: e.target.value
-                      }
-                    }))}
+        <TabsContent value="hero" className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Hero Title</Label>
+              <Input
+                value={getContentValue('hero_text')}
+                onChange={(e) => handleContentChange('hero_text', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hero Subtitle</Label>
+              <Textarea
+                value={getContentValue('hero_subtext')}
+                onChange={(e) => handleContentChange('hero_subtext', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hero Background Image</Label>
+              <HeroDropzone onDrop={handleHeroImageUpload} />
+              {getContentValue('hero_background') && (
+                <div className="relative group">
+                  <img
+                    src={getContentValue('hero_background')}
+                    alt="Hero background"
+                    className="mt-4 rounded-lg max-h-48 object-cover"
+                  />
+                  <div
+                    className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                    onClick={() => {
+                      setCropImageUrl(getContentValue('hero_background'));
+                      setShowCropper(true);
+                    }}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Hero Subtitle</Label>
-                  <Textarea
-                    value={getContentValue('hero_subtext')}
-                    onChange={(e) => setPendingChanges(prev => ({
-                      ...prev,
-                      siteContent: {
-                        ...prev.siteContent,
-                        hero_subtext: e.target.value
-                      }
-                    }))}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Hero Background Image</Label>
-                  <HeroDropzone onDrop={handleHeroImageUpload} />
-                  {getContentValue('hero_background') && (
-                    <div className="relative group">
-                      <img
-                        src={getContentValue('hero_background')}
-                        alt="Hero background"
-                        className="mt-4 rounded-lg max-h-48 object-cover"
-                      />
-                      <div
-                        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
-                        onClick={() => {
-                          setCropImageUrl(getContentValue('hero_background'));
-                          setShowCropper(true);
-                        }}
-                      />
-                    </div>
-                  )}
-                  {showCropper && cropImageUrl && (
-                    <ImageCrop
-                      imageUrl={cropImageUrl}
-                      aspect={undefined}
-                      onCropComplete={(croppedImageUrl) => {
-                        if (pendingPrincipleId !== null) {
-                          handlePrincipleChange(pendingPrincipleId, 'imageUrl', croppedImageUrl);
-                        } else {
-                          handleContentChange('hero_background', croppedImageUrl);
-                        }
-                        setShowCropper(false);
-                        setPendingPrincipleId(null);
-                      }}
-                      onCancel={() => {
-                        setShowCropper(false);
-                        setCropImageUrl("");
-                        setPendingPrincipleId(null);
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="principles" className="space-y-6">
-              {principles.map((principle) => (
-                <div key={principle.id} className="space-y-4 border rounded-lg p-4">
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={pendingChanges.principles[principle.id]?.title ?? principle.title}
-                      onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={pendingChanges.principles[principle.id]?.description ?? principle.description}
-                      onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                    <PrincipleDropzone 
-                      onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
-                    />
-                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
-                      <div className="relative group">
-                        <img
-                          src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
-                          alt="Principle Image Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover"
-                        />
-                        <div
-                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
-                          onClick={() => {
-                            const imageUrl = pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl;
-                            if (imageUrl) {
-                              setCropImageUrl(imageUrl);
-                              setPendingPrincipleId(principle.id);
-                              setShowCropper(true);
-                            }
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {showCropper && cropImageUrl && (
-                <ImageCrop
-                  imageUrl={cropImageUrl}
-                  aspect={16/9}
-                  onCropComplete={(croppedImageUrl) => {
-                    if (pendingPrincipleId !== null) {
-                      setPendingChanges(prev => ({
-                        ...prev,
-                        principles: {
-                          ...prev.principles,
-                          [pendingPrincipleId]: {
-                            ...prev.principles[pendingPrincipleId],
-                            imageUrl: croppedImageUrl
-                          }
-                        }
-                      }));
-                    }
-                    setShowCropper(false);
-                    setCropImageUrl("");
-                    setPendingPrincipleId(null);
-                  }}
-                  onCancel={() => {
-                    setShowCropper(false);
-                    setCropImageUrl("");
-                    setPendingPrincipleId(null);
-                  }}
-                />
               )}
-            </TabsContent>
+            </div>
+          </div>
+        </TabsContent>
 
-            <TabsContent value="about" className="space-y-6">
-              {aboutCards.map((card) => (
-                <div key={card.id} className="space-y-4 border rounded-lg p-4">
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.title ?? card.title}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        aboutCards: {
-                          ...prev.aboutCards,
-                          [card.id]: {
-                            ...prev.aboutCards[card.id],
-                            title: e.target.value
-                          }
+        <TabsContent value="principles" className="space-y-6">
+          {principles.map((principle) => (
+            <div key={principle.id} className="space-y-4 border rounded-lg p-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={pendingChanges.principles[principle.id]?.title ?? principle.title}
+                  onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={pendingChanges.principles[principle.id]?.description ?? principle.description}
+                  onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <PrincipleDropzone
+                  onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
+                />
+                {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
+                  <div className="relative group">
+                    <img
+                      src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                      alt="Principle Image Preview"
+                      className="mt-4 rounded-lg max-h-48 object-cover"
+                    />
+                    <div
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                      onClick={() => {
+                        const imageUrl = pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl;
+                        if (imageUrl) {
+                          setCropImageUrl(imageUrl);
+                          setPendingPrincipleId(principle.id);
+                          setShowCropper(true);
                         }
-                      }))}
+                      }}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={pendingChanges.aboutCards[card.id]?.description ?? card.description}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        aboutCards: {
-                          ...prev.aboutCards,
-                          [card.id]: {
-                            ...prev.aboutCards[card.id],
-                            description: e.target.value
-                          }
-                        }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Button Text</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.buttonText ?? card.buttonText}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        aboutCards: {
-                          ...prev.aboutCards,
-                          [card.id]: {
-                            ...prev.aboutCards[card.id],
-                            buttonText: e.target.value
-                          }
-                        }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Redirect URL</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.redirectUrl ?? card.redirectUrl}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        aboutCards: {
-                          ...prev.aboutCards,
-                          [card.id]: {
-                            ...prev.aboutCards[card.id],
-                            redirectUrl: e.target.value
-                          }
-                        }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                    <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
-                    {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
-                      <img
-                        src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
-                        alt={card.title}
-                        className="mt-2 rounded-lg max-h-48 object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
+                )}
+              </div>
+            </div>
+          ))}
+          {showCropper && cropImageUrl && (
+            <ImageCrop
+              imageUrl={cropImageUrl}
+              aspect={16 / 9}
+              onCropComplete={(croppedImageUrl) => {
+                if (pendingPrincipleId !== null) {
+                  setPendingChanges((prev) => ({
+                    ...prev,
+                    principles: {
+                      ...prev.principles,
+                      [pendingPrincipleId]: {
+                        ...prev.principles[pendingPrincipleId],
+                        imageUrl: croppedImageUrl,
+                      },
+                    },
+                  }));
+                }
+                setShowCropper(false);
+                setCropImageUrl("");
+                setPendingPrincipleId(null);
+              }}
+              onCancel={() => {
+                setShowCropper(false);
+                setCropImageUrl("");
+                setPendingPrincipleId(null);
+              }}
+            />
+          )}
+        </TabsContent>
 
-            <TabsContent value="carousel" className="space-y-6">
-              {carouselItems.map((item) => (
-                <div key={item.id} className="space-y-4 border rounded-lg p-4">
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={pendingChanges.carouselItems[item.id]?.title ?? item.title}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        carouselItems: {
-                          ...prev.carouselItems,
-                          [item.id]: {
-                            ...prev.carouselItems[item.id],
-                            title: e.target.value
-                          }
-                        }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={pendingChanges.carouselItems[item.id]?.description ?? item.description}
-                      onChange={(e) => setPendingChanges(prev => ({
-                        ...prev,
-                        carouselItems: {
-                          ...prev.carouselItems,
-                          [item.id]: {
-                            ...prev.carouselItems[item.id],
-                            description: e.target.value
-                          }
-                        }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                    <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
-                    {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
-                      <img
-                        src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
-                        alt={item.title}
-                        className="mt-2 rounded-lg max-h-48 object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        <TabsContent value="about" className="space-y-6">
+          {aboutCards.map((card) => (
+            <div key={card.id} className="space-y-4 border rounded-lg p-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={pendingChanges.aboutCards[card.id]?.title ?? card.title}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      aboutCards: {
+                        ...prev.aboutCards,
+                        [card.id]: {
+                          ...prev.aboutCards[card.id],
+                          title: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={pendingChanges.aboutCards[card.id]?.description ?? card.description}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      aboutCards: {
+                        ...prev.aboutCards,
+                        [card.id]: {
+                          ...prev.aboutCards[card.id],
+                          description: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Button Text</Label>
+                <Input
+                  value={pendingChanges.aboutCards[card.id]?.buttonText ?? card.buttonText}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      aboutCards: {
+                        ...prev.aboutCards,
+                        [card.id]: {
+                          ...prev.aboutCards[card.id],
+                          buttonText: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Redirect URL</Label>
+                <Input
+                  value={pendingChanges.aboutCards[card.id]?.redirectUrl ?? card.redirectUrl}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      aboutCards: {
+                        ...prev.aboutCards,
+                        [card.id]: {
+                          ...prev.aboutCards[card.id],
+                          redirectUrl: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
+                {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
+                  <img
+                    src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
+                    alt={card.title}
+                    className="mt-2 rounded-lg max-h-48 object-cover"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="carousel" className="space-y-6">
+          {carouselItems.map((item) => (
+            <div key={item.id} className="space-y-4 border rounded-lg p-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={pendingChanges.carouselItems[item.id]?.title ?? item.title}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      carouselItems: {
+                        ...prev.carouselItems,
+                        [item.id]: {
+                          ...prev.carouselItems[item.id],
+                          title: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={pendingChanges.carouselItems[item.id]?.description ?? item.description}
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      carouselItems: {
+                        ...prev.carouselItems,
+                        [item.id]: {
+                          ...prev.carouselItems[item.id],
+                          description: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
+                {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
+                  <img
+                    src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
+                    alt={item.title}
+                    className="mt-2 rounded-lg max-h-48 object-cover"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </TabsContent>
+      </Tabs>
 
       {hasPendingChanges && (
         <div className="fixed bottom-6 right-6">
-          <Button
-            onClick={saveAllChanges}
-            className="shadow-lg"
-            size="lg"
-          >
+          <Button onClick={saveAllChanges} className="shadow-lg" size="lg">
             <Save className="w-4 h-4 mr-2" />
             Save Changes
           </Button>
         </div>
+      )}
+
+      {showCropper && cropImageUrl && (
+        <ImageCrop
+          imageUrl={cropImageUrl}
+          aspect={16 / 9}
+          onCropComplete={(croppedImageUrl) => {
+            if (pendingPrincipleId !== null) {
+              handlePrincipleChange(pendingPrincipleId, 'imageUrl', croppedImageUrl);
+            } else {
+              handleContentChange('hero_background', croppedImageUrl);
+            }
+            setShowCropper(false);
+            setCropImageUrl("");
+            setPendingPrincipleId(null);
+          }}
+          onCancel={() => {
+            setShowCropper(false);
+            setCropImageUrl("");
+            setPendingPrincipleId(null);
+          }}
+        />
       )}
     </>
   );
