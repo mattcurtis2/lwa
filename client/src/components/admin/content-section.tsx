@@ -995,7 +995,8 @@ export default function ContentSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Breeding Program Description</Label<Textarea
+                    <Label>Breeding Program Description</Label>
+                    <Textarea
                       value={getContentValue("dogs_breeding_program")}
                       onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
                     />
