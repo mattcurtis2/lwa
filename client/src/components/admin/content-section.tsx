@@ -1120,6 +1120,7 @@ export default function ContentSection() {
                     <Input
                       value={getContentValue("market_page_title") || "Market"}
                       onChange={(e) => handleContentChange("market_page_title", e.target.value)}
+                      onBlur={() => handleSave()}
                       placeholder="Enter market page title"
                     />
                   </div>
@@ -1128,6 +1129,7 @@ export default function ContentSection() {
                     <Textarea
                       value={getContentValue("market_description") || "Welcome to our market! Discover our fresh, locally sourced products."}
                       onChange={(e) => handleContentChange("market_description", e.target.value)}
+                      onBlur={() => handleSave()}
                       placeholder="Enter market description"
                     />
                   </div>
@@ -1138,6 +1140,8 @@ export default function ContentSection() {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
                             handleContentChange("market_hero_image", imageUrl);
+                            handleSave();
+                          });
                           });
                         }
                       }}
