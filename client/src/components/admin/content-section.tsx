@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -50,6 +50,16 @@ type PendingChanges = {
   principles: Record<number, Partial<Principle>>;
   aboutCards: Record<number, Partial<AboutCard>>;
   carouselItems: Record<number, Partial<CarouselItem>>;
+};
+
+type AboutCardsData = {
+  sectionTitle: string;
+  sectionDescription: string;
+  cards: {
+    title: string;
+    description: string;
+    icon: string;
+  }[];
 };
 
 const PrincipleDropzone = ({ onDrop, currentImageUrl }: { onDrop: (files: File[]) => void; currentImageUrl?: string }) => {
@@ -162,6 +172,7 @@ export default function ContentSection() {
     carouselItems: {},
   });
   const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null);
+  const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(null);
 
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
@@ -172,12 +183,23 @@ export default function ContentSection() {
   });
 
   const { data: aboutCards = [] } = useQuery<AboutCard[]>({
+    queryKey: ["/api/about-cards-old"], //Use old endpoint for individual cards.
+  });
+
+  const { data: aboutCardsData = {sectionTitle: "", sectionDescription: "", cards: []} } = useQuery<AboutCardsData>({
     queryKey: ["/api/about-cards"],
   });
 
   const { data: carouselItems = [] } = useQuery<CarouselItem[]>({
     queryKey: ["/api/carousel"],
   });
+
+  useEffect(() => {
+    if (aboutCardsData) {
+      setPendingAboutCards(aboutCardsData);
+    }
+  }, [aboutCardsData]);
+
 
   const handleFileUpload = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -233,6 +255,22 @@ export default function ContentSection() {
     }
   });
 
+  const updateAboutCards = useMutation({
+    mutationFn: async (data: AboutCardsData) => {
+      const res = await fetch("/api/about-cards", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update about cards");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
+      toast({ title: "About cards updated successfully" });
+    },
+  });
+
   const updateCarouselItem = useMutation({
     mutationFn: async (item: CarouselItem) => {
       const res = await fetch(`/api/carousel/${item.id}`, {
@@ -258,10 +296,14 @@ export default function ContentSection() {
         }
       }
 
-      for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
-        const card = aboutCards.find(c => c.id === parseInt(id));
-        if (card) {
-          await updateAboutCard.mutateAsync({ ...card, ...changes });
+      if (pendingAboutCards) {
+        await updateAboutCards.mutateAsync(pendingAboutCards);
+      } else {
+        for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
+          const card = aboutCards.find(c => c.id === parseInt(id));
+          if (card) {
+            await updateAboutCard.mutateAsync({ ...card, ...changes });
+          }
         }
       }
 
@@ -278,6 +320,7 @@ export default function ContentSection() {
         aboutCards: {},
         carouselItems: {},
       });
+      setPendingAboutCards(null);
 
       queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
       queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
@@ -407,10 +450,27 @@ export default function ContentSection() {
     }));
   };
 
+  const handleAboutCardChange = (index: number, field: string, value: string) => {
+    if (!pendingAboutCards) return;
+
+    setPendingAboutCards(prev => {
+      if (!prev) return prev;
+      const newCards = [...prev.cards];
+      newCards[index] = {
+        ...newCards[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        cards: newCards,
+      };
+    });
+  };
+
   const hasPendingChanges = Object.keys(pendingChanges.siteContent).length > 0 ||
     Object.keys(pendingChanges.principles).length > 0 ||
     Object.keys(pendingChanges.aboutCards).length > 0 ||
-    Object.keys(pendingChanges.carouselItems).length > 0;
+    Object.keys(pendingChanges.carouselItems).length > 0 || pendingAboutCards !== null;
 
   return (
     <>
@@ -547,93 +607,72 @@ export default function ContentSection() {
             </TabsContent>
 
             <TabsContent value="about" className="space-y-6">
-              {aboutCards.map((card) => (
-                <div key={card.id} className="space-y-4 border rounded-lg p-4">
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.title ?? card.title}
-                      onChange={(e) =>
-                        setPendingChanges((prev) => ({
-                          ...prev,
-                          aboutCards: {
-                            ...prev.aboutCards,
-                            [card.id]: {
-                              ...prev.aboutCards[card.id],
-                              title: e.target.value,
-                            },
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={pendingChanges.aboutCards[card.id]?.description ?? card.description}
-                      onChange={(e) =>
-                        setPendingChanges((prev) => ({
-                          ...prev,
-                          aboutCards: {
-                            ...prev.aboutCards,
-                            [card.id]: {
-                              ...prev.aboutCards[card.id],
-                              description: e.target.value,
-                            },
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Button Text</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.buttonText ?? card.buttonText}
-                      onChange={(e) =>
-                        setPendingChanges((prev) => ({
-                          ...prev,
-                          aboutCards: {
-                            ...prev.aboutCards,
-                            [card.id]: {
-                              ...prev.aboutCards[card.id],
-                              buttonText: e.target.value,
-                            },
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Redirect URL</Label>
-                    <Input
-                      value={pendingChanges.aboutCards[card.id]?.redirectUrl ?? card.redirectUrl}
-                      onChange={(e) =>
-                        setPendingChanges((prev) => ({
-                          ...prev,
-                          aboutCards: {
-                            ...prev.aboutCards,
-                            [card.id]: {
-                              ...prev.aboutCards[card.id],
-                              redirectUrl: e.target.value,
-                            },
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                    <AboutCardDropzone onDrop={(file) => handleAboutCardImageUpload(file, card.id)} />
-                    {(pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl) && (
-                      <img
-                        src={pendingChanges.aboutCards[card.id]?.imageUrl ?? card.imageUrl}
-                        alt={card.title}
-                        className="mt-2 rounded-lg max-h-48 object-cover"
-                      />
-                    )}
-                  </div>
+              {pendingAboutCards && (
+                <div className="space-y-8">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Section Title</Label>
+                          <Input
+                            value={pendingAboutCards.sectionTitle}
+                            onChange={(e) =>
+                              setPendingAboutCards(prev => prev ? {
+                                ...prev,
+                                sectionTitle: e.target.value,
+                              } : prev)
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Section Description</Label>
+                          <Textarea
+                            value={pendingAboutCards.sectionDescription}
+                            onChange={(e) =>
+                              setPendingAboutCards(prev => prev ? {
+                                ...prev,
+                                sectionDescription: e.target.value,
+                              } : prev)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {pendingAboutCards.cards.map((card, index) => (
+                    <Card key={index}>
+                      <CardContent className="pt-6">
+                        <h3 className="text-lg font-semibold mb-4">Card {index + 1}</h3>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Title</Label>
+                            <Input
+                              value={card.title}
+                              onChange={(e) => handleAboutCardChange(index, 'title', e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Textarea
+                              value={card.description}
+                              onChange={(e) => handleAboutCardChange(index, 'description', e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Icon</Label>
+                            <Input
+                              value={card.icon}
+                              onChange={(e) => handleAboutCardChange(index, 'icon', e.target.value)}
+                              placeholder="Icon name (e.g., 'user' for a user icon)"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="carousel" className="space-y-6">

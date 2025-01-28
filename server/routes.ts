@@ -791,7 +791,7 @@ export function registerRoutes(app: Express): Server {
         }
 
         if (documents && documents.length > 0) {
-                    await tx.insert(dogDocuments).values(
+          await tx.insert(dogDocuments).values(
             documents.map((doc: any) => ({
               dogId: dogId,
               url: doc.url,
@@ -1525,6 +1525,76 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error updating page field:", error);
       res.status(500).json({ message: "Failed to update page field" });
+    }
+  });
+
+  // Add these routes before the httpServer creation
+  app.get("/api/about-cards", async (_req, res) => {
+    try {
+      // Fetch all about card related content
+      const cardKeys = [
+        'about_card_1_title', 'about_card_1_description', 'about_card_1_icon',
+        'about_card_2_title', 'about_card_2_description', 'about_card_2_icon',
+        'about_card_3_title', 'about_card_3_description', 'about_card_3_icon',
+        'about_section_title', 'about_section_description'
+      ];
+
+      const content = await db.query.siteContent.findMany({
+        where: (siteContent, { or, eq }) =>
+          or(...cardKeys.map(key => eq(siteContent.key, key)))
+      });
+
+      // Transform into a more usable structure
+      const aboutCards = {
+        sectionTitle: content.find(c => c.key === 'about_section_title')?.value || 'What We Offer',
+        sectionDescription: content.find(c => c.key === 'about_section_description')?.value || 'Discover our range of services',
+        cards: [1, 2, 3].map(i => ({
+          title: content.find(c => c.key === `about_card_${i}_title`)?.value || '',
+          description: content.find(c => c.key === `about_card_${i}_description`)?.value || '',
+          icon: content.find(c => c.key === `about_card_${i}_icon`)?.value || ''
+        }))
+      };
+
+      res.json(aboutCards);
+    } catch (error) {
+      console.error("Error fetching about cards:", error);
+      res.status(500).json({ message: "Failed to fetch about cards" });
+    }
+  });
+
+  app.put("/api/about-cards", async (req, res) => {
+    try {
+      const { sectionTitle, sectionDescription, cards } = req.body;
+
+      const updates = [
+        { key: 'about_section_title', value: sectionTitle, type: 'text' },
+        { key: 'about_section_description', value: sectionDescription, type: 'text' },
+        ...cards.flatMap((card: any, index: number) => [
+          { key: `about_card_${index + 1}_title`, value: card.title, type: 'text' },
+          { key: `about_card_${index + 1}_description`, value: card.description, type: 'text' },
+          { key: `about_card_${index + 1}_icon`, value: card.icon, type: 'text' }
+        ])
+      ];
+
+      // Update or insert each content item
+      for (const update of updates) {
+        const existing = await db.query.siteContent.findFirst({
+          where: eq(siteContent.key, update.key)
+        });
+
+        if (existing) {
+          await db.update(siteContent)
+            .set({ value: update.value, updatedAt: new Date() })
+            .where(eq(siteContent.key, update.key));
+        } else {
+          await db.insert(siteContent).values(update);
+        }
+      }
+
+      res.json({ message: "About cards updated successfully" });
+    } catch (error) {
+      console.error("Error updating about cards:", error);
+      res.status(500).json({ message: "Failed to update about cards" });
     }
   });
 
