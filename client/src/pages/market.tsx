@@ -34,7 +34,7 @@ export default function Market() {
         <div className="relative h-[500px]">
           {aboutSection.imageUrl && (
             <img
-              src={aboutSection.imageUrl}
+              src={getContentValue("market_hero_image") || aboutSection.imageUrl}
               alt={aboutSection.title}
               className="absolute inset-0 w-full h-full object-cover"
             />
