@@ -982,28 +982,28 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Dogs Page Title</Label>
                     <Input
-                      value={pendingContent["dogs_page_title"] ?? getContentValue("dogs_page_title")}
+                      value={getContentValue("dogs_page_title")}
                       onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Dogs Page Description</Label>
                     <Textarea
-                      value={pendingContent["dogs_page_description"] ?? getContentValue("dogs_page_description")}
+                      value={getContentValue("dogs_page_description")}
                       onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Breeding Program Description</Label>
                     <Textarea
-                      value={pendingContent["dogs_breeding_program"] ?? getContentValue("dogs_breeding_program")}
+                      value={getContentValue("dogs_breeding_program")}
                       onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Available Dogs Message</Label>
                     <Textarea
-                      value={pendingContent["dogs_available_message"] ?? getContentValue("dogs_available_message")}
+                      value={getContentValue("dogs_available_message")}
                       onChange={(e) => handleContentChange("dogs_available_message", e.target.value)}
                     />
                   </div>
