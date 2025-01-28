@@ -480,35 +480,6 @@ export default function ContentSection() {
     );
   };
 
-  const handleSave = async () => {
-    try {
-      const updates = Object.entries(pendingChanges.siteContent)
-        .filter(([_, value]) => value !== undefined && value !== null)
-        .map(([key, value]) => ({
-          key,
-          value: value || "",
-        }));
-
-      if (updates.length > 0) {
-        await updateSiteContent.mutateAsync(updates);
-        setPendingChanges((prev) => ({
-          ...prev,
-          siteContent: {},
-        }));
-        toast({
-          title: "Success",
-          description: "Changes saved successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save changes",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleContentChange = (key: string, value: string) => {
     setPendingChanges((prev) => ({
       ...prev,
@@ -1149,7 +1120,6 @@ export default function ContentSection() {
                     <Input
                       value={getContentValue("market_page_title") || "Market"}
                       onChange={(e) => handleContentChange("market_page_title", e.target.value)}
-                      onBlur={() => handleSave()}
                       placeholder="Enter market page title"
                     />
                   </div>
@@ -1158,7 +1128,6 @@ export default function ContentSection() {
                     <Textarea
                       value={getContentValue("market_description") || "Welcome to our market! Discover our fresh, locally sourced products."}
                       onChange={(e) => handleContentChange("market_description", e.target.value)}
-                      onBlur={() => handleSave()}
                       placeholder="Enter market description"
                     />
                   </div>
@@ -1169,7 +1138,6 @@ export default function ContentSection() {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
                             handleContentChange("market_hero_image", imageUrl);
-                            handleSave();
                           });
                         }
                       }}
