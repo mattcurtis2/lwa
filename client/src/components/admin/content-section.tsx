@@ -197,11 +197,12 @@ export default function ContentSection() {
     aboutCards: {},
     carouselItems: {},
   });
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(null);
   const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(
     null,
   );
-  const [pendingAboutCards, setPendingAboutCards] =
-    useState<AboutCardsData | null>(null);
+
 
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
