@@ -712,96 +712,158 @@ export default function ContentSection() {
         </TabsContent>
 
         <TabsContent value="about" className="space-y-6">
-          {pendingAboutCards && (
-            <div className="space-y-8">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Section Title</Label>
-                      <Input
-                        value={pendingAboutCards.sectionTitle}
-                        onChange={(e) =>
-                          setPendingAboutCards((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  sectionTitle: e.target.value,
-                                }
-                              : prev,
-                          )
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Section Description</Label>
-                      <Textarea
-                        value={pendingAboutCards.sectionDescription}
-                        onChange={(e) =>
-                          setPendingAboutCards((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  sectionDescription: e.target.value,
-                                }
-                              : prev,
-                          )
-                        }
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>About Title</Label>
+                  <Input
+                    value={getContentValue("about_title")}
+                    onChange={(e) => handleContentChange("about_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Mission Text</Label>
+                  <Textarea
+                    value={getContentValue("mission_text")}
+                    onChange={(e) => handleContentChange("mission_text", e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-              {pendingAboutCards.cards.map((card, index) => (
-                <Card key={index}>
-                  <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold mb-4">
-                      Card {index + 1}
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Title</Label>
-                        <Input
-                          value={card.title}
-                          onChange={(e) =>
-                            handleAboutCardChange(
-                              index,
-                              "title",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
-                          value={card.description}
-                          onChange={(e) =>
-                            handleAboutCardChange(
-                              index,
-                              "description",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Icon</Label>
-                        <Input
-                          value={card.icon}
-                          onChange={(e) =>
-                            handleAboutCardChange(index, "icon", e.target.value)
-                          }
-                          placeholder="Icon name (e.g., 'user' for a user icon)"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          {/* Animals Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Animals Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("animals_title")}
+                    onChange={(e) => handleContentChange("animals_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("animals_text")}
+                    onChange={(e) => handleContentChange("animals_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("animals_button_text")}
+                    onChange={(e) => handleContentChange("animals_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("animals_redirect")}
+                    onChange={(e) => handleContentChange("animals_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image URL</Label>
+                  <Input
+                    value={getContentValue("animals_image")}
+                    onChange={(e) => handleContentChange("animals_image", e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Goats Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Goats Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("bakery_title")}
+                    onChange={(e) => handleContentChange("bakery_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("bakery_text")}
+                    onChange={(e) => handleContentChange("bakery_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("bakery_button_text")}
+                    onChange={(e) => handleContentChange("bakery_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("bakery_redirect")}
+                    onChange={(e) => handleContentChange("bakery_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image URL</Label>
+                  <Input
+                    value={getContentValue("bakery_image")}
+                    onChange={(e) => handleContentChange("bakery_image", e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Market Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Market Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("products_title")}
+                    onChange={(e) => handleContentChange("products_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("products_text")}
+                    onChange={(e) => handleContentChange("products_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("products_button_text")}
+                    onChange={(e) => handleContentChange("products_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("products_redirect")}
+                    onChange={(e) => handleContentChange("products_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image URL</Label>
+                  <Input
+                    value={getContentValue("products_image")}
+                    onChange={(e) => handleContentChange("products_image", e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="carousel" className="space-y-6">
