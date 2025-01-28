@@ -1078,7 +1078,7 @@ export default function ContentSection() {
           </Card>
         </div>
       </TabsContent>
-    </Tabs>
+      </Tabs>
 
     {hasPendingChanges && (
       <div className="fixed bottom-6 right-6">
