@@ -1110,35 +1110,111 @@ export default function ContentSection() {
 
         <TabsContent value="market" className="space-y-6">
           <div className="space-y-6">
+            {/* Main Market Content */}
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Market Page Title</Label>
                     <Input
-                      value={getContentValue("market_page_title")}
+                      value={getContentValue("market_page_title") || "Market"}
                       onChange={(e) => handleContentChange("market_page_title", e.target.value)}
+                      placeholder="Enter market page title"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Market Description</Label>
                     <Textarea
-                      value={getContentValue("market_description")}
+                      value={getContentValue("market_description") || "Welcome to our market! Discover our fresh, locally sourced products."}
                       onChange={(e) => handleContentChange("market_description", e.target.value)}
+                      placeholder="Enter market description"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Sections */}
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-4">Sections</h3>
+                
+                {/* Bakery Section */}
+                <div className="space-y-4 mb-8">
+                  <h4 className="font-medium">Bakery Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_bakery_title") || "Bakery"}
+                      onChange={(e) => handleContentChange("market_bakery_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Products Overview</Label>
+                    <Label>Description</Label>
                     <Textarea
-                      value={getContentValue("market_products_overview")}
-                      onChange={(e) => handleContentChange("market_products_overview", e.target.value)}
+                      value={getContentValue("market_bakery_description") || "Discover our freshly baked goods and treats."}
+                      onChange={(e) => handleContentChange("market_bakery_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Market Garden Section */}
+                <div className="space-y-4 mb-8">
+                  <h4 className="font-medium">Market Garden Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_garden_title") || "Market Garden"}
+                      onChange={(e) => handleContentChange("market_garden_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Market Schedule Information</Label>
+                    <Label>Description</Label>
                     <Textarea
-                      value={getContentValue("market_schedule_info")}
-                      onChange={(e) => handleContentChange("market_schedule_info", e.target.value)}
+                      value={getContentValue("market_garden_description") || "Fresh vegetables and fruits from our garden."}
+                      onChange={(e) => handleContentChange("market_garden_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Animal Products Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium">Animal Products Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_animal_title") || "Animal Products"}
+                      onChange={(e) => handleContentChange("market_animal_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={getContentValue("market_animal_description") || "Farm-fresh eggs and other animal products."}
+                      onChange={(e) => handleContentChange("market_animal_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Schedule Section */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold mb-4">Schedule Section</h3>
+                  <div className="space-y-2">
+                    <Label>Schedule Title</Label>
+                    <Input
+                      value={getContentValue("market_schedule_title") || "Market Times & Locations"}
+                      onChange={(e) => handleContentChange("market_schedule_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Schedule Description</Label>
+                    <Textarea
+                      value={getContentValue("market_schedule_description") || "Find us at these locations throughout the week."}
+                      onChange={(e) => handleContentChange("market_schedule_description", e.target.value)}
                     />
                   </div>
                 </div>
