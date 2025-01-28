@@ -1142,7 +1142,6 @@ export default function ContentSection() {
                             handleContentChange("market_hero_image", imageUrl);
                             handleSave();
                           });
-                          });
                         }
                       }}
                       currentImageUrl={getContentValue("market_hero_image")}
