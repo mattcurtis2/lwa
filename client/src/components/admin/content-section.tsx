@@ -484,13 +484,19 @@ export default function ContentSection() {
         </TabsList>
 
         <TabsContent value="global">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="hero">Hero Section</TabsTrigger>
-              <TabsTrigger value="principles">Principles</TabsTrigger>
-              <TabsTrigger value="about">About</TabsTrigger>
-              <TabsTrigger value="carousel">Carousel</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Global Settings</Label>
+                    <p className="text-sm text-muted-foreground">Configure global website settings here.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
             <TabsContent value="hero" className="space-y-6">
               <div className="space-y-4">
@@ -732,28 +738,248 @@ export default function ContentSection() {
         </TabsContent>
 
         <TabsContent value="home">
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="hero">Hero Section</TabsTrigger>
+              <TabsTrigger value="principles">Principles</TabsTrigger>
+              <TabsTrigger value="about">About</TabsTrigger>
+              <TabsTrigger value="carousel">Carousel</TabsTrigger>
+              <TabsTrigger value="welcome">Welcome</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="hero" className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Hero Title</Label>
+                  <Input
+                    value={getContentValue('hero_text')}
+                    onChange={(e) => handleContentChange('hero_text', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Subtitle</Label>
+                  <Textarea
+                    value={getContentValue('hero_subtext')}
+                    onChange={(e) => handleContentChange('hero_subtext', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Background Image</Label>
+                  <HeroDropzone onDrop={handleHeroImageUpload} />
+                  {getContentValue('hero_background') && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue('hero_background')}
+                        alt="Hero background"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                      <div
+                        className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue('hero_background'));
+                          setShowCropper(true);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="principles" className="space-y-6">
+              {principles.map((principle) => (
+                <div key={principle.id} className="space-y-4 border rounded-lg p-4">
                   <div className="space-y-2">
-                    <Label>Welcome Message</Label>
+                    <Label>Title</Label>
                     <Input
-                      value={getContentValue('home_welcome')}
-                      onChange={(e) => handleContentChange('home_welcome', e.target.value)}
+                      value={pendingChanges.principles[principle.id]?.title ?? principle.title}
+                      onChange={(e) => handlePrincipleChange(principle.id, 'title', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Mission Statement</Label>
+                    <Label>Description</Label>
                     <Textarea
-                      value={getContentValue('home_mission')}
-                      onChange={(e) => handleContentChange('home_mission', e.target.value)}
+                      value={pendingChanges.principles[principle.id]?.description ?? principle.description}
+                      onChange={(e) => handlePrincipleChange(principle.id, 'description', e.target.value)}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => handlePrincipleImageUpload(files, principle.id)}
+                      currentImageUrl={principle.imageUrl}
+                    />
+                    {(pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl) && (
+                      <div className="relative group">
+                        <img
+                          src={pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl}
+                          alt="Principle Image Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
+                        />
+                        <div
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                          onClick={() => {
+                            const imageUrl = pendingChanges.principles[principle.id]?.imageUrl ?? principle.imageUrl;
+                            if (imageUrl) {
+                              setCropImageUrl(imageUrl);
+                              setPendingPrincipleId(principle.id);
+                              setShowCropper(true);
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="about" className="space-y-6">
+              {pendingAboutCards && (
+                <div className="space-y-8">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Section Title</Label>
+                          <Input
+                            value={pendingAboutCards.sectionTitle}
+                            onChange={(e) =>
+                              setPendingAboutCards(prev => prev ? {
+                                ...prev,
+                                sectionTitle: e.target.value,
+                              } : prev)
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Section Description</Label>
+                          <Textarea
+                            value={pendingAboutCards.sectionDescription}
+                            onChange={(e) =>
+                              setPendingAboutCards(prev => prev ? {
+                                ...prev,
+                                sectionDescription: e.target.value,
+                              } : prev)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {pendingAboutCards.cards.map((card, index) => (
+                    <Card key={index}>
+                      <CardContent className="pt-6">
+                        <h3 className="text-lg font-semibold mb-4">Card {index + 1}</h3>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>Title</Label>
+                            <Input
+                              value={card.title}
+                              onChange={(e) => handleAboutCardChange(index, 'title', e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Textarea
+                              value={card.description}
+                              onChange={(e) => handleAboutCardChange(index, 'description', e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Icon</Label>
+                            <Input
+                              value={card.icon}
+                              onChange={(e) => handleAboutCardChange(index, 'icon', e.target.value)}
+                              placeholder="Icon name (e.g., 'user' for a user icon)"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="carousel" className="space-y-6">
+              {carouselItems.map((item) => (
+                <div key={item.id} className="space-y-4 border rounded-lg p-4">
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={pendingChanges.carouselItems[item.id]?.title ?? item.title}
+                      onChange={(e) =>
+                        setPendingChanges((prev) => ({
+                          ...prev,
+                          carouselItems: {
+                            ...prev.carouselItems,
+                            [item.id]: {
+                              ...prev.carouselItems[item.id],
+                              title: e.target.value,
+                            },
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={pendingChanges.carouselItems[item.id]?.description ?? item.description}
+                      onChange={(e) =>
+                        setPendingChanges((prev) => ({
+                          ...prev,
+                          carouselItems: {
+                            ...prev.carouselItems,
+                            [item.id]: {
+                              ...prev.carouselItems[item.id],
+                              description: e.target.value,
+                            },
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Image</Label>
+                    <CarouselItemDropzone onDrop={(file) => handleCarouselImageUpload(file, item.id)} />
+                    {(pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl) && (
+                      <img
+                        src={pendingChanges.carouselItems[item.id]?.imageUrl ?? item.imageUrl}
+                        alt={item.title}
+                        className="mt-2 rounded-lg max-h-48 object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="welcome" className="space-y-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Welcome Message</Label>
+                      <Input
+                        value={getContentValue('home_welcome')}
+                        onChange={(e) => handleContentChange('home_welcome', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Mission Statement</Label>
+                      <Textarea
+                        value={getContentValue('home_mission')}
+                        onChange={(e) => handleContentChange('home_mission', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="dogs">
