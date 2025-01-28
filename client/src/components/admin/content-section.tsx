@@ -480,6 +480,26 @@ export default function ContentSection() {
     );
   };
 
+  const handleSave = async () => {
+    try {
+      const updates = Object.entries(pendingChanges.siteContent).map(([key, value]) => ({
+        key,
+        value,
+      }));
+      await updateSiteContent.mutateAsync(updates);
+      setPendingChanges((prev) => ({
+        ...prev,
+        siteContent: {},
+      }));
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleContentChange = (key: string, value: string) => {
     setPendingChanges((prev) => ({
       ...prev,
