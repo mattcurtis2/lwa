@@ -482,15 +482,24 @@ export default function ContentSection() {
 
   const handleSave = async () => {
     try {
-      const updates = Object.entries(pendingChanges.siteContent).map(([key, value]) => ({
-        key,
-        value,
-      }));
-      await updateSiteContent.mutateAsync(updates);
-      setPendingChanges((prev) => ({
-        ...prev,
-        siteContent: {},
-      }));
+      const updates = Object.entries(pendingChanges.siteContent)
+        .filter(([_, value]) => value !== undefined && value !== null)
+        .map(([key, value]) => ({
+          key,
+          value: value || "",
+        }));
+
+      if (updates.length > 0) {
+        await updateSiteContent.mutateAsync(updates);
+        setPendingChanges((prev) => ({
+          ...prev,
+          siteContent: {},
+        }));
+        toast({
+          title: "Success",
+          description: "Changes saved successfully",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
