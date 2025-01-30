@@ -850,16 +850,30 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
+    console.log('=== Upload Request Received ===');
+    console.log('Headers:', req.headers);
+    console.log('Files:', req.files);
+    
     try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        console.error('No files in request');
         return res.status(400).json({ message: "No files uploaded" });
       }
 
+      console.log(`Processing ${req.files.length} files`);
       const uploadedFiles = await Promise.all(req.files.map(async (file) => {
+        console.log('Processing file:', {
+          originalName: file.originalname,
+          size: file.size,
+          mimetype: file.mimetype,
+          path: file.path
+        });
+        
         const targetPath = path.join(uploadDir, file.filename);
         await fs.ensureDir(uploadDir);
 
         if (file.path !== targetPath) {
+          console.log('Copying file to:', targetPath);
           await fs.copy(file.path, targetPath);
         }
 
@@ -871,9 +885,12 @@ export function registerRoutes(app: Express): Server {
         };
       }));
 
+      console.log('Files processed successfully:', uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error('=== Upload Error ===');
+      console.error('Error details:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       return res.status(500).json({
         message: "Failed to process uploaded files",
         details: error instanceof Error ? error.message : String(error)
