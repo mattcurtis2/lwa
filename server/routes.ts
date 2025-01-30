@@ -860,8 +860,6 @@ export function registerRoutes(app: Express): Server {
         console.error('No files in request - files object is undefined');
         return res.status(400).json({ message: "No files provided in request" });
       }
-    
-    try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         console.error('No files in request');
         return res.status(400).json({ message: "No files uploaded" });
