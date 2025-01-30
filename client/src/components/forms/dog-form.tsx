@@ -161,7 +161,7 @@ export default function DogForm({
       outsideBreeder: defaultValues?.outsideBreeder ?? false,
       puppy: defaultValues?.puppy ?? isPuppy,
       available: defaultValues?.available ?? false,
-      sold: defaultValues?.sold ?? false,
+      sold: form.getValues("sold") ?? defaultValues?.sold ?? false,
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
       documents: defaultValues?.documents || []
@@ -564,7 +564,6 @@ export default function DogForm({
     try {
       const processedValues = {
         ...values,
-        sold: values.sold ?? false,
         height: values.height ? parseFloat(values.height) || null : null,
         weight: values.weight ? parseFloat(values.weight) || null : null,
         price: values.price ? parseInt(values.price.replace(/,/g, ''), 10) || null : null,
