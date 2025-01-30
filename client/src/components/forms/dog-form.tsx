@@ -561,6 +561,10 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     console.log('Form submission started with values:', values);
+    console.log('Current form state:', {
+      sold: form.getValues("sold"),
+      puppy: form.getValues("puppy")
+    });
     try {
       const processedValues = {
         ...values,
@@ -1337,22 +1341,28 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="puppy"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Puppy</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog is a puppy
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+              render={({ field }) => {
+                console.log('Puppy field current value:', field.value);
+                return (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Puppy</FormLabel>
+                      <FormDescription>
+                        Mark this if the dog is a puppy
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(value) => {
+                          console.log('Puppy switch changed to:', value);
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -1379,22 +1389,28 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="sold"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Sold</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog has been sold
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+              render={({ field }) => {
+                console.log('Sold field current value:', field.value);
+                return (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Sold</FormLabel>
+                      <FormDescription>
+                        Mark this if the dog has been sold
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(value) => {
+                          console.log('Sold switch changed to:', value);
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
