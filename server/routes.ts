@@ -508,8 +508,8 @@ export function registerRoutes(app: Express): Server {
       const schedule = await db.update(marketSchedules)
         .set({
           ...rest,
-          seasonStart: seasonStart ? new Date(seasonStart) : null,
-          seasonEnd: seasonEnd ? new Date(seasonEnd) : null,
+          seasonStart: seasonStart ? new Date(seasonStart) : undefined,
+          seasonEnd: seasonEnd ? new Date(seasonEnd) : undefined,
           updatedAt: new Date(),
         })
         .where(eq(marketSchedules.id, parseInt(req.params.id)))
