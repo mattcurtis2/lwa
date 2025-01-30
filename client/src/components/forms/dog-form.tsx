@@ -412,26 +412,10 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
-    console.log('=== Document Upload Start ===');
-    console.log(`Upload type: ${type}`);
-    console.log('File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: new Date(file.lastModified).toISOString()
-    });
-
     try {
       if (!file || !(file instanceof File)) {
         throw new Error('Invalid file object');
       }
-
-      console.log('File details:', {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: new Date(file.lastModified).toISOString()
-      });
 
       if (!file) {
         throw new Error('No file provided');
@@ -444,16 +428,13 @@ export default function DogForm({
       setIsUploadingDoc(true);
       const formData = new FormData();
       formData.append("file", file);
-      console.log('Preparing upload request for:', { fileName: file.name, documentType: type });
 
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           controller.abort();
-          console.error('Document upload timeout');
         }, 30000);
 
-        console.log('Sending upload request...');
         const res = await fetch("/api/upload", {
           method: "POST",
           body: formData,
@@ -464,28 +445,18 @@ export default function DogForm({
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error('Upload failed:', {
-            status: res.status,
-            statusText: res.statusText,
-            errorText,
-            headers: Object.fromEntries(res.headers.entries())
-          });
           throw new Error(errorText || 'Upload failed');
         }
 
         const data = await res.json();
-        console.log('Upload response received:', data);
 
         if (!data || (!Array.isArray(data) && !data.url)) {
-          console.error('Invalid response format:', data);
           throw new Error('Invalid response format from server');
         }
 
         const uploadedFile = Array.isArray(data) ? data[0] : data;
-        console.log('Processed upload response:', uploadedFile);
 
         if (!uploadedFile?.url) {
-          console.error('Missing URL in response:', uploadedFile);
           throw new Error('Missing URL in upload response');
         }
 
@@ -512,9 +483,6 @@ export default function DogForm({
           description: "Document uploaded successfully",
         });
       } catch (error) {
-        console.error('=== Document Upload Error ===');
-        console.error('Error details:', error);
-        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
         let errorMessage = "Failed to upload document";
 
         if (error instanceof Error) {
@@ -534,8 +502,6 @@ export default function DogForm({
         setIsUploadingDoc(false);
       }
     } catch (error) {
-      console.error('=== Document Upload Error ===');
-      console.error('Error details:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
@@ -560,11 +526,6 @@ export default function DogForm({
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   const onSubmitWrapper = async (values: any) => {
-    console.log('Form submission started with values:', values);
-    console.log('Current form state:', {
-      sold: form.getValues("sold"),
-      puppy: form.getValues("puppy")
-    });
     try {
       const processedValues = {
         ...values,
@@ -599,7 +560,6 @@ export default function DogForm({
       }
 
       const savedDog = await response.json();
-      console.log('Dog saved successfully:', savedDog); 
 
       toast({
         title: "Success",
@@ -614,7 +574,6 @@ export default function DogForm({
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Error saving dog:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save dog',
@@ -659,7 +618,6 @@ export default function DogForm({
           }
         }
       } catch (error) {
-        console.error('Error uploading files:', error);
         toast({
           title: "Error",
           description: "Failed to upload one or more files",
@@ -1342,28 +1300,22 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="puppy"
-              render={({ field }) => {
-                console.log('Puppy field current value:', field.value);
-                return (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Puppy</FormLabel>
-                      <FormDescription>
-                        Mark this if the dog is a puppy
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(value) => {
-                          console.log('Puppy switch changed to:', value);
-                          field.onChange(value);
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Puppy</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog is a puppy
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
 
             <FormField
@@ -1390,28 +1342,22 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="sold"
-              render={({ field }) => {
-                console.log('Sold field current value:', field.value);
-                return (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Sold</FormLabel>
-                      <FormDescription>
-                        Mark this if the dog has been sold
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(value) => {
-                          console.log('Sold switch changed to:', value);
-                          field.onChange(value);
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Sold</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog has been sold
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
 
             <FormField
