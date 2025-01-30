@@ -850,9 +850,16 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
-    console.log('=== Upload Request Received ===');
-    console.log('Headers:', req.headers);
-    console.log('Files:', req.files);
+    try {
+      console.log('=== Upload Request Received ===');
+      console.log('Headers:', req.headers);
+      console.log('Files:', req.files);
+      console.log('Request body:', req.body);
+
+      if (!req.files) {
+        console.error('No files in request - files object is undefined');
+        return res.status(400).json({ message: "No files provided in request" });
+      }
     
     try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
