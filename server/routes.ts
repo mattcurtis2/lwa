@@ -787,6 +787,7 @@ export function registerRoutes(app: Express): Server {
         await tx.delete(dogDocuments)
           .where(eq(dogDocuments.dogId, dogId));
 
+        // Update dog media
         if (media && media.length > 0) {
           await tx.insert(dogMedia).values(
             media.map((item: any, index: number) => ({
@@ -879,7 +880,7 @@ export function registerRoutes(app: Express): Server {
           mimetype: file.mimetype,
           path: file.path
         });
-        
+
         const targetPath = path.join(uploadDir, file.filename);
         await fs.ensureDir(uploadDir);
 
@@ -1336,22 +1337,10 @@ export function registerRoutes(app: Express): Server {
   // Create new goat
   app.post("/api/goats", async (req, res) => {
     try {
-      const goat = await db.insert(goats)
-        .values(req.body)
-        .returning();
-
-      const goatWithRelations = await db.query.goats.findFirst({
-        where: eq(goats.id, goat[0].id),
-        with: {
-          media: true,
-          documents: true,
-          mother: true,
-          father: true,
-          litter: true,
-        },
-      });
-
-      res.json(goatWithRelations);
+      console.log('Creating goat with data:', req.body);
+      const goat = await db.insert(goats).values(req.body).returning();
+      console.log('Created goat:', goat[0]);
+      res.json(goat[0]);
     } catch (error) {
       console.error("Error creating goat:", error);
       res.status(500).json({ message: "Failed to create goat" });
@@ -1361,27 +1350,16 @@ export function registerRoutes(app: Express): Server {
   // Update goat
   app.put("/api/goats/:id", async (req, res) => {
     try {
-      const goatId = parseInt(req.params.id);
+      console.log('Updating goat with data:', req.body);
       const goat = await db.update(goats)
         .set({
           ...req.body,
           updatedAt: new Date()
         })
-        .where(eq(goats.id, goatId))
+        .where(eq(goats.id, parseInt(req.params.id)))
         .returning();
-
-      const goatWithRelations = await db.query.goats.findFirst({
-        where: eq(goats.id, goat[0].id),
-        with: {
-          media: true,
-          documents: true,
-          mother: true,
-          father: true,
-          litter: true,
-        },
-      });
-
-      res.json(goatWithRelations);
+      console.log('Updated goat:', goat[0]);
+      res.json(goat[0]);
     } catch (error) {
       console.error("Error updating goat:", error);
       res.status(500).json({ message: "Failed to update goat" });

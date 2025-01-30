@@ -316,6 +316,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
+      console.log('Form submission started with values:', values);
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : null,
@@ -341,6 +342,9 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         const error = await response.text();
         throw new Error(error || 'Failed to save goat');
       }
+
+      const savedGoat = await response.json();
+      console.log('Goat saved successfully:', savedGoat);
 
       await queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
 
