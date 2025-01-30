@@ -432,8 +432,15 @@ export default function DogForm({
       }
 
       const data = await res.json();
+      const uploadedFiles = Array.isArray(data) ? data : [data];
+      const uploadedFile = uploadedFiles[0];
+
+      if (!uploadedFile?.url) {
+        throw new Error("Invalid upload response");
+      }
+
       const newDoc = {
-        url: data.url,
+        url: uploadedFile.url,
         type,
         name: file.name,
         mimeType: file.type,
@@ -454,7 +461,7 @@ export default function DogForm({
       console.error('Error uploading document:', error);
       toast({
         title: "Error",
-        description: "Failed to upload document",
+        description: error instanceof Error ? error.message : "Failed to upload document",
         variant: "destructive",
       });
     } finally {
