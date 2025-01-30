@@ -107,8 +107,8 @@ export default function MarketScheduleManager() {
       startTime: formData.get('startTime') as string,
       endTime: formData.get('endTime') as string,
       description: formData.get('description') as string,
-      seasonStart: formData.get('seasonStart') as string || null,
-      seasonEnd: formData.get('seasonEnd') as string || null,
+      seasonStart: formData.get('seasonStart') ? new Date(formData.get('seasonStart') as string).toISOString().split('T')[0] : null,
+      seasonEnd: formData.get('seasonEnd') ? new Date(formData.get('seasonEnd') as string).toISOString().split('T')[0] : null,
       isActive: true,
     };
 
@@ -181,7 +181,7 @@ export default function MarketScheduleManager() {
 
       {/* Edit/Create Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="sm:max-w-md">
+        <SheetContent className="sm:max-w-md overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{editingSchedule ? 'Edit Schedule' : 'Add Schedule'}</SheetTitle>
             <SheetDescription>
