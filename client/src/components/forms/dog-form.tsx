@@ -413,6 +413,16 @@ export default function DogForm({
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
     console.log('=== Document Upload Start ===');
     console.log(`Upload type: ${type}`);
+    console.log('File details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified).toISOString()
+    });
+
+    try {
+      if (!file || !(file instanceof File)) {
+        console.error('Invalid file object:', file);
 
     try {
       if (!file || !(file instanceof File)) {

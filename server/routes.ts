@@ -853,7 +853,13 @@ export function registerRoutes(app: Express): Server {
     try {
       console.log('=== Upload Request Received ===');
       console.log('Headers:', req.headers);
-      console.log('Files:', req.files);
+      console.log('Files:', req.files ? req.files.map(f => ({
+        originalName: f.originalname,
+        size: f.size,
+        mimetype: f.mimetype,
+        path: f.path
+      })) : 'No files');
+      console.log('Request body:', req.body);
       console.log('Request body:', req.body);
 
       if (!req.files) {
