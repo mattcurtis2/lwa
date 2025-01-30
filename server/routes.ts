@@ -504,10 +504,18 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/market-schedules/:id", async (req, res) => {
     try {
+      const { location, address, dayOfWeek, startTime, endTime, description, order, isActive } = req.body;
       const schedule = await db.update(marketSchedules)
         .set({
-          ...req.body,
-          updatedAt: new Date(),
+          location,
+          address,
+          dayOfWeek,
+          startTime,
+          endTime,
+          description,
+          order,
+          isActive,
+          updatedAt: new Date()
         })
         .where(eq(marketSchedules.id, parseInt(req.params.id)))
         .returning();
