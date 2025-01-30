@@ -773,12 +773,19 @@ export function registerRoutes(app: Express): Server {
           throw new Error("Dog not found");
         }
 
+        // Ensure boolean fields are properly typed
+        const processedDogData = {
+          ...dogData,
+          sold: dogData.sold === undefined ? existingDog.sold : Boolean(dogData.sold),
+          available: dogData.available === undefined ? existingDog.available : Boolean(dogData.available),
+          puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
+          outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
+          order: existingDog.order,
+          updatedAt: new Date()
+        };
+
         await tx.update(dogs)
-          .set({
-            ...dogData,
-            order: existingDog.order,
-            updatedAt: new Date()
-          })
+          .set(processedDogData)
           .where(eq(dogs.id, dogId));
 
         await tx.delete(dogMedia)
