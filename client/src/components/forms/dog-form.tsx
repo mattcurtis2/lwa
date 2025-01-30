@@ -422,10 +422,6 @@ export default function DogForm({
 
     try {
       if (!file || !(file instanceof File)) {
-        console.error('Invalid file object:', file);
-
-    try {
-      if (!file || !(file instanceof File)) {
         throw new Error('Invalid file object');
       }
 
