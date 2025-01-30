@@ -560,8 +560,12 @@ export default function DogForm({
   const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
   const onSubmitWrapper = async (values: any) => {
-    console.log('Form submission started with values:', values); 
+    console.log('Form submission started with values:', values);
     try {
+      // Ensure sold field is included
+      if (values.sold === undefined) {
+        values.sold = false;
+      }
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) || null : null,
