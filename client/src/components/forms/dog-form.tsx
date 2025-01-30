@@ -562,12 +562,9 @@ export default function DogForm({
   const onSubmitWrapper = async (values: any) => {
     console.log('Form submission started with values:', values);
     try {
-      // Ensure sold field is included
-      if (values.sold === undefined) {
-        values.sold = false;
-      }
       const processedValues = {
         ...values,
+        sold: values.sold ?? false,
         height: values.height ? parseFloat(values.height) || null : null,
         weight: values.weight ? parseFloat(values.weight) || null : null,
         price: values.price ? parseInt(values.price.replace(/,/g, ''), 10) || null : null,
