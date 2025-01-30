@@ -411,136 +411,129 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    console.log('=== Document Upload Start ===');
+    console.log(`Upload type: ${type}`);
+
     try {
       if (!file || !(file instanceof File)) {
-        console.error('Invalid file object:', file);
-        toast({
-          title: "Error",
-          description: "Invalid file selected",
-          variant: "destructive",
-        });
-        return;
+        throw new Error('Invalid file object');
       }
 
-      console.log('=== Document Upload Start ===');
-      console.log(`Upload type: ${type}`);
       console.log('File details:', {
         name: file.name,
         size: file.size,
         type: file.type,
         lastModified: new Date(file.lastModified).toISOString()
       });
-    
-    if (!file) {
-      console.error('Document upload failed: No file provided');
-      toast({
-        title: "Error",
-        description: "No file selected",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    if (file.size > 50 * 1024 * 1024) {
-      console.error('Document upload failed: File too large', { fileSize: file.size });
-      toast({
-        title: "Error",
-        description: "File size must be less than 50MB",
-        variant: "destructive",
-      });
-      return;
-    }
+      if (!file) {
+        throw new Error('No file provided');
+      }
 
-    setIsUploadingDoc(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    console.log('Preparing upload request for:', { fileName: file.name, documentType: type });
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error('File too large');
+      }
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-        console.error('Document upload timeout');
-      }, 30000);
+      setIsUploadingDoc(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      console.log('Preparing upload request for:', { fileName: file.name, documentType: type });
 
-      console.log('Sending upload request...');
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      });
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          console.error('Document upload timeout');
+        }, 30000);
 
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Upload failed:', {
-          status: res.status,
-          statusText: res.statusText,
-          errorText,
-          headers: Object.fromEntries(res.headers.entries())
+        console.log('Sending upload request...');
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
         });
-        throw new Error(errorText || 'Upload failed');
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Upload failed:', {
+            status: res.status,
+            statusText: res.statusText,
+            errorText,
+            headers: Object.fromEntries(res.headers.entries())
+          });
+          throw new Error(errorText || 'Upload failed');
+        }
+
+        const data = await res.json();
+        console.log('Upload response received:', data);
+
+        if (!data || (!Array.isArray(data) && !data.url)) {
+          console.error('Invalid response format:', data);
+          throw new Error('Invalid response format from server');
+        }
+
+        const uploadedFile = Array.isArray(data) ? data[0] : data;
+        console.log('Processed upload response:', uploadedFile);
+
+        if (!uploadedFile?.url) {
+          console.error('Missing URL in response:', uploadedFile);
+          throw new Error('Missing URL in upload response');
+        }
+
+        const newDoc = {
+          url: uploadedFile.url,
+          type,
+          name: file.name,
+          mimeType: file.type,
+          isNew: true,
+        };
+
+        if (type === 'health') {
+          setHealthDocuments(prev => [newDoc, ...prev]);
+          const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
+          form.setValue("documents", allDocs);
+        } else {
+          setPedigreeDocuments(prev => [newDoc, ...prev]);
+          const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
+          form.setValue("documents", allDocs);
+        }
+
+        toast({
+          title: "Success",
+          description: "Document uploaded successfully",
+        });
+      } catch (error) {
+        console.error('=== Document Upload Error ===');
+        console.error('Error details:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        let errorMessage = "Failed to upload document";
+
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMessage = "Upload timed out - please try again";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploadingDoc(false);
       }
-
-      const data = await res.json();
-      console.log('Upload response received:', data);
-
-      if (!data || (!Array.isArray(data) && !data.url)) {
-        console.error('Invalid response format:', data);
-        throw new Error('Invalid response format from server');
-      }
-
-      const uploadedFile = Array.isArray(data) ? data[0] : data;
-      console.log('Processed upload response:', uploadedFile);
-
-      if (!uploadedFile?.url) {
-        console.error('Missing URL in response:', uploadedFile);
-        throw new Error('Missing URL in upload response');
-      }
-
-      const newDoc = {
-        url: uploadedFile.url,
-        type,
-        name: file.name,
-        mimeType: file.type,
-        isNew: true,
-      };
-
-      if (type === 'health') {
-        setHealthDocuments(prev => [newDoc, ...prev]);
-        const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
-        form.setValue("documents", allDocs);
-      } else {
-        setPedigreeDocuments(prev => [newDoc, ...prev]);
-        const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
-        form.setValue("documents", allDocs);
-      }
-
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully",
-      });
     } catch (error) {
       console.error('=== Document Upload Error ===');
       console.error('Error details:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      let errorMessage = "Failed to upload document";
-      
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = "Upload timed out - please try again";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
       setIsUploadingDoc(false);
     }
   };
@@ -1007,8 +1000,7 @@ export default function DogForm({
           <FormField
             control={form.control}
             name="color"
-            render={({ field }) => (
-              <FormItem>
+            render={({ field }) => (<FormItem>
                 <FormLabel>Color</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="e.g., White with brown markings" />
