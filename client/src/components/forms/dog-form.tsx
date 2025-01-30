@@ -474,8 +474,12 @@ export default function DogForm({
 
       if (type === 'health') {
         setHealthDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
+        form.setValue("documents", allDocs);
       } else {
         setPedigreeDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
+        form.setValue("documents", allDocs);
       }
 
       toast({
@@ -506,9 +510,13 @@ export default function DogForm({
 
   const removeDocument = (index: number, type: 'health' | 'pedigree') => {
     if (type === 'health') {
-      setHealthDocuments(prev => prev.filter((_, i) => i !== index));
+      const newHealthDocs = healthDocuments.filter((_, i) => i !== index);
+      setHealthDocuments(newHealthDocs);
+      form.setValue("documents", [...newHealthDocs, ...pedigreeDocuments]);
     } else {
-      setPedigreeDocuments(prev => prev.filter((_, i) => i !== index));
+      const newPedigreeDocs = pedigreeDocuments.filter((_, i) => i !== index);
+      setPedigreeDocuments(newPedigreeDocs);
+      form.setValue("documents", [...healthDocuments, ...newPedigreeDocs]);
     }
   };
 
