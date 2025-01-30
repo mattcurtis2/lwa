@@ -12,10 +12,20 @@ interface DogsProps {
 }
 
 import { DogHero } from "@/components/sections/dog-hero";
+import { useQuery } from "@tanstack/react-query";
+import { SiteContent } from "@/lib/types";
 
 export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const [_, navigate] = useLocation();
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const { data: siteContent = [] } = useQuery<SiteContent[]>({
+    queryKey: ["/api/site-content"],
+  });
+
+  const getContent = (key: string) => {
+    return siteContent.find((item) => item.key === key)?.value || "";
+  };
 
   const { data: dogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
     queryKey: ["/api/dogs"],
