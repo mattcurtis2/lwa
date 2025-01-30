@@ -1350,19 +1350,49 @@ export function registerRoutes(app: Express): Server {
   // Update goat
   app.put("/api/goats/:id", async (req, res) => {
     try {
-      console.log('Updating goat with data:', req.body);
-      const goat = await db.update(goats)
+      const goatId = parseInt(req.params.id);
+      console.log('Updating goat with ID:', goatId);
+      console.log('Update data:', req.body);
+
+      // First verify the goat exists
+      const existingGoat = await db.query.goats.findFirst({
+        where: eq(goats.id, goatId),
+      });
+
+      if (!existingGoat) {
+        return res.status(404).json({ message: "Goat not found" });
+      }
+
+      // Update the goat with all fields, including 'sold'
+      const updatedGoat = await db.update(goats)
         .set({
           ...req.body,
           updatedAt: new Date()
         })
-        .where(eq(goats.id, parseInt(req.params.id)))
+        .where(eq(goats.id, goatId))
         .returning();
-      console.log('Updated goat:', goat[0]);
-      res.json(goat[0]);
+
+      console.log('Updated goat result:', updatedGoat[0]);
+
+      // Fetch the updated goat with all relations
+      const goatWithRelations = await db.query.goats.findFirst({
+        where: eq(goats.id, goatId),
+        with: {
+          media: true,
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        },
+      });
+
+      res.json(goatWithRelations);
     } catch (error) {
       console.error("Error updating goat:", error);
-      res.status(500).json({ message: "Failed to update goat" });
+      res.status(500).json({ 
+        message: "Failed to update goat",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

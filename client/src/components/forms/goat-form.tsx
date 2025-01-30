@@ -321,6 +321,10 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         ...values,
         height: values.height ? parseFloat(values.height) : null,
         weight: values.weight ? parseFloat(values.weight) : null,
+        sold: Boolean(values.sold), // Ensure sold is properly typed
+        available: Boolean(values.available),
+        kid: Boolean(values.kid),
+        outsideBreeder: Boolean(values.outsideBreeder),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
