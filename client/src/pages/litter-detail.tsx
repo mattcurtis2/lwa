@@ -72,6 +72,16 @@ export default function LitterDetail() {
                   ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
                   : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
               </h1>
+              {!isPastDueDate && (
+                <a 
+                  href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                >
+                  Express Interest in This Litter
+                </a>
+              )}
             </div>
 
             {puppyCount > 0 && (
@@ -143,6 +153,14 @@ export default function LitterDetail() {
             <DogDetails dog={litter.mother} />
             <DogDetails dog={litter.father} />
           </div>
+          <a 
+            href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          >
+            Express Interest in This Litter
+          </a>
         </div>
       </div>
     </div>
