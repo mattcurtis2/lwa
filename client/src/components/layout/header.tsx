@@ -135,13 +135,15 @@ export default function Header() {
 
             {/* Farmers Market Dropdown */}
             <div className="relative">
-              <button
+              <Link href="/market">
+                <button
                   onMouseEnter={() => setIsMarketDropdownOpen(true)}
                   onMouseLeave={() => setIsMarketDropdownOpen(false)}
                   className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
                 >
                   Farmers Market
                 </button>
+              </Link>
               <div 
                 className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
                   isMarketDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
