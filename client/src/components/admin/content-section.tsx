@@ -1052,6 +1052,23 @@ export default function ContentSection() {
                       onChange={(e) => handleContentChange("dogs_available_message", e.target.value)}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label>Breed Description Title</Label>
+                    <Input
+                      value={getContentValue("dogs_page_title")}
+                      onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
+                      placeholder="Colorado Mountain Dogs"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Breed Description</Label>
+                    <Textarea
+                      value={getContentValue("dogs_page_description")}
+                      onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
+                      placeholder="Enter a description of the breed..."
+                      className="min-h-[150px]"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>

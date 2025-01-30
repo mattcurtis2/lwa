@@ -57,6 +57,21 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   return (
     <div className="w-full">
       {!showAvailable && !genderFilter && <DogHero />}
+      {!showAvailable && !genderFilter && (
+        <div className="bg-stone-50 border-y border-stone-200">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-3xl font-bold text-stone-800 mb-4">
+                {getContent("dogs_page_title") || "Colorado Mountain Dogs"}
+              </h2>
+              <p className="text-stone-600 whitespace-pre-wrap">
+                {getContent("dogs_page_description") || 
+                  "Meet our Colorado Mountain Dogs, a breed dedicated to protecting livestock with unwavering loyalty and gentle temperament."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
         <div
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
