@@ -160,10 +160,42 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Available Dogs</h2>
             {availableDogs.length > 0 ? (
-              <div className="space-y-8">
-                {availableDogs.map((dog) => (
-                  <DogDetails key={dog.id} dog={dog} />
-                ))}
+              <div className="space-y-16">
+                {/* Available Females */}
+                {availableDogs.filter(dog => dog.gender === 'female').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Females</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="space-y-8">
+                      {availableDogs
+                        .filter(dog => dog.gender === 'female')
+                        .map((dog) => (
+                          <DogDetails key={dog.id} dog={dog} />
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Males */}
+                {availableDogs.filter(dog => dog.gender === 'male').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Males</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="space-y-8">
+                      {availableDogs
+                        .filter(dog => dog.gender === 'male')
+                        .map((dog) => (
+                          <DogDetails key={dog.id} dog={dog} />
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-12 bg-stone-50 rounded-lg border border-stone-200">

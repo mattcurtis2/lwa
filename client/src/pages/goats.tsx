@@ -114,10 +114,42 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
         {(genderFilter || showAvailable) && (
           <div className="mt-16">
             {filteredGoats.length > 0 ? (
-              <div className="grid grid-cols-1 gap-8">
-                {filteredGoats.map(goat => (
-                  <GoatDetails key={goat.id} goat={goat} />
-                ))}
+              <div className="space-y-16">
+                {/* Available Females Section */}
+                {filteredGoats.filter(goat => goat.gender === 'female').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Females</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
+                      {filteredGoats
+                        .filter(goat => goat.gender === 'female')
+                        .map(goat => (
+                          <GoatDetails key={goat.id} goat={goat} />
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Males Section */}
+                {filteredGoats.filter(goat => goat.gender === 'male').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Males</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
+                      {filteredGoats
+                        .filter(goat => goat.gender === 'male')
+                        .map(goat => (
+                          <GoatDetails key={goat.id} goat={goat} />
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-12">
