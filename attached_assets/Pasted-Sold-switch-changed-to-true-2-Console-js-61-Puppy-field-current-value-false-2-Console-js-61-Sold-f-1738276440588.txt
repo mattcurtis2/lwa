@@ -1,0 +1,79 @@
+Sold switch changed to: true
+2
+Console.js:61 Puppy field current value: false
+2
+Console.js:61 Sold field current value: true
+Console.js:61 Form submission started with values: 
+Object
+available
+: 
+true
+birthDate
+: 
+"2023-01-06"
+breed
+: 
+"Colorado Mountain Dogs"
+color
+: 
+"White"
+description
+: 
+"Austen is always excited to spend time with her people, is very eager to please, learns quickly, and guards our animals well by letting any predators know to keep on moving."
+dewclaws
+: 
+"Singles"
+documents
+: 
+(2) [{…}, {…}]
+fatherId
+: 
+null
+furLength
+: 
+"Medium-long"
+gender
+: 
+"female"
+healthData
+: 
+"Austen carries one copy of CMR1"
+height
+: 
+"27"
+litterId
+: 
+null
+media
+: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+motherId
+: 
+null
+name
+: 
+"Austen"
+narrativeDescription
+: 
+"Austen is always excited to spend time with her people, is very eager to please, learns quickly, and guards our animals well by letting any predators know to keep on moving.\n\nWe got Austen and her sister Alcott from Graceful Harvest Homestead in the spring of 2023 when she was 12 weeks old. Originally their main purpose was to guard our chickens after a fox killed 13 of our hens in two days. Later that fall we gave them a few goats to guard, and our farm has been growing ever since then. \n\nAusten LOVES spending time with her people!  Her favorite activities are taking long walks at the many nearby parks and getting tummy rubs, preferably on the couch.  But don't let her love for her people fool you!  Austen does a phenomenal job of guarding our animals by alerting any nearby predators to her presence.\n\nShe is safe with goats and chickens, and has had occasional exposure to our barn cats.  She is always excited to meet new people, but calms down quickly after the introductions are over.\n\nOverall, she is just a dog who is filled with love and eagerness to make her people happy!"
+outsideBreeder
+: 
+false
+pedigree
+: 
+""
+price
+: 
+""
+profileImageUrl
+: 
+"/uploads/file-1737949167961-318227921.jpg"
+puppy
+: 
+false
+registrationName
+: 
+"GHH Austen of LWA"
+weight
+: 
+"84"
