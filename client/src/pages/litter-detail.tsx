@@ -73,14 +73,17 @@ export default function LitterDetail() {
                   : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
               </h1>
               {!isPastDueDate && (
-                <a 
-                  href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-                >
-                  Express Interest in This Litter
-                </a>
+                <div className="mt-4">
+                  <p className="text-amber-800 font-medium mb-2">Interested in a puppy?</p>
+                  <a 
+                    href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                  >
+                    Sign Up Here
+                  </a>
+                </div>
               )}
             </div>
 
@@ -153,14 +156,17 @@ export default function LitterDetail() {
             <DogDetails dog={litter.mother} />
             <DogDetails dog={litter.father} />
           </div>
-          <a 
-            href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-          >
-            Express Interest in This Litter
-          </a>
+          <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 rounded-lg border border-amber-200 p-8 text-center mt-8">
+            <p className="text-amber-800 font-medium mb-4 text-lg">Interested in a puppy?</p>
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            >
+              Sign Up Here
+            </a>
+          </div>
         </div>
       </div>
     </div>
