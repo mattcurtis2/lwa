@@ -420,16 +420,12 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
-    console.log('=== Document Upload Start ===');
-    console.log(`Upload type: ${type}`);
-
     try {
-      if (!file || !(file instanceof File)) {
-        throw new Error('Invalid file object');
+      if (!file) {
+        throw new Error('No file provided');
       }
 
-
-      if (file.size > 50 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) { // 50MB limit
         throw new Error('File too large (max 50MB)');
       }
 
@@ -437,87 +433,49 @@ export default function DogForm({
       const formData = new FormData();
       formData.append("file", file);
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-          console.error('Document upload timeout');
-        }, 30000);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        console.log('Sending upload request...');
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error('Upload failed:', {
-            status: res.status,
-            statusText: res.statusText,
-            errorText,
-            headers: Object.fromEntries(res.headers.entries())
-          });
-          throw new Error(errorText || 'Upload failed');
-        }
-
-        const data = await res.json();
-        console.log('Upload response:', data);
-
-        if (!data?.url) {
-          console.error('Missing URL in response:', data);
-          throw new Error('Missing URL in upload response');
-        }
-
-        const newDoc: Document = {
-          url: data.url,
-          type,
-          name: file.name,
-          mimeType: file.type,
-          isNew: true,
-        };
-
-        if (type === 'health') {
-          setHealthDocuments(prev => [newDoc, ...prev]);
-          const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
-          form.setValue("documents", allDocs);
-        } else {
-          setPedigreeDocuments(prev => [newDoc, ...prev]);
-          const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
-          form.setValue("documents", allDocs);
-        }
-
-        toast({
-          title: "Success",
-          description: "Document uploaded successfully",
-        });
-
-      } catch (error) {
-        console.error('Upload error:', error);
-        let errorMessage = "Failed to upload document";
-
-        if (error instanceof Error) {
-          if (error.name === 'AbortError') {
-            errorMessage = "Upload timed out - please try again";
-          } else {
-            errorMessage = error.message;
-          }
-        }
-
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
+      if (!res.ok) {
+        throw new Error('Upload failed');
       }
+
+      const data = await res.json();
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+      if (!uploadedUrl) {
+        throw new Error('Missing URL in upload response');
+      }
+
+      const newDoc: Document = {
+        url: uploadedUrl,
+        type,
+        name: file.name,
+        mimeType: file.type,
+        isNew: true,
+      };
+
+      if (type === 'health') {
+        setHealthDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
+        form.setValue("documents", allDocs);
+      } else {
+        setPedigreeDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
+        form.setValue("documents", allDocs);
+      }
+
+      toast({
+        title: "Success",
+        description: "Document uploaded successfully",
+      });
     } catch (error) {
       console.error('Document upload error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "Failed to upload document",
         variant: "destructive",
       });
     } finally {
@@ -977,12 +935,18 @@ export default function DogForm({
               <div className="flex items-center gap-2">
                 <FileUpload
                   endpoint="upload"
-                  onUploadComplete={(files) => {
+                  onUploadComplete={(files: File[]) => {
                     if (files?.[0]) {
                       handleDocumentUpload(files[0], 'health');
                     }
                   }}
                   disabled={isUploadingDoc}
+                  accept={{
+                    'application/pdf': [],
+                    'application/msword': [],
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                    'image/*': []
+                  }}
                 >
                   <Button type="button" variant="outline" disabled={isUploadingDoc}>
                     {isUploadingDoc ? (
@@ -998,7 +962,7 @@ export default function DogForm({
               </div>
               {healthDocuments.map((doc, index) => (
                 <div
-                  key={doc.url}
+                  key={doc.url + index}
                   className="flex items-center justify-between p-2 border rounded-md"
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
@@ -1034,12 +998,18 @@ export default function DogForm({
               <div className="flex items-center gap-2">
                 <FileUpload
                   endpoint="upload"
-                  onUploadComplete={(files) => {
+                  onUploadComplete={(files: File[]) => {
                     if (files?.[0]) {
                       handleDocumentUpload(files[0], 'pedigree');
                     }
                   }}
                   disabled={isUploadingDoc}
+                  accept={{
+                    'application/pdf': [],
+                    'application/msword': [],
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                    'image/*': []
+                  }}
                 >
                   <Button type="button" variant="outline" disabled={isUploadingDoc}>
                     {isUploadingDoc ? (
@@ -1055,7 +1025,7 @@ export default function DogForm({
               </div>
               {pedigreeDocuments.map((doc, index) => (
                 <div
-                  key={doc.url}
+                  key={doc.url + index}
                   className="flex items-center justify-between p-2 border rounded-md"
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
