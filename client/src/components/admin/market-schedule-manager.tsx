@@ -57,9 +57,8 @@ export default function MarketScheduleManager() {
     mutationFn: async (schedule: MarketSchedule) => {
       const payload = {
         ...schedule,
-        seasonStart: schedule.seasonStart || null,
-        seasonEnd: schedule.seasonEnd || null,
-        updatedAt: new Date().toISOString(),
+        seasonStart: schedule.seasonStart?.toString().split('T')[0] || null,
+        seasonEnd: schedule.seasonEnd?.toString().split('T')[0] || null,
       };
 
       const res = await fetch(`/api/market-schedules/${schedule.id}`, {
