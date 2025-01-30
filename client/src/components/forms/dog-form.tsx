@@ -411,7 +411,10 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    console.log(`Starting ${type} document upload:`, { fileName: file.name, fileSize: file.size, fileType: file.type });
+    
     if (!file) {
+      console.error('Document upload failed: No file provided');
       toast({
         title: "Error",
         description: "No file selected",
@@ -421,6 +424,7 @@ export default function DogForm({
     }
 
     if (file.size > 50 * 1024 * 1024) {
+      console.error('Document upload failed: File too large', { fileSize: file.size });
       toast({
         title: "Error",
         description: "File size must be less than 50MB",
@@ -432,11 +436,16 @@ export default function DogForm({
     setIsUploadingDoc(true);
     const formData = new FormData();
     formData.append("file", file);
+    console.log('Preparing upload request for:', { fileName: file.name, documentType: type });
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.error('Document upload timeout');
+      }, 30000);
 
+      console.log('Sending upload request...');
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -447,20 +456,28 @@ export default function DogForm({
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Upload error response:', errorText);
+        console.error('Upload failed:', {
+          status: res.status,
+          statusText: res.statusText,
+          errorText,
+          headers: Object.fromEntries(res.headers.entries())
+        });
         throw new Error(errorText || 'Upload failed');
       }
 
       const data = await res.json();
-      console.log('Upload response:', data);
+      console.log('Upload response received:', data);
 
       if (!data || (!Array.isArray(data) && !data.url)) {
+        console.error('Invalid response format:', data);
         throw new Error('Invalid response format from server');
       }
 
       const uploadedFile = Array.isArray(data) ? data[0] : data;
+      console.log('Processed upload response:', uploadedFile);
 
       if (!uploadedFile?.url) {
+        console.error('Missing URL in response:', uploadedFile);
         throw new Error('Missing URL in upload response');
       }
 
