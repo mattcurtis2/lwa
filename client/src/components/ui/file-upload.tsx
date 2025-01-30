@@ -1,12 +1,9 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
-import { Upload, Crop, X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./dialog";
+import { Upload, FileText } from "lucide-react";
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
-import ReactCrop, { type Crop as CropType } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -15,9 +12,7 @@ interface FileUploadProps {
   label?: string;
   className?: string;
   accept?: string;
-  cropAspect?: number;
   isUploading?: boolean;
-  skipCrop?: boolean;
 }
 
 export function FileUpload({ 
@@ -26,10 +21,8 @@ export function FileUpload({
   onChange,
   label,
   className,
-  accept = 'image/*,video/*',
-  cropAspect,
+  accept = 'application/pdf,image/*,video/*,.doc,.docx',
   isUploading = false,
-  skipCrop = false // Set default to false to enable cropping
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
@@ -40,127 +33,79 @@ export function FileUpload({
     }
   }, [value]);
 
-  const [showCropper, setShowCropper] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
-  const [crop, setCrop] = useState<CropType>();
-  const [completedCrop, setCompletedCrop] = useState<CropType | null>(null);
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
 
-  const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
-    if (rejectedFiles.length > 0) {
+    if (file.size > 50 * 1024 * 1024) {
       toast({
         title: "Error",
-        description: "File type not supported or file is too large (max 50MB)",
+        description: "File is too large (max 50MB)",
         variant: "destructive"
       });
       return;
     }
 
-    const file = acceptedFiles[0];
-    if (file) {
-      if (file.size > 50 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "File is too large (max 50MB)",
-          variant: "destructive"
-        });
-        return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
+      const data = await response.json();
+      const uploadedFiles = Array.isArray(data) ? data : [data];
+      const uploadedFile = uploadedFiles[0];
 
-      try {
-        setIsUploading(true);
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const error = await response.text();
-          throw new Error(error || "Upload failed");
-        }
-
-        const data = await response.json();
-        if (!data) {
-          throw new Error("No response data");
-        }
-
-        const uploadedFiles = Array.isArray(data) ? data : [data];
-        const uploadedFile = uploadedFiles[0];
-
-        if (!uploadedFile?.url) {
-          throw new Error("Invalid upload response - no URL");
-        }
-
-        if (!skipCrop && file.type.startsWith('image/')) {
-          setTempImageUrl(uploadedFile.url);
-          setSelectedFile(file);
-          setShowCropper(true);
-        } else {
-          setPreviewUrl(uploadedFile.url);
-          if (onChange) {
-            onChange(uploadedFile.url);
-          }
-          onFileSelect(file);
-        }
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to upload file",
-          variant: "destructive"
-        });
+      if (!uploadedFile?.url) {
+        throw new Error("Invalid upload response");
       }
+
+      setPreviewUrl(uploadedFile.url);
+      if (onChange) {
+        onChange(uploadedFile.url);
+      }
+      onFileSelect(file);
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload file",
+        variant: "destructive"
+      });
     }
   }, [onFileSelect, onChange, toast]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: accept.split(',').reduce((acc, curr) => {
-      acc[curr.trim()] = [];
-      return acc;
-    }, {} as Record<string, string[]>),
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/*': [],
+      'video/*': [],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+    },
     maxFiles: 1,
     multiple: false,
     maxSize: 50 * 1024 * 1024,
   });
 
-  const handleCropComplete = async () => {
-    if (!completedCrop || !tempImageUrl) return;
+  const getFileIcon = (url: string) => {
+    const extension = url.split('.').pop()?.toLowerCase();
+    if (extension === 'pdf' || extension === 'doc' || extension === 'docx') {
+      return <FileText className="h-8 w-8" />;
+    }
+    return null;
+  };
 
-    const canvas = document.createElement('canvas');
-    const image = new Image();
-    image.src = tempImageUrl;
-    await new Promise(resolve => {
-      image.onload = resolve;
-    });
-
-    canvas.width = completedCrop.width;
-    canvas.height = completedCrop.height;
-    const ctx = canvas.getContext('2d');
-
-    ctx?.drawImage(
-      image,
-      completedCrop.x,
-      completedCrop.y,
-      completedCrop.width,
-      completedCrop.height,
-      0,
-      0,
-      completedCrop.width,
-      completedCrop.height
-    );
-
-    const croppedImageUrl = canvas.toDataURL('image/jpeg');
-    const response = await fetch(croppedImageUrl);
-    const blob = await response.blob();
-    const croppedFile = new File([blob], selectedFile?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-
-    onFileSelect(croppedFile);
-    setShowCropper(false);
-    setTempImageUrl(null);
-    setSelectedFile(null);
+  const getFileName = (url: string) => {
+    return url.split('/').pop() || 'File';
   };
 
   return (
@@ -182,59 +127,36 @@ export function FileUpload({
               ? "Drop your file here..."
               : isUploading 
                 ? "Uploading..."
-                : "Drag & drop files here, or click to select"
-            }
+                : "Drag & drop files here, or click to select"}
+          </p>
+          <p className="text-xs text-center">
+            Supports PDF, DOC, DOCX, images, and videos up to 50MB
           </p>
         </div>
       </div>
 
-      {value && (
-        <div className="relative group aspect-video rounded-lg overflow-hidden bg-muted">
-          <img
-            src={value}
-            alt="Preview"
-            className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-            onClick={() => {
-              if (!skipCrop) {
-                setTempImageUrl(value);
-                setShowCropper(true);
-              }
-            }}
-          />
+      {previewUrl && (
+        <div className="flex items-center gap-2 p-2 border rounded">
+          {getFileIcon(previewUrl) || (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="w-8 h-8 object-cover rounded"
+            />
+          )}
+          <span className="flex-1 truncate">{getFileName(previewUrl)}</span>
           <Button
             type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.stopPropagation();
+            variant="ghost"
+            size="sm"
+            onClick={() => {
               if (onChange) onChange("");
+              setPreviewUrl(null);
             }}
           >
-            <X className="h-4 w-4" />
+            Remove
           </Button>
         </div>
-      )}
-
-      {showCropper && tempImageUrl && (
-        <Dialog open={showCropper} onOpenChange={setShowCropper}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Crop Image</DialogTitle>
-            </DialogHeader>
-            <ReactCrop
-              crop={crop}
-              onChange={(c) => setCrop(c)}
-              onComplete={(c) => setCompletedCrop(c)}
-              aspect={cropAspect}
-            >
-              <img src={tempImageUrl} alt="Crop preview" />
-            </ReactCrop>
-            <DialogFooter>
-              <Button onClick={handleCropComplete}>Save Crop</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       )}
     </div>
   );
