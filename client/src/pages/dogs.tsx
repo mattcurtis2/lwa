@@ -12,7 +12,6 @@ interface DogsProps {
 }
 
 import { DogHero } from "@/components/sections/dog-hero";
-import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@/lib/types";
 
 export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
