@@ -117,10 +117,12 @@ export function FileUpload({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
-    accept: accept.split(',').reduce((acc, curr) => {
-      acc[curr.trim()] = [];
-      return acc;
-    }, {} as Record<string, string[]>),
+    accept: typeof accept === 'string' 
+      ? accept.split(',').reduce((acc, curr) => {
+          acc[curr.trim()] = [];
+          return acc;
+        }, {} as Record<string, string[]>)
+      : accept,
     maxFiles: 1,
     multiple: false,
     maxSize: 50 * 1024 * 1024,
