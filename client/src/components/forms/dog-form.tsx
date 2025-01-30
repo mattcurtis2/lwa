@@ -47,19 +47,10 @@ import { Upload } from 'lucide-react';
 
 interface Document {
   id?: number;
-  type: 'health' | 'pedigree';  // Restrict to specific document types
+  type: string;
   url: string;
   name: string;
   mimeType: string;
-  createdAt?: Date;
-  isNew?: boolean;
-}
-
-interface MediaInput {
-  url: string;
-  type: "image" | "video";
-  fileName?: string;
-  isNew?: boolean;
 }
 
 const mediaSchema = z.object({
@@ -420,65 +411,135 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    console.log('=== Document Upload Start ===');
+    console.log(`Upload type: ${type}`);
+    console.log('File details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified).toISOString()
+    });
+
     try {
+      if (!file || !(file instanceof File)) {
+        throw new Error('Invalid file object');
+      }
+
+      console.log('File details:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: new Date(file.lastModified).toISOString()
+      });
+
       if (!file) {
         throw new Error('No file provided');
       }
 
-      if (file.size > 50 * 1024 * 1024) { // 50MB limit
-        throw new Error('File too large (max 50MB)');
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error('File too large');
       }
 
       setIsUploadingDoc(true);
       const formData = new FormData();
       formData.append("file", file);
+      console.log('Preparing upload request for:', { fileName: file.name, documentType: type });
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          console.error('Document upload timeout');
+        }, 30000);
 
-      if (!res.ok) {
-        throw new Error('Upload failed');
+        console.log('Sending upload request...');
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Upload failed:', {
+            status: res.status,
+            statusText: res.statusText,
+            errorText,
+            headers: Object.fromEntries(res.headers.entries())
+          });
+          throw new Error(errorText || 'Upload failed');
+        }
+
+        const data = await res.json();
+        console.log('Upload response received:', data);
+
+        if (!data || (!Array.isArray(data) && !data.url)) {
+          console.error('Invalid response format:', data);
+          throw new Error('Invalid response format from server');
+        }
+
+        const uploadedFile = Array.isArray(data) ? data[0] : data;
+        console.log('Processed upload response:', uploadedFile);
+
+        if (!uploadedFile?.url) {
+          console.error('Missing URL in response:', uploadedFile);
+          throw new Error('Missing URL in upload response');
+        }
+
+        const newDoc = {
+          url: uploadedFile.url,
+          type,
+          name: file.name,
+          mimeType: file.type,
+          isNew: true,
+        };
+
+        if (type === 'health') {
+          setHealthDocuments(prev => [newDoc, ...prev]);
+          const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
+          form.setValue("documents", allDocs);
+        } else {
+          setPedigreeDocuments(prev => [newDoc, ...prev]);
+          const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
+          form.setValue("documents", allDocs);
+        }
+
+        toast({
+          title: "Success",
+          description: "Document uploaded successfully",
+        });
+      } catch (error) {
+        console.error('=== Document Upload Error ===');
+        console.error('Error details:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        let errorMessage = "Failed to upload document";
+
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            errorMessage = "Upload timed out - please try again";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploadingDoc(false);
       }
-
-      const data = await res.json();
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-      if (!uploadedUrl) {
-        throw new Error('Missing URL in upload response');
-      }
-
-      const newDoc: Document = {
-        url: uploadedUrl,
-        type,
-        name: file.name,
-        mimeType: file.type,
-        isNew: true,
-      };
-
-      if (type === 'health') {
-        setHealthDocuments(prev => [newDoc, ...prev]);
-        const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
-        form.setValue("documents", allDocs);
-      } else {
-        setPedigreeDocuments(prev => [newDoc, ...prev]);
-        const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
-        form.setValue("documents", allDocs);
-      }
-
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully",
-      });
     } catch (error) {
-      console.error('Document upload error:', error);
+      console.error('=== Document Upload Error ===');
+      console.error('Error details:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload document",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
       setIsUploadingDoc(false);
     }
   };
@@ -927,124 +988,240 @@ export default function DogForm({
           />
         </div>
 
-        {/* Documents Section */}
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <Label className="text-base">Health Documents</Label>
-            <div className="grid gap-4">
-              <div className="flex items-center gap-2">
-                <FileUpload
-                  endpoint="upload"
-                  onUploadComplete={(files: File[]) => {
-                    if (files?.[0]) {
-                      handleDocumentUpload(files[0], 'health');
-                    }
-                  }}
-                  disabled={isUploadingDoc}
-                  accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                >
-                  <Button type="button" variant="outline" disabled={isUploadingDoc}>
-                    {isUploadingDoc ? (
-                      <>Uploading...</>
-                    ) : (
-                      <>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Upload Health Document
-                      </>
-                    )}
-                  </Button>
-                </FileUpload>
-              </div>
-              {healthDocuments.map((doc, index) => (
-                <div
-                  key={doc.url + index}
-                  className="flex items-center justify-between p-2 border rounded-md"
-                >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <FileText className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{doc.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => window.open(doc.url, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeDocument(index, 'health')}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="breed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Breed</FormLabel>
+                <FormControl>
+                  <Input {...field} defaultValue="Colorado Mountain Dogs" readOnly />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (<FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., White with brown markings" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="height"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Height (inches)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <div className="space-y-4">
-            <Label className="text-base">Pedigree Documents</Label>
-            <div className="grid gap-4">
-              <div className="flex items-center gap-2">
-                <FileUpload
-                  endpoint="upload"
-                  onUploadComplete={(files: File[]) => {
-                    if (files?.[0]) {
-                      handleDocumentUpload(files[0], 'pedigree');
-                    }
-                  }}
-                  disabled={isUploadingDoc}
-                  accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                >
-                  <Button type="button" variant="outline" disabled={isUploadingDoc}>
-                    {isUploadingDoc ? (
-                      <>Uploading...</>
-                    ) : (
-                      <>
-                        <FileText className="h-4 w-4 mr-2" />
-                        Upload Pedigree Document
-                      </>
+          <FormField
+            control={form.control}
+            name="furLength"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fur Length</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Medium length, double coat" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dewclaws"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dewclaws</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Removed, Natural" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="healthData"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Health Information</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Health certifications, testing results, etc."
+                  />
+                  <div className="space-y-2">
+                    <Label>Health Documents</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
+                      accept="application/pdf,image/jpeg,image/png,video/*"
+                      isUploading={isUploadingDoc}
+                      skipCrop={true}
+                    />
+                    {healthDocuments.length > 0 && (
+                      <div className="space-y-2">
+                        {healthDocuments.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              {doc.mimeType.startsWith('image/') ? (
+                                <img
+                                  src={doc.url}
+                                  alt={doc.name}
+                                  classNameclassName="w-12 h-12 object-cover rounded"
+                                />
+                              ) : doc.mimeType.startsWith('video/') ? (
+                                <video
+                                  src={doc.url}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                  <FileText className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                              >
+                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeDocument(index, 'health')}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  </Button>
-                </FileUpload>
-              </div>
-              {pedigreeDocuments.map((doc, index) => (
-                <div
-                  key={doc.url + index}
-                  className="flex items-center justify-between p-2 border rounded-md"
-                >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <FileText className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{doc.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => window.open(doc.url, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeDocument(index, 'pedigree')}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="pedigree"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pedigree Information</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Family history and lineage information"/>
+                  <div className="space-y-2">
+                    <Label>Pedigree Documents</Label>
+                    <FileUpload                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                      accept="application/pdf,image/jpeg,image/png,video/*"
+                      isUploading={isUploadingDoc}
+                      skipCrop={true}
+                    />
+                    {pedigreeDocuments.length > 0 && (
+                      <div className="space-y-2">
+                        {pedigreeDocuments.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              {doc.mimeType.startsWith('image/') ? (
+                                <img
+                                  src={doc.url}
+                                  alt={doc.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : doc.mimeType.startsWith('video/') ? (
+                                <video
+                                  src={doc.url}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                  <FileText className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                              >
+                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeDocument(index, 'pedigree')}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
