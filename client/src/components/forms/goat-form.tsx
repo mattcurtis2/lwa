@@ -66,6 +66,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     outsideBreeder: z.boolean().default(false),
     kid: z.boolean().default(false),
     available: z.boolean().default(false),
+    sold: z.boolean().default(false),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
     litterId: z.number().optional().nullable(),
@@ -119,6 +120,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       outsideBreeder: Boolean(goat?.outsideBreeder),
       kid: Boolean(goat?.kid),
       available: Boolean(goat?.available),
+      sold: Boolean(goat?.sold),
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,
       litterId: goat?.litterId || null,
@@ -760,25 +762,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="outsideBreeder"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Outside Breeder</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(checked) => field.onChange(checked)}
                   />
                 </FormControl>
               </FormItem>
@@ -786,6 +770,23 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           />
         </div>
 
+        <FormField
+          control={form.control}
+          name="outsideBreeder"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+              <div className="space-y-0.5">
+                <FormLabel>Outside Breeder</FormLabel>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="kid"
