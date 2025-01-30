@@ -99,6 +99,7 @@ export const dogs = pgTable("dogs", {
   litterId: integer("litter_id").references(() => litters.id),
   puppy: boolean("puppy").default(false).notNull(),
   available: boolean("available").default(false).notNull(),
+  sold: boolean("sold").default(false).notNull(),
   price: text("price"),
   profileImageUrl: text("profile_image_url"),
   healthData: text("health_data"),
@@ -283,6 +284,7 @@ export const goats = pgTable("goats", {
   litterId: integer("litter_id").references(() => goatLitters.id),
   kid: boolean("kid").default(false).notNull(),
   available: boolean("available").default(false).notNull(),
+  sold: boolean("sold").default(false).notNull(),
   price: text("price"),
   profileImageUrl: text("profile_image_url"),
   healthData: text("health_data"),
@@ -436,7 +438,7 @@ export const marketSchedules = pgTable("market_schedules", {
   dayOfWeek: text("day_of_week").notNull(),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
-  
+
   description: text("description"),
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").default(true),
