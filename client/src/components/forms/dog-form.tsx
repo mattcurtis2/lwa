@@ -568,6 +568,7 @@ export default function DogForm({
     try {
       const processedValues = {
         ...values,
+        sold: form.getValues("sold"),
         height: values.height ? parseFloat(values.height) || null : null,
         weight: values.weight ? parseFloat(values.weight) || null : null,
         price: values.price ? parseInt(values.price.replace(/,/g, ''), 10) || null : null,
