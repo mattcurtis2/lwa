@@ -982,6 +982,49 @@ export default function ContentSection() {
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
+                    <Label>Hero Title</Label>
+                    <Input
+                      value={getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
+                      onChange={(e) => handleContentChange("dog_hero_title", e.target.value)}
+                      placeholder="Enter hero title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Subtitle</Label>
+                    <Textarea
+                      value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
+                      onChange={(e) => handleContentChange("dog_hero_subtitle", e.target.value)}
+                      placeholder="Enter hero subtitle"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("dog_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("dog_hero_image")}
+                    />
+                    {getContentValue("dog_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("dog_hero_image")}
+                          alt="Dogs Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("dog_hero_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
                     <Label>Dogs Page Title</Label>
                     <Input
                       value={getContentValue("dogs_page_title")}

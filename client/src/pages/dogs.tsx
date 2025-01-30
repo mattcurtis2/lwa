@@ -11,6 +11,8 @@ interface DogsProps {
   showAvailable?: boolean;
 }
 
+import { DogHero } from "@/components/sections/dog-hero";
+
 export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const [_, navigate] = useLocation();
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -54,6 +56,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   return (
     <div className="w-full">
+      {!showAvailable && <DogHero />}
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
         <div
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
