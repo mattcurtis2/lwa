@@ -941,12 +941,7 @@ export default function DogForm({
                     }
                   }}
                   disabled={isUploadingDoc}
-                  accept={{
-                    'application/pdf': [],
-                    'application/msword': [],
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                    'image/*': []
-                  }}
+                  accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 >
                   <Button type="button" variant="outline" disabled={isUploadingDoc}>
                     {isUploadingDoc ? (
@@ -1004,12 +999,7 @@ export default function DogForm({
                     }
                   }}
                   disabled={isUploadingDoc}
-                  accept={{
-                    'application/pdf': [],
-                    'application/msword': [],
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                    'image/*': []
-                  }}
+                  accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 >
                   <Button type="button" variant="outline" disabled={isUploadingDoc}>
                     {isUploadingDoc ? (
