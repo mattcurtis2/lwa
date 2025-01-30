@@ -411,7 +411,14 @@ export default function DogForm({
 
 
   const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
-    console.log(`Starting ${type} document upload:`, { fileName: file.name, fileSize: file.size, fileType: file.type });
+    console.log('=== Document Upload Start ===');
+    console.log(`Upload type: ${type}`);
+    console.log('File details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified).toISOString()
+    });
     
     if (!file) {
       console.error('Document upload failed: No file provided');
@@ -504,7 +511,9 @@ export default function DogForm({
         description: "Document uploaded successfully",
       });
     } catch (error) {
-      console.error('Error uploading document:', error);
+      console.error('=== Document Upload Error ===');
+      console.error('Error details:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       let errorMessage = "Failed to upload document";
       
       if (error instanceof Error) {
