@@ -30,8 +30,6 @@ export default function MarketScheduleManager() {
     mutationFn: async (newSchedule: Partial<MarketSchedule>) => {
       const payload = {
         ...newSchedule,
-        seasonStart: newSchedule.seasonStart ? new Date(newSchedule.seasonStart).toISOString().split('T')[0] : null,
-        seasonEnd: newSchedule.seasonEnd ? new Date(newSchedule.seasonEnd).toISOString().split('T')[0] : null,
       };
       
       const res = await fetch("/api/market-schedules", {
@@ -57,8 +55,6 @@ export default function MarketScheduleManager() {
     mutationFn: async (schedule: MarketSchedule) => {
       const payload = {
         ...schedule,
-        seasonStart: schedule.seasonStart ? new Date(schedule.seasonStart).toISOString().split('T')[0] : null,
-        seasonEnd: schedule.seasonEnd ? new Date(schedule.seasonEnd).toISOString().split('T')[0] : null,
       };
 
       const res = await fetch(`/api/market-schedules/${schedule.id}`, {
@@ -240,24 +236,6 @@ export default function MarketScheduleManager() {
                 id="description"
                 name="description"
                 defaultValue={editingSchedule?.description || ''}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="seasonStart">Season Start (Optional)</Label>
-              <Input
-                type="date"
-                id="seasonStart"
-                name="seasonStart"
-                defaultValue={editingSchedule?.seasonStart?.toString().split('T')[0]}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="seasonEnd">Season End (Optional)</Label>
-              <Input
-                type="date"
-                id="seasonEnd"
-                name="seasonEnd"
-                defaultValue={editingSchedule?.seasonEnd?.toString().split('T')[0]}
               />
             </div>
             <div className="flex justify-end gap-2 pt-4">

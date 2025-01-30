@@ -436,8 +436,7 @@ export const marketSchedules = pgTable("market_schedules", {
   dayOfWeek: text("day_of_week").notNull(),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
-  seasonStart: date("season_start"),
-  seasonEnd: date("season_end"),
+  
   description: text("description"),
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").default(true),
