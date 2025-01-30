@@ -56,7 +56,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   return (
     <div className="w-full">
-      {!showAvailable && <DogHero />}
+      {!showAvailable && !genderFilter && <DogHero />}
       {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
         <div
           onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
