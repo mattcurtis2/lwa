@@ -326,10 +326,12 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
         ]
       };
+      console.log('Processed values:', processedValues);
 
       const url = goat?.id ? `/api/goats/${goat.id}` : '/api/goats';
       const method = goat?.id ? 'PUT' : 'POST';
 
+      console.log(`Making ${method} request to ${url}`);
       const response = await fetch(url, {
         method,
         headers: {
@@ -766,7 +768,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 <FormControl>
                   <Switch
                     checked={field.value}
-                    onCheckedChange={(checked) => field.onChange(checked)}
+                    onCheckedChange={field.onChange}
                   />
                 </FormControl>
               </FormItem>
