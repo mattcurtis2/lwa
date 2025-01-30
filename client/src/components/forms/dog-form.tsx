@@ -422,21 +422,39 @@ export default function DogForm({
     formData.append("file", file);
 
     try {
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+
       if (!res.ok) {
-        throw new Error("Failed to upload file");
+        const errorText = await res.text();
+        throw new Error(`Upload failed: ${errorText}`);
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Invalid JSON response from server');
+      }
+
+      if (!data) {
+        throw new Error('Empty response from server');
+      }
+
       const uploadedFiles = Array.isArray(data) ? data : [data];
       const uploadedFile = uploadedFiles[0];
 
       if (!uploadedFile?.url) {
-        throw new Error("Invalid upload response");
+        throw new Error("Missing URL in upload response");
       }
 
       const newDoc = {
@@ -459,9 +477,19 @@ export default function DogForm({
       });
     } catch (error) {
       console.error('Error uploading document:', error);
+      let errorMessage = "Failed to upload document";
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = "Upload timed out - please try again";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload document",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
