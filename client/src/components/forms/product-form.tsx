@@ -159,10 +159,37 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL</FormLabel>
+              <FormLabel>Product Image</FormLabel>
               <FormControl>
-                <Input {...field} value={field.value || ""} />
+                <FileUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  onFileSelect={async (file) => {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    try {
+                      const uploadRes = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formData,
+                      });
+                      const { url } = await uploadRes.json();
+                      field.onChange(url);
+                    } catch (error) {
+                      console.error("Upload error:", error);
+                    }
+                  }}
+                  accept="image/*"
+                />
               </FormControl>
+              {field.value && (
+                <div className="mt-2 w-full aspect-video rounded-lg overflow-hidden border">
+                  <img
+                    src={field.value}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
