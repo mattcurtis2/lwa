@@ -30,6 +30,8 @@ export function useLitterManagement() {
         dueDate: new Date(editLitter.dueDate).toISOString().split('T')[0],
       };
 
+      console.log('Sending litter data:', formattedLitter);
+
       const res = await fetch('/api/litters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

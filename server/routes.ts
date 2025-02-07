@@ -962,8 +962,17 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/litters", async (req, res) => {
     try {
+      console.log('Creating litter with data:', req.body);
+      const formattedData = {
+        ...req.body,
+        dueDate: new Date(req.body.dueDate),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      console.log('Formatted data:', formattedData);
+      
       const litter = await db.insert(litters)
-        .values(req.body)
+        .values(formattedData)
         .returning();
 
       const litterWithParents = await db.query.litters.findFirst({
@@ -983,16 +992,17 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/litters/:id", async (req, res) => {
     try {
-      // Extract only the fields we want to update
+      console.log('Updating litter with data:', req.body);
       const { dueDate, motherId, fatherId, isVisible } = req.body;
 
       const updateData = {
-        dueDate,
+        dueDate: new Date(dueDate),
         motherId,
         fatherId,
         isVisible,
         updatedAt: new Date(),
       };
+      console.log('Formatted update data:', updateData);
 
       const litter = await db.update(litters)
         .set(updateData)
