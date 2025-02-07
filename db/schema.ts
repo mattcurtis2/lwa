@@ -453,3 +453,13 @@ export const selectMarketScheduleSchema = createSelectSchema(marketSchedules);
 
 export type MarketSchedule = typeof marketSchedules.$inferSelect;
 export type NewMarketSchedule = typeof marketSchedules.$inferInsert;
+
+export const litter_interest_signups = pgTable("litter_interest_signups", {
+  id: serial("id").primaryKey(),
+  litterId: integer("litter_id").notNull(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  message: text("message"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
