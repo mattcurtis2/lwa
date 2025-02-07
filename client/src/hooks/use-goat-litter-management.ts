@@ -81,7 +81,7 @@ export function useGoatLitterManagement() {
         body: JSON.stringify({
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
-          dueDate: editLitter.dueDate,
+          dueDate: new Date(editLitter.dueDate).toISOString().split('T')[0],
           isVisible: editLitter.isVisible
         }),
       });
