@@ -1,12 +1,12 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { ImageCrop } from "@/components/ui/image-crop";
-import { FileUpload } from "@/components/ui/file-upload";
+import { Upload } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -136,6 +136,37 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
     }
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
+    },
+    maxSize: 10 * 1024 * 1024, // 10MB
+    multiple: false,
+    onDrop: async (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+        form.setValue('imageUrl', data[0].url);
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive",
+        });
+      }
+    },
+  });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 max-h-[80vh] overflow-y-auto pr-6">
@@ -146,28 +177,25 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
             <FormItem>
               <FormLabel>Product Image</FormLabel>
               <FormControl>
-                <div className="space-y-4">
-                  <FileUpload
-                    value={field.value}
-                    onFileSelect={async (file) => {
-                      if (!file) return;
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      try {
-                        const uploadRes = await fetch('/api/upload', {
-                          method: 'POST',
-                          body: formData,
-                        });
-                        const { url } = await uploadRes.json();
-                        field.onChange(url);
-                      } catch (error) {
-                        console.error('Upload error:', error);
-                      }
-                    }}
-                    onChange={field.onChange}
-                  />
+                <div className="relative flex w-full flex-col rounded-lg border border-input bg-background p-4">
+                  <div {...getRootProps({ className: cn("w-full rounded-lg border border-dashed p-4", isDragActive && "border-primary") })}>
+                    <input {...getInputProps()} />
+                    {isDragActive ? (
+                      <p className="text-center">Drop the files here ...</p>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <label
+                          className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-background px-4 py-2 text-center text-sm text-muted-foreground hover:bg-secondary"
+                          htmlFor="fileInput"
+                        >
+                          <Upload className="h-4 w-4 text-muted-foreground" />
+                          <span>Upload</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
                   {field.value && (
-                    <div className="w-full aspect-video rounded-lg overflow-hidden border">
+                    <div className="w-full aspect-video rounded-lg overflow-hidden border mt-4">
                       <img
                         src={field.value}
                         alt="Preview"
