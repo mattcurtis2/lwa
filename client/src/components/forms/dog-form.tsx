@@ -76,7 +76,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     furLength: z.string().optional(),
     height: z.string().optional().nullable(),
     weight: z.string().optional().nullable(),
-    pedigree: z.string().optional(),
+    pedigree: z.string().optional().nullable(),
     narrativeDescription: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
