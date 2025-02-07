@@ -776,54 +776,78 @@ export function registerRoutes(app: Express): Server {
         // Process the data before update
         const updateData = {
           ...dogData,
-          height: dogData.height ? parseFloat(dogData.height) : existingDog.height,
-          weight: dogData.weight ? parseFloat(dogData.weight) : existingDog.weight,
-          sold: Boolean(dogData.sold),
-          available: Boolean(dogData.available),
-          puppy: Boolean(dogData.puppy),
-          outsideBreeder: Boolean(dogData.outsideBreeder),
-          updatedAt: new Date()
+          height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
+          weight: dogData.weight !== undefined && dogData.weight !== "" ? parseFloat(dogData.weight) : null,
+          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dogData.price) : null,
+          sold: dogData.sold === true,
+          available: dogData.available === true,
+          puppy: dogData.puppy === true,
+          outsideBreeder: dogData.outsideBreeder === true,
+          updatedAt: new Date(),
+          // Handle string fields with null
+          description: dogData.description || null,
+          narrativeDescription: dogData.narrativeDescription || null,
+          healthData: dogData.healthData || null,
+          color: dogData.color || null,
+          dewclaws: dogData.dewclaws || null,
+          furLength: dogData.furLength || null,
+          pedigree: dogData.pedigree || null,
+          registrationName: dogData.registrationName || null,
+          // Handle IDs
+          motherId: dogData.motherId || null,
+          fatherId: dogData.fatherId || null,
+          litterId: dogData.litterId || null,
+          breed: "Colorado Mountain Dogs"
         };
 
-        // Filter out any undefined or null values
-        const cleanedData = Object.fromEntries(
-          Object.entries(updateData).filter(([_, v]) => v !== undefined && v !== null)
-        );
+        // Remove undefined values
+        Object.keys(updateData).forEach(key => {
+          if (updateData[key] === undefined) {
+            delete updateData[key];
+          }
+        });
 
+        // Update the dog
         await tx.update(dogs)
-          .set(cleanedData)
+          .set(updateData)
           .where(eq(dogs.id, dogId));
 
-        await tx.delete(dogMedia)
-          .where(eq(dogMedia.dogId, dogId));
+        // Handle media
+        if (media) {
+          await tx.delete(dogMedia)
+            .where(eq(dogMedia.dogId, dogId));
 
-        await tx.delete(dogDocuments)
-          .where(eq(dogDocuments.dogid, dogId));
-
-        // Update dog media
-        if (media && media.length > 0) {
-          await tx.insert(dogMedia).values(
-            media.map((item: any, index: number) => ({
-              dogId: dogId,
-              url: item.url,
-              type: item.type,
-              order: index,
-            }))
-          );
+          if (media.length > 0) {
+            await tx.insert(dogMedia).values(
+              media.map((item: any, index: number) => ({
+                dogId: dogId,
+                url: item.url,
+                type: item.type,
+                order: index,
+              }))
+            );
+          }
         }
 
-        if (documents && documents.length > 0) {
-          await tx.insert(dogDocuments).values(
-            documents.map((doc: any) => ({
-              dogId: dogId,
-              url: doc.url,
-              type: doc.type,
-              name: doc.name,
-              mimeType: doc.mimeType
-            }))
-          );
+        // Handle documents
+        if (documents) {
+          await tx.delete(dogDocuments)
+            .where(eq(dogDocuments.dogId, dogId));
+
+          if (documents.length > 0) {
+            await tx.insert(dogDocuments).values(
+              documents.map((doc: any) => ({
+                dogId: dogId,
+                url: doc.url,
+                type: doc.type,
+                name: doc.name,
+                mimeType: doc.mimeType
+              }))
+            );
+          }
         }
 
+        // Return updated dog with relations
         const updatedDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
           with: {
@@ -843,11 +867,6 @@ export function registerRoutes(app: Express): Server {
       console.error("Error updating dog:", error);
       res.status(500).json({ message: "Failed to update dog" });
     }
-  });
-
-  app.delete("/api/dogs/:id", async (req, res) => {
-    await db.delete(dogs).where(eq(dogs.id, parseInt(req.params.id)));
-    res.json({ message: "Deleted successfully" });
   });
 
   // Add reorder endpoint for dogs
@@ -1420,7 +1439,7 @@ export function registerRoutes(app: Express): Server {
       res.json(goatWithRelations);
     } catch (error) {
       console.error("Error updating goat:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "Failed to update goat",
         error: error instanceof Error ? error.message : 'Unknown error'
       });
