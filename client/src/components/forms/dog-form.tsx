@@ -527,9 +527,9 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     try {
+      console.log('Form submission started with values:', values);
       const processedValues = {
         ...values,
-        sold: form.getValues("sold"),
         height: values.height ? parseFloat(values.height) || null : null,
         weight: values.weight ? parseFloat(values.weight) || null : null,
         price: values.price ? parseInt(values.price.replace(/,/g, ''), 10) || null : null,
@@ -537,7 +537,10 @@ export default function DogForm({
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
         breed: "Colorado Mountain Dogs",
-        // Include both existing and newly uploaded documents
+        sold: Boolean(values.sold),
+        available: Boolean(values.available),
+        puppy: Boolean(values.puppy),
+        outsideBreeder: Boolean(values.outsideBreeder),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
