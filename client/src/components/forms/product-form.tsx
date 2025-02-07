@@ -140,10 +140,13 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
               <FormLabel>Price</FormLabel>
               <FormControl>
                 <Input 
-                  {...field} 
-                  placeholder="$0.00" 
+                  {...field}
+                  placeholder="$0.00"
                   value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value);
+                  }}
                 />
               </FormControl>
               <FormMessage />
