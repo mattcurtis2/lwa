@@ -27,7 +27,7 @@ export function useLitterManagement() {
 
       const formattedLitter = {
         ...editLitter,
-        dueDate: editLitter.dueDate,
+        dueDate: new Date(editLitter.dueDate).toISOString().split('T')[0],
       };
 
       const res = await fetch('/api/litters', {
