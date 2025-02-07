@@ -137,7 +137,7 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="space-y-6 max-h-[80vh] overflow-y-auto pr-6">
         <FormField
           control={form.control}
           name="imageUrl"
