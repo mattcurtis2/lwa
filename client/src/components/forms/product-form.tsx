@@ -34,7 +34,7 @@ const productSchema = z.object({
   category: z.string().min(1, "Category is required"),
   description: z.string(),
   price: z.string().min(1, "Price is required"),
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   inStock: z.boolean().default(true),
 });
 
