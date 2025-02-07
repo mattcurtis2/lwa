@@ -71,45 +71,16 @@ export function useLitterManagement() {
       }
 
       const formattedLitter = {
-        ...litterData,
-        dueDate: dueDate.toISOString(),
+        dueDate: dueDate.toISOString().split('T')[0],
+        motherId: litterData.motherId,
+        fatherId: litterData.fatherId,
+        isVisible: litterData.isVisible
       };
 
-      const existingPuppies = puppies?.filter(p => p.id) || [];
-      const newPuppies = puppies?.filter(p => !p.id) || [];
-
-      const processedPuppies = existingPuppies.map(puppy => {
-        const birthDate = new Date(puppy.birthDate);
-        if (isNaN(birthDate.getTime())) {
-          throw new Error('Invalid birth date for puppy');
-        }
-
-        return {
-          id: puppy.id,
-          name: puppy.name,
-          gender: puppy.gender,
-          birthDate: birthDate.toISOString(),
-          description: puppy.description || '',
-          color: puppy.color || '',
-          height: puppy.height ? parseFloat(puppy.height.toString()) : null,
-          weight: puppy.weight ? parseFloat(puppy.weight.toString()) : null,
-          price: puppy.price ? parseInt(puppy.price.toString(), 10) : null,
-          puppy: true,
-          motherId: formattedLitter.motherId,
-          fatherId: formattedLitter.fatherId,
-          litterId: formattedLitter.id,
-          breed: puppy.breed || '',
-          profileImageUrl: puppy.profileImageUrl || '',
-        };
-      });
-
-      const res = await fetch(`/api/litters/${formattedLitter.id}`, {
+      const res = await fetch(`/api/litters/${litterData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formattedLitter,
-          puppies: processedPuppies,
-        }),
+        body: JSON.stringify(formattedLitter),
       });
 
       if (!res.ok) {
