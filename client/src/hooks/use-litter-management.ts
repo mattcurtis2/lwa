@@ -16,14 +16,18 @@ export function useLitterManagement() {
 
   const createLitter = async () => {
     try {
-      const dueDate = new Date(editLitter?.dueDate);
-      if (isNaN(dueDate.getTime())) {
-        throw new Error('Invalid due date');
+      if (!editLitter?.dueDate || !editLitter.motherId || !editLitter.fatherId) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
       }
 
       const formattedLitter = {
         ...editLitter,
-        dueDate: dueDate.toISOString(),
+        dueDate: editLitter.dueDate,
       };
 
       const res = await fetch('/api/litters', {
