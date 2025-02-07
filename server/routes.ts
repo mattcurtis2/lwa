@@ -774,24 +774,19 @@ export function registerRoutes(app: Express): Server {
         }
 
         // Process the data before update
-        const processedDogData = {
+        const updateData = {
           ...dogData,
-          sold: dogData.sold ?? existingDog.sold,
-          available: dogData.available ?? existingDog.available,
-          puppy: dogData.puppy ?? existingDog.puppy,
-          outsideBreeder: dogData.outsideBreeder ?? existingDog.outsideBreeder,
           height: dogData.height ? parseFloat(dogData.height) : existingDog.height,
           weight: dogData.weight ? parseFloat(dogData.weight) : existingDog.weight,
+          sold: dogData.sold === undefined ? existingDog.sold : Boolean(dogData.sold),
+          available: dogData.available === undefined ? existingDog.available : Boolean(dogData.available),
+          puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
+          outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
           updatedAt: new Date()
         };
 
-        // Remove any undefined or null values
-        const cleanData = Object.fromEntries(
-          Object.entries(processedDogData).filter(([_, v]) => v !== undefined && v !== null)
-        );
-
         await tx.update(dogs)
-          .set(cleanData)
+          .set(updateData)
           .where(eq(dogs.id, dogId));
 
         await tx.delete(dogMedia)
