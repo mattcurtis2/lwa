@@ -1406,8 +1406,21 @@ export function registerRoutes(app: Express): Server {
   // Delete goat
   app.delete("/api/goats/:id", async (req, res) => {
     try {
+      const goatId = parseInt(req.params.id);
+      
+      // First, update any goats that reference this goat as mother/father
+      await db.update(goats)
+        .set({ motherId: null })
+        .where(eq(goats.motherId, goatId));
+      
+      await db.update(goats)
+        .set({ fatherId: null })
+        .where(eq(goats.fatherId, goatId));
+
+      // Now delete the goat
       await db.delete(goats)
-        .where(eq(goats.id, parseInt(req.params.id)));
+        .where(eq(goats.id, goatId));
+        
       res.json({ message: "Goat deleted successfully" });
     } catch (error) {
       console.error("Error deleting goat:", error);
