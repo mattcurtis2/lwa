@@ -78,7 +78,7 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Nigerian Dwarfs Dropdown */}
+            {/* Nigerian Dwarf Goats Dropdown */}
             <div className="relative">
               <Link href="/goats">
                 <button
@@ -86,7 +86,7 @@ export default function Header() {
                   onMouseLeave={() => setIsGoatDropdownOpen(false)}
                   className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
                 >
-                  Nigerian Dwarfs
+                  Nigerian Dwarf Goats
                 </button>
               </Link>
               <div 
