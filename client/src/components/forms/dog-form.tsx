@@ -64,7 +64,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     name: z.string().min(1, "Name is required"),
     registrationName: z.string().optional(),
     birthDate: z.string().optional(),
-    gender: z.enum(["male", "female"]),
+    gender: z.enum(["male", "female"]).optional(),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
     litterId: z.number().optional().nullable(),
