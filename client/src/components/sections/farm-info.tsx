@@ -54,7 +54,7 @@ export default function FarmInfo() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("bakery_redirect") || "/#goats")}>
+          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("bakery_redirect") || "/goats")}> {/* Changed this line */}
             <div className="aspect-video w-full overflow-hidden">
               <img 
                 src={getContent("bakery_image") || "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"} 
