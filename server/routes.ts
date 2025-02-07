@@ -785,10 +785,14 @@ export function registerRoutes(app: Express): Server {
           available: dogData.available === undefined ? existingDog.available : Boolean(dogData.available),
           puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
           outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
+          height: dogData.height ? parseFloat(dogData.height) : null,
+          weight: dogData.weight ? parseFloat(dogData.weight) : null,
           updatedAt: new Date()
         };
 
         await tx.update(dogs)
+          .set(processedDogData)
+          .where(eq(dogs.id, dogId))
           .set(processedDogData)
           .where(eq(dogs.id, dogId));
 
