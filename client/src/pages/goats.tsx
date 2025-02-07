@@ -38,9 +38,9 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
   });
 
   // Filter goats for different sections on main page
-  const kids = goats.filter(goat => goat.kid === true);
-  const females = goats.filter(goat => goat.gender === 'female' && !goat.kid);
-  const males = goats.filter(goat => goat.gender === 'male' && !goat.kid);
+  const availableGoats = goats.filter(goat => goat.available === true);
+  const females = goats.filter(goat => goat.gender === 'female' && !goat.available);
+  const males = goats.filter(goat => goat.gender === 'male' && !goat.available);
 
   // Determine the page title and description
   let pageTitle = "Our Nigerian Dwarf Goats";
@@ -165,16 +165,16 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
         {/* Show categorized sections on main page */}
         {!genderFilter && !showAvailable && (
           <div className="mt-16 space-y-16">
-            {/* Kids Section */}
-            {kids.length > 0 && (
+            {/* Available Goats Section */}
+            {availableGoats.length > 0 && (
               <div>
                 <div className="relative flex py-5 items-center mb-8">
                   <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Kids</h2>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Available Goats</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
-                  {kids.map(goat => (
+                  {availableGoats.map(goat => (
                     <GoatDetails key={goat.id} goat={goat} />
                   ))}
                 </div>
@@ -186,7 +186,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
               <div>
                 <div className="relative flex py-5 items-center mb-8">
                   <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Females</h2>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Females</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
@@ -202,7 +202,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
               <div>
                 <div className="relative flex py-5 items-center mb-8">
                   <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Males</h2>
+                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Males</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
