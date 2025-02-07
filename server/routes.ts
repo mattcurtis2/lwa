@@ -781,7 +781,7 @@ export function registerRoutes(app: Express): Server {
           puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
           outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
           order: existingDog.order,
-          updatedAt: new Date()
+          updatedAt: new Date() // Added updatedAt
         };
 
         await tx.update(dogs)
@@ -970,7 +970,7 @@ export function registerRoutes(app: Express): Server {
         updatedAt: new Date()
       };
       console.log('Formatted data:', formattedData);
-      
+
       const litter = await db.insert(litters)
         .values(formattedData)
         .returning();
