@@ -61,6 +61,8 @@ const createGoatSchema = (isKid: boolean = false) => {
     healthData: z.string().optional(),
     height: z.string().optional().nullable(),
     weight: z.string().optional().nullable(),
+    milkStars: z.string().optional(),
+    laArScores: z.string().optional(),
     profileImageUrl: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
@@ -115,6 +117,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       healthData: goat?.healthData || "",
       height: goat?.height?.toString() || "",
       weight: goat?.weight?.toString() || "",
+      milkStars: goat?.milkStars || "",
+      laArScores: goat?.laArScores || "",
       profileImageUrl: goat?.profileImageUrl || "",
       media: goat?.media || [],
       outsideBreeder: Boolean(goat?.outsideBreeder),
@@ -611,6 +615,36 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 <FormLabel>Weight (lbs)</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.1" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="milkStars"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Milk Stars</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., 5*M" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="laArScores"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>LA/AR Scores</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., LA90 AR90" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
