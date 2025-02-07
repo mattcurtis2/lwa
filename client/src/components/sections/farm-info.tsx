@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 import { useLocation } from "wouter";
-import { Link } from "react-router-dom"; // Added import for react-router-dom
+import { Link } from "wouter";
 
 export default function FarmInfo() {
   const { data: siteContent } = useQuery<SiteContent[]>({
