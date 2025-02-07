@@ -530,25 +530,43 @@ export default function DogForm({
       console.log('Form submission started with values:', values);
       const processedValues = {
         ...values,
-        height: values.height ? parseFloat(values.height) || null : null,
-        weight: values.weight ? parseFloat(values.weight) || null : null,
-        price: values.price ? parseInt(values.price.replace(/,/g, ''), 10) || null : null,
+        height: values.height ? parseFloat(values.height) : null,
+        weight: values.weight ? parseFloat(values.weight) : null,
+        price: values.price && values.price !== "" ? parseInt(values.price.replace(/,/g, '')) : null,
         motherId: values.motherId || null,
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
         breed: "Colorado Mountain Dogs",
-        sold: Boolean(values.sold),
         available: Boolean(values.available),
         puppy: Boolean(values.puppy),
         outsideBreeder: Boolean(values.outsideBreeder),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
-        ]
+        ],
+        // Handle optional fields
+        description: values.description || null,
+        narrativeDescription: values.narrativeDescription || null,
+        healthData: values.healthData || null,
+        color: values.color || null,
+        dewclaws: values.dewclaws || null,
+        furLength: values.furLength || null,
+        pedigree: values.pedigree || null,
+        registrationName: values.registrationName || null,
+        media: values.media || []
       };
+
+      // Remove any undefined values
+      Object.keys(processedValues).forEach(key => {
+        if (processedValues[key] === undefined) {
+          delete processedValues[key];
+        }
+      });
 
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
       const method = dog?.id ? 'PUT' : 'POST';
+
+      console.log('Making request with processed values:', processedValues);
 
       const response = await fetch(url, {
         method,
@@ -559,7 +577,8 @@ export default function DogForm({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save dog');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save dog');
       }
 
       const savedDog = await response.json();
@@ -577,6 +596,7 @@ export default function DogForm({
         onOpenChange(false);
       }
     } catch (error) {
+      console.error('Error in onSubmitWrapper:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save dog',
@@ -1071,7 +1091,7 @@ export default function DogForm({
                                 <img
                                   src={doc.url}
                                   alt={doc.name}
-                                  classNameclassName="w-12 h-12 object-cover rounded"
+                                  className="w-12 h-12 object-cover rounded"
                                 />
                               ) : doc.mimeType.startsWith('video/') ? (
                                 <video
