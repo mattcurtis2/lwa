@@ -4,6 +4,7 @@ import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/ui/file-upload";
 import {
   Form,
   FormControl,
