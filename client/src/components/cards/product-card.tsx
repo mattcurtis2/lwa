@@ -51,7 +51,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           Category: {product.category}
         </p>
         <p className="text-stone-600 mb-2">{product.description}</p>
-        <p className="font-bold">{product.price}</p>
+        <p className="font-bold">{product.price || '$0.00'}</p>
       </CardContent>
       {isAdmin && (
         <CardFooter className="flex gap-2">
