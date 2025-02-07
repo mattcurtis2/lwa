@@ -152,7 +152,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
             className="w-full h-full object-cover"
           />
         </div>
-        
+
         {/* Image Thumbnails */}
         {imageMedia.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
@@ -325,6 +325,18 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                     <h3 className="font-semibold mb-2">Weight</h3>
                     <p>{goat.weight ? `${goat.weight} lbs` : "Not specified"}</p>
                   </div>
+                  {goat.milkStars && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Milk Stars</h3>
+                      <p>{goat.milkStars}</p>
+                    </div>
+                  )}
+                  {goat.laArScores && (
+                    <div>
+                      <h3 className="font-semibold mb-2">LA/AR Scores</h3>
+                      <p>{goat.laArScores}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
