@@ -145,60 +145,35 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
             <FormItem>
               <FormLabel>Product Image</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="relative h-24 w-24 cursor-pointer"
-                    onClick={() => {
-                      if (field.value) {
-                        setCropImageUrl(field.value);
-                        setShowCropper(true);
+                <div className="space-y-4">
+                  <FileUpload
+                    value={field.value}
+                    onFileSelect={async (file) => {
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      try {
+                        const uploadRes = await fetch('/api/upload', {
+                          method: 'POST',
+                          body: formData,
+                        });
+                        const { url } = await uploadRes.json();
+                        field.onChange(url);
+                      } catch (error) {
+                        console.error('Upload error:', error);
                       }
                     }}
-                  >
-                    <div className="absolute inset-0 rounded-lg border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
-                      {field.value ? (
-                        <img
-                          src={field.value}
-                          alt="Profile preview"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
+                    onChange={field.onChange}
+                  />
+                  {field.value && (
+                    <div className="w-full aspect-video rounded-lg overflow-hidden border">
+                      <img
+                        src={field.value}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = (e) => {
-                          const file = (e.target as HTMLInputElement).files?.[0];
-                          if (file) {
-                            handleProfilePictureSelect(file);
-                          }
-                        };
-                        input.click();
-                      }}
-                    >
-                      {field.value ? 'Change Picture' : 'Upload Picture'}
-                    </Button>
-                    {field.value && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => field.onChange('')}
-                        className="text-red-500 hover:text-red-600"
-                      >
-                        Remove Picture
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />
