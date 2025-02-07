@@ -792,8 +792,6 @@ export function registerRoutes(app: Express): Server {
 
         await tx.update(dogs)
           .set(processedDogData)
-          .where(eq(dogs.id, dogId))
-          .set(processedDogData)
           .where(eq(dogs.id, dogId));
 
         await tx.delete(dogMedia)
