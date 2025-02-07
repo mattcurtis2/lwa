@@ -45,7 +45,8 @@ export function useLitterManagement() {
         description: 'Litter created successfully',
       });
       setLitterFormMode('edit');
-      setEditLitter({ ...newLitter, puppies: [] });
+      setEditLitter(null);
+      setShowLitterForm(false);
     } catch (error) {
       console.error('Error creating litter:', error);
       toast({

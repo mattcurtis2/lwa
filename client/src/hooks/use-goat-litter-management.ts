@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -50,8 +49,9 @@ export function useGoatLitterManagement() {
         title: 'Success',
         description: 'Litter created successfully',
       });
-      setShowLitterForm(false);
+      setLitterFormMode('edit');
       setEditLitter(null);
+      setShowLitterForm(false);
     } catch (error) {
       console.error('Error creating litter:', error);
       toast({
