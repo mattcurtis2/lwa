@@ -35,9 +35,9 @@ export default function GoatUpcomingLitters() {
         <div className="container mx-auto px-4">
           <Card>
             <CardHeader>
-              <CardTitle>No Upcoming Litters</CardTitle>
+              <CardTitle>No Current Litters</CardTitle>
               <CardDescription>
-                Check back later for updates on our upcoming litters.
+                Check back later for updates on our current litters.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -49,14 +49,14 @@ export default function GoatUpcomingLitters() {
   return (
     <div className="min-h-screen bg-background pt-20">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">Upcoming Litters</h1>
+        <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
         <div className="space-y-12">
           {upcomingLitters.map(litter => (
             <Card key={litter.id}>
               <CardHeader>
                 <CardTitle>Expected {new Date(litter.dueDate).toLocaleDateString()}</CardTitle>
                 <CardDescription>
-                  View details about this upcoming litter
+                  View details about this current litter
                 </CardDescription>
               </CardHeader>
               <CardContent>
