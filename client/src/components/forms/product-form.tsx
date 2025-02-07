@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ImageCrop } from "@/components/ui/image-crop";
+import { FileUpload } from "@/components/ui/file-upload";
 import {
   Form,
   FormControl,
