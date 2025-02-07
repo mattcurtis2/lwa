@@ -778,15 +778,15 @@ export function registerRoutes(app: Express): Server {
           Object.entries(dogData).filter(([_, v]) => v !== undefined && v !== null)
         );
 
-        // Ensure boolean fields are properly typed
+        // Ensure numeric fields are properly typed
         const processedDogData = {
           ...cleanData,
           sold: dogData.sold === undefined ? existingDog.sold : Boolean(dogData.sold),
           available: dogData.available === undefined ? existingDog.available : Boolean(dogData.available),
           puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
           outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
-          height: dogData.height ? parseFloat(dogData.height) : null,
-          weight: dogData.weight ? parseFloat(dogData.weight) : null,
+          height: dogData.height ? parseFloat(dogData.height) : existingDog.height,
+          weight: dogData.weight ? parseFloat(dogData.weight) : existingDog.weight,
           updatedAt: new Date()
         };
 
