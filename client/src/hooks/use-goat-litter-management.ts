@@ -27,16 +27,18 @@ export function useGoatLitterManagement() {
         return;
       }
 
+      const formattedLitter = {
+        motherId: editLitter.motherId,
+        fatherId: editLitter.fatherId,
+        dueDate: editLitter.dueDate.toString(),
+      };
+
       const res = await fetch("/api/goat-litters", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          motherId: editLitter.motherId,
-          fatherId: editLitter.fatherId,
-          dueDate: editLitter.dueDate,
-        }),
+        body: JSON.stringify(formattedLitter),
       });
 
       if (!res.ok) {
