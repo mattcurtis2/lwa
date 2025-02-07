@@ -55,7 +55,7 @@ export default function FarmInfo() {
             </CardContent>
           </Card>
 
-          <Link to="/goats"> {/* Added Link component with to prop */}
+          <Link to="/goats">
           <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" >
             <div className="aspect-video w-full overflow-hidden">
               <img 
@@ -79,9 +79,10 @@ export default function FarmInfo() {
               </div>
             </CardContent>
           </Card>
-        </Link> {/* Closing Link */}
+          </Link>
 
-          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("products_redirect") || "/#market")}>
+          <Link to={getContent("products_redirect") || "/market"}>
+          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full">
             <div className="aspect-video w-full overflow-hidden">
               <img 
                 src={getContent("products_image") || "https://images.unsplash.com/photo-1488459716781-31db52582fe9"} 
@@ -104,6 +105,7 @@ export default function FarmInfo() {
               </div>
             </CardContent>
           </Card>
+          </Link>
         </div>
       </div>
     </section>
