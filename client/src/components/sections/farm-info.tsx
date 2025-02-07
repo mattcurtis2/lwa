@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 import { useLocation } from "wouter";
+import { Link } from "react-router-dom"; // Added import for react-router-dom
 
 export default function FarmInfo() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -54,7 +55,8 @@ export default function FarmInfo() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("bakery_redirect") || "/goats")}>
+          <Link to="/goats"> {/* Added Link component with to prop */}
+          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" >
             <div className="aspect-video w-full overflow-hidden">
               <img 
                 src={getContent("bakery_image") || "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"} 
@@ -77,6 +79,7 @@ export default function FarmInfo() {
               </div>
             </CardContent>
           </Card>
+        </Link> {/* Closing Link */}
 
           <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("products_redirect") || "/#market")}>
             <div className="aspect-video w-full overflow-hidden">
