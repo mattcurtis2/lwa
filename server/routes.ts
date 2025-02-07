@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -792,7 +792,7 @@ export function registerRoutes(app: Express): Server {
           .where(eq(dogMedia.dogId, dogId));
 
         await tx.delete(dogDocuments)
-          .where(eq(dogDocuments.dogId, dogId));
+          .where(eq(dogDocuments.dogid, dogId));
 
         // Update dog media
         if (media && media.length > 0) {
@@ -1016,9 +1016,17 @@ export function registerRoutes(app: Express): Server {
 
   app.delete("/api/litters/:id", async (req, res) => {
     try {
+      const litterId = parseInt(req.params.id);
+
+      // First, delete all related interest signups
+      await db.delete(litter_interest_signups)
+        .where(eq(litter_interest_signups.litterId, litterId));
+
+      // Then delete the litter
       await db.delete(litters)
-        .where(eq(litters.id, parseInt(req.params.id)));
-      res.json({ message: "Deleted successfully" });
+        .where(eq(litters.id, litterId));
+
+      res.json({ message: "Litter deleted successfully" });
     } catch (error) {
       console.error("Error deleting litter:", error);
       res.status(500).json({ message: "Failed to delete litter" });
@@ -1407,12 +1415,12 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/goats/:id", async (req, res) => {
     try {
       const goatId = parseInt(req.params.id);
-      
+
       // First, update any goats that reference this goat as mother/father
       await db.update(goats)
         .set({ motherId: null })
         .where(eq(goats.motherId, goatId));
-      
+
       await db.update(goats)
         .set({ fatherId: null })
         .where(eq(goats.fatherId, goatId));
@@ -1420,7 +1428,7 @@ export function registerRoutes(app: Express): Server {
       // Now delete the goat
       await db.delete(goats)
         .where(eq(goats.id, goatId));
-        
+
       res.json({ message: "Goat deleted successfully" });
     } catch (error) {
       console.error("Error deleting goat:", error);
