@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
@@ -17,10 +16,20 @@ export function useLitterManagement() {
 
   const createLitter = async () => {
     try {
+      const dueDate = new Date(editLitter?.dueDate);
+      if (isNaN(dueDate.getTime())) {
+        throw new Error('Invalid due date');
+      }
+
+      const formattedLitter = {
+        ...editLitter,
+        dueDate: dueDate.toISOString(),
+      };
+
       const res = await fetch('/api/litters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editLitter),
+        body: JSON.stringify(formattedLitter),
       });
 
       if (!res.ok) throw new Error('Failed to create litter');
