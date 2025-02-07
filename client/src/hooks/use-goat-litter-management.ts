@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -12,9 +13,8 @@ interface ExtendedGoatLitter extends GoatLitter {
 export function useGoatLitterManagement() {
   const { toast } = useToast();
   const [showLitterForm, setShowLitterForm] = useState(false);
+  const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
   const [editLitter, setEditLitter] = useState<ExtendedGoatLitter | null>(null);
-
-  const litterFormMode = editLitter?.id ? 'edit' : 'create';
 
   const createLitter = async () => {
     try {
@@ -27,38 +27,37 @@ export function useGoatLitterManagement() {
         return;
       }
 
-      const formattedLitter = {
-        motherId: editLitter.motherId,
-        fatherId: editLitter.fatherId,
-        dueDate: editLitter.dueDate.toString(),
-      };
-
       const res = await fetch("/api/goat-litters", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formattedLitter),
+        body: JSON.stringify({
+          motherId: editLitter.motherId,
+          fatherId: editLitter.fatherId,
+          dueDate: editLitter.dueDate,
+          isVisible: true
+        }),
       });
 
       if (!res.ok) {
         throw new Error(await res.text());
       }
 
-      queryClient.invalidateQueries({ queryKey: ["/api/goat-litters"] });
+      const newLitter = await res.json();
+      queryClient.invalidateQueries({ queryKey: ['/api/goat-litters'] });
+      toast({
+        title: 'Success',
+        description: 'Litter created successfully',
+      });
       setShowLitterForm(false);
       setEditLitter(null);
-
-      toast({
-        title: "Success",
-        description: "Litter created successfully",
-      });
     } catch (error) {
-      console.error("Error creating litter:", error);
+      console.error('Error creating litter:', error);
       toast({
-        title: "Error",
-        description: "Failed to create litter",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create litter',
+        variant: 'destructive',
       });
     }
   };
@@ -83,6 +82,7 @@ export function useGoatLitterManagement() {
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
           dueDate: editLitter.dueDate,
+          isVisible: editLitter.isVisible
         }),
       });
 
@@ -90,20 +90,19 @@ export function useGoatLitterManagement() {
         throw new Error(await res.text());
       }
 
-      queryClient.invalidateQueries({ queryKey: ["/api/goat-litters"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/goat-litters'] });
+      toast({
+        title: 'Success',
+        description: 'Litter updated successfully',
+      });
       setShowLitterForm(false);
       setEditLitter(null);
-
-      toast({
-        title: "Success",
-        description: "Litter updated successfully",
-      });
     } catch (error) {
-      console.error("Error updating litter:", error);
+      console.error('Error updating litter:', error);
       toast({
-        title: "Error",
-        description: "Failed to update litter",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update litter',
+        variant: 'destructive',
       });
     }
   };
@@ -111,10 +110,11 @@ export function useGoatLitterManagement() {
   return {
     showLitterForm,
     setShowLitterForm,
+    litterFormMode,
+    setLitterFormMode,
     editLitter,
     setEditLitter,
-    litterFormMode,
     createLitter,
-    updateLitter,
+    updateLitter
   };
 }
