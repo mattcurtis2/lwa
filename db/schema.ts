@@ -277,8 +277,6 @@ export const goats = pgTable("goats", {
   registrationName: text("registration_name"),
   breed: text("breed").notNull(),
   gender: text("gender").notNull(),
-  milkStars: text("milk_stars"),
-  laScores: text("la_scores"),
   birthDate: date("birth_date").notNull(),
   description: text("description"),
   motherId: integer("mother_id").references(() => goats.id),

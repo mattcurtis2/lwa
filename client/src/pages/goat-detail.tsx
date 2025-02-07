@@ -73,20 +73,6 @@ export default function GoatDetail() {
                     <p className="text-muted-foreground">{goat.color}</p>
                   </div>
                 )}
-                
-                {goat.milkStars && (
-                  <div>
-                    <h4 className="font-medium">Milk Stars</h4>
-                    <p className="text-muted-foreground">{goat.milkStars}</p>
-                  </div>
-                )}
-
-                {goat.laScores && (
-                  <div>
-                    <h4 className="font-medium">LA/AR Scores</h4>
-                    <p className="text-muted-foreground">{goat.laScores}</p>
-                  </div>
-                )}
               </div>
             </TabsContent>
             

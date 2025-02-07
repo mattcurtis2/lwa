@@ -75,9 +75,7 @@ const createGoatSchema = (isKid: boolean = false) => {
       url: z.string(),
       name: z.string(),
       mimeType: z.string()
-    })).optional(),
-    milkStars: z.string().optional(),
-    laScores: z.string().optional()
+    })).optional()
   };
 
   return z.object(baseSchema);
@@ -126,9 +124,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,
       litterId: goat?.litterId || null,
-      documents: goat?.documents || [],
-      milkStars: goat?.milkStars || "",
-      laScores: goat?.laScores || ""
+      documents: goat?.documents || []
     }
   });
 
@@ -591,34 +587,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             </FormItem>
           )}
         />
-
-        <FormField
-            control={form.control}
-            name="milkStars"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Milk Stars</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., 2*M" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="laScores"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>LA/AR Scores</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., LA 88 VEV" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
