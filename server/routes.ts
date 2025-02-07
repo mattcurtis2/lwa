@@ -778,15 +778,20 @@ export function registerRoutes(app: Express): Server {
           ...dogData,
           height: dogData.height ? parseFloat(dogData.height) : existingDog.height,
           weight: dogData.weight ? parseFloat(dogData.weight) : existingDog.weight,
-          sold: dogData.sold === undefined ? existingDog.sold : Boolean(dogData.sold),
-          available: dogData.available === undefined ? existingDog.available : Boolean(dogData.available),
-          puppy: dogData.puppy === undefined ? existingDog.puppy : Boolean(dogData.puppy),
-          outsideBreeder: dogData.outsideBreeder === undefined ? existingDog.outsideBreeder : Boolean(dogData.outsideBreeder),
+          sold: Boolean(dogData.sold),
+          available: Boolean(dogData.available),
+          puppy: Boolean(dogData.puppy),
+          outsideBreeder: Boolean(dogData.outsideBreeder),
           updatedAt: new Date()
         };
 
+        // Filter out any undefined or null values
+        const cleanedData = Object.fromEntries(
+          Object.entries(updateData).filter(([_, v]) => v !== undefined && v !== null)
+        );
+
         await tx.update(dogs)
-          .set(updateData)
+          .set(cleanedData)
           .where(eq(dogs.id, dogId));
 
         await tx.delete(dogMedia)
