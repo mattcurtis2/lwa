@@ -31,29 +31,31 @@ export default function FarmInfo() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" onClick={() => handleCardClick(getContent("animals_redirect") || "/dogs")}>
-            <div className="aspect-video w-full overflow-hidden">
-              <img 
-                src={getContent("animals_image") || "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e"} 
-                alt="Our Animals"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="pt-6 flex-1 flex flex-col">
-              <h3 className="text-xl font-bold mb-4">
-                {getContent("animals_title") || "Our Animals"}
-              </h3>
-              <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
-                {getContent("animals_text") || 
-                  "Home to our wonderful Colorado Mountain Dogs and Nigerian Dwarf Goats, raised with love and care in a natural environment."}
-              </p>
-              <div className="text-center">
-                <Button className="w-full">
-                  {getContent("animals_button_text") || "Learn More About Our Dogs"}
-                </Button>
+          <Link to={getContent("animals_redirect") || "/dogs"}>
+            <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full">
+              <div className="aspect-video w-full overflow-hidden">
+                <img 
+                  src={getContent("animals_image") || "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e"} 
+                  alt="Our Animals"
+                  className="w-full h-full object-cover"
+                />
               </div>
-            </CardContent>
-          </Card>
+              <CardContent className="pt-6 flex-1 flex flex-col">
+                <h3 className="text-xl font-bold mb-4">
+                  {getContent("animals_title") || "Our Animals"}
+                </h3>
+                <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
+                  {getContent("animals_text") || 
+                    "Home to our wonderful Colorado Mountain Dogs and Nigerian Dwarf Goats, raised with love and care in a natural environment."}
+                </p>
+                <div className="text-center">
+                  <Button className="w-full">
+                    {getContent("animals_button_text") || "Learn More About Our Dogs"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Link to="/goats">
           <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full" >
