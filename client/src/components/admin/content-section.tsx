@@ -184,6 +184,120 @@ const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   );
 };
 
+const handleFileUpload = async (file: File): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const uploadRes = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!uploadRes.ok) throw new Error("Failed to upload file");
+    const { url } = await uploadRes.json();
+    return url;
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Upload failed",
+      description: "Failed to upload image to S3",
+      variant: "destructive",
+    });
+    throw error;
+  }
+};
+
+const handleHeroImageUpload = async (file: File) => {
+  try {
+    const imageUrl = await handleFileUpload(file);
+    setPendingChanges((prev) => ({
+      ...prev,
+      siteContent: {
+        ...prev.siteContent,
+        hero_background: imageUrl,
+      },
+    }));
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Upload failed",
+      description: "Please try again",
+      variant: "destructive",
+    });
+  }
+};
+
+const handlePrincipleImageUpload = async (files: File[], principleId: number) => {
+  if (!files.length) return;
+  try {
+    const imageUrl = await handleFileUpload(files[0]);
+    setPendingChanges((prev) => ({
+      ...prev,
+      principles: {
+        ...prev.principles,
+        [principleId]: {
+          ...prev.principles[principleId],
+          imageUrl,
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Upload failed",
+      description: "Please try again",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleAboutCardImageUpload = async (file: File, cardId: number) => {
+  try {
+    const imageUrl = await handleFileUpload(file);
+    setPendingChanges((prev) => ({
+      ...prev,
+      aboutCards: {
+        ...prev.aboutCards,
+        [cardId]: {
+          ...prev.aboutCards[cardId],
+          imageUrl,
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Upload failed",
+      description: "Please try again",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleCarouselImageUpload = async (file: File, itemId: number) => {
+  try {
+    const imageUrl = await handleFileUpload(file);
+    setPendingChanges((prev) => ({
+      ...prev,
+      carouselItems: {
+        ...prev.carouselItems,
+        [itemId]: {
+          ...prev.carouselItems[itemId],
+          imageUrl,
+        },
+      },
+    }));
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Upload failed",
+      description: "Please try again",
+      variant: "destructive",
+    });
+  }
+};
+
 export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -199,10 +313,7 @@ export default function ContentSection() {
   });
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
   const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(null);
-  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(
-    null,
-  );
-
+  const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(null);
 
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
@@ -236,17 +347,6 @@ export default function ContentSection() {
     }
   }, [aboutCardsData]);
 
-  const handleFileUpload = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        resolve(result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
 
   const updateSiteContent = useMutation({
     mutationFn: async ({
@@ -376,99 +476,6 @@ export default function ContentSection() {
       toast({ title: "All changes saved successfully" });
     } catch (error) {
       toast({ title: "Failed to save changes", variant: "destructive" });
-    }
-  };
-
-  const handleHeroImageUpload = async (file: File) => {
-    try {
-      const imageUrl = await handleFileUpload(file);
-      setPendingChanges((prev) => ({
-        ...prev,
-        siteContent: {
-          ...prev.siteContent,
-          hero_background: imageUrl,
-        },
-      }));
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePrincipleImageUpload = async (
-    files: File[],
-    principleId: number,
-  ) => {
-    if (!files.length) return;
-    try {
-      const imageUrl = await handleFileUpload(files[0]);
-      setPendingChanges((prev) => ({
-        ...prev,
-        principles: {
-          ...prev.principles,
-          [principleId]: {
-            ...prev.principles[principleId],
-            imageUrl,
-          },
-        },
-      }));
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAboutCardImageUpload = async (file: File, cardId: number) => {
-    try {
-      const imageUrl = await handleFileUpload(file);
-      setPendingChanges((prev) => ({
-        ...prev,
-        aboutCards: {
-          ...prev.aboutCards,
-          [cardId]: {
-            ...prev.aboutCards[cardId],
-            imageUrl,
-          },
-        },
-      }));
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCarouselImageUpload = async (file: File, itemId: number) => {
-    try {
-      const imageUrl = await handleFileUpload(file);
-      setPendingChanges((prev) => ({
-        ...prev,
-        carouselItems: {
-          ...prev.carouselItems,
-          [itemId]: {
-            ...prev.carouselItems[itemId],
-            imageUrl,
-          },
-        },
-      }));
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
     }
   };
 
@@ -984,7 +991,7 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Hero Title</Label>
                     <Input
-                      value={getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
+                      value={getContentValue("dog_hero_title")}
                       onChange={(e) => handleContentChange("dog_hero_title", e.target.value)}
                       placeholder="Enter hero title"
                     />
@@ -992,7 +999,7 @@ export default function ContentSection() {
                   <div className="space-y-2">
                     <Label>Hero Subtitle</Label>
                     <Textarea
-                      value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
+                      value={getContentValue("dog_hero_subtitle")}
                       onChange={(e) => handleContentChange("dog_hero_subtitle", e.target.value)}
                       placeholder="Enter hero subtitle"
                     />
@@ -1304,7 +1311,6 @@ export default function ContentSection() {
               </CardContent>
             </Card>
 
-            
           </div>
         </TabsContent>
         <TabsContent value="welcome" className="space-y-6">
