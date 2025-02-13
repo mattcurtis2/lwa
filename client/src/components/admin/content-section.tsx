@@ -600,17 +600,17 @@ export default function ContentSection() {
             <div className="space-y-2">
               <Label>Hero Background Image</Label>
               <HeroDropzone onDrop={handleHeroImageUpload} />
-              {getContentValue("hero_background") && (
+              {(pendingChanges.siteContent["hero_background"] || getContentValue("hero_background")) && (
                 <div className="relative group">
                   <img
-                    src={getContentValue("hero_background")}
+                    src={pendingChanges.siteContent["hero_background"] || getContentValue("hero_background")}
                     alt="Hero background"
                     className="mt-4 rounded-lg max-h-48 object-cover"
                   />
                   <div
                     className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
                     onClick={() => {
-                      setCropImageUrl(getContentValue("hero_background"));
+                      setCropImageUrl(pendingChanges.siteContent["hero_background"] || getContentValue("hero_background"));
                       setShowCropper(true);
                     }}
                   >
