@@ -223,8 +223,6 @@ const handleImageUpload = async (file: File, contentKey: string) => {
   }
 };
 
-import { useToast } from "@/hooks/use-toast";
-
 const handleHeroImageUpload = async (file: File) => {
   const { toast } = useToast();
   try {
