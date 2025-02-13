@@ -185,7 +185,7 @@ const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   );
 };
 
-const handleFileUpload = async (file: File): Promise<string> => {
+const handleFileUpload = async (file: File, toast: any): Promise<string> => {
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -209,26 +209,28 @@ const handleFileUpload = async (file: File): Promise<string> => {
   }
 };
 
-const handleHeroImageUpload = async (file: File) => {
+const handleImageUpload = async (file: File, contentKey: string) => {
   try {
-    const imageUrl = await handleFileUpload(file);
-    setPendingChanges((prev) => ({
-      ...prev,
-      siteContent: {
-        ...prev.siteContent,
-        hero_background: imageUrl,
-      },
-    }));
+    const imageUrl = await handleFileUpload(file, toast);
+    handleContentChange(contentKey, imageUrl);
+    toast({
+      title: "Success",
+      description: "Image uploaded successfully",
+    });
   } catch (error) {
     console.error("Upload failed:", error);
-    // Toast is already handled in handleFileUpload
+    // Toast already handled in handleFileUpload
   }
+};
+
+const handleHeroImageUpload = async (file: File) => {
+  await handleImageUpload(file, "hero_background");
 };
 
 const handlePrincipleImageUpload = async (files: File[], principleId: number) => {
   if (!files.length) return;
   try {
-    const imageUrl = await handleFileUpload(files[0]);
+    const imageUrl = await handleFileUpload(files[0], toast);
     setPendingChanges((prev) => ({
       ...prev,
       principles: {
@@ -239,15 +241,19 @@ const handlePrincipleImageUpload = async (files: File[], principleId: number) =>
         },
       },
     }));
+    toast({
+      title: "Success",
+      description: "Principle image uploaded successfully",
+    });
   } catch (error) {
     console.error("Upload failed:", error);
-    // Toast is already handled in handleFileUpload
+    // Toast already handled in handleFileUpload
   }
 };
 
 const handleAboutCardImageUpload = async (file: File, cardId: number) => {
   try {
-    const imageUrl = await handleFileUpload(file);
+    const imageUrl = await handleFileUpload(file, toast);
     setPendingChanges((prev) => ({
       ...prev,
       aboutCards: {
@@ -258,15 +264,19 @@ const handleAboutCardImageUpload = async (file: File, cardId: number) => {
         },
       },
     }));
+    toast({
+      title: "Success",
+      description: "About card image uploaded successfully",
+    });
   } catch (error) {
     console.error("Upload failed:", error);
-    // Toast is already handled in handleFileUpload
+    // Toast already handled in handleFileUpload
   }
 };
 
 const handleCarouselImageUpload = async (file: File, itemId: number) => {
   try {
-    const imageUrl = await handleFileUpload(file);
+    const imageUrl = await handleFileUpload(file, toast);
     setPendingChanges((prev) => ({
       ...prev,
       carouselItems: {
@@ -277,9 +287,13 @@ const handleCarouselImageUpload = async (file: File, itemId: number) => {
         },
       },
     }));
+    toast({
+      title: "Success",
+      description: "Carousel image uploaded successfully",
+    });
   } catch (error) {
     console.error("Upload failed:", error);
-    // Toast is already handled in handleFileUpload
+    // Toast already handled in handleFileUpload
   }
 };
 
@@ -599,7 +613,9 @@ export default function ContentSection() {
                       setCropImageUrl(getContentValue("hero_background"));
                       setShowCropper(true);
                     }}
-                  />
+                  >
+                    <button className="opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+                  </div>
                 </div>
               )}
             </div>
@@ -667,7 +683,9 @@ export default function ContentSection() {
                           setShowCropper(true);
                         }
                       }}
-                    />
+                    >
+                      <button className="opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -763,11 +781,7 @@ export default function ContentSection() {
                   <PrincipleDropzone
                     onDrop={(files) => {
                       if (files[0]) {
-                        handleFileUpload(files[0]).then(imageUrl => {
-                          handleContentChange("animals_image", imageUrl);
-                        }).catch(() => {
-                          // Error already handled by handleFileUpload
-                        });
+                        handleImageUpload(files[0], "animals_image");
                       }
                     }}
                     currentImageUrl={getContentValue("animals_image")}
@@ -779,6 +793,17 @@ export default function ContentSection() {
                         alt="Animals Image Preview"
                         className="mt-4 rounded-lg max-h-48 object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                        <button
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("animals_image"));
+                            setShowCropper(true);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -824,11 +849,7 @@ export default function ContentSection() {
                   <PrincipleDropzone
                     onDrop={(files) => {
                       if (files[0]) {
-                        handleFileUpload(files[0]).then(imageUrl => {
-                          handleContentChange("bakery_image", imageUrl);
-                        }).catch(() => {
-                          // Error already handled by handleFileUpload
-                        });
+                        handleImageUpload(files[0], "bakery_image");
                       }
                     }}
                     currentImageUrl={getContentValue("bakery_image")}
@@ -840,6 +861,17 @@ export default function ContentSection() {
                         alt="Goats Image Preview"
                         className="mt-4 rounded-lg max-h-48 object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                        <button
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("bakery_image"));
+                            setShowCropper(true);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -885,11 +917,7 @@ export default function ContentSection() {
                   <PrincipleDropzone
                     onDrop={(files) => {
                       if (files[0]) {
-                        handleFileUpload(files[0]).then(imageUrl => {
-                          handleContentChange("products_image", imageUrl);
-                        }).catch(() => {
-                          // Error already handled by handleFileUpload
-                        });
+                        handleImageUpload(files[0], "products_image");
                       }
                     }}
                     currentImageUrl={getContentValue("products_image")}
@@ -901,6 +929,17 @@ export default function ContentSection() {
                         alt="Products Image Preview"
                         className="mt-4 rounded-lg max-h-48 object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                        <button
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("products_image"));
+                            setShowCropper(true);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -960,14 +999,30 @@ export default function ContentSection() {
                 />
                 {(pendingChanges.carouselItems[item.id]?.imageUrl ??
                   item.imageUrl) && (
-                  <img
-                    src={
-                      pendingChanges.carouselItems[item.id]?.imageUrl ??
-                      item.imageUrl
-                    }
-                    alt={item.title}
-                    className="mt-2 rounded-lg max-h-48 object-cover"
-                  />
+                  <div className="relative group">
+                    <img
+                      src={
+                        pendingChanges.carouselItems[item.id]?.imageUrl ??
+                        item.imageUrl
+                      }
+                      alt={item.title}
+                      className="mt-2 rounded-lg max-h-48 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                      <button
+                        onClick={() => {
+                          setCropImageUrl(
+                            pendingChanges.carouselItems[item.id]?.imageUrl ??
+                              item.imageUrl,
+                          );
+                          setShowCropper(true);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -1000,11 +1055,7 @@ export default function ContentSection() {
                     <PrincipleDropzone
                       onDrop={(files) => {
                         if (files[0]) {
-                          handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("dog_hero_image", imageUrl);
-                          }).catch(() => {
-                            // Error already handled by handleFileUpload
-                          });
+                          handleImageUpload(files[0], "dog_hero_image");
                         }
                       }}
                       currentImageUrl={getContentValue("dog_hero_image")}
@@ -1016,6 +1067,17 @@ export default function ContentSection() {
                           alt="Hero"
                           className="mt-4 rounded-lg max-h-48 object-cover"
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                          <button
+                            onClick={() => {
+                              setCropImageUrl(getContentValue("dog_hero_image"));
+                              setShowCropper(true);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            Edit
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1096,11 +1158,7 @@ export default function ContentSection() {
                     <PrincipleDropzone
                       onDrop={(files) => {
                         if (files[0]) {
-                          handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("goat_hero_image", imageUrl);
-                          }).catch(() => {
-                            // Error already handled by handleFileUpload
-                          });
+                          handleImageUpload(files[0], "goat_hero_image");
                         }
                       }}
                       currentImageUrl={getContentValue("goat_hero_image")}
@@ -1193,11 +1251,7 @@ export default function ContentSection() {
                     <PrincipleDropzone
                       onDrop={(files) => {
                         if (files[0]) {
-                          handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("market_hero_image", imageUrl);
-                          }).catch(() => {
-                            // Error already handled by handleFileUpload
-                          });
+                          handleImageUpload(files[0], "market_hero_image");
                         }
                       }}
                       currentImageUrl={getContentValue("market_hero_image")}
@@ -1209,6 +1263,17 @@ export default function ContentSection() {
                           alt="Market Hero Preview"
                           className="mt-4 rounded-lg max-h-48 object-cover"
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center">
+                          <button
+                            onClick={() => {
+                              setCropImageUrl(getContentValue("market_hero_image"));
+                              setShowCropper(true);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            Edit
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1351,7 +1416,7 @@ export default function ContentSection() {
               const response = await fetch(croppedImageUrl);
               const blob = await response.blob();
               const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-              const uploadedUrl = await handleFileUpload(file);
+              const uploadedUrl = await handleFileUpload(file, toast);
 
               if (pendingPrincipleId !== null) {
                 setPendingChanges((prev) => ({
