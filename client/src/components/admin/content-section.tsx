@@ -224,7 +224,21 @@ const handleImageUpload = async (file: File, contentKey: string) => {
 };
 
 const handleHeroImageUpload = async (file: File) => {
-  await handleImageUpload(file, "hero_background");
+  try {
+    const imageUrl = await handleFileUpload(file, toast);
+    handleContentChange("hero_background", imageUrl);
+    toast({
+      title: "Success",
+      description: "Hero image uploaded successfully",
+    });
+  } catch (error) {
+    console.error("Upload failed:", error);
+    toast({
+      title: "Error",
+      description: "Failed to upload image",
+      variant: "destructive",  
+    });
+  }
 };
 
 const handlePrincipleImageUpload = async (files: File[], principleId: number) => {
