@@ -332,11 +332,34 @@ export default function DogForm({
     }
   };
 
-  const removeMediaInput = (index: number) => {
-    const newInputs = [...mediaInputs];
-    newInputs.splice(index, 1);
-    setMediaInputs(newInputs);
-    form.setValue("media", newInputs);
+  const removeMediaInput = async (index: number) => {
+    try {
+      const mediaToRemove = mediaInputs[index];
+      if (mediaToRemove.url) {
+        const key = extractKeyFromUrl(mediaToRemove.url);
+        if (key) {
+          await fetch(`/api/upload/${encodeURIComponent(key)}`, {
+            method: 'DELETE',
+          });
+        }
+      }
+      const newInputs = [...mediaInputs];
+      newInputs.splice(index, 1);
+      setMediaInputs(newInputs);
+      form.setValue("media", newInputs);
+
+      toast({
+        title: "Success",
+        description: "Media removed successfully",
+      });
+    } catch (error) {
+      console.error('Error removing media:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove media",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleProfilePictureSelect = async (file: File) => {
@@ -511,15 +534,68 @@ export default function DogForm({
     }
   };
 
-  const removeDocument = (index: number, type: 'health' | 'pedigree') => {
-    if (type === 'health') {
-      const newHealthDocs = healthDocuments.filter((_, i) => i !== index);
-      setHealthDocuments(newHealthDocs);
-      form.setValue("documents", [...newHealthDocs, ...pedigreeDocuments]);
-    } else {
-      const newPedigreeDocs = pedigreeDocuments.filter((_, i) => i !== index);
-      setPedigreeDocuments(newPedigreeDocs);
-      form.setValue("documents", [...healthDocuments, ...newPedigreeDocs]);
+  const removeDocument = async (index: number, type: 'health' | 'pedigree') => {
+    try {
+      const docs = type === 'health' ? healthDocuments : pedigreeDocuments;
+      const docToRemove = docs[index];
+
+      if (docToRemove.url) {
+        const key = extractKeyFromUrl(docToRemove.url);
+        if (key) {
+          await fetch(`/api/upload/${encodeURIComponent(key)}`, {
+            method: 'DELETE',
+          });
+        }
+      }
+
+      if (type === 'health') {
+        const newHealthDocs = healthDocuments.filter((_, i) => i !== index);
+        setHealthDocuments(newHealthDocs);
+        form.setValue("documents", [...newHealthDocs, ...pedigreeDocuments]);
+      } else {
+        const newPedigreeDocs = pedigreeDocuments.filter((_, i) => i !== index);
+        setPedigreeDocuments(newPedigreeDocs);
+        form.setValue("documents", [...healthDocuments, ...newPedigreeDocs]);
+      }
+
+      toast({
+        title: "Success",
+        description: "Document removed successfully",
+      });
+    } catch (error) {
+      console.error('Error removing document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveProfilePicture = async () => {
+    try {
+      const currentUrl = form.getValues("profileImageUrl");
+      if (currentUrl) {
+        const key = extractKeyFromUrl(currentUrl);
+        if (key) {
+          await fetch(`/api/upload/${encodeURIComponent(key)}`, {
+            method: 'DELETE',
+          });
+        }
+      }
+      form.setValue("profileImageUrl", "");
+
+      toast({
+        title: "Success",
+        description: "Profile picture removed successfully",
+      });
+    } catch (error) {
+      console.error('Error removing profile picture:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture",
+        variant: "destructive",
+      });
     }
   };
 
@@ -722,7 +798,7 @@ export default function DogForm({
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => field.onChange('')}
+                      onClick={handleRemoveProfilePicture}
                       className="text-red-500 hover:text-red-600"
                     >
                       Remove Picture
@@ -913,8 +989,7 @@ export default function DogForm({
                     value={field.value?.toString() || ""}
                     onValueChange={(value) => {
                       const newValue = value === "none" ? null : parseInt(value);
-                      field.onChange(newValue);
-                    }}
+                      field.onChange(newValue);                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select litter" />
@@ -1438,3 +1513,14 @@ interface MediaInput {
   fileName?: string;
   isNew?: boolean;
 }
+
+const extractKeyFromUrl = (url: string): string | null => {
+  try {
+    const urlObj = new URL(url);
+    const key = urlObj.pathname.split('/').pop();
+    return key || null;
+  } catch (error) {
+    console.error('Error extracting key from URL:', error);
+    return null;
+  }
+};

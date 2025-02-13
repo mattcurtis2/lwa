@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import crypto from "crypto";
 import path from "path";
@@ -20,10 +20,23 @@ const generateUniqueFileName = (originalName: string) => {
   return `${timestamp}-${randomString}${extension}`;
 };
 
+// Extract key from S3 URL
+export const extractKeyFromUrl = (url: string): string | null => {
+  try {
+    const urlObj = new URL(url);
+    // The key is typically the path after the bucket name
+    const key = urlObj.pathname.split('/').pop();
+    return key || null;
+  } catch (error) {
+    console.error('Error extracting key from URL:', error);
+    return null;
+  }
+};
+
 // Upload file to S3
 export const uploadToS3 = async (file: Express.Multer.File) => {
   const fileName = generateUniqueFileName(file.originalname);
-  
+
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME as string,
     Key: fileName,
@@ -45,6 +58,21 @@ export const uploadToS3 = async (file: Express.Multer.File) => {
   } catch (error) {
     console.error('Error uploading to S3:', error);
     throw new Error('Failed to upload file to S3');
+  }
+};
+
+// Delete file from S3
+export const deleteFromS3 = async (key: string) => {
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME as string,
+    Key: key,
+  });
+
+  try {
+    await s3Client.send(command);
+  } catch (error) {
+    console.error('Error deleting from S3:', error);
+    throw new Error('Failed to delete file from S3');
   }
 };
 
