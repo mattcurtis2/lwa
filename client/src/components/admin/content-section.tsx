@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Type definitions remain unchanged
 type SiteContent = {
   id: number;
   key: string;
@@ -220,11 +221,7 @@ const handleHeroImageUpload = async (file: File) => {
     }));
   } catch (error) {
     console.error("Upload failed:", error);
-    toast({
-      title: "Upload failed",
-      description: "Please try again",
-      variant: "destructive",
-    });
+    // Toast is already handled in handleFileUpload
   }
 };
 
@@ -244,11 +241,7 @@ const handlePrincipleImageUpload = async (files: File[], principleId: number) =>
     }));
   } catch (error) {
     console.error("Upload failed:", error);
-    toast({
-      title: "Upload failed",
-      description: "Please try again",
-      variant: "destructive",
-    });
+    // Toast is already handled in handleFileUpload
   }
 };
 
@@ -267,11 +260,7 @@ const handleAboutCardImageUpload = async (file: File, cardId: number) => {
     }));
   } catch (error) {
     console.error("Upload failed:", error);
-    toast({
-      title: "Upload failed",
-      description: "Please try again",
-      variant: "destructive",
-    });
+    // Toast is already handled in handleFileUpload
   }
 };
 
@@ -290,11 +279,7 @@ const handleCarouselImageUpload = async (file: File, itemId: number) => {
     }));
   } catch (error) {
     console.error("Upload failed:", error);
-    toast({
-      title: "Upload failed",
-      description: "Please try again",
-      variant: "destructive",
-    });
+    // Toast is already handled in handleFileUpload
   }
 };
 
@@ -780,6 +765,8 @@ export default function ContentSection() {
                       if (files[0]) {
                         handleFileUpload(files[0]).then(imageUrl => {
                           handleContentChange("animals_image", imageUrl);
+                        }).catch(() => {
+                          // Error already handled by handleFileUpload
                         });
                       }
                     }}
@@ -839,6 +826,8 @@ export default function ContentSection() {
                       if (files[0]) {
                         handleFileUpload(files[0]).then(imageUrl => {
                           handleContentChange("bakery_image", imageUrl);
+                        }).catch(() => {
+                          // Error already handled by handleFileUpload
                         });
                       }
                     }}
@@ -898,6 +887,8 @@ export default function ContentSection() {
                       if (files[0]) {
                         handleFileUpload(files[0]).then(imageUrl => {
                           handleContentChange("products_image", imageUrl);
+                        }).catch(() => {
+                          // Error already handled by handleFileUpload
                         });
                       }
                     }}
@@ -1005,12 +996,14 @@ export default function ContentSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Hero Background Image</Label>
+                    <Label>Hero Image</Label>
                     <PrincipleDropzone
                       onDrop={(files) => {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
                             handleContentChange("dog_hero_image", imageUrl);
+                          }).catch(() => {
+                            // Error already handled by handleFileUpload
                           });
                         }
                       }}
@@ -1020,14 +1013,9 @@ export default function ContentSection() {
                       <div className="relative group">
                         <img
                           src={getContentValue("dog_hero_image")}
-                          alt="Dogs Hero Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
-                          onClick={() => {
-                            setCropImageUrl(getContentValue("dog_hero_image"));
-                            setShowCropper(true);
-                          }}
+                          alt="Hero"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                       </div>
                     )}
                   </div>
@@ -1110,6 +1098,8 @@ export default function ContentSection() {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
                             handleContentChange("goat_hero_image", imageUrl);
+                          }).catch(() => {
+                            // Error already handled by handleFileUpload
                           });
                         }
                       }}
@@ -1205,6 +1195,8 @@ export default function ContentSection() {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
                             handleContentChange("market_hero_image", imageUrl);
+                          }).catch(() => {
+                            // Error already handled by handleFileUpload
                           });
                         }
                       }}
@@ -1354,21 +1346,40 @@ export default function ContentSection() {
         <ImageCrop
           imageUrl={cropImageUrl}
           aspect={16 / 9}
-          onCropComplete={(croppedImageUrl) => {
-            if (pendingPrincipleId !== null) {
-              handlePrincipleChange(
-                pendingPrincipleId,
-                "imageUrl",
-                croppedImageUrl,
-              );
-            } else if (activeTab === "goats") {
-              handleContentChange("goat_hero_image", croppedImageUrl);
-            } else {
-              handleContentChange("hero_background", croppedImageUrl);
+          onCropComplete={async (croppedImageUrl) => {
+            try {
+              const response = await fetch(croppedImageUrl);
+              const blob = await response.blob();
+              const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+              const uploadedUrl = await handleFileUpload(file);
+
+              if (pendingPrincipleId !== null) {
+                setPendingChanges((prev) => ({
+                  ...prev,
+                  principles: {
+                    ...prev.principles,
+                    [pendingPrincipleId]: {
+                      ...prev.principles[pendingPrincipleId],
+                      imageUrl: uploadedUrl,
+                    },
+                  },
+                }));
+              } else if (activeTab === "goats") {
+                handleContentChange("goat_hero_image", uploadedUrl);
+              } else {
+                handleContentChange("hero_background", uploadedUrl);
+              }
+              setShowCropper(false);
+              setCropImageUrl("");
+              setPendingPrincipleId(null);
+            } catch (error) {
+              console.error('Failed to process cropped image:', error);
+              toast({
+                title: "Error",
+                description: "Failed to process cropped image",
+                variant: "destructive",
+              });
             }
-            setShowCropper(false);
-            setCropImageUrl("");
-            setPendingPrincipleId(null);
           }}
           onCancel={() => {
             setShowCropper(false);
