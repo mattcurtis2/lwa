@@ -627,20 +627,26 @@ export default function DogForm({
           }
 
           const data = await res.json();
-          if (data && data[0]?.url) {
-            const fileType = file.type.startsWith('video/') ? 'video' : 'image';
-            const newMedia = {
-              url: data[0].url,
-              type: fileType,
-              fileName: file.name,
-              isNew: true,
-            };
+          const uploadedUrl = data[0]?.url;
 
-            setMediaInputs(prev => [newMedia, ...prev]);
-            form.setValue("media", [newMedia, ...form.getValues("media")]);
+          if (!uploadedUrl) {
+            throw new Error("Invalid upload response");
           }
+
+          const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+          const newMedia = {
+            url: uploadedUrl,
+            type: fileType as "video" | "image",
+            fileName: file.name,
+            isNew: true,
+          };
+
+          setMediaInputs(prev => [newMedia, ...prev]);
+          const currentMedia = form.getValues("media") || [];
+          form.setValue("media", [newMedia, ...currentMedia]);
         }
       } catch (error) {
+        console.error('Upload error:', error);
         toast({
           title: "Error",
           description: "Failed to upload one or more files",

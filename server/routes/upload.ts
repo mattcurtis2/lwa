@@ -20,7 +20,8 @@ router.post("/api/upload", upload.single("file"), async (req, res) => {
     }
 
     const result = await uploadToS3(req.file);
-    res.json({ url: result.url });
+    // Return array format to maintain compatibility with existing code
+    res.json([{ url: result.url }]);
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ error: "Failed to upload file" });
