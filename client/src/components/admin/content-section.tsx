@@ -600,10 +600,10 @@ export default function ContentSection() {
             <div className="space-y-2">
               <Label>Hero Background Image</Label>
               <HeroDropzone onDrop={handleHeroImageUpload} />
-              {(pendingChanges.siteContent["hero_background"] || getContentValue("hero_background")) && (
+              {getContentValue("hero_background") && (
                 <div className="relative group">
                   <img
-                    src={pendingChanges.siteContent["hero_background"] || getContentValue("hero_background")}
+                    src={getContentValue("hero_background")}
                     alt="Hero background"
                     className="mt-4 rounded-lg max-h-48 object-cover"
                   />
