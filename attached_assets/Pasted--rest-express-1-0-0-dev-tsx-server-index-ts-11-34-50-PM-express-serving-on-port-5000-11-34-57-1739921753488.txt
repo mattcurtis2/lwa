@@ -1,0 +1,48 @@
+
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+11:34:50 PM [express] serving on port 5000
+11:34:57 PM [express] GET /api/site-content 304 in 29ms :: [{"id":5,"key":"about_title","value":"What…
+11:34:57 PM [express] GET /api/carousel 304 in 125ms :: [{"id":1,"title":"Colorado Mountain Dogs","de…
+11:34:57 PM [express] GET /api/contact-info 304 in 126ms :: {"id":1,"email":"littlewayacresmi@gmail.c…
+11:34:58 PM [express] GET /api/principles 200 in 388ms :: [{"id":1,"title":"Beautiful","description":…
+11:35:03 PM [express] GET /api/dogs 304 in 44ms :: [{"id":6,"name":"Max","registrationName":"NWF Maxi…
+11:35:05 PM [express] GET /api/about-cards-old 200 in 8ms
+11:35:05 PM [express] GET /api/about-cards 200 in 32ms :: {"sectionTitle":"What We Offer","sectionDes…
+11:35:05 PM [express] GET /api/site-content 304 in 33ms :: [{"id":5,"key":"about_title","value":"What…
+11:35:05 PM [express] GET /api/carousel 304 in 131ms :: [{"id":1,"title":"Colorado Mountain Dogs","de…
+11:35:05 PM [express] GET /api/principles 304 in 303ms :: [{"id":1,"title":"Beautiful","description":…
+11:35:23 PM [express] PUT /api/about-cards 200 in 581ms :: {"message":"About cards updated successful…
+11:35:23 PM [express] GET /api/about-cards 200 in 24ms :: {"sectionTitle":"What We Offer","sectionDes…
+/home/runner/workspace/node_modules/src/pg-core/columns/timestamp.ts:66
+        return value.toISOString();
+                     ^
+
+
+TypeError: value.toISOString is not a function
+    at PgTimestamp.mapToDriverValue (/home/runner/workspace/node_modules/src/pg-core/columns/timestamp.ts:66:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:223:69)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:174:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:174:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:124:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at SQL.toQuery (/home/runner/workspace/node_modules/src/sql/sql.ts:123:17)
+    at PgDialect.sqlToQuery (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:591:14)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/update.ts:542:18)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/update.ts:559:15)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+Node.js v20.18.1
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.1.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.1.0
+npm notice To update run: npm install -g npm@11.1.0
+npm notice
