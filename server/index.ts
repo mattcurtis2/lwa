@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import uploadRouter from "./routes/upload";
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -37,18 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Register upload routes
-app.use(uploadRouter);
-
 (async () => {
   const server = registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Error:', err);
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
+    throw err;
   });
 
   // importantly only setup vite in development and after
