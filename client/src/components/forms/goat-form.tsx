@@ -749,8 +749,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 >
                   {mediaInputs.filter(input => input?.url).map((input, index) => (
                     <Draggable
-                      key={input.url}
-                      draggableId={input.url}
+                      key={input.url || `media-${index}`}
+                      draggableId={input.url || `media-${index}`}
                       index={index}
                     >
                       {(provided) => (
