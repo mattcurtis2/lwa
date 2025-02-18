@@ -615,11 +615,26 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.put("/api/carousel/:id", async (req, res) => {
-    const item = await db.update(carouselItems)
-      .set({ ...req.body, updatedAt: new Date() })
-      .where(eq(carouselItems.id, parseInt(req.params.id)))
-      .returning();
-    res.json(item[0]);
+    try {
+      const updateData = {
+        ...req.body,
+        updatedAt: new Date()
+      };
+      
+      // Ensure timestamp fields are proper Date objects
+      if (updateData.createdAt) {
+        updateData.createdAt = new Date(updateData.createdAt);
+      }
+      
+      const item = await db.update(carouselItems)
+        .set(updateData)
+        .where(eq(carouselItems.id, parseInt(req.params.id)))
+        .returning();
+      res.json(item[0]);
+    } catch (error) {
+      console.error("Error updating carousel item:", error);
+      res.status(500).json({ message: "Failed to update carousel item" });
+    }
   });
 
   app.delete("/api/carousel/:id", async (req, res) => {
