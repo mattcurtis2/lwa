@@ -711,16 +711,92 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           )}
         />
 
-        <div {...getRootProps()} className="p-8 border-2 border-dashed rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center gap-2 text-center">
-            <Upload className="h-8 w-8 text-muted-foreground" />
-            <div>
-              <p className="font-medium">Drag & drop media files here</p>
-              <p className="text-sm text-muted-foreground">Or click to select files</p>
-            </div>
-          </div>
-        </div>
+        <div
+  {...getRootProps()}
+  className={cn(
+    "border-2 border-dashed rounded-lg p-6 transition-colors",
+    isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+    "hover:border-primary hover:bg-primary/5 cursor-pointer"
+  )}
+>
+  <input {...getInputProps()} />
+  <div className="flex flex-col items-center gap-2 text-center">
+    <Upload className="h-8 w-8 text-muted-foreground" />
+    <div className="text-muted-foreground">
+      <p className="text-sm font-medium">
+        Drag & drop files here, or click to select
+      </p>
+      <p className="text-xs">
+        Supports images and videos up to 10MB
+      </p>
+    </div>
+  </div>
+</div>
+
+<DragDropContext onDragEnd={handleDragEnd}>
+  <StrictModeDroppable droppableId="droppable-media-list">
+    {(provided) => (
+      <div
+        {...provided.droppableProps}
+        ref={provided.innerRef}
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+      >
+        {mediaInputs.filter(input => input?.url).map((input, index) => (
+          <Draggable
+            key={input.url || `media-${index}`}
+            draggableId={input.url || `media-${index}`}
+            index={index}
+          >
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
+              >
+                {input.type === 'image' ? (
+                  <img
+                    src={input.url}
+                    alt={`Upload ${index + 1}`}
+                    className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => {
+                      setCropImageUrl(input.url);
+                      setShowCropper(true);
+                    }}
+                  />
+                ) : (
+                  <video
+                    src={input.url}
+                    className="w-full h-full object-cover"
+                    controls
+                  />
+                )}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => {
+                      const newInputs = [...mediaInputs];
+                      newInputs.splice(index, 1);
+                      setMediaInputs(newInputs);
+                      form.setValue("media", newInputs);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+              </div>
+            )}
+          </Draggable>
+        ))}
+        {provided.placeholder}
+      </div>
+    )}
+  </StrictModeDroppable>
+</DragDropContext>
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <StrictModeDroppable droppableId="media-list">
