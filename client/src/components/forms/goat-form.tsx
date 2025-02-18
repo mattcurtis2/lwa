@@ -22,6 +22,7 @@ import { useState, useEffect } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { useDropzone } from 'react-dropzone';
+import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
