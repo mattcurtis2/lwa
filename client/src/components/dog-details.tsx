@@ -133,25 +133,30 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         </div>
 
         {/* Basic Information */}
-        <div className="border-t pt-6">
-          <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2">Breed</h3>
-              <p>Colorado Mountain Dog</p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Gender</h3>
-              <p className="flex items-center gap-1">
-                {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Birth Date</h3>
-              <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
-            </div>
-          </div>
+        <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-y-0">
+          <Card className="md:col-span-2 lg:col-span-3">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Breed</h3>
+                  <p>Colorado Mountain Dog</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Gender</h3>
+                  <p className="flex items-center gap-1">
+                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Birth Date</h3>
+                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
 
         {/* Story */}
         <div className="border-t pt-6">
