@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
 import {
@@ -135,26 +136,23 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         {/* Basic Information */}
         <div className="border-t pt-6">
           <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Breed</h3>
-                  <p>Colorado Mountain Dog</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Gender</h3>
-                  <p className="flex items-center gap-1">
-                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Birth Date</h3>
-                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold mb-2">Breed</h3>
+              <p>Colorado Mountain Dog</p>
             </div>
-          </CardContent>
-        </Card>
-
+            <div>
+              <h3 className="font-semibold mb-2">Gender</h3>
+              <p className="flex items-center gap-1">
+                {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Birth Date</h3>
+              <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+            </div>
+          </div>
+        </div>
 
         {/* Story */}
         <div className="border-t pt-6">
