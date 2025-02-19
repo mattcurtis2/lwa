@@ -1,23 +1,38 @@
+
 import { useQuery } from "@tanstack/react-query";
-import { useRoute } from "wouter";
-import type { GoatLitter } from "@db/schema";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GoatCard } from "@/components/cards/goat-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useParams } from "wouter";
+import { Goat, GoatLitter } from "@db/schema";
+import { formatDisplayDate } from "@/lib/date-utils";
+import { Card, CardContent } from "@/components/ui/card";
+import GoatDetails from "@/components/goat-details";
+
+interface Document {
+  id?: number;
+  type: string;
+  url: string;
+  name: string;
+  mimeType: string;
+}
+
+interface LitterWithRelations extends GoatLitter {
+  mother: Goat & { media?: { url: string; type: string }[]; documents?: Document[] };
+  father: Goat & { media?: { url: string; type: string }[]; documents?: Document[] };
+  kids?: (Goat & { media?: { url: string; type: string }[]; documents?: Document[] })[];
+}
 
 export default function GoatLitterDetail() {
-  const [, params] = useRoute("/goats/litters/:id");
-  const litterId = params?.id;
+  const { id } = useParams();
 
-  const { data: litter, isLoading } = useQuery<GoatLitter>({
-    queryKey: [`/api/goat-litters/${litterId}`],
+  const { data: litter, isLoading: isLoadingLitter } = useQuery<LitterWithRelations>({
+    queryKey: [`/api/goat-litters/${id}`],
   });
 
-  if (isLoading) {
+  if (isLoadingLitter) {
     return (
-      <div className="min-h-screen bg-background pt-20">
-        <div className="container mx-auto px-4">
-          <Skeleton className="w-full h-[400px] rounded-lg" />
+      <div className="container mx-auto px-4 py-12">
+        <div className="animate-pulse space-y-4">
+          <div className="h-32 bg-gray-200 rounded-lg"></div>
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
         </div>
       </div>
     );
@@ -25,69 +40,104 @@ export default function GoatLitterDetail() {
 
   if (!litter) {
     return (
-      <div className="min-h-screen bg-background pt-20">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-red-500">Litter Not Found</CardTitle>
-              <CardDescription>
-                The requested litter could not be found.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+      <div className="container mx-auto px-4 py-12">
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-900">Litter not found</h2>
+              <p className="mt-2 text-gray-600">The requested litter could not be found.</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  const hasBirthDate = litter.puppies?.some(kid => kid.birthDate);
-  const birthDate = hasBirthDate 
-    ? new Date(litter.puppies[0].birthDate).toLocaleDateString() 
-    : null;
+  const isPastDueDate = new Date(litter.dueDate) < new Date();
+  const kidCount = litter.kids?.length || 0;
+  const maleCount = litter.kids?.filter(kid => kid.gender === 'male').length || 0;
+  const femaleCount = litter.kids?.filter(kid => kid.gender === 'female').length || 0;
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      <div className="container mx-auto px-4">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>
-              {birthDate 
-                ? `Born ${birthDate}`
-                : `Expected ${new Date(litter.dueDate).toLocaleDateString()}`
-              }
-            </CardTitle>
-            <CardDescription>
-              {birthDate ? 'Past Litter' : 'Upcoming Litter'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-8 md:grid-cols-2">
-              {litter.mother && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Dam</h3>
-                  <GoatCard goat={litter.mother} />
-                </div>
-              )}
-              {litter.father && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Sire</h3>
-                  <GoatCard goat={litter.father} />
-                </div>
-              )}
+    <div className="container mx-auto px-4 py-8 space-y-12">
+      {/* Litter Header */}
+      <div className="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 rounded-lg border border-amber-200">
+        <div className="max-w-3xl mx-auto py-6 px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <div className="inline-block bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2">
+                {isPastDueDate ? 'Born Litter' : 'Upcoming Litter'}
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-amber-900">
+                {isPastDueDate
+                  ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
+                  : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
+              </h1>
             </div>
 
-            {litter.puppies?.length > 0 && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4">Kids</h3>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {litter.puppies.map(kid => (
-                    <GoatCard key={kid.id} goat={kid} />
-                  ))}
+            {kidCount > 0 && (
+              <div className="flex flex-col items-center sm:items-end">
+                <p className="text-amber-800 text-lg mb-1">
+                  {kidCount} {kidCount === 1 ? 'kid' : 'kids'}
+                </p>
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-blue-500">♂</span>
+                    <span className="text-lg font-semibold text-gray-700">{maleCount}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-pink-500">♀</span>
+                    <span className="text-lg font-semibold text-gray-700">{femaleCount}</span>
+                  </div>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto space-y-16">
+        {/* Kids Section */}
+        {kidCount > 0 && (
+          <div className="space-y-16">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t"></div>
+              </div>
+              <div className="relative flex justify-center text-center">
+                <div className="bg-background px-6">
+                  <h2 className="text-3xl font-bold text-stone-800">Kids</h2>
+                </div>
+              </div>
+            </div>
+
+            {litter.kids?.map((kid) => (
+              <div key={kid.id}>
+                <GoatDetails goat={kid} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Parents Section */}
+        <div className="space-y-16">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t"></div>
+            </div>
+            <div className="relative flex justify-center text-center">
+              <div className="bg-background px-6">
+                <h2 className="text-3xl font-bold text-stone-800">Parents</h2>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-16">
+            <GoatDetails goat={litter.mother} />
+            <GoatDetails goat={litter.father} />
+          </div>
+        </div>
       </div>
     </div>
   );

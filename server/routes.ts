@@ -1591,6 +1591,62 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get("/api/goat-litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+
+      if (isNaN(litterId)) {
+        return res.status(400).json({ message: "Invalid litter ID" });
+      }
+
+      const litter = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litterId),
+        with: {
+          mother: {
+            with: {
+              media: {
+                orderBy: (media, { asc }) => [asc(media.order)],
+              },
+              documents: true,
+            },
+          },
+          father: {
+            with: {
+              media: {
+                orderBy: (media, { asc }) => [asc(media.order)],
+              },
+              documents: true,
+            },
+          },
+        },
+      });
+
+      if (!litter) {
+        return res.status(404).json({ message: "Litter not found" });
+      }
+
+      // Fetch kids separately since they're not directly related in the schema
+      const kids = await db.query.goats.findMany({
+        where: eq(goats.litterId, litterId),
+        with: {
+          media: {
+            orderBy: (media, { asc }) => [asc(media.order)],
+          },
+          documents: true,
+        },
+        orderBy: (goats, { asc }) => [asc(goats.order)],
+      });
+
+      res.json({
+        ...litter,
+        kids,
+      });
+    } catch (error) {
+      console.error("Error fetching goat litter:", error);
+      res.status(500).json({ message: "Failed to fetch goat litter" });
+    }
+  });
+
   app.delete("/api/goat-litters/:id", async (req, res) => {
     try {
       await db.delete(goatLitters)
