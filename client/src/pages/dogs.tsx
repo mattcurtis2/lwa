@@ -88,9 +88,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
           className="bg-gradient-to-br from-amber-100 via-amber-200 to-amber-100 border-y border-amber-200 cursor-pointer hover:bg-gradient-to-br hover:from-amber-50 hover:via-amber-100 hover:to-amber-50 transition-colors"
         >
           <div className="container mx-auto px-4">
-            <div className="h-[100px] flex items-center">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-12">
+            <div className="min-h-[100px] py-4 flex items-center">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12">
                   <div>
                     <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2 inline-block">
                       New Litter Coming Soon!
@@ -191,7 +191,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 </div>
               </div>
             </div>
-            <div className="space-y-16">
+            <div className="grid grid-cols-1 gap-8">
               {females.map((dog) => (
                 <DogDetails key={dog.id} dog={dog} />
               ))}
