@@ -166,10 +166,12 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           )}
         </div>
 
-        <div className="space-y-12">
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Basic Information</h2>
-            <div className="space-y-4">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-1">Breed</h3>
                 <p>Colorado Mountain Dog</p>
@@ -184,19 +186,25 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 <h3 className="font-semibold mb-1">Birth Date</h3>
                 <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Story</h2>
-            <p className="text-base leading-relaxed">
-              {dog.narrativeDescription || dog.description}
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Story</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-base leading-relaxed">
+                {dog.narrativeDescription || dog.description}
+              </p>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Physical Characteristics</h2>
-            <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Physical Characteristics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-1">Color</h3>
                 <p>{dog.color || "Not specified"}</p>
@@ -217,12 +225,14 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 <h3 className="font-semibold mb-1">Dewclaws</h3>
                 <p>{dog.dewclaws || "Not specified"}</p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Health Information</h2>
-            <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Information</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-6">
                 {dog.healthData && (
                   <div className="prose max-w-none mb-6">
@@ -243,8 +253,14 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p>No health information available</p>
                 )}
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pedigree Information</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-6">
                 {dog.pedigree && (
                   <div className="prose max-w-none mb-6">
@@ -265,10 +281,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p>No pedigree information available</p>
                 )}
               </div>
-            </div>
-          </div>
-        );
-      }
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
