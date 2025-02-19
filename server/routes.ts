@@ -620,12 +620,12 @@ export function registerRoutes(app: Express): Server {
         ...req.body,
         updatedAt: new Date()
       };
-      
+
       // Ensure timestamp fields are proper Date objects
       if (updateData.createdAt) {
         updateData.createdAt = new Date(updateData.createdAt);
       }
-      
+
       const item = await db.update(carouselItems)
         .set(updateData)
         .where(eq(carouselItems.id, parseInt(req.params.id)))
@@ -793,7 +793,7 @@ export function registerRoutes(app: Express): Server {
           ...dogData,
           height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
           weight: dogData.weight !== undefined && dogData.weight !== "" ? parseFloat(dogData.weight) : null,
-          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dogData.price) : null,
+          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dog.price) : null,
           sold: dogData.sold === true,
           available: dogData.available === true,
           puppy: dogData.puppy === true,
@@ -1428,30 +1428,72 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Goat not found" });
       }
 
-      // Update the goat with all fields, including 'sold'
-      const updatedGoat = await db.update(goats)
-        .set({
-          ...req.body,
-          updatedAt: new Date()
-        })
-        .where(eq(goats.id, goatId))
-        .returning();
+      const { media, documents, ...goatData } = req.body;
 
-      console.log('Updated goat result:', updatedGoat[0]);
+      const updateData = {
+        ...goatData,
+        updatedAt: new Date(),
+      };
 
-      // Fetch the updated goat with all relations
-      const goatWithRelations = await db.query.goats.findFirst({
-        where: eq(goats.id, goatId),
-        with: {
-          media: true,
-          documents: true,
-          mother: true,
-          father: true,
-          litter: true,
-        },
+      const dog = await db.transaction(async (tx) => {
+        // Update the goat
+        await tx.update(goats)
+          .set(updateData)
+          .where(eq(goats.id, goatId));
+
+        // Handle media
+        if (media) {
+          await tx.delete(goatMedia)
+            .where(eq(goatMedia.goatId, goatId));
+
+          if (media.length > 0) {
+            await tx.insert(goatMedia).values(
+              media.map((item: any, index: number) => ({
+                goatId: goatId,
+                url: item.url,
+                type: item.type,
+                order: index,
+              }))
+            );
+          }
+        }
+
+        // Handle documents
+        if (documents) {
+          await tx.delete(goatDocuments)
+            .where(eq(goatDocuments.goatId, goatId));
+
+          if (documents.length > 0) {
+            await tx.insert(goatDocuments).values(
+              documents.map((doc: any) => ({
+                goatId: goatId,
+                url: doc.url,
+                type: doc.type,
+                name: doc.name,
+                mimeType: doc.mimeType
+              }))
+            );
+          }
+        }
+
+        // Return updated goat with relations
+        const updatedGoat = await tx.query.goats.findFirst({
+          where: eq(goats.id, goatId),
+          with: {
+            media: true,
+            documents: true,
+            mother: true,
+            father: true,
+            litter: true,
+          },
+        });
+
+        return updatedGoat;
       });
 
-      res.json(goatWithRelations);
+      console.log('Updated goat result:', dog);
+
+      res.json(dog);
     } catch (error) {
       console.error("Error updating goat:", error);
       res.status(500).json({
