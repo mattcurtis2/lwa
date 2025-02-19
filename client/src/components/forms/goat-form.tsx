@@ -327,6 +327,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
       console.log('Form submission started with values:', values);
+      console.log('Current mediaInputs:', mediaInputs);
+      console.log('Current form media value:', form.getValues("media"));
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : null,
@@ -335,11 +337,15 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         available: Boolean(values.available),
         kid: Boolean(values.kid),
         outsideBreeder: Boolean(values.outsideBreeder),
-        media: mediaInputs.filter(media => media && media.url).map(media => ({
-          url: media.url,
-          type: media.type || 'image',
-          fileName: media.fileName || ''
-        })),
+        media: (() => {
+          const processedMedia = mediaInputs.filter(media => media && media.url).map(media => ({
+            url: media.url,
+            type: media.type || 'image',
+            fileName: media.fileName || ''
+          }));
+          console.log('Processed media for submission:', processedMedia);
+          return processedMedia;
+        })(),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
