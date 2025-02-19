@@ -96,7 +96,7 @@ export default function Market() {
                   <h2 className="text-2xl font-semibold mb-2">{section.title}</h2>
                   <p className="text-muted-foreground">{section.description}</p>
                 </div>
-                <Link href={`/market/${section.name.toLowerCase()}`}>
+                <Link href={`/market/${section.name.toLowerCase().replace('_', '-')}`}>
                   <a className="text-primary hover:text-primary/80 font-medium">
                     View All →
                   </a>
