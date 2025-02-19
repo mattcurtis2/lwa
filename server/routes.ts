@@ -1508,18 +1508,28 @@ export function registerRoutes(app: Express): Server {
     try {
       const goatId = parseInt(req.params.id);
 
-      // First, update any goats that reference this goat as mother/father
-      await db.update(goats)
-        .set({ motherId: null })
-        .where(eq(goats.motherId, goatId));
+      await db.transaction(async (tx) => {
+        // Delete related media
+        await tx.delete(goatMedia)
+          .where(eq(goatMedia.goatId, goatId));
 
-      await db.update(goats)
-        .set({ fatherId: null })
-        .where(eq(goats.fatherId, goatId));
+        // Delete related documents
+        await tx.delete(goatDocuments)
+          .where(eq(goatDocuments.goatId, goatId));
 
-      // Now delete the goat
-      await db.delete(goats)
-        .where(eq(goats.id, goatId));
+        // Update any goats that reference this goat as mother/father
+        await tx.update(goats)
+          .set({ motherId: null })
+          .where(eq(goats.motherId, goatId));
+
+        await tx.update(goats)
+          .set({ fatherId: null })
+          .where(eq(goats.fatherId, goatId));
+
+        // Finally delete the goat
+        await tx.delete(goats)
+          .where(eq(goats.id, goatId));
+      });
 
       res.json({ message: "Goat deleted successfully" });
     } catch (error) {
