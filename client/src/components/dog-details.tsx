@@ -89,11 +89,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
   };
 
   return (
-    <Card className="w-full max-w-screen-lg mx-auto overflow-hidden">
+    <Card className="w-full max-w-screen-lg mx-auto overflow-x-hidden md:overflow-visible">
       <CardContent className="p-6 space-y-8">
         {/* Image Gallery */}
-        <div className="relative w-full">
-          <div className="aspect-[4/3] md:aspect-square rounded-lg overflow-hidden bg-muted w-full">
+        <div className="relative">
+          <div className="aspect-[4/3] md:aspect-[16/9] rounded-lg overflow-hidden bg-muted">
             <img
               src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
               alt={dog.name}
@@ -133,10 +133,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         </div>
 
         {/* Basic Information */}
-        <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-y-0">
-          <Card className="md:col-span-2 lg:col-span-3">
-            <CardContent className="p-6">
-              <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
+        <div className="border-t pt-6">
+          <h2 className="text-2xl font-semibold mb-4">Basic Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="font-semibold mb-2">Breed</h3>
