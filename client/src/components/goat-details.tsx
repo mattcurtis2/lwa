@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Goat, GoatMedia } from "@db/schema";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Card,
   CardContent,
@@ -101,6 +102,7 @@ function DocumentLink({ document }: { document: Document }) {
 }
 
 export default function GoatDetails({ goat }: GoatDetailsProps) {
+  const isMobile = useIsMobile();
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const healthDocuments = goat.documents?.filter((doc) => doc.type === 'health') || [];
