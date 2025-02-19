@@ -64,7 +64,6 @@ const createGoatSchema = (isKid: boolean = false) => {
     weight: z.string().optional().nullable(),
     milkStars: z.string().optional(),
     laArScores: z.string().optional(),
-    horns: z.boolean().default(false),
     profileImageUrl: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
@@ -121,7 +120,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       weight: goat?.weight?.toString() || "",
       milkStars: goat?.milkStars || "",
       laArScores: goat?.laArScores || "",
-      horns: goat?.horns || false,
       profileImageUrl: goat?.profileImageUrl || "",
       media: goat?.media || [],
       outsideBreeder: Boolean(goat?.outsideBreeder),
@@ -641,7 +639,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4"> {/* Added a third column for horns */}
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="milkStars"
@@ -666,23 +664,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   <Input {...field} placeholder="e.g., LA90 AR90" />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="horns"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Horns</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
               </FormItem>
             )}
           />

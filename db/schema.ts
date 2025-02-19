@@ -297,7 +297,6 @@ export const goats = pgTable("goats", {
   narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),
   outsideBreeder: boolean("outside_breeder").default(false),
-  horns: boolean("horns").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
