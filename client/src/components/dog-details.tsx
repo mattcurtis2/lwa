@@ -147,37 +147,32 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
-      {/* Left column - Images */}
-      <div className="space-y-6">
-        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-          <img
-            src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
-            alt={dog.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Image Thumbnails */}
-        {imageMedia.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {imageMedia.map((media, index) => (
-              <button
-                key={index}
-                onClick={() => handleThumbnailClick(index)}
-                className={cn(
-                  "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
-                  activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
-                )}
-              >
-                <img
-                  src={media.url}
-                  alt={`${dog.name} - photo ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
+      {/* Image Carousel */}
+      <div className="md:col-span-1">
+        <div className="relative">
+          <div className="aspect-[4/3] md:aspect-square rounded-lg overflow-hidden bg-muted">
+            <img
+              src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+              alt={dog.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-        )}
+          
+          {imageMedia.length > 1 && (
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+              {imageMedia.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleThumbnailClick(index)}
+                  className={cn(
+                    "w-2 h-2 rounded-full bg-white/50",
+                    activeMediaIndex === index && "bg-white"
+                  )}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right column - Content */}
@@ -246,16 +241,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
-            <TabsTrigger value="basic">Basic Information</TabsTrigger>
-            <TabsTrigger value="story">Story</TabsTrigger>
-            <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>
-            <TabsTrigger value="health">Health Information</TabsTrigger>
-            <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="basic">
+        <div className="space-y-8">
+          {/* Basic Information */}
+          <Card>
             <Card>
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
@@ -279,9 +267,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </Card>
 
-          <TabsContent value="story">
+          {/* Story */}
             <Card>
               <CardHeader>
                 <CardTitle>Story</CardTitle>
@@ -295,9 +283,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </Card>
 
-          <TabsContent value="physical">
+          {/* Physical Characteristics */}
             <Card>
               <CardHeader>
                 <CardTitle>Physical Characteristics</CardTitle>
@@ -328,9 +316,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </Card>
 
-          <TabsContent value="health">
+          {/* Health Information */}
             <Card>
               <CardHeader>
                 <CardTitle>Health Information</CardTitle>
@@ -359,9 +347,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </Card>
 
-          <TabsContent value="pedigree">
+          {/* Pedigree Information */}
             <Card>
               <CardHeader>
                 <CardTitle>Pedigree Information</CardTitle>
@@ -390,8 +378,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </Card>
+        </div>
 
         {/* Mobile Media Gallery */}
         {dog.media && dog.media.length > 0 && (
