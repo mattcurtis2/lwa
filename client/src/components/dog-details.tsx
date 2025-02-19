@@ -89,11 +89,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
   };
 
   return (
-    <Card className="max-w-screen-lg mx-auto">
+    <Card className="w-full max-w-screen-lg mx-auto overflow-hidden">
       <CardContent className="p-6 space-y-8">
         {/* Image Gallery */}
-        <div className="relative">
-          <div className="aspect-[4/3] md:aspect-square rounded-lg overflow-hidden bg-muted max-w-full">
+        <div className="relative w-full">
+          <div className="aspect-[4/3] md:aspect-square rounded-lg overflow-hidden bg-muted w-full">
             <img
               src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
               alt={dog.name}
