@@ -243,14 +243,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p>No health information available</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Pedigree Information</CardTitle>
-            </CardHeader>
-            <CardContent>
+            </div>
+          </div>
               <div className="space-y-6">
                 {dog.pedigree && (
                   <div className="prose max-w-none mb-6">
