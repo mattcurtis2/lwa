@@ -53,7 +53,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
               </div>
             ) : (
               <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                <p className="text-gray-500">No media available</p>
+                <p className="text-gray-500">No goat media available</p>
               </div>
             )}
           </div>
