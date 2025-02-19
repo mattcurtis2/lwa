@@ -166,78 +166,63 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-1">Breed</h3>
-                  <p>Colorado Mountain Dog</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Gender</h3>
-                  <p className="flex items-center gap-1">
-                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Birth Date</h3>
-                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
-                </div>
+        <div className="space-y-12">
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Basic Information</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Breed</h3>
+                <p>Colorado Mountain Dog</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Story</CardTitle>
-              <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-base leading-relaxed">
-                {dog.narrativeDescription || dog.description}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Physical Characteristics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-1">Color</h3>
-                  <p>{dog.color || "Not specified"}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Fur Length</h3>
-                  <p>{dog.furLength || "Not specified"}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Height</h3>
-                  <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Weight</h3>
-                  <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Dewclaws</h3>
-                  <p>{dog.dewclaws || "Not specified"}</p>
-                </div>
+              <div>
+                <h3 className="font-semibold mb-1">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <h3 className="font-semibold mb-1">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+              </div>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Information</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Story</h2>
+            <p className="text-base leading-relaxed">
+              {dog.narrativeDescription || dog.description}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Physical Characteristics</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Color</h3>
+                <p>{dog.color || "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Fur Length</h3>
+                <p>{dog.furLength || "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Height</h3>
+                <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Weight</h3>
+                <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Dewclaws</h3>
+                <p>{dog.dewclaws || "Not specified"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Health Information</h2>
+            <div className="space-y-6">
               <div className="space-y-6">
                 {dog.healthData && (
                   <div className="prose max-w-none mb-6">
@@ -286,8 +271,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p>No pedigree information available</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
