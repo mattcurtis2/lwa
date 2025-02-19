@@ -44,9 +44,10 @@ export default function GoatManagement() {
     />
   );
 
-  // Separate does and bucks for better organization
-  const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid);
-  const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid);
+  // Separate goats into categories
+  const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid && !goat.available);
+  const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid && !goat.available);
+  const availableGoats = goats.filter(goat => goat.available);
   const outsideBreeders = goats.filter(goat => goat.outsideBreeder);
 
   return (
@@ -78,6 +79,16 @@ export default function GoatManagement() {
           <h3 className="text-xl font-semibold mb-6">Bucks</h3>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {bucks.map(renderGoatCard)}
+          </div>
+        </div>
+      )}
+
+      {/* Available Goats Section */}
+      {availableGoats.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-6">Available Goats</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {availableGoats.map(renderGoatCard)}
           </div>
         </div>
       )}
