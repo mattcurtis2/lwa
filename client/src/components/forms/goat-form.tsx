@@ -335,7 +335,11 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         available: Boolean(values.available),
         kid: Boolean(values.kid),
         outsideBreeder: Boolean(values.outsideBreeder),
-        media: mediaInputs,
+        media: mediaInputs.map(media => ({
+          url: media.url,
+          type: media.type,
+          fileName: media.fileName
+        })),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
