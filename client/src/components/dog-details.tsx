@@ -151,9 +151,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
 
         {/* Story */}
