@@ -18,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient } from "@/lib/queryClient";
 import { X, ImageIcon, FileText, Upload } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { useDropzone } from 'react-dropzone';
