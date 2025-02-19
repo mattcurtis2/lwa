@@ -280,8 +280,9 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       'video/*': []
     },
     maxSize: 10485760, // 10MB
-    onDrop: async (acceptedFiles) => {
+    onDrop: useCallback(async (acceptedFiles: File[]) => {
       try {
+        setIsUploading(true);
         for (const file of acceptedFiles) {
           const formData = new FormData();
           formData.append("file", file);
@@ -296,17 +297,19 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           }
 
           const data = await res.json();
+          const fileUrl = Array.isArray(data) ? data[0].url : data.url;
           const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
           const newMedia = {
-            url: data.url,
+            url: fileUrl,
             type: fileType,
             fileName: file.name,
             isNew: true,
           };
 
           setMediaInputs(prev => [newMedia, ...prev]);
-          form.setValue("media", [newMedia, ...form.getValues("media")]);
+          const currentMedia = form.getValues("media") || [];
+          form.setValue("media", [newMedia, ...currentMedia]);
         }
       } catch (error) {
         console.error('Error uploading files:', error);
@@ -315,8 +318,10 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           description: "Failed to upload one or more files",
           variant: "destructive",
         });
+      } finally {
+        setIsUploading(false);
       }
-    }
+    }, [form, toast]),
   });
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
