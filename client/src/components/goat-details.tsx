@@ -141,6 +141,184 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
     setIsMediaDialogOpen(true);
   };
 
+  if (isMobile) {
+    return (
+      <div className="space-y-6">
+        <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
+          <img
+            src={imageMedia[activeMediaIndex]?.url || goat.profileImageUrl || (goat.media && goat.media[0]?.url)}
+            alt={goat.name}
+            className="w-full h-full object-cover"
+          />
+          {imageMedia.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={() => setActiveMediaIndex(prev => prev === 0 ? imageMedia.length - 1 : prev - 1)}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={() => setActiveMediaIndex(prev => prev === imageMedia.length - 1 ? 0 : prev + 1)}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            {goat.name} {genderSymbol}
+          </h1>
+          {goat.registrationName && (
+            <p className="text-xl text-muted-foreground">{goat.registrationName}</p>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Breed</h3>
+                <p>Nigerian Dwarf Goat</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)} {genderSymbol}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+              </div>
+              {goat.milkProduction && (
+                <div>
+                  <h3 className="font-semibold mb-1">Milk Production</h3>
+                  <p>{goat.milkProduction}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Story</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-base leading-relaxed">
+                {goat.narrativeDescription || goat.description}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Physical Characteristics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Color</h3>
+                <p>{goat.color || "Not specified"}</p>
+              </div>
+              {goat.coatType && (
+                <div>
+                  <h3 className="font-semibold mb-1">Coat Type</h3>
+                  <p>{goat.coatType}</p>
+                </div>
+              )}
+              <div>
+                <h3 className="font-semibold mb-1">Height</h3>
+                <p>{goat.height ? `${goat.height} inches` : "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Weight</h3>
+                <p>{goat.weight ? `${goat.weight} lbs` : "Not specified"}</p>
+              </div>
+              {goat.milkStars && (
+                <div>
+                  <h3 className="font-semibold mb-1">Milk Stars</h3>
+                  <p>{goat.milkStars}</p>
+                </div>
+              )}
+              {goat.laArScores && (
+                <div>
+                  <h3 className="font-semibold mb-1">LA/AR Scores</h3>
+                  <p>{goat.laArScores}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {goat.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
+                  </div>
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Health Documents</h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!goat.healthData && healthDocuments.length === 0 && (
+                  <p>No health information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pedigree Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {goat.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
+                  </div>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Pedigree Documents</h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!goat.pedigree && pedigreeDocuments.length === 0 && (
+                  <p>No pedigree information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid md:grid-cols-3 gap-8">
       {/* Left column - Images */}
