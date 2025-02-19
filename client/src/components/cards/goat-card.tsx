@@ -41,7 +41,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
         <div className="cursor-pointer">
           <div className="relative group">
             {goat.media && goat.media.length > 0 ? (
-              <>
+              <div>
                 <DogMediaCarousel media={goat.media} />
                 {showPrice && goat.price && (
                   <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
