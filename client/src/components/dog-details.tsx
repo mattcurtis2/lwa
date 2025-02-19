@@ -269,6 +269,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           </div>
         </div>
       </div>
+    </div>
     );
   }
 
