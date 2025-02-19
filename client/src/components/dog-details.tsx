@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
 import {
@@ -157,7 +156,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               className="w-full h-full object-cover"
             />
           </div>
-          
+
           {imageMedia.length > 1 && (
             <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
               {imageMedia.map((_, index) => (
@@ -244,139 +243,134 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         <div className="space-y-8">
           {/* Basic Information */}
           <Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Breed</h3>
-                    <p>Colorado Mountain Dog</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Gender</h3>
-                    <p className="flex items-center gap-1">
-                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Birth Date</h3>
-                    <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
-                  </div>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Breed</h3>
+                  <p>Colorado Mountain Dog</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h3 className="font-semibold mb-2">Gender</h3>
+                  <p className="flex items-center gap-1">
+                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Birth Date</h3>
+                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+                </div>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Story */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Story</CardTitle>
-                <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="prose max-w-none">
-                  <p className="text-lg leading-relaxed">
-                    {dog.narrativeDescription || dog.description}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Story</CardTitle>
+              <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="prose max-w-none">
+                <p className="text-lg leading-relaxed">
+                  {dog.narrativeDescription || dog.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Physical Characteristics */}
           <Card>
-              <CardHeader>
-                <CardTitle>Physical Characteristics</CardTitle>
-                <CardDescription>Detailed physical attributes and measurements</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Color</h3>
-                    <p>{dog.color || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Fur Length</h3>
-                    <p>{dog.furLength || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Height</h3>
-                    <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Weight</h3>
-                    <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Dewclaws</h3>
-                    <p>{dog.dewclaws || "Not specified"}</p>
-                  </div>
+            <CardHeader>
+              <CardTitle>Physical Characteristics</CardTitle>
+              <CardDescription>Detailed physical attributes and measurements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Color</h3>
+                  <p>{dog.color || "Not specified"}</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h3 className="font-semibold mb-2">Fur Length</h3>
+                  <p>{dog.furLength || "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Height</h3>
+                  <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Weight</h3>
+                  <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Dewclaws</h3>
+                  <p>{dog.dewclaws || "Not specified"}</p>
+                </div>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Health Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Health Information</CardTitle>
-                <CardDescription>Health records and certifications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {dog.healthData && (
-                    <div className="prose max-w-none mb-6">
-                      <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Information</CardTitle>
+              <CardDescription>Health records and certifications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+                  </div>
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Health Documents</h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
                     </div>
-                  )}
-                  {healthDocuments.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Health Documents</h3>
-                      <div className="grid gap-4">
-                        {healthDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {!dog.healthData && healthDocuments.length === 0 && (
-                    <p>No health information available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                )}
+                {!dog.healthData && healthDocuments.length === 0 && (
+                  <p>No health information available</p>
+                )}
+              </div>
+            </CardContent>
           </Card>
 
           {/* Pedigree Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Pedigree Information</CardTitle>
-                <CardDescription>Family history and lineage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {dog.pedigree && (
-                    <div className="prose max-w-none mb-6">
-                      <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Pedigree Information</CardTitle>
+              <CardDescription>Family history and lineage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+                  </div>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Pedigree Documents</h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
                     </div>
-                  )}
-                  {pedigreeDocuments.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Pedigree Documents</h3>
-                      <div className="grid gap-4">
-                        {pedigreeDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {!dog.pedigree && pedigreeDocuments.length === 0 && (
-                    <p>No pedigree information available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                )}
+                {!dog.pedigree && pedigreeDocuments.length === 0 && (
+                  <p>No pedigree information available</p>
+                )}
+              </div>
+            </CardContent>
           </Card>
         </div>
 
