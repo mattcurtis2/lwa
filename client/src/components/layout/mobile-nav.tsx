@@ -19,8 +19,8 @@ export default function MobileNav() {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-        <nav className="flex flex-col gap-4 mt-8">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
+        <nav className="flex flex-col gap-4 h-full overflow-y-auto px-6 py-8">
           {/* Colorado Mountain Dogs */}
           <div className="flex flex-col gap-2">
             <Link href="/dogs">
