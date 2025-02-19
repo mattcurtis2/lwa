@@ -283,10 +283,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 </div>
               </CardContent>
             </Card>
-          </Card>
 
           {/* Physical Characteristics */}
-            <Card>
+          <Card>
               <CardHeader>
                 <CardTitle>Physical Characteristics</CardTitle>
                 <CardDescription>Detailed physical attributes and measurements</CardDescription>
