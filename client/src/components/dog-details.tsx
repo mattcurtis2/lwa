@@ -1,37 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  FileText,
-  FileImage,
-  FileVideo,
-  File,
-  ExternalLink,
-  X,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import DogMediaCarousel from "@/components/cards/dog-media-carousel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, File, FileImage, FileText, FileVideo, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
-import React from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Document {
   id?: number;
@@ -107,6 +84,7 @@ function DocumentLink({ document }: { document: Document }) {
 export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
   const healthDocuments = dog.documents?.filter((doc) => doc.type === 'health') || [];
   const pedigreeDocuments = dog.documents?.filter((doc) => doc.type === 'pedigree') || [];
   const imageMedia = dog.media?.filter(m => m.type === 'image') || [];
@@ -117,37 +95,206 @@ export default function DogDetails({ dog }: DogDetailsProps) {
     <span className="text-pink-500">♀</span>
   );
 
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (isMediaDialogOpen) {
-      if (e.key === 'ArrowLeft') {
-        setActiveMediaIndex((prev) =>
-          prev === 0 ? imageMedia.length - 1 : prev - 1
-        );
-      } else if (e.key === 'ArrowRight') {
-        setActiveMediaIndex((prev) =>
-          prev === imageMedia.length - 1 ? 0 : prev + 1
-        );
-      } else if (e.key === 'Escape') {
-        setIsMediaDialogOpen(false);
-      }
-    }
+  const handleNextImage = () => {
+    setActiveMediaIndex((prev) =>
+      prev === imageMedia.length - 1 ? 0 : prev + 1
+    );
   };
 
-  // Add keyboard event listeners
+  const handlePrevImage = () => {
+    setActiveMediaIndex((prev) =>
+      prev === 0 ? imageMedia.length - 1 : prev - 1
+    );
+  };
+
   useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isMediaDialogOpen) {
+        if (e.key === 'ArrowLeft') {
+          handlePrevImage();
+        } else if (e.key === 'ArrowRight') {
+          handleNextImage();
+        } else if (e.key === 'Escape') {
+          setIsMediaDialogOpen(false);
+        }
+      }
+    };
+
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [isMediaDialogOpen]);
 
-  const handleThumbnailClick = (index: number) => {
-    setActiveMediaIndex(index);
-  };
+  if (isMobile) {
+    return (
+      <div className="space-y-6">
+        <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
+          <img
+            src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            alt={dog.name}
+            className="w-full h-full object-cover"
+          />
+          {imageMedia.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            {dog.name} {genderSymbol}
+          </h1>
+          {dog.registrationName && (
+            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-1">Breed</h3>
+                  <p>Colorado Mountain Dog</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Gender</h3>
+                  <p className="flex items-center gap-1">
+                    {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Birth Date</h3>
+                  <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Story</CardTitle>
+              <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-base leading-relaxed">
+                {dog.narrativeDescription || dog.description}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Physical Characteristics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-1">Color</h3>
+                  <p>{dog.color || "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Fur Length</h3>
+                  <p>{dog.furLength || "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Height</h3>
+                  <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Weight</h3>
+                  <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Dewclaws</h3>
+                  <p>{dog.dewclaws || "Not specified"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Health Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+                  </div>
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Health Documents</h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!dog.healthData && healthDocuments.length === 0 && (
+                  <p>No health information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pedigree Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {dog.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: dog.pedigree }} />
+                  </div>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Pedigree Documents</h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!dog.pedigree && pedigreeDocuments.length === 0 && (
+                  <p>No pedigree information available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
-      {/* Left column - Images */}
       <div className="space-y-6">
         <div className="aspect-square rounded-lg overflow-hidden bg-muted">
           <img
@@ -156,17 +303,16 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             className="w-full h-full object-cover"
           />
         </div>
-        
-        {/* Image Thumbnails */}
+
         {imageMedia.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {imageMedia.map((media, index) => (
               <button
                 key={index}
-                onClick={() => handleThumbnailClick(index)}
+                onClick={() => setActiveMediaIndex(index)}
                 className={cn(
                   "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
-                  activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
+                  activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
                 )}
               >
                 <img
@@ -180,7 +326,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
         )}
       </div>
 
-      {/* Right column - Content */}
       <div className="md:col-span-2 space-y-8">
         <div>
           <h1 className="text-4xl font-bold flex items-center gap-2">
@@ -191,7 +336,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           )}
         </div>
 
-        {/* Media Dialog */}
         <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
           <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
             <DialogHeader className="mb-2">
@@ -202,9 +346,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 variant="ghost"
                 size="icon"
                 className="absolute left-2 z-10"
-                onClick={() => setActiveMediaIndex((prev) =>
-                  prev === 0 ? imageMedia.length - 1 : prev - 1
-                )}
+                onClick={handlePrevImage}
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -221,9 +363,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 variant="ghost"
                 size="icon"
                 className="absolute right-2 z-10"
-                onClick={() => setActiveMediaIndex((prev) =>
-                  prev === imageMedia.length - 1 ? 0 : prev + 1
-                )}
+                onClick={handleNextImage}
               >
                 <ChevronRight className="h-6 w-6" />
               </Button>
@@ -392,34 +532,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Mobile Media Gallery */}
-        {dog.media && dog.media.length > 0 && (
-          <div className="md:hidden">
-            <h2 className="text-2xl font-bold mb-6">Pictures & Videos</h2>
-            <div className="grid grid-cols-4 gap-2">
-              {dog.media.map((item, index) => (
-                item.type === 'image' && (
-                  <button
-                    key={index}
-                    onClick={() => handleThumbnailClick(index)}
-                    className={cn(
-                      "relative aspect-square group transition-transform hover:scale-105",
-                      activeMediaIndex === index && isMediaDialogOpen && "ring-2 ring-primary ring-offset-2"
-                    )}
-                  >
-                    <img
-                      src={item.url}
-                      alt={`${dog.name} - photo ${index + 1}`}
-                      className="w-full h-full object-cover rounded-md"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-md" />
-                  </button>
-                )
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
