@@ -284,8 +284,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </CardContent>
           </Card>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
