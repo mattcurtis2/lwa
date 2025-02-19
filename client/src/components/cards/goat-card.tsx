@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { formatAge } from "@/lib/date-utils";
 import { Link } from "wouter";
 import type { Goat } from "@db/schema";
+import { useState } from "react";
 
 interface GoatCardProps {
-  goat: Goat;
+  goat: Goat & {
+    media?: { url: string; type: string }[];
+  };
   isAdmin?: boolean;
   showPrice?: boolean;
   onEdit?: (goat: Goat) => void;
@@ -15,6 +18,23 @@ interface GoatCardProps {
 }
 
 export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderChange }: GoatCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const hasMultipleImages = goat.media && goat.media.length > 1;
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (goat.media) {
+      setCurrentImageIndex((prev) => (prev + 1) % goat.media.length);
+    }
+  };
+
+  const handlePreviousImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (goat.media) {
+      setCurrentImageIndex((prev) => (prev - 1 + goat.media.length) % goat.media.length);
+    }
+  };
+
   const genderSymbol = goat.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
   ) : (
@@ -37,13 +57,29 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
       <Link href={`/goats/${goat.id}`}>
         <div className="cursor-pointer">
           <div className="relative group">
-            {goat.profileImageUrl ? (
+            {goat.media && goat.media.length > 0 ? (
               <div className="aspect-square relative overflow-hidden">
                 <img
-                  src={goat.profileImageUrl}
+                  src={goat.media[currentImageIndex].url}
                   alt={goat.name}
                   className="h-full w-full object-cover transition-transform hover:scale-105"
                 />
+                {hasMultipleImages && (
+                  <>
+                    <button
+                      onClick={handlePreviousImage}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      →
+                    </button>
+                  </>
+                )}
                 {showPrice && goat.price && (
                   <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
                     <p className="text-lg font-semibold text-white">
