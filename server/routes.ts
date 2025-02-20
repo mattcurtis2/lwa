@@ -785,7 +785,7 @@ export function registerRoutes(app: Express): Server {
         });
 
         if (!existingDog) {
-          throw new Error("Dog not found");
+          return res.status(404).json({ message: "Dog not found" }); // Return 404 if dog not found
         }
 
         // Process the data before update
@@ -1770,7 +1770,7 @@ export function registerRoutes(app: Express): Server {
       ];
 
       const content = await db.query.siteContent.findMany({
-        where: (siteContent, { or, eq }) =>
+        where: (siteContent, { or, eq}) =>
           or(...cardKeys.map(key => eq(siteContent.key, key)))
       });
 
