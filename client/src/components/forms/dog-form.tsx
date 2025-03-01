@@ -356,57 +356,57 @@ export default function DogForm({
   };
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
-    try {
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
+    setShowCropper(false);
+    setCropImageUrl("");
 
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
+    try {
+      setIsUploadingProfile(true);
+      console.log("Handling cropped image with URL:", croppedImageUrl);
+
+      // Convert base64 to blob
+      const res = await fetch(croppedImageUrl);
+      const blob = await res.blob();
+      console.log("Blob size:", blob.size);
+
+      // Create a File from the blob
+      const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+
+      // Create FormData and append file
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload the file
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
       });
 
       if (!uploadRes.ok) {
-        throw new Error('Failed to upload cropped image');
+        throw new Error("Failed to upload cropped image");
       }
 
       const data = await uploadRes.json();
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+      console.log("Upload response:", data);
 
-      // Find if this is a media section image
-      const mediaIndex = mediaInputs.findIndex(input => input.url === cropImageUrl);
+      if (data && data.length > 0 && data[0].url) {
+        // Update the form state with the new image URL
+        form.setValue("profileImageUrl", data[0].url);
 
-      if (mediaIndex !== -1) {
-        // Update media section image
-        const updatedMediaInputs = [...mediaInputs];
-        updatedMediaInputs[mediaIndex] = {
-          ...updatedMediaInputs[mediaIndex],
-          url: uploadedUrl
-        };
-        setMediaInputs(updatedMediaInputs);
-        form.setValue("media", updatedMediaInputs);
-      } else {
-        // Update profile image
-        form.setValue("profileImageUrl", uploadedUrl);
+        // Also update the form field value manually to ensure the UI updates
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          (profileImageUrlField as HTMLInputElement).value = data[0].url;
+        }
       }
-
-      setShowCropper(false);
-      URL.revokeObjectURL(croppedImageUrl);
-      URL.revokeObjectURL(cropImageUrl);
-      setCropImageUrl("");
-
-      toast({
-        title: 'Success',
-        description: 'Image cropped and saved successfully',
-      });
     } catch (error) {
-      console.error('Error uploading cropped image:', error);
+      console.error("Error uploading cropped image:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload cropped image',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to upload the cropped image",
+        variant: "destructive",
       });
+    } finally {
+      setIsUploadingProfile(false);
     }
   };
 
