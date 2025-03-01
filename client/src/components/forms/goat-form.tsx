@@ -496,15 +496,51 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            onSkip={() => {
-              // If user skips cropping, use the original image URL
-              form.setValue('profileImageUrl', cropImageUrl, {
-                shouldValidate: true,
-                shouldDirty: true,
-                shouldTouch: true
-              });
-              setShowCropper(false);
-              setCropImageUrl("");
+            onSkip={async () => {
+              setIsUploading(true);
+              try {
+                // If user skips cropping, upload the original image
+                const response = await fetch(cropImageUrl);
+                const blob = await response.blob();
+                const formData = new FormData();
+                formData.append('file', blob, 'original-image.jpg');
+
+                const uploadRes = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData
+                });
+
+                if (!uploadRes.ok) {
+                  throw new Error('Failed to upload image');
+                }
+
+                const data = await uploadRes.json();
+                if (data && data.length > 0) {
+                  // Update the form with the uploaded image URL
+                  form.setValue('profileImageUrl', data[0].url, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                    shouldTouch: true
+                  });
+                  form.trigger('profileImageUrl');
+                }
+
+                toast({
+                  title: "Success",
+                  description: "Image uploaded successfully",
+                });
+              } catch (error) {
+                console.error('Error uploading original image:', error);
+                toast({
+                  title: 'Error',
+                  description: 'Failed to upload image',
+                  variant: 'destructive',
+                });
+              } finally {
+                setIsUploading(false);
+                setShowCropper(false);
+                setCropImageUrl("");
+              }
             }}
           />
         )}
