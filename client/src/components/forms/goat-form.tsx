@@ -182,56 +182,54 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
     try {
-      console.log('Handling cropped image with URL:', croppedImageUrl);
-      const formData = new FormData();
+      console.log("Handling cropped image with URL:", croppedImageUrl);
+
+      // Fetch the blob from the URL
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-      console.log('Blob size:', blob.size);
+      console.log("Blob size:", blob.size);
+
+      // Create form data for upload
+      const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
 
       setIsUploading(true);
+
+      // Upload the blob to the server
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadRes.ok) {
-        toast({
-          title: 'Error',
-          description: 'Failed to upload cropped image',
-          variant: 'destructive',
-        });
-        setIsUploading(false);
-        return;
+        throw new Error('Failed to upload cropped image');
       }
 
+      // Process the response
       const data = await uploadRes.json();
-      console.log('Upload response:', data);
+      console.log("Upload response:", data);
+
+      // Get the URL from the response
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-      // Set the value in the form explicitly with setValue
-      form.setValue("profileImageUrl", uploadedUrl, { 
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true
-      });
+      // Update the form value
+      form.setValue("profileImageUrl", uploadedUrl);
 
       toast({
-        title: 'Success',
-        description: 'Profile picture updated successfully',
+        title: "Success",
+        description: "Image cropped and uploaded successfully",
       });
-
-      // Close the cropper after successful upload
+    } catch (error) {
+      console.error("Error uploading cropped image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload cropped image",
+        variant: "destructive",
+      });
+    } finally {
+      // Close the cropper and reset state regardless of success/failure
       setShowCropper(false);
       setCropImageUrl("");
-      setIsUploading(false);
-    } catch (error) {
-      console.error('Error handling cropped image:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to process cropped image',
-        variant: 'destructive',
-      });
       setIsUploading(false);
     }
   };
