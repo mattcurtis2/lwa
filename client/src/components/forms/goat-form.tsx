@@ -196,34 +196,43 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       });
 
       if (!uploadRes.ok) {
-        throw new Error('Failed to upload cropped image');
+        toast({
+          title: 'Error',
+          description: 'Failed to upload cropped image',
+          variant: 'destructive',
+        });
+        setIsUploading(false);
+        return;
       }
 
       const data = await uploadRes.json();
       console.log('Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-      // Force a re-render by setting the field value
-      form.setValue("profileImageUrl", uploadedUrl);
-
-      // Clean up
-      setShowCropper(false);
-      setCropImageUrl("");
-      URL.revokeObjectURL(croppedImageUrl); // Prevent memory leaks
-      setIsUploading(false);
+      // Set the value in the form explicitly with setValue
+      form.setValue("profileImageUrl", uploadedUrl, { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true
+      });
 
       toast({
         title: 'Success',
-        description: 'Profile image updated successfully',
+        description: 'Profile picture updated successfully',
       });
-    } catch (error) {
-      console.error('Error uploading cropped image:', error);
+
+      // Close the cropper after successful upload
+      setShowCropper(false);
+      setCropImageUrl("");
       setIsUploading(false);
+    } catch (error) {
+      console.error('Error handling cropped image:', error);
       toast({
         title: 'Error',
-        description: 'Failed to upload cropped image',
+        description: 'Failed to process cropped image',
         variant: 'destructive',
       });
+      setIsUploading(false);
     }
   };
 

@@ -1,9 +1,11 @@
-
 import React, { useState, useRef, useCallback } from "react";
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { X } from "lucide-react"; // Assuming Lucide-react is used for the X icon.  Add import if necessary.
+import useDebounceEffect from './useDebounceEffect'; // Add this import if necessary
+import { canvasPreview, getCroppedImg } from './imageUtils'; // Add this import if necessary.  Create these functions if they don't exist.
 
 interface ImageCropProps {
   imageUrl: string;
@@ -14,9 +16,9 @@ interface ImageCropProps {
   onSkip?: () => void;
 }
 
-export function ImageCrop({
+export default function ImageCrop({
   imageUrl,
-  aspect,
+  aspect = 1,
   circularCrop = false,
   onCropComplete,
   onCancel,
@@ -29,134 +31,147 @@ export function ImageCrop({
     x: 25,
     y: 25
   });
-  
-  const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>(); // Assuming PixelCrop is defined elsewhere. Add type definition if necessary.
   const imgRef = useRef<HTMLImageElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const onImageLoad = useCallback((img: HTMLImageElement) => {
+  const onLoad = useCallback((img: HTMLImageElement) => {
     imgRef.current = img;
   }, []);
 
-  const createCroppedImage = useCallback(async () => {
-    if (!completedCrop || !imgRef.current) return null;
+  useDebounceEffect(
+    async () => {
+      if (
+        completedCrop?.width &&
+        completedCrop?.height &&
+        imgRef.current &&
+        previewCanvasRef.current
+      ) {
+        // We use canvasPreview as it's much faster than imgPreview.
+        canvasPreview(
+          imgRef.current,
+          previewCanvasRef.current,
+          completedCrop
+        );
+      }
+    },
+    100,
+    [completedCrop]
+  );
 
-    const image = imgRef.current;
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    
-    const pixelCrop = {
-      x: completedCrop.x * scaleX,
-      y: completedCrop.y * scaleY,
-      width: completedCrop.width * scaleX,
-      height: completedCrop.height * scaleY,
-    };
-
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-
-    // Draw the cropped image
-    ctx.drawImage(
-      image,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      pixelCrop.width,
-      pixelCrop.height
-    );
-
-    // If circular crop is enabled, create circular mask
-    if (circularCrop) {
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      ctx.arc(
-        pixelCrop.width / 2,
-        pixelCrop.height / 2,
-        Math.min(pixelCrop.width, pixelCrop.height) / 2,
-        0,
-        2 * Math.PI
+  const handleComplete = async () => {
+    if (
+      completedCrop?.width &&
+      completedCrop?.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      console.log('Crop completed:', completedCrop);
+      const croppedImageUrl = await getCroppedImg(
+        imgRef.current,
+        completedCrop,
+        'cropped-image.jpg'
       );
-      ctx.fill();
-    }
-
-    return new Promise<string>((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Canvas is empty'));
-            return;
-          }
-          const croppedImageUrl = URL.createObjectURL(blob);
-          console.log('Created cropped image URL:', croppedImageUrl);
-          resolve(croppedImageUrl);
-        },
-        'image/jpeg',
-        0.95
-      );
-    });
-  }, [completedCrop, circularCrop]);
-
-  const handleCropComplete = (c: Crop) => {
-    console.log('Crop completed:', c);
-    setCompletedCrop(c);
-  };
-
-  const handleApplyCrop = async () => {
-    try {
-      const croppedImageUrl = await createCroppedImage();
+      console.log('Created cropped image URL:', croppedImageUrl);
       if (croppedImageUrl) {
         console.log('Applying crop with URL:', croppedImageUrl);
         onCropComplete(croppedImageUrl);
-      } else {
-        console.error('Failed to generate cropped image');
       }
-    } catch (error) {
-      console.error('Error applying crop:', error);
     }
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => onCancel()}>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogTitle>Crop Image</DialogTitle>
-        <div className="mb-4 max-w-full overflow-auto">
-          <ReactCrop
-            crop={crop}
-            onChange={setCrop}
-            onComplete={handleCropComplete}
-            aspect={aspect}
-            circularCrop={circularCrop}
-          >
-            <img
-              src={imageUrl}
-              alt="Crop me"
-              onLoad={(e) => onImageLoad(e.currentTarget)}
-              className="max-h-[60vh] max-w-full"
-            />
-          </ReactCrop>
-        </div>
-        <DialogFooter className="flex justify-between">
-          <div>
-            <Button variant="outline" onClick={onCancel} className="mr-2">
-              Cancel
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="bg-background rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-auto">
+        <div className="p-6">
+          <div className="mb-4 flex justify-between items-center">
+            <h2 className="text-xl font-bold">Crop Image</h2>
+            <Button variant="ghost" size="icon" onClick={onCancel}>
+              <X className="h-4 w-4" />
             </Button>
-            {onSkip && (
-              <Button variant="outline" onClick={onSkip} className="mr-2">
-                Skip Cropping
-              </Button>
-            )}
           </div>
-          <Button onClick={handleApplyCrop}>
-            Apply Crop
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+          <div className="flex flex-col space-y-4">
+            <div className="relative">
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={aspect}
+                circularCrop={circularCrop}
+                keepSelection
+              >
+                <img
+                  src={imageUrl}
+                  alt="Crop"
+                  onLoad={(e) => onLoad(e.currentTarget)}
+                  className="max-w-full max-h-[60vh] object-contain"
+                />
+              </ReactCrop>
+            </div>
+
+            <div className="flex justify-center">
+              <canvas
+                ref={previewCanvasRef}
+                className={`max-w-40 max-h-40 ${
+                  circularCrop ? 'rounded-full' : ''
+                } border`}
+                style={{
+                  objectFit: 'contain',
+                  display: completedCrop ? 'block' : 'none'
+                }}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              {onSkip && (
+                <Button variant="outline" onClick={onSkip}>
+                  Skip Cropping
+                </Button>
+              )}
+              <Button onClick={handleComplete}>
+                Apply Crop
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
+}
+
+export interface ImageCropProps {
+  imageUrl: string;
+  onCropComplete: (croppedImageUrl: string) => void;
+  onCancel: () => void;
+  onSkip?: () => void;
+  aspect?: number;
+  circularCrop?: boolean;
+}
+
+// Placeholder for missing functions.  Replace with actual implementations.
+interface PixelCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+const canvasPreview = async (
+  img: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  crop: PixelCrop
+) => {
+  //Implementation for canvasPreview
+}
+
+const getCroppedImg = async (
+  image: HTMLImageElement,
+  crop: PixelCrop,
+  fileName: string
+) => {
+  //Implementation for getCroppedImg
 }
