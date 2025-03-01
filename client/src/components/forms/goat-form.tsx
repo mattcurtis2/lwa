@@ -180,13 +180,14 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
+  const handleCroppedImage = async (uploadedUrl: string) => {
+    setIsUploading(true);
     try {
-      // If we already have a server URL (from the improved ImageCrop component)
+      // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
-        console.log("Using already uploaded image URL:", uploadedUrl);
+        // Add a timestamp to prevent caching
+        const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-        // Force immediate form update
         form.setValue("profileImageUrl", uploadedUrl, {
           shouldValidate: true,
           shouldDirty: true,
@@ -196,6 +197,18 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         // Trigger form validation to update the UI
         form.trigger("profileImageUrl");
 
+        // Force UI update by directly manipulating the DOM element
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
+        }
+
+        // Also update any preview elements
+        const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
+        previewElements.forEach(el => {
+          (el as HTMLImageElement).src = timestampedUrl;
+        });
+
         toast({
           title: "Success",
           description: "Image cropped and uploaded successfully",
@@ -203,7 +216,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         return;
       }
 
-      // Handle base64 image data (fallback for older implementation)
+      // Handle base64 image data
       const response = await fetch(uploadedUrl);
       const blob = await response.blob();
 
@@ -223,6 +236,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
       if (data && data.length > 0 && data[0].url) {
         const imageUrl = data[0].url;
+        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
+
         form.setValue("profileImageUrl", imageUrl, {
           shouldValidate: true,
           shouldDirty: true,
@@ -231,6 +246,18 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
         // Trigger form validation to update the UI
         form.trigger("profileImageUrl");
+
+        // Force UI update by directly manipulating the DOM element
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          (profileImageUrlField as HTMLInputElement).value = imageUrl;
+        }
+
+        // Also update any preview elements
+        const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
+        previewElements.forEach(el => {
+          (el as HTMLImageElement).src = timestampedUrl;
+        });
 
         toast({
           title: "Success",
@@ -247,6 +274,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     } finally {
       setShowCropper(false);
       setCropImageUrl("");
+      setIsUploading(false);
     }
   };
 
