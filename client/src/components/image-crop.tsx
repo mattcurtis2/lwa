@@ -1,9 +1,10 @@
-
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { toast } from '@/components/ui/use-toast';
+
 
 interface ImageCropProps {
   imageUrl: string;
@@ -53,7 +54,13 @@ export default function ImageCrop({
   }, [aspect]);
 
   const handleComplete = async () => {
-    if (!imgRef.current || !completedCrop) {
+    if (!imgRef.current || !completedCrop || !completedCrop.width || !completedCrop.height) {
+      console.error("Invalid crop dimensions", completedCrop);
+      toast({
+        title: "Error",
+        description: "Please select a valid crop area before confirming",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -83,7 +90,7 @@ export default function ImageCrop({
       );
 
       // Convert canvas to blob
-      const base64Image = canvas.toDataURL('image/jpeg', 0.95);
+      const base64Image = canvas.toDataURL('image/jpeg', 0.9); // Added quality parameter
       console.log("Created cropped image URL:", base64Image);
       console.log("Applying crop with URL:", base64Image);
 
@@ -91,14 +98,14 @@ export default function ImageCrop({
         // Convert base64 to blob
         const response = await fetch(base64Image);
         const blob = await response.blob();
-        
+
         // Create a file from the blob
         const fileToUpload = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-        
+
         // Create FormData and append file
         const formData = new FormData();
         formData.append('file', fileToUpload);
-        
+
         // Upload the file
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
@@ -127,6 +134,11 @@ export default function ImageCrop({
       }
     } catch (error) {
       console.error("Error completing crop:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while cropping the image. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

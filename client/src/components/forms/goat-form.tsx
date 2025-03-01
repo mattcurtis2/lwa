@@ -1018,7 +1018,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             {mode === 'create' ? 'Create Goat' : 'Update Goat'}
           </Button>
         </div>
-      </form>
-    </Form>
+      </form></Form>
   );
 }
