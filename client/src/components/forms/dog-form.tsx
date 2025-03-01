@@ -358,50 +358,36 @@ export default function DogForm({
   const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
     try {
       setIsUploadingProfile(true);
-      console.log("Handling cropped image with URL:", uploadedUrl.substring(0, 100) + "...");
 
       let fileToUpload: File;
 
       if (croppedFile) {
-        // Use the file passed from the cropper if available
         fileToUpload = croppedFile;
-        console.log("Using pre-created cropped file:", fileToUpload.size, "bytes");
       } else if (uploadedUrl.startsWith('/uploads/')) {
-        // Use the pre-uploaded URL directly if available
-        fileToUpload = new File([], 'cropped-image.jpg', { type: 'image/jpeg' }); // Dummy file; not actually used.
-        console.log("Using pre-uploaded image URL:", uploadedUrl);
+        fileToUpload = new File([], 'cropped-image.jpg', { type: 'image/jpeg' });
       } else {
-        // For backward compatibility, convert the URL to a blob if needed
         const res = await fetch(uploadedUrl);
         const blob = await res.blob();
         fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-        console.log("Created file from URL, size:", fileToUpload.size, "bytes");
       }
 
-      // If we already have a server URL (from the improved ImageCrop component)
       if (uploadedUrl.startsWith('/uploads/')) {
-        console.log("Using already uploaded image URL:", uploadedUrl);
 
-        // Force immediate form update with setValue options that trigger all form hooks
         form.setValue("profileImageUrl", uploadedUrl, {
           shouldValidate: true,
           shouldDirty: true,
           shouldTouch: true,
         });
 
-        // Trigger form validation to update the UI
         form.trigger("profileImageUrl");
 
-        // Add a timestamp to prevent caching issues
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-        // Force UI update by directly manipulating the DOM element
         const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
         if (profileImageUrlField) {
           (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
         }
 
-        // Also update any preview elements
         const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
         previewElements.forEach(el => {
           (el as HTMLImageElement).src = timestampedUrl;
@@ -414,12 +400,9 @@ export default function DogForm({
         return;
       }
 
-
-      // Create FormData and append file
       const formData = new FormData();
       formData.append("file", fileToUpload);
 
-      // Upload the file
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -430,31 +413,25 @@ export default function DogForm({
       }
 
       const data = await uploadRes.json();
-      console.log("Upload response:", data);
 
       if (data && data.length > 0 && data[0].url) {
         const imageUrl = data[0].url;
 
-        // Force immediate form update with setValue options that trigger all form hooks
         form.setValue("profileImageUrl", imageUrl, {
           shouldValidate: true,
           shouldDirty: true,
           shouldTouch: true,
         });
 
-        // Trigger form validation to update the UI
         form.trigger("profileImageUrl");
 
-        // Add a timestamp to prevent caching issues
         const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
 
-        // Force UI update by directly manipulating the DOM element
         const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
         if (profileImageUrlField) {
           (profileImageUrlField as HTMLInputElement).value = imageUrl;
         }
 
-        // Also update any preview elements
         const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
         previewElements.forEach(el => {
           (el as HTMLImageElement).src = timestampedUrl;
@@ -466,7 +443,6 @@ export default function DogForm({
         });
       }
     } catch (error) {
-      console.error("Error uploading cropped image:", error);
       toast({
         title: "Error",
         description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
@@ -477,7 +453,6 @@ export default function DogForm({
       setShowCropper(false);
       setCropImageUrl("");
 
-      // Force a re-render
       setTimeout(() => {
         const event = new Event('input', { bubbles: true });
         const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
@@ -605,7 +580,6 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     try {
-      console.log('Form submission started with values:', values);
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : null,
@@ -622,7 +596,6 @@ export default function DogForm({
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
         ],
-        // Handle optional fields
         description: values.description || null,
         narrativeDescription: values.narrativeDescription || null,
         healthData: values.healthData || null,
@@ -634,7 +607,6 @@ export default function DogForm({
         media: values.media || []
       };
 
-      // Remove any undefined values
       Object.keys(processedValues).forEach(key => {
         if (processedValues[key] === undefined) {
           delete processedValues[key];
@@ -643,8 +615,6 @@ export default function DogForm({
 
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
       const method = dog?.id ? 'PUT' : 'POST';
-
-      console.log('Making request with processed values:', processedValues);
 
       const response = await fetch(url, {
         method,
@@ -674,7 +644,6 @@ export default function DogForm({
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Error in onSubmitWrapper:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save dog',
@@ -1029,8 +998,7 @@ export default function DogForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
+                <FormLabel>Description</FormLabel<FormControl>
                   <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
                 </FormControl>
                 <FormMessage />

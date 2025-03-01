@@ -56,7 +56,6 @@ export default function ImageCrop({
   const createCroppedImage = useCallback(async () => {
     try {
       if (!completedCrop || !imgRef.current) {
-        console.log("Crop completed:", null);
         // If no crop is selected but user clicks apply, use the full image
         if (imgRef.current) {
           const fullImage = imgRef.current;
@@ -68,7 +67,6 @@ export default function ImageCrop({
             canvas.height = fullImage.naturalHeight;
             ctx.drawImage(fullImage, 0, 0);
             const fullImageUrl = canvas.toDataURL('image/jpeg', 0.85);
-            console.log("Applying crop with URL:", fullImageUrl);
             onCropComplete(fullImageUrl);
           }
         }
@@ -83,7 +81,6 @@ export default function ImageCrop({
       };
 
       setIsProcessing(true);
-      console.log("Crop completed:", completedCrop);
 
       const image = imgRef.current;
       const canvas = document.createElement('canvas');
@@ -124,11 +121,9 @@ export default function ImageCrop({
 
       // Convert canvas to data URL
       const croppedImageUrl = canvas.toDataURL('image/jpeg', 0.85);
-      console.log("Created cropped image URL:", croppedImageUrl);
-      console.log("Applying crop with URL:", croppedImageUrl);
       onCropComplete(croppedImageUrl);
     } catch (error) {
-      console.error('Error creating cropped image:', error);
+      
     } finally {
       setIsProcessing(false);
     }

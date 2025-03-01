@@ -313,7 +313,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         });
       }
     } catch (error) {
-      console.error("Error uploading cropped image:", error);
       toast({
         title: "Error",
         description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
@@ -363,7 +362,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         description: "Document uploaded successfully",
       });
     } catch (error) {
-      console.error('Error uploading document:', error);
       toast({
         title: "Error",
         description: "Failed to upload document",
@@ -421,7 +419,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           form.setValue("media", [newMedia, ...currentMedia]);
         }
       } catch (error) {
-        console.error('Error uploading files:', error);
         toast({
           title: "Error",
           description: "Failed to upload one or more files",
@@ -461,9 +458,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
-      console.log('Form submission started with values:', values);
-      console.log('Current mediaInputs:', mediaInputs);
-      console.log('Current form media value:', form.getValues("media"));
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : null,
@@ -478,7 +472,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             type: media.type || 'image',
             fileName: media.fileName || ''
           }));
-          console.log('Processed media for submission:', processedMedia);
           return processedMedia;
         })(),
         documents: [
@@ -486,12 +479,10 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
         ]
       };
-      console.log('Processed values:', processedValues);
 
       const url = goat?.id ? `/api/goats/${goat.id}` : '/api/goats';
       const method = goat?.id ? 'PUT' : 'POST';
 
-      console.log(`Making ${method} request to ${url}`);
       const response = await fetch(url, {
         method,
         headers: {
@@ -506,7 +497,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       }
 
       const savedGoat = await response.json();
-      console.log('Goat saved successfully:', savedGoat);
 
       await queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
 
@@ -519,7 +509,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         onOpenChange(false);
       }
     } catch (error) {
-      console.error('Error saving goat:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save goat',
@@ -650,7 +639,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   description: "Image uploaded successfully",
                 });
               } catch (error) {
-                console.error('Error uploading original image:', error);
                 toast({
                   title: 'Error',
                   description: 'Failed to upload image',
