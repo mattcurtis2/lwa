@@ -1,116 +1,10 @@
 
-import React, { useState, useRef, useCallback } from "react";
-import ReactCrop, { type Crop } from 'react-image-crop';
+import { useState, useRef, useCallback } from 'react';
+import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { X } from "lucide-react";
-
-interface PixelCrop {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-const canvasPreview = async (
-  img: HTMLImageElement,
-  canvas: HTMLCanvasElement,
-  crop: PixelCrop
-) => {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('No 2d context');
-  }
-
-  const pixelRatio = window.devicePixelRatio;
-  const scaleX = img.naturalWidth / img.width;
-  const scaleY = img.naturalHeight / img.height;
-
-  canvas.width = Math.floor(crop.width * pixelRatio * scaleX);
-  canvas.height = Math.floor(crop.height * pixelRatio * scaleY);
-
-  ctx.scale(pixelRatio, pixelRatio);
-  ctx.imageSmoothingQuality = 'high';
-
-  const cropX = crop.x * scaleX;
-  const cropY = crop.y * scaleY;
-
-  const centerX = img.naturalWidth / 2;
-  const centerY = img.naturalHeight / 2;
-
-  ctx.save();
-  ctx.translate(-cropX, -cropY);
-  ctx.drawImage(
-    img,
-    0,
-    0,
-    img.naturalWidth,
-    img.naturalHeight,
-    0,
-    0,
-    img.naturalWidth,
-    img.naturalHeight,
-  );
-  ctx.restore();
-};
-
-const getCroppedImg = async (
-  image: HTMLImageElement,
-  crop: PixelCrop,
-  fileName: string
-): Promise<string | null> => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return null;
-  }
-
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
-
-  canvas.width = crop.width * scaleX;
-  canvas.height = crop.height * scaleY;
-
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(
-    image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
-    0,
-    0,
-    crop.width * scaleX,
-    crop.height * scaleY
-  );
-
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        console.error('Canvas is empty');
-        resolve(null);
-        return;
-      }
-      const url = URL.createObjectURL(blob);
-      resolve(url);
-    }, 'image/jpeg', 0.95);
-  });
-};
-
-// Simple debounce implementation
-function useDebounceEffect(
-  fn: () => void,
-  waitTime: number,
-  deps: React.DependencyList,
-) {
-  React.useEffect(() => {
-    const timeout = setTimeout(fn, waitTime);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, deps);
-}
+import { Button } from './button';
+import { X } from 'lucide-react';
+import { useDebounceEffect } from '@/lib/useDebounceEffect';
 
 interface ImageCropProps {
   imageUrl: string;
@@ -121,7 +15,7 @@ interface ImageCropProps {
   onSkip?: () => void;
 }
 
-export default function ImageCrop({
+function ImageCrop({
   imageUrl,
   aspect = 1,
   circularCrop = false,
@@ -163,6 +57,117 @@ export default function ImageCrop({
     100,
     [completedCrop]
   );
+
+  function getCroppedImg(
+    image: HTMLImageElement,
+    crop: PixelCrop,
+    fileName: string
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        reject(new Error('No 2d context'));
+        return;
+      }
+
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+
+      ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
+      );
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Canvas is empty'));
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          resolve(url);
+        },
+        'image/jpeg',
+        0.95
+      );
+    });
+  }
+
+  const canvasPreview = async (
+    img: HTMLImageElement,
+    canvas: HTMLCanvasElement,
+    crop: PixelCrop
+  ) => {
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    const scaleX = img.naturalWidth / img.width;
+    const scaleY = img.naturalHeight / img.height;
+    // devicePixelRatio slightly increases sharpness on retina displays
+    // at the expense of slightly slower render times and possibly minor
+    // visual artifacts
+    const pixelRatio = window.devicePixelRatio;
+    // const pixelRatio = 1
+
+    canvas.width = Math.floor(crop.width * pixelRatio);
+    canvas.height = Math.floor(crop.height * pixelRatio);
+
+    // Fill the canvas with white
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.scale(pixelRatio, pixelRatio);
+    ctx.imageSmoothingQuality = 'high';
+
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+
+    const centerX = img.naturalWidth / 2;
+    const centerY = img.naturalHeight / 2;
+
+    ctx.save();
+
+    // If we want a circular crop (and the crop is square)
+    if (circularCrop && crop.width === crop.height) {
+      // Move the canvas origin to the center of the canvas
+      ctx.translate(crop.width / 2, crop.height / 2);
+      // Create a circular clip area
+      ctx.beginPath();
+      ctx.arc(0, 0, crop.width / 2, 0, Math.PI * 2);
+      ctx.clip();
+      // Move back to draw the image centered
+      ctx.translate(-crop.width / 2, -crop.height / 2);
+    }
+
+    // Draw the image
+    ctx.drawImage(
+      img,
+      cropX,
+      cropY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
+
+    ctx.restore();
+  };
 
   const handleComplete = async () => {
     if (
@@ -247,3 +252,7 @@ export default function ImageCrop({
     </div>
   );
 }
+
+// Export both as default and named export
+export { ImageCrop };
+export default ImageCrop;

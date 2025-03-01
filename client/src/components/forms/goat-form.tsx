@@ -20,7 +20,7 @@ import { queryClient } from "@/lib/queryClient";
 import { X, ImageIcon, FileText, Upload } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
-import { ImageCrop } from "@/components/ui/image-crop";
+import ImageCrop from "@/components/ui/image-crop";
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
