@@ -1,22 +1,9 @@
-import { useState } from 'react';
+
+import React, { useState, useCallback, useRef } from "react";
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
-interface ImageCropProps {
-  imageUrl: string;
-  aspect?: number;
-  circularCrop?: boolean;
-  onCropComplete: (croppedImageUrl: string) => void;
-  onCancel: () => void;
-}
-
-export function ImageCrop({ 
-  imageUrl, 
-  aspect = 1,
-  circularCrop = false,
-  onCropComplete,
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ImageCropProps {
   imageUrl: string;
@@ -27,111 +14,123 @@ interface ImageCropProps {
   circularCrop?: boolean;
 }
 
+export function ImageCrop({
+  imageUrl,
+  aspect = 1,
+  circularCrop = false,
+  onCropComplete,
   onCancel 
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 90,
-    height: 70,
-    x: 5,
-    y: 15,
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25
   });
-  const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
+  
+  const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const getCroppedImg = async (image: HTMLImageElement, crop: Crop) => {
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+  const onLoad = useCallback((img: HTMLImageElement) => {
+    imgRef.current = img;
+  }, []);
+
+  const handleCropComplete = (crop: Crop) => {
+    setCompletedCrop(crop);
+  };
+
+  const getCroppedImg = () => {
+    if (!completedCrop || !imgRef.current || !canvasRef.current) return;
+
+    const image = imgRef.current;
+    const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    if (!ctx) {
-      throw new Error('No 2d context');
-    }
+    if (!ctx) return;
 
-    // Draw the cropped image
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = completedCrop.width * scaleX;
+    canvas.height = completedCrop.height * scaleY;
+
     ctx.drawImage(
       image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
       0,
       0,
-      crop.width,
-      crop.height
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY
     );
 
-    // If circular crop is enabled, create circular mask
-    if (circularCrop) {
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      ctx.arc(
-        crop.width / 2,
-        crop.height / 2,
-        Math.min(crop.width, crop.height) / 2,
-        0,
-        2 * Math.PI,
-        true
-      );
-      ctx.fill();
-    }
-
-    return new Promise<string>((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Canvas is empty'));
-            return;
-          }
-          resolve(URL.createObjectURL(blob));
-        },
-        'image/jpeg',
-        1
-      );
+    return new Promise<string>((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error('Canvas is empty');
+          return;
+        }
+        const croppedImageUrl = URL.createObjectURL(blob);
+        resolve(croppedImageUrl);
+      }, 'image/jpeg', 1);
     });
   };
 
-  const handleCropComplete = async () => {
-    if (!imageRef || !crop) return;
-
+  const handleApplyCrop = async () => {
     try {
-      const croppedImageUrl = await getCroppedImg(imageRef, crop);
-      onCropComplete(croppedImageUrl);
+      const croppedImageUrl = await getCroppedImg();
+      if (croppedImageUrl) {
+        onCropComplete(croppedImageUrl);
+      }
     } catch (e) {
-      console.error('Error cropping image:', e);
+      console.error('Error applying crop:', e);
     }
   };
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
-      <DialogContent className="max-w-screen-lg">
-        <DialogHeader>
-          <DialogTitle>Crop Profile Picture</DialogTitle>
-        </DialogHeader>
-        <div className="flex justify-center">
-          <ReactCrop
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            className={circularCrop ? "rounded-full overflow-hidden" : ""}
-          >
-            <img
-              ref={(ref) => setImageRef(ref)}
-              src={imageUrl}
-              alt="Crop preview"
-              style={{ maxHeight: '70vh' }}
-            />
-          </ReactCrop>
+      <DialogContent className="sm:max-w-[800px] overflow-hidden">
+        <div className="p-4 flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-4">Crop Image</h2>
+          <div className="mb-4 max-w-full max-h-[400px] overflow-auto">
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/* @ts-ignore */}
+            <ReactCrop
+              crop={crop}
+              onChange={c => setCrop(c)}
+              onComplete={handleCropComplete}
+              aspect={aspect}
+              circularCrop={circularCrop}
+            >
+              <img
+                src={imageUrl}
+                alt="Crop me"
+                onLoad={e => onLoad(e.currentTarget)}
+                style={{ maxWidth: '100%', maxHeight: '400px' }}
+              />
+            </ReactCrop>
+          </div>
+          <div className="flex justify-between w-full">
+            <Button variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button onClick={handleApplyCrop}>
+              Apply Crop
+            </Button>
+          </div>
+          <canvas
+            ref={canvasRef}
+            style={{
+              display: 'none',
+              width: completedCrop?.width ?? 0,
+              height: completedCrop?.height ?? 0
+            }}
+          />
         </div>
-        <DialogFooter>
-          <Button onClick={onCancel} variant="outline">
-            Cancel
-          </Button>
-          <Button onClick={handleCropComplete} disabled={!crop}>
-            Apply Crop
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
