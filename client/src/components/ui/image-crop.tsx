@@ -71,8 +71,6 @@ export function ImageCrop({
 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    // devicePixelRatio slightly increases sharpness on retina displays
-    // at the expense of slightly slower render times and slightly more memory use.
     const pixelRatio = window.devicePixelRatio || 1;
 
     canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
@@ -87,13 +85,20 @@ export function ImageCrop({
     const centerY = image.naturalHeight / 2;
 
     ctx.save();
-
-    // Move the crop origin to the canvas origin (0,0)
     ctx.translate(-cropX, -cropY);
-    // Move the origin to the center of the original position
-    ctx.translate(centerX, centerY);
-    // Move the center of the image to the origin (0,0)
-    ctx.translate(-centerX, -centerY);
+
+    // Apply rotation if necessary
+    if (rotate) {
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotate * Math.PI / 180);
+      ctx.translate(-centerX, -centerY);
+    }
+
+    // Apply scale if necessary
+    if (scale !== 1) {
+      ctx.scale(scale, scale);
+    }
+
     ctx.drawImage(
       image,
       0,
@@ -105,15 +110,6 @@ export function ImageCrop({
       image.naturalWidth,
       image.naturalHeight,
     );
-
-    if (circularCrop && ctx) {
-      // Draw circular mask
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      const radius = Math.min(canvas.width, canvas.height) / 2;
-      ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, 2 * Math.PI, true);
-      ctx.fill();
-    }
 
     ctx.restore();
   }
@@ -133,57 +129,39 @@ export function ImageCrop({
         );
       }
     },
-    [completedCrop, circularCrop],
+    100,
+    [completedCrop],
   );
 
-  async function handleApplyCrop() {
+  const handleApplyCrop = async () => {
     try {
-      console.log("Crop completed:", completedCrop);
-      setIsLoading(true);
-      
       if (!completedCrop || !canvasRef.current) {
-        throw new Error('Crop not complete');
+        console.error('No crop data or canvas reference');
+        return;
       }
 
-      // Convert canvas to blob
+      setIsLoading(true);
+
+      // Generate the cropped image as a blob URL
       const canvas = canvasRef.current;
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (!blob) throw new Error('Canvas to Blob conversion failed');
-          resolve(blob);
-        }, 'image/jpeg', 0.95);
-      });
+      const croppedImageUrl = canvas.toDataURL('image/jpeg');
 
-      // Create URL for the blob
-      const croppedImageUrl = URL.createObjectURL(blob);
-      console.log("Created cropped image URL:", croppedImageUrl);
-      console.log("Applying crop with URL:", croppedImageUrl);
-      
-      // Upload the cropped image
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to upload cropped image');
-      }
-      
-      const data = await response.json();
-      console.log("Upload response:", data);
-      
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-      onCropComplete(uploadedUrl);
-      
+      // Convert data URL to blob
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const croppedImageBlobUrl = URL.createObjectURL(blob);
+
+      console.log('Created cropped image URL:', croppedImageBlobUrl);
+      console.log('Applying crop with URL:', croppedImageBlobUrl);
+
+      // Call the provided callback with the cropped image URL
+      onCropComplete(croppedImageBlobUrl);
     } catch (error) {
       console.error('Error applying crop:', error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -241,3 +219,6 @@ export function ImageCrop({
     </div>
   );
 }
+
+// Add a default export that re-exports the named export
+export default ImageCrop;

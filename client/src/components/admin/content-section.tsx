@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, Save } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
-import { ImageCrop } from "@/components/ui/image-crop";
+import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type SiteContent = {
