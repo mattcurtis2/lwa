@@ -66,6 +66,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     weight: z.string().optional().nullable(),
     milkStars: z.string().optional(),
     laArScores: z.string().optional(),
+    price: z.string().optional(),
     profileImageUrl: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
@@ -124,6 +125,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       weight: goat?.weight?.toString() || "",
       milkStars: goat?.milkStars || "",
       laArScores: goat?.laArScores || "",
+      price: goat?.price || "",
       profileImageUrl: goat?.profileImageUrl || "",
       media: goat?.media || [],
       outsideBreeder: Boolean(goat?.outsideBreeder),
@@ -456,6 +458,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         ...values,
         height: values.height ? parseFloat(values.height) : null,
         weight: values.weight ? parseFloat(values.weight) : null,
+        price: values.price || null,
         sold: Boolean(values.sold),
         available: Boolean(values.available),
         kid: Boolean(values.kid),
@@ -1024,6 +1027,21 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         </div>
 
         <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Price</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter price" {...field} />
+              </FormControl>
+              <FormDescription>
+                Optional price for the goat (will be shown when marked as available)
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+    <FormField
           control={form.control}
           name="outsideBreeder"
           render={({ field }) => (

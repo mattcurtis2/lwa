@@ -12,6 +12,92 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FileText,
   FileImage,
+
+// Add this after the GoatDetailsProps interface
+
+export default function GoatDetails({ goat }: GoatDetailsProps) {
+  const hasMedia = goat.media && goat.media.length > 0;
+  const gallery = hasMedia ? [...goat.media] : [];
+  const genderLabel = goat.gender === 'female' ? 'Doe' : 'Buck';
+  const birthDate = goat.birthDate ? new Date(goat.birthDate) : null;
+  const age = birthDate ? calculateAge(birthDate) : 'Unknown';
+
+  function calculateAge(birthDate: Date): string {
+    const today = new Date();
+    const yearDiff = today.getFullYear() - birthDate.getFullYear();
+    
+    if (yearDiff > 0) {
+      return `${yearDiff} ${yearDiff === 1 ? 'year' : 'years'}`;
+    } else {
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const adjustedMonthDiff = monthDiff < 0 ? 12 + monthDiff : monthDiff;
+      return `${adjustedMonthDiff} ${adjustedMonthDiff === 1 ? 'month' : 'months'}`;
+    }
+  }
+
+  // Get profile image
+  const profileImage = goat.profileImageUrl || (gallery.length > 0 ? gallery[0].url : '/images/goat-placeholder.jpg');
+
+  return (
+    <div className="bg-white rounded-lg overflow-hidden shadow-md">
+      <div className="relative">
+        <img 
+          src={profileImage} 
+          alt={goat.name} 
+          className="w-full h-64 object-cover"
+        />
+        {goat.available && (
+          <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 m-2 rounded-md font-medium">
+            Available
+            {goat.price && <span className="ml-2">${goat.price}</span>}
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="text-xl font-bold">{goat.name}</h3>
+        {goat.registrationName && (
+          <p className="text-sm text-gray-600 mb-2">Reg: {goat.registrationName}</p>
+        )}
+        
+        <div className="grid grid-cols-2 gap-2 my-3">
+          <div className="text-sm"><span className="font-semibold">Breed:</span> {goat.breed}</div>
+          <div className="text-sm"><span className="font-semibold">Gender:</span> {genderLabel}</div>
+          <div className="text-sm"><span className="font-semibold">Age:</span> {age}</div>
+          <div className="text-sm"><span className="font-semibold">Color:</span> {goat.color || 'Not specified'}</div>
+        </div>
+        
+        {goat.description && (
+          <div className="mt-3">
+            <h4 className="font-semibold mb-1">About</h4>
+            <p className="text-sm text-gray-700">{goat.description}</p>
+          </div>
+        )}
+        
+        {goat.milkStars && (
+          <div className="mt-3">
+            <h4 className="font-semibold mb-1">Milk Stars</h4>
+            <p className="text-sm text-gray-700">{goat.milkStars}</p>
+          </div>
+        )}
+        
+        {goat.laArScores && (
+          <div className="mt-3">
+            <h4 className="font-semibold mb-1">LA/AR Scores</h4>
+            <p className="text-sm text-gray-700">{goat.laArScores}</p>
+          </div>
+        )}
+        
+        {goat.narrativeDescription && (
+          <div className="mt-3">
+            <h4 className="font-semibold mb-1">Detailed Description</h4>
+            <p className="text-sm text-gray-700">{goat.narrativeDescription}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
   FileVideo,
   File,
   ExternalLink,
