@@ -492,12 +492,38 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             imageUrl={cropImageUrl}
             aspect={1} // Square aspect ratio for profile picture
             circularCrop={true} // Enable circular cropping for profile picture
-            onCropComplete={(croppedImageUrl) => {
+            onCropComplete={async (croppedImageUrl) => {
               console.log("Handling cropped image with URL:", croppedImageUrl);
-              form.setValue("profileImageUrl", croppedImageUrl);
-              setShowCropper(false);
-              setCropImageUrl("");
-              setIsUploading(false);
+              
+              // Upload the cropped image to the server
+              try {
+                const formData = new FormData();
+                const response = await fetch(croppedImageUrl);
+                const blob = await response.blob();
+                console.log("Blob size:", blob.size);
+                formData.append('file', blob, 'cropped-image.jpg');
+                
+                setIsUploading(true);
+                const uploadRes = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData,
+                });
+                
+                if (!uploadRes.ok) {
+                  throw new Error('Failed to upload cropped image');
+                }
+                
+                const data = await uploadRes.json();
+                const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+                
+                form.setValue("profileImageUrl", uploadedUrl);
+              } catch (error) {
+                console.error("Error uploading cropped image:", error);
+              } finally {
+                setShowCropper(false);
+                setCropImageUrl("");
+                setIsUploading(false);
+              }
             }}
             onCancel={() => {
               setShowCropper(false);
