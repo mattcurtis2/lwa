@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -107,18 +106,42 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
-    if (!previewCanvasRef.current) {
-      console.error("Canvas ref not available");
-      return;
-    }
-
     try {
-      const croppedImageUrl = previewCanvasRef.current.toDataURL('image/jpeg');
-      console.log("Created cropped image URL:", croppedImageUrl);
-      console.log("Applying crop with URL:", croppedImageUrl);
-      onCropComplete(croppedImageUrl);
+      if (!completedCrop || !imgRef.current) return;
+
+      console.log("Crop completed:", completedCrop);
+
+      const canvas = document.createElement('canvas');
+      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
+      canvas.width = completedCrop.width;
+      canvas.height = completedCrop.height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(
+        imgRef.current,
+        completedCrop.x * scaleX,
+        completedCrop.y * scaleY,
+        completedCrop.width * scaleX,
+        completedCrop.height * scaleY,
+        0,
+        0,
+        completedCrop.width,
+        completedCrop.height
+      );
+
+      // Convert canvas to base64 URL with higher quality
+      const base64Url = canvas.toDataURL('image/jpeg', 0.95);
+      console.log("Created cropped image URL:", base64Url);
+      console.log("Applying crop with URL:", base64Url);
+
+      // Make sure we're passing the same URL structure consistently
+      onCropComplete(base64Url);
     } catch (error) {
-      console.error('Error creating cropped preview:', error);
+      console.error("Error completing crop:", error);
     }
   };
 

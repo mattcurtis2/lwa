@@ -184,12 +184,11 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       console.log("Handling cropped image with URL:", croppedImageUrl);
 
-      // Fetch the blob from the URL
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
+      // Create a blob from the data URL
+      const fetchResponse = await fetch(croppedImageUrl);
+      const blob = await fetchResponse.blob();
       console.log("Blob size:", blob.size);
 
-      // Create form data for upload
       const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
 
@@ -203,7 +202,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
       const uploadData = await uploadResponse.json();
       console.log("Upload response:", uploadData);
-      
+
       if (uploadData && uploadData.length > 0) {
         // Force immediate form update with the setValue method's options
         form.setValue('profileImageUrl', uploadData[0].url, { 
@@ -211,12 +210,15 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           shouldDirty: true,
           shouldTouch: true
         });
-        
-        toast({
-          title: "Success",
-          description: "Image cropped and uploaded successfully",
-        });
+
+        // Update form state to make sure the UI reflects the change
+        form.trigger('profileImageUrl');
       }
+
+      toast({
+        title: "Success",
+        description: "Image cropped and uploaded successfully",
+      });
     } catch (error) {
       console.error('Error handling cropped image:', error);
       toast({
