@@ -492,7 +492,13 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             imageUrl={cropImageUrl}
             aspect={1} // Square aspect ratio for profile picture
             circularCrop={true} // Enable circular cropping for profile picture
-            onCropComplete={handleCroppedImage}
+            onCropComplete={(croppedImageUrl) => {
+              console.log("Handling cropped image with URL:", croppedImageUrl);
+              form.setValue("profileImageUrl", croppedImageUrl);
+              setShowCropper(false);
+              setCropImageUrl("");
+              setIsUploading(false);
+            }}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
@@ -502,6 +508,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
               const formData = new FormData();
               const response = await fetch(cropImageUrl);
               const blob = await response.blob();
+              console.log("Blob size:", blob.size);
               formData.append('file', blob);
 
               setIsUploading(true);
