@@ -182,11 +182,14 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const handleCroppedImage = async (croppedImageUrl: string) => {
     try {
+      console.log('Handling cropped image with URL:', croppedImageUrl);
+      const formData = new FormData();
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-      const formData = new FormData();
-      formData.append('file', blob, 'profile-picture.jpg');
+      console.log('Blob size:', blob.size);
+      formData.append('file', blob, 'cropped-image.jpg');
 
+      setIsUploading(true);
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -197,19 +200,25 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       }
 
       const data = await uploadRes.json();
-      form.setValue("profileImageUrl", data.url);
-      setShowCropper(false);
+      console.log('Upload response:', data);
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-      URL.revokeObjectURL(croppedImageUrl);
-      URL.revokeObjectURL(cropImageUrl);
+      // Force a re-render by setting the field value
+      form.setValue("profileImageUrl", uploadedUrl);
+
+      // Clean up
+      setShowCropper(false);
       setCropImageUrl("");
+      URL.revokeObjectURL(croppedImageUrl); // Prevent memory leaks
+      setIsUploading(false);
 
       toast({
         title: 'Success',
-        description: 'Profile picture updated successfully',
+        description: 'Profile image updated successfully',
       });
     } catch (error) {
       console.error('Error uploading cropped image:', error);
+      setIsUploading(false);
       toast({
         title: 'Error',
         description: 'Failed to upload cropped image',
