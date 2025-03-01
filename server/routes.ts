@@ -149,6 +149,25 @@ export function registerRoutes(app: Express): Server {
 
     // Add default dogs hero content if none exists
     const existingHero = await db.query.dogsHero.findFirst();
+    
+    // Add endpoint to serve content images for social media preview
+    app.get("/api/site-content/:key", async (req, res) => {
+      try {
+        const content = await db.query.siteContent.findFirst({
+          where: (siteContent, { eq }) => eq(siteContent.key, req.params.key)
+        });
+        
+        if (!content || !content.value) {
+          return res.status(404).send("Image not found");
+        }
+        
+        // Redirect to the actual image URL
+        res.redirect(content.value);
+      } catch (error) {
+        console.error("Error fetching content image:", error);
+        res.status(500).send("Error fetching image");
+      }
+    });
 
     if (!existingHero) {
       await db.insert(dogsHero).values({
