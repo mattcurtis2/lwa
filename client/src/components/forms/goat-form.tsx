@@ -41,6 +41,8 @@ interface MediaInput {
   type: "image" | "video";
   fileName?: string;
   isNew?: boolean;
+  file?: File; // Added file property
+  tempUrl?: string; // Added temporary URL property
 }
 
 const mediaSchema = z.object({
@@ -183,31 +185,56 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const handleCroppedImage = async (uploadedUrl: string) => {
     setIsUploading(true);
     try {
+      // Check if this is a media upload or profile image upload
+      const tempMediaData = (window as any).tempMediaData;
+      const isMediaUpload = tempMediaData !== undefined;
+
       // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-        form.setValue("profileImageUrl", uploadedUrl, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
+        if (isMediaUpload) {
+          // Handle media upload
+          const { index, file } = tempMediaData;
+          const updatedMedia = [...mediaInputs];
 
-        // Trigger form validation to update the UI
-        form.trigger("profileImageUrl");
+          updatedMedia[index] = {
+            ...updatedMedia[index],
+            url: uploadedUrl,
+            file,
+            tempUrl: timestampedUrl,
+            type: 'image',
+            isNew: true,
+          };
 
-        // Force UI update by directly manipulating the DOM element
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+          // Clear temp data
+          delete (window as any).tempMediaData;
+        } else {
+          // Handle profile image
+          form.setValue("profileImageUrl", uploadedUrl, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+
+          // Trigger form validation to update the UI
+          form.trigger("profileImageUrl");
+
+          // Force UI update by directly manipulating the DOM element
+          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+          if (profileImageUrlField) {
+            (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
+          }
+
+          // Also update any preview elements
+          const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
+          previewElements.forEach(el => {
+            (el as HTMLImageElement).src = timestampedUrl;
+          });
         }
-
-        // Also update any preview elements
-        const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
-        previewElements.forEach(el => {
-          (el as HTMLImageElement).src = timestampedUrl;
-        });
 
         toast({
           title: "Success",
@@ -238,26 +265,47 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         const imageUrl = data[0].url;
         const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
 
-        form.setValue("profileImageUrl", imageUrl, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
+        if (isMediaUpload) {
+          // Handle media upload
+          const { index, file } = tempMediaData;
+          const updatedMedia = [...mediaInputs];
 
-        // Trigger form validation to update the UI
-        form.trigger("profileImageUrl");
+          updatedMedia[index] = {
+            ...updatedMedia[index],
+            url: imageUrl,
+            file,
+            tempUrl: timestampedUrl,
+            type: 'image',
+            isNew: true,
+          };
 
-        // Force UI update by directly manipulating the DOM element
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          (profileImageUrlField as HTMLInputElement).value = imageUrl;
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+          // Clear temp data
+          delete (window as any).tempMediaData;
+        } else {
+          // Handle profile image
+          form.setValue("profileImageUrl", imageUrl, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+
+          // Trigger form validation to update the UI
+          form.trigger("profileImageUrl");
+
+          // Force UI update by directly manipulating the DOM element
+          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+          if (profileImageUrlField) {
+            (profileImageUrlField as HTMLInputElement).value = imageUrl;
+          }
+
+          // Also update any preview elements
+          const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
+          previewElements.forEach(el => {
+            (el as HTMLImageElement).src = timestampedUrl;
+          });
         }
-
-        // Also update any preview elements
-        const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
-        previewElements.forEach(el => {
-          (el as HTMLImageElement).src = timestampedUrl;
-        });
 
         toast({
           title: "Success",
@@ -268,13 +316,13 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       console.error("Error uploading cropped image:", error);
       toast({
         title: "Error",
-        description: "Failed to upload the cropped image",
+        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
         variant: "destructive",
       });
     } finally {
+      setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
-      setIsUploading(false);
     }
   };
 
@@ -365,6 +413,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             type: fileType,
             fileName: file.name,
             isNew: true,
+            file, // Add file information
           };
 
           setMediaInputs(prev => [newMedia, ...prev]);
@@ -383,6 +432,32 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       }
     }, [form, toast]),
   });
+
+  const handleMediaImageSelect = async (file: File, index: number) => {
+    if (!file) return;
+
+    try {
+      const previewUrl = URL.createObjectURL(file);
+      setCropImageUrl(previewUrl);
+      setShowCropper(true);
+
+      // Store the index to update after cropping
+      const tempData = {
+        index,
+        file
+      };
+
+      // Store the temp data in a ref or state to use it in the crop handler
+      (window as any).tempMediaData = tempData;
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load image for cropping',
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
@@ -890,12 +965,11 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                         >
                           {input.type === 'image' ? (
                             <img
-                              src={input.url}
+                              src={input.url || input.tempUrl} // Use tempUrl if available
                               alt={`Upload ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
                               onClick={() => {
-                                setCropImageUrl(input.url);
-                                setShowCropper(true);
+                                handleMediaImageSelect(input.file as File, index); // Pass file and index
                               }}
                             />
                           ) : (
