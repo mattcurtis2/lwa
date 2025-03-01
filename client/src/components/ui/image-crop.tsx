@@ -1,24 +1,11 @@
+
 import { useState, useRef, useCallback } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Button } from './button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import useDebounceEffect from "@/lib/useDebounceEffect";
 
-function useDebounceEffect(fn: () => void, deps: React.DependencyList, delay = 100) {
-  const timeoutRef = useRef<number | null>(null);
-
-  useCallback(() => {
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-    }
-
-    timeoutRef.current = window.setTimeout(() => {
-      fn();
-    }, delay);
-  }, deps);
-}
-
-// This is to help convert the coordinates/dimensions
 function canvasPreview(
   img: HTMLImageElement,
   canvas: HTMLCanvasElement,
@@ -59,49 +46,55 @@ function canvasPreview(
   ctx.restore();
 }
 
-export default function ImageCrop({
-  imageUrl,
-  onCropComplete,
-  onCancel
-}: {
+interface ImageCropProps {
   imageUrl: string;
   onCropComplete: (croppedImageUrl: string) => void;
   onCancel: () => void;
-}) {
+  aspect?: number;
+  onSkip?: () => void;
+}
+
+// Export as both default and named export
+export function ImageCrop({
+  imageUrl,
+  onCropComplete,
+  onCancel,
+  aspect = 1,
+  onSkip
+}: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [aspect, setAspect] = useState<number | undefined>(1);
 
-  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    const crop = centerCrop(
-      makeAspectCrop(
-        {
-          unit: '%',
-          width: 90,
-        },
-        1,
+  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    if (aspect) {
+      const { width, height } = e.currentTarget;
+      setCrop(centerCrop(
+        makeAspectCrop(
+          {
+            unit: '%',
+            width: 90,
+          },
+          aspect,
+          width,
+          height
+        ),
         width,
         height
-      ),
-      width,
-      height
-    );
-
-    setCrop(crop);
-  }, []);
+      ));
+    }
+  }
 
   useDebounceEffect(
-    () => {
+    function () {
       if (
         completedCrop?.width &&
         completedCrop?.height &&
         imgRef.current &&
         previewCanvasRef.current
       ) {
-        console.log("Crop completed:", completedCrop);
+        // We use canvasPreview as it's much faster than createObjectURL
         canvasPreview(
           imgRef.current,
           previewCanvasRef.current,
@@ -114,19 +107,22 @@ export default function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
-    try {
-      if (!previewCanvasRef.current) {
-        throw new Error('Canvas not found');
-      }
+    if (!previewCanvasRef.current) {
+      console.error("Canvas ref not available");
+      return;
+    }
 
+    try {
       const croppedImageUrl = previewCanvasRef.current.toDataURL('image/jpeg');
       console.log("Created cropped image URL:", croppedImageUrl);
       console.log("Applying crop with URL:", croppedImageUrl);
       onCropComplete(croppedImageUrl);
     } catch (error) {
-      console.error('Error creating cropped image:', error);
+      console.error('Error creating cropped preview:', error);
     }
   };
+
+  console.log("Crop completed:", completedCrop);
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
@@ -141,7 +137,7 @@ export default function ImageCrop({
               onChange={(c) => setCrop(c)}
               onComplete={(c) => setCompletedCrop(c)}
               aspect={aspect}
-              circularCrop={true}
+              circularCrop={false}
             >
               <img
                 ref={imgRef}
@@ -160,6 +156,11 @@ export default function ImageCrop({
               <Button variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
+              {onSkip && (
+                <Button variant="secondary" onClick={onSkip}>
+                  Skip Cropping
+                </Button>
+              )}
               <Button onClick={handleApplyCrop}>
                 Apply Crop
               </Button>
@@ -170,3 +171,6 @@ export default function ImageCrop({
     </Dialog>
   );
 }
+
+// Also maintain the default export for backward compatibility
+export default ImageCrop;
