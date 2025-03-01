@@ -1323,8 +1323,6 @@ export default function DogForm({
                                 </div>
                               </div>
                             </>
-                              }}
-                            />
                           ) : (
                             <video
                               src={input.url}
