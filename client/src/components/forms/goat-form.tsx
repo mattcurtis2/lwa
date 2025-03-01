@@ -196,41 +196,38 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       setIsUploading(true);
 
       // Upload the blob to the server
-      const uploadRes = await fetch('/api/upload', {
+      const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (!uploadRes.ok) {
-        throw new Error('Failed to upload cropped image');
+      const uploadData = await uploadResponse.json();
+      console.log("Upload response:", uploadData);
+      
+      if (uploadData && uploadData.length > 0) {
+        // Force immediate form update with the setValue method's options
+        form.setValue('profileImageUrl', uploadData[0].url, { 
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true
+        });
+        
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
       }
-
-      // Process the response
-      const data = await uploadRes.json();
-      console.log("Upload response:", data);
-
-      // Get the URL from the response
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-      // Update the form value
-      form.setValue("profileImageUrl", uploadedUrl);
-
-      toast({
-        title: "Success",
-        description: "Image cropped and uploaded successfully",
-      });
     } catch (error) {
-      console.error("Error uploading cropped image:", error);
+      console.error('Error handling cropped image:', error);
       toast({
-        title: "Error",
-        description: "Failed to upload cropped image",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to upload cropped image',
+        variant: 'destructive',
       });
     } finally {
-      // Close the cropper and reset state regardless of success/failure
+      setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
-      setIsUploading(false);
     }
   };
 
@@ -488,40 +485,24 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         />
 
         {showCropper && cropImageUrl && (
-          <ImageCrop
+          <ImageCrop 
             imageUrl={cropImageUrl}
-            aspect={1} // Square aspect ratio for profile picture
-            circularCrop={true} // Enable circular cropping for profile picture
+            aspect={1}
+            circularCrop={true}
             onCropComplete={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            onSkip={async () => {
-              // If user wants to skip cropping, just use the original image
-              const formData = new FormData();
-              const response = await fetch(cropImageUrl);
-              const blob = await response.blob();
-              console.log("Blob size:", blob.size);
-              formData.append('file', blob);
-
-              setIsUploading(true);
-              const uploadRes = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
+            onSkip={() => {
+              // If user skips cropping, use the original image URL
+              form.setValue('profileImageUrl', cropImageUrl, {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true
               });
-
-              if (!uploadRes.ok) {
-                throw new Error('Failed to upload image');
-              }
-
-              const data = await uploadRes.json();
-              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-              form.setValue("profileImageUrl", uploadedUrl);
-
               setShowCropper(false);
               setCropImageUrl("");
-              setIsUploading(false);
             }}
           />
         )}
