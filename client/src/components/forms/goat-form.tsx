@@ -180,19 +180,28 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleCroppedImage = async (croppedImageUrl: string) => {
+  const handleCroppedImage = async (croppedImageUrl: string, croppedFile?: File) => {
     try {
-      console.log("Handling cropped image with URL:", croppedImageUrl);
-
-      // Create a blob from the data URL
-      const fetchResponse = await fetch(croppedImageUrl);
-      const blob = await fetchResponse.blob();
-      console.log("Blob size:", blob.size);
-
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
-
       setIsUploading(true);
+      console.log("Processing cropped image:", croppedImageUrl.substring(0, 100) + "...");
+
+      let fileToUpload: File;
+
+      if (croppedFile) {
+        // Use the file directly if it's provided
+        fileToUpload = croppedFile;
+        console.log("Using provided file:", fileToUpload.size, "bytes");
+      } else {
+        // Convert base64 to blob and then to file
+        const response = await fetch(croppedImageUrl);
+        const blob = await response.blob();
+        fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+        console.log("Created file from URL:", fileToUpload.size, "bytes");
+      }
+
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append("file", fileToUpload);
 
       // Upload the blob to the server
       const uploadResponse = await fetch('/api/upload', {
@@ -200,12 +209,18 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         body: formData,
       });
 
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+      }
+
       const uploadData = await uploadResponse.json();
       console.log("Upload response:", uploadData);
 
       if (uploadData && uploadData.length > 0) {
+        const imageUrl = uploadData[0].url;
+
         // Force immediate form update with the setValue method's options
-        form.setValue('profileImageUrl', uploadData[0].url, { 
+        form.setValue('profileImageUrl', imageUrl, { 
           shouldValidate: true,
           shouldDirty: true,
           shouldTouch: true
@@ -213,23 +228,47 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
         // Update form state to make sure the UI reflects the change
         form.trigger('profileImageUrl');
-      }
 
-      toast({
-        title: "Success",
-        description: "Image cropped and uploaded successfully",
-      });
+        // Add a timestamp to prevent caching issues
+        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
+
+        // Update any preview elements to force refresh
+        const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
+        previewElements.forEach(el => {
+          (el as HTMLImageElement).src = timestampedUrl;
+        });
+
+        // Also directly update any form input
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          (profileImageUrlField as HTMLInputElement).value = imageUrl;
+        }
+
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
+      }
     } catch (error) {
       console.error('Error handling cropped image:', error);
       toast({
         title: 'Error',
-        description: 'Failed to upload cropped image',
+        description: 'Failed to upload cropped image: ' + (error instanceof Error ? error.message : 'Unknown error'),
         variant: 'destructive',
       });
     } finally {
       setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
+
+      // Force a UI refresh
+      setTimeout(() => {
+        const event = new Event('input', { bubbles: true });
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          profileImageUrlField.dispatchEvent(event);
+        }
+      }, 100);
     }
   };
 
