@@ -2,7 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Goat } from "@db/schema";
-import { formatAge } from "@/lib/utils";
+import { formatAge } from "@/lib/date-utils";
 
 interface GoatDetailsProps {
   goat: Goat & {
