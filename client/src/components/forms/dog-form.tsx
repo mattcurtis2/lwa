@@ -1305,13 +1305,24 @@ export default function DogForm({
                           className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
                         >
                           {input.type === 'image' ? (
-                            <img
-                              src={input.url}
-                              alt={`Upload ${index + 1}`}
-                              className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                              onClick={() =>{
-                                setCropImageUrl(input.url);
-                                setShowCropper(true);
+                            <>
+                              <img
+                                src={input.url}
+                                alt={`Upload ${index + 1}`}
+                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                              />
+                              <div
+                                className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
+                                onClick={() => {
+                                  setCropImageUrl(input.url);
+                                  setShowCropper(true);
+                                }}
+                              >
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
+                                  Edit Image
+                                </div>
+                              </div>
+                            </>
                               }}
                             />
                           ) : (

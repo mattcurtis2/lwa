@@ -103,6 +103,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const [pedigreeDocuments, setPedigreeDocuments] = useState<Document[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined } | null>(null);
+
 
   const goatSchema = createGoatSchema(Boolean(goat?.kid));
 
@@ -186,8 +188,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     setIsUploading(true);
     try {
       // Check if this is a media upload or profile image upload
-      const tempMediaData = (window as any).tempMediaData;
-      const isMediaUpload = tempMediaData !== undefined;
+      const isMediaUpload = tempMediaData !== null;
 
       // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
@@ -211,7 +212,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
           // Clear temp data
-          delete (window as any).tempMediaData;
+          setTempMediaData(null);
         } else {
           // Handle profile image
           form.setValue("profileImageUrl", uploadedUrl, {
@@ -282,7 +283,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
           // Clear temp data
-          delete (window as any).tempMediaData;
+          setTempMediaData(null);
         } else {
           // Handle profile image
           form.setValue("profileImageUrl", imageUrl, {
@@ -322,6 +323,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
+      setTempMediaData(null);
     }
   };
 
@@ -437,15 +439,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
       setShowCropper(true);
-
-      // Store the index to update after cropping
-      const tempData = {
-        index,
-        file
-      };
-
-      // Store the temp data in a ref or state to use it in the crop handler
-      (window as any).tempMediaData = tempData;
+      setTempMediaData({ index, file });
     } catch (error) {
       toast({
         title: 'Error',
@@ -604,6 +598,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
+              setTempMediaData(null);
             }}
             onSkip={async () => {
               setIsUploading(true);
@@ -648,6 +643,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 setIsUploading(false);
                 setShowCropper(false);
                 setCropImageUrl("");
+                setTempMediaData(null);
               }
             }}
           />
@@ -952,38 +948,32 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                           className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
                         >
                           {input.type === 'image' ? (
-                            <img
-                              src={input.url || input.tempUrl} // Use tempUrl if available
-                              alt={`Upload ${index + 1}`}
-                              className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                              onClick={() => {
-                                handleMediaImageSelect(input.file as File, index); // Pass file and index
-                              }}
-                            />
-                          ) : (
+                            <>
+                              <img
+                                src={input.tempUrl || input.url}
+                                alt={`Upload ${index + 1}`}
+                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                              />
+                              <div
+                                className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
+                                onClick={() => {
+                                  setTempMediaData({ index, file: input.file });
+                                  setCropImageUrl(input.url);
+                                  setShowCropper(true);
+                                }}
+                              >
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
+                                  Edit Image
+                                </div>
+                              </div>
+                            </>
+                          ) : input.type === 'video' ? (
                             <video
                               src={input.url}
                               className="w-full h-full object-cover"
                               controls
                             />
-                          )}
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                const newInputs = [...mediaInputs];
-                                newInputs.splice(index, 1);
-                                setMediaInputs(newInputs);
-                                form.setValue("media", newInputs);
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                          ) : null}
                         </div>
                       )}
                     </Draggable>

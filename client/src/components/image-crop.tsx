@@ -56,7 +56,6 @@ export default function ImageCrop({
   const createCroppedImage = useCallback(async () => {
     try {
       if (!completedCrop || !imgRef.current) {
-        // If no crop is selected but user clicks apply, use the full image
         if (imgRef.current) {
           const fullImage = imgRef.current;
           const canvas = document.createElement('canvas');
@@ -73,7 +72,6 @@ export default function ImageCrop({
         return;
       }
 
-      // Validate crop dimensions - if width or height is 0, use a minimum default value
       const validCrop = {
         ...completedCrop,
         width: completedCrop.width <= 0 ? imgRef.current.width / 4 : completedCrop.width,
@@ -90,11 +88,9 @@ export default function ImageCrop({
         throw new Error('No 2d context');
       }
 
-      // Set canvas size to crop size
       canvas.width = validCrop.width;
       canvas.height = validCrop.height;
 
-      // Draw the cropped image
       ctx.drawImage(
         image,
         validCrop.x,
@@ -107,7 +103,6 @@ export default function ImageCrop({
         validCrop.height
       );
 
-      // For circular crops, create a circular clipping path
       if (circularCrop) {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
@@ -119,11 +114,10 @@ export default function ImageCrop({
         ctx.fill();
       }
 
-      // Convert canvas to data URL
       const croppedImageUrl = canvas.toDataURL('image/jpeg', 0.85);
       onCropComplete(croppedImageUrl);
     } catch (error) {
-      
+
     } finally {
       setIsProcessing(false);
     }
