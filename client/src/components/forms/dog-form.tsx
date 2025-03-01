@@ -998,7 +998,8 @@ export default function DogForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel<FormControl>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
                   <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
                 </FormControl>
                 <FormMessage />
