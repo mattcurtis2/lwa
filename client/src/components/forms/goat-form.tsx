@@ -180,69 +180,57 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleCroppedImage = async (croppedImageUrl: string, croppedFile?: File) => {
+  const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
     try {
-      setIsUploading(true);
-      console.log("Processing cropped image:", croppedImageUrl.substring(0, 100) + "...");
+      // If we already have a server URL (from the improved ImageCrop component)
+      if (uploadedUrl.startsWith('/uploads/')) {
+        console.log("Using already uploaded image URL:", uploadedUrl);
 
-      let fileToUpload: File;
+        // Force immediate form update
+        form.setValue("profileImageUrl", uploadedUrl, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
 
-      if (croppedFile) {
-        // Use the file directly if it's provided
-        fileToUpload = croppedFile;
-        console.log("Using provided file:", fileToUpload.size, "bytes");
-      } else {
-        // Convert base64 to blob and then to file
-        const response = await fetch(croppedImageUrl);
-        const blob = await response.blob();
-        fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-        console.log("Created file from URL:", fileToUpload.size, "bytes");
+        // Trigger form validation to update the UI
+        form.trigger("profileImageUrl");
+
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
+        return;
       }
 
-      // Create form data for upload
-      const formData = new FormData();
-      formData.append("file", fileToUpload);
+      // Handle base64 image data (fallback for older implementation)
+      const response = await fetch(uploadedUrl);
+      const blob = await response.blob();
 
-      // Upload the blob to the server
-      const uploadResponse = await fetch('/api/upload', {
+      const formData = new FormData();
+      formData.append('file', blob, 'cropped-image.jpg');
+
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+      if (!res.ok) {
+        throw new Error('Failed to upload image.');
       }
 
-      const uploadData = await uploadResponse.json();
-      console.log("Upload response:", uploadData);
+      const data = await res.json();
 
-      if (uploadData && uploadData.length > 0) {
-        const imageUrl = uploadData[0].url;
-
-        // Force immediate form update with the setValue method's options
-        form.setValue('profileImageUrl', imageUrl, { 
+      if (data && data.length > 0 && data[0].url) {
+        const imageUrl = data[0].url;
+        form.setValue("profileImageUrl", imageUrl, {
           shouldValidate: true,
           shouldDirty: true,
-          shouldTouch: true
+          shouldTouch: true,
         });
 
-        // Update form state to make sure the UI reflects the change
-        form.trigger('profileImageUrl');
-
-        // Add a timestamp to prevent caching issues
-        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-
-        // Update any preview elements to force refresh
-        const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
-        previewElements.forEach(el => {
-          (el as HTMLImageElement).src = timestampedUrl;
-        });
-
-        // Also directly update any form input
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          (profileImageUrlField as HTMLInputElement).value = imageUrl;
-        }
+        // Trigger form validation to update the UI
+        form.trigger("profileImageUrl");
 
         toast({
           title: "Success",
@@ -250,25 +238,15 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         });
       }
     } catch (error) {
-      console.error('Error handling cropped image:', error);
+      console.error("Error uploading cropped image:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload cropped image: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to upload the cropped image",
+        variant: "destructive",
       });
     } finally {
-      setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
-
-      // Force a UI refresh
-      setTimeout(() => {
-        const event = new Event('input', { bubbles: true });
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          profileImageUrlField.dispatchEvent(event);
-        }
-      }, 100);
     }
   };
 

@@ -355,24 +355,65 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedImage = async (croppedImageUrl: string, croppedFile?: File) => {
+  const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
     try {
       setIsUploadingProfile(true);
-      console.log("Handling cropped image with URL:", croppedImageUrl.substring(0, 100) + "...");
+      console.log("Handling cropped image with URL:", uploadedUrl.substring(0, 100) + "...");
 
       let fileToUpload: File;
-      
+
       if (croppedFile) {
         // Use the file passed from the cropper if available
         fileToUpload = croppedFile;
         console.log("Using pre-created cropped file:", fileToUpload.size, "bytes");
+      } else if (uploadedUrl.startsWith('/uploads/')) {
+        // Use the pre-uploaded URL directly if available
+        fileToUpload = new File([], 'cropped-image.jpg', { type: 'image/jpeg' }); // Dummy file; not actually used.
+        console.log("Using pre-uploaded image URL:", uploadedUrl);
       } else {
         // For backward compatibility, convert the URL to a blob if needed
-        const res = await fetch(croppedImageUrl);
+        const res = await fetch(uploadedUrl);
         const blob = await res.blob();
         fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
         console.log("Created file from URL, size:", fileToUpload.size, "bytes");
       }
+
+      // If we already have a server URL (from the improved ImageCrop component)
+      if (uploadedUrl.startsWith('/uploads/')) {
+        console.log("Using already uploaded image URL:", uploadedUrl);
+
+        // Force immediate form update with setValue options that trigger all form hooks
+        form.setValue("profileImageUrl", uploadedUrl, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+
+        // Trigger form validation to update the UI
+        form.trigger("profileImageUrl");
+
+        // Add a timestamp to prevent caching issues
+        const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
+
+        // Force UI update by directly manipulating the DOM element
+        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+        if (profileImageUrlField) {
+          (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
+        }
+
+        // Also update any preview elements
+        const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
+        previewElements.forEach(el => {
+          (el as HTMLImageElement).src = timestampedUrl;
+        });
+
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
+        return;
+      }
+
 
       // Create FormData and append file
       const formData = new FormData();
@@ -393,32 +434,32 @@ export default function DogForm({
 
       if (data && data.length > 0 && data[0].url) {
         const imageUrl = data[0].url;
-        
+
         // Force immediate form update with setValue options that trigger all form hooks
         form.setValue("profileImageUrl", imageUrl, {
           shouldValidate: true,
           shouldDirty: true,
           shouldTouch: true,
         });
-        
+
         // Trigger form validation to update the UI
         form.trigger("profileImageUrl");
-        
+
         // Add a timestamp to prevent caching issues
         const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-        
+
         // Force UI update by directly manipulating the DOM element
         const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
         if (profileImageUrlField) {
           (profileImageUrlField as HTMLInputElement).value = imageUrl;
         }
-        
+
         // Also update any preview elements
         const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
         previewElements.forEach(el => {
           (el as HTMLImageElement).src = timestampedUrl;
         });
-        
+
         toast({
           title: "Success",
           description: "Image cropped and uploaded successfully",
@@ -435,7 +476,7 @@ export default function DogForm({
       setIsUploadingProfile(false);
       setShowCropper(false);
       setCropImageUrl("");
-      
+
       // Force a re-render
       setTimeout(() => {
         const event = new Event('input', { bubbles: true });
