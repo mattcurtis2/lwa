@@ -17,6 +17,16 @@ export function ImageCrop({
   aspect = 1,
   circularCrop = false,
   onCropComplete,
+
+interface ImageCropProps {
+  imageUrl: string;
+  onCropComplete: (croppedImageUrl: string) => void;
+  onCancel: () => void;
+  onSkip?: () => void;
+  aspect?: number;
+  circularCrop?: boolean;
+}
+
   onCancel 
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>({

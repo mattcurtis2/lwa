@@ -430,6 +430,12 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   </div>
                 </div>
                 <div className="space-y-2">
+                  {isUploading && (
+                    <div className="flex items-center">
+                      <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full mr-2"></div>
+                      <span>Uploading...</span>
+                    </div>
+                  )}
                   <Button
                     type="button"
                     variant="outline"
@@ -468,13 +474,38 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
+            aspect={1} // Square aspect ratio for profile picture
+            circularCrop={true} // Enable circular cropping for profile picture
             onCropComplete={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
             }}
-            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
-            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
+            onSkip={async () => {
+              // If user wants to skip cropping, just use the original image
+              const formData = new FormData();
+              const response = await fetch(cropImageUrl);
+              const blob = await response.blob();
+              formData.append('file', blob);
+
+              setIsUploading(true);
+              const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!uploadRes.ok) {
+                throw new Error('Failed to upload image');
+              }
+
+              const data = await uploadRes.json();
+              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+              form.setValue("profileImageUrl", uploadedUrl);
+
+              setShowCropper(false);
+              setCropImageUrl("");
+              setIsUploading(false);
+            }}
           />
         )}
 
