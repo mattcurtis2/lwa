@@ -793,7 +793,7 @@ export function registerRoutes(app: Express): Server {
           ...dogData,
           height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
           weight: dogData.weight !== undefined && dogData.weight !== "" ? parseFloat(dogData.weight) : null,
-          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dog.price) : null,
+          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dogData.price) : null,
           sold: dogData.sold === true,
           available: dogData.available === true,
           puppy: dogData.puppy === true,
