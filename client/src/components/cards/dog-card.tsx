@@ -95,7 +95,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
             </div>
             <Link href={`/dogs/${dog.id}`}>
               <p className="text-stone-600 mb-4 cursor-pointer">{dog.description}</p>
-            </Link>
+            </Link>/Link>
             <div className="flex gap-2">
               {onEdit && (
                 <Button
