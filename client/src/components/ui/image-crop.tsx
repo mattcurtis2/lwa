@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -129,8 +128,8 @@ export function ImageCrop({
         );
       }
     },
-    100,
     [completedCrop],
+    100
   );
 
   const handleApplyCrop = async () => {
