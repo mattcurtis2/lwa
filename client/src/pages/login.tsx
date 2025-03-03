@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useNavigate } from "wouter"; // Added useNavigate
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,36 +10,27 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(""); // Added error state
   const [, setLocation] = useLocation();
+  const navigate = useNavigate(); // Added useNavigate hook
   const { toast } = useToast();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    setError(""); // Clear any previous errors
+
     try {
-      const success = await login(username, password);
-      
-      if (success) {
-        toast({
-          title: "Success",
-          description: "You have been logged in successfully",
-        });
-        setLocation("/admin");
+      const result = await login(username, password);
+      if (result.success) {
+        // Navigate to admin panel
+        navigate("/admin");
       } else {
-        toast({
-          title: "Error",
-          description: "Invalid credentials",
-          variant: "destructive",
-        });
+        setError("Invalid credentials");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-        variant: "destructive",
-      });
+      setError("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +60,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>} {/* Display error message */}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>

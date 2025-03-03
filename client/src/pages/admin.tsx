@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/providers/auth-provider";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
@@ -25,9 +26,11 @@ export default function Admin() {
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
 
+  // Import useAuth hook
+  const { logout, isLoading, isLoggedIn } = useAuth();
+  
   const handleLogout = () => {
-    // Add logout logic here (e.g., clear cookies, redirect)
-    console.log("Logout clicked"); // Placeholder
+    logout();
   };
 
   return (

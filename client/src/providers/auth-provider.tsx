@@ -1,39 +1,51 @@
-
-import React, { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useLocation } from "wouter";
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  username: string | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
   isLoading: boolean;
+  username: string | null;
+  login: (username: string, password: string) => Promise<{ success: boolean }>;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  isLoggedIn: false,
-  username: null,
-  login: async () => false,
-  logout: async () => {},
-  isLoading: true,
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState<string | null>(null);
+  const [location, navigate] = useLocation();
 
   useEffect(() => {
     // Check auth status on mount
     checkAuthStatus();
   }, []);
 
+  // Protect admin routes
+  useEffect(() => {
+    // Only redirect if we've finished checking auth status
+    if (!isLoading) {
+      if (location === "/admin" && !isLoggedIn) {
+        navigate("/login");
+      }
+    }
+  }, [location, isLoggedIn, isLoading, navigate]);
+
   const checkAuthStatus = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("/api/auth/status");
       const data = await response.json();
-      
+
       setIsLoggedIn(data.isLoggedIn);
-      setUsername(data.username || null);
+      if (data.isLoggedIn) {
+        setUsername(data.username);
+      }
     } catch (error) {
       console.error("Failed to check auth status:", error);
     } finally {
@@ -41,33 +53,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string) => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        return false;
-      }
-
       const data = await response.json();
-      setIsLoggedIn(true);
-      setUsername(username);
-      return true;
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+        setUsername(username);
+        return { success: true };
+      } else {
+        return { success: false };
+      }
     } catch (error) {
       console.error("Login error:", error);
-      return false;
+      return { success: false };
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
       setIsLoggedIn(false);
       setUsername(null);
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -75,11 +94,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, username, login, logout, isLoading }}
+      value={{
+        isLoggedIn,
+        isLoading,
+        username,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
