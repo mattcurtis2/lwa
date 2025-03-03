@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, File, FileImage, FileVideo, ExternalLink, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, File, FileText, FileImage, FileVideo, ExternalLink, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
