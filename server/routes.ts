@@ -9,8 +9,6 @@ import MemoryStore from "memorystore";
 import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
-import { randomUUID } from "crypto";
-import s3TestRoutes from './routes/s3-test';
 import express from 'express';
 
 // Multer configuration for file uploads
@@ -941,7 +939,7 @@ export function registerRoutes(app: Express): Server {
 
       // Import the S3 upload utility dynamically
       const { uploadToS3 } = await import('./utils/s3.js');
-
+      
       console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
         console.log(`\n=== Processing file ${index + 1}/${req.files.length} ===`);
@@ -955,9 +953,9 @@ export function registerRoutes(app: Express): Server {
         // Attempt to upload to S3 - no fallback to local storage
         console.log('Uploading to S3...');
         const s3Url = await uploadToS3(file);
-
+        
         console.log(`S3 upload successful: ${s3Url}`);
-
+        
         // Clean up the local temp file after successful S3 upload
         try {
           if (file.path && fs.existsSync(file.path)) {
@@ -967,7 +965,7 @@ export function registerRoutes(app: Express): Server {
         } catch (cleanupError) {
           console.warn(`Warning: Could not delete temp file ${file.path}:`, cleanupError);
         }
-
+        
         return {
           url: s3Url,
           type: file.mimetype.split('/')[0],
@@ -983,7 +981,7 @@ export function registerRoutes(app: Express): Server {
       console.error('\n=== S3 UPLOAD ERROR ===');
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-
+      
       // Clean up any temporary files that might have been created
       if (req.files && Array.isArray(req.files)) {
         req.files.forEach(file => {
@@ -997,7 +995,7 @@ export function registerRoutes(app: Express): Server {
           }
         });
       }
-
+      
       return res.status(500).json({
         message: "Failed to upload files to S3",
         details: error instanceof Error ? error.message : String(error)
@@ -1768,7 +1766,7 @@ export function registerRoutes(app: Express): Server {
           name: "Goats",
           fields: {
             title: "Nigerian Dwarf Goats",
-            description: "Explore ourgoat breeding program...",
+            description: "Explore our goat breeding program...",
             hero_image: "/images/goats-hero.jpg",
             care_info: "Our approach to goat care...",
           },
@@ -1916,13 +1914,6 @@ export function registerRoutes(app: Express): Server {
       res.json({ isLoggedIn: false });
     }
   });
-
-  // Set up API routes
-  const router = express.Router();
-  app.use('/api', router);
-
-  // Add S3 test routes
-  app.use('/api', s3TestRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

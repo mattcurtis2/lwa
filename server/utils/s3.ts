@@ -17,10 +17,8 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
   console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
 
-  // Use AWS_BUCKET_NAME from environment variables
-  const bucketName = process.env.AWS_BUCKET_NAME || 'askanswercontent';
-
-  console.log(`S3 Upload - Using bucket: ${bucketName}`);
+  // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
 
   if (!bucketName) {
     console.error('S3 Upload Error: No bucket name configured in environment variables');
@@ -51,20 +49,20 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
     const fileExtension = path.extname(file.originalname);
     const key = `${randomUUID()}${fileExtension}`;
 
-    // Prepare the upload parameters
-    // Note: We're not setting ACL to avoid bucket policy issues
+    // Prepare the S3 upload parameters
     const params = {
       Bucket: bucketName,
       Key: key,
       Body: fileData,
       ContentType: file.mimetype,
+      // ACL parameter removed as the bucket doesn't allow ACLs
     };
 
     console.log('S3 Upload - Params prepared:', {
       Bucket: bucketName,
       Key: key,
       ContentType: file.mimetype,
-      ContentLength: fileData.length,
+      ContentLength: fileData.length
     });
 
     console.log('S3 Upload - Sending file to S3...');
@@ -75,7 +73,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     console.log('S3 Upload - Success! Response:', response);
 
-    // Construct the S3 URL for the lwa-images bucket
+    // Construct the S3 URL
     const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     console.log(`S3 Upload - Generated URL: ${s3Url}`);
 
