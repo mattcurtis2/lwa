@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Goat } from "@db/schema";
@@ -14,7 +15,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
   const hasMedia = goat.media && goat.media.length > 0;
   const gallery = hasMedia ? [...goat.media] : [];
   const genderLabel = goat.gender === 'female' ? 'Doe' : 'Buck';
-
+  
   const healthDocuments = goat.documents?.filter(doc => doc.type === 'health') || [];
   const pedigreeDocuments = goat.documents?.filter(doc => doc.type === 'pedigree') || [];
 
@@ -62,7 +63,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                   <TabsTrigger value="documents">Documents</TabsTrigger>
                 )}
               </TabsList>
-
+              
               <TabsContent value="details">
                 <div className="space-y-4">
                   <div>
@@ -70,28 +71,28 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="text-muted-foreground">Type</div>
                       <div>{genderLabel}</div>
-
+                      
                       {goat.breed && (
                         <>
                           <div className="text-muted-foreground">Breed</div>
                           <div>{goat.breed}</div>
                         </>
                       )}
-
+                      
                       {goat.birthDate && (
                         <>
                           <div className="text-muted-foreground">Age</div>
                           <div>{formatAge(new Date(goat.birthDate))}</div>
                         </>
                       )}
-
+                      
                       {goat.height && (
                         <>
                           <div className="text-muted-foreground">Height</div>
                           <div>{goat.height} inches</div>
                         </>
                       )}
-
+                      
                       {goat.weight && (
                         <>
                           <div className="text-muted-foreground">Weight</div>
@@ -107,7 +108,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                       )}
                     </div>
                   </div>
-
+                  
                   {goat.description && (
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Description</h3>
@@ -116,7 +117,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                   )}
                 </div>
               </TabsContent>
-
+              
               <TabsContent value="documents">
                 <div className="space-y-4">
                   {healthDocuments.length > 0 && (
@@ -129,7 +130,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline flex items-center truncate break-words"
+                              className="text-blue-600 hover:underline flex items-center"
                             >
                               <span className="mr-2">📄</span>
                               {doc.fileName || `Health Document ${i + 1}`}
@@ -139,7 +140,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                       </ul>
                     </div>
                   )}
-
+                  
                   {pedigreeDocuments.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Pedigree Documents</h3>
@@ -150,7 +151,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline flex items-center truncate break-words"
+                              className="text-blue-600 hover:underline flex items-center"
                             >
                               <span className="mr-2">📄</span>
                               {doc.fileName || `Pedigree Document ${i + 1}`}
@@ -162,7 +163,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                   )}
                 </div>
               </TabsContent>
-
+            
               <TabsContent value="media">
                 <ScrollArea className="h-[400px] rounded-md border p-4">
                   {goat.media?.length ? (

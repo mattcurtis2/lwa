@@ -27,11 +27,11 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Contact</h3>
             {contactInfo ? (
               <>
-                <p className="text-stone-300">Email: littlewayacres@proton.me</p>
+                <p className="text-stone-300">Email: {contactInfo.email}</p>
                 <p className="text-stone-300">Phone: {contactInfo.phone}</p>
               </>
             ) : (
-              <p className="text-stone-300">Email: littlewayacres@proton.me</p>
+              <p className="text-stone-300">Contact information coming soon</p>
             )}
           </div>
 

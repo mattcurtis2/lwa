@@ -60,7 +60,7 @@ function DocumentLink({ document }: { document: Document }) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate break-words">{document.name}</h4>
+          <h4 className="font-medium truncate">{document.name}</h4>
           <p className="text-sm text-muted-foreground">
             {document.mimeType.split('/')[1].toUpperCase()}
           </p>
