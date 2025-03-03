@@ -1,10 +1,29 @@
 import { useState, useEffect } from "react";
 import { Dog, DogMedia } from "@db/schema";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, File, FileText, FileImage, FileVideo, ExternalLink, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ChevronLeft,
+  ChevronRight,
+  File,
+  FileText,
+  FileImage,
+  FileVideo,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
@@ -25,11 +44,11 @@ interface DogDetailsProps {
   };
 }
 
-function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (document: Document) => void }) {
+function DocumentLink({ document }: { document: Document }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const { url, type } = document;
 
-  const isPdf = url.toLowerCase().endsWith('.pdf');
+  const isPdf = url.toLowerCase().endsWith(".pdf");
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url);
   const isVideo = /\.(mp4|webm|mov)$/i.test(url);
 
@@ -52,13 +71,9 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
             >
               <div className="mr-2 flex-shrink-0">{getIcon()}</div>
               <div className="truncate max-w-[calc(100%-2rem)]">
-                {document.name || url.split('/').pop()}
+                {document.name || url.split("/").pop()}
               </div>
             </button>
-            {onRemove && <Button variant="ghost" size="sm" className="text-sm ml-auto flex-shrink-0" onClick={() => onRemove?.(document)}>
-              <Trash2 className="h-4 w-4 mr-1" />
-              Remove
-            </Button>}
           </div>
         </div>
       </div>
@@ -66,18 +81,26 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-4xl w-[90vw]">
           <DialogHeader>
-            <DialogTitle className="max-w-full truncate">{document.name || url.split('/').pop()}</DialogTitle>
+            <DialogTitle className="max-w-full break-words">
+              {document.name || url.split("/").pop()}
+            </DialogTitle>
           </DialogHeader>
           <div className="mt-2">
             {isPdf && (
-              <iframe src={url} className="w-full h-[80vh]" title={document.name || "PDF document"} />
+              <iframe
+                src={url}
+                className="w-full h-[80vh]"
+                title={document.name || "PDF document"}
+              />
             )}
             {isImage && (
-              <img src={url} alt={document.name || "Image"} className="w-full h-auto" />
+              <img
+                src={url}
+                alt={document.name || "Image"}
+                className="w-full h-auto"
+              />
             )}
-            {isVideo && (
-              <video src={url} controls className="w-full h-auto" />
-            )}
+            {isVideo && <video src={url} controls className="w-full h-auto" />}
           </div>
         </DialogContent>
       </Dialog>
@@ -89,44 +112,47 @@ export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const isMobile = useIsMobile();
-  const healthDocuments = dog.documents?.filter((doc) => doc.type === 'health') || [];
-  const pedigreeDocuments = dog.documents?.filter((doc) => doc.type === 'pedigree') || [];
-  const imageMedia = dog.media?.filter(m => m.type === 'image') || [];
+  const healthDocuments =
+    dog.documents?.filter((doc) => doc.type === "health") || [];
+  const pedigreeDocuments =
+    dog.documents?.filter((doc) => doc.type === "pedigree") || [];
+  const imageMedia = dog.media?.filter((m) => m.type === "image") || [];
 
-  const genderSymbol = dog.gender === 'male' ? (
-    <span className="text-blue-500">♂</span>
-  ) : (
-    <span className="text-pink-500">♀</span>
-  );
+  const genderSymbol =
+    dog.gender === "male" ? (
+      <span className="text-blue-500">♂</span>
+    ) : (
+      <span className="text-pink-500">♀</span>
+    );
 
   const handleNextImage = () => {
     setActiveMediaIndex((prev) =>
-      prev === imageMedia.length - 1 ? 0 : prev + 1
+      prev === imageMedia.length - 1 ? 0 : prev + 1,
     );
   };
 
   const handlePrevImage = () => {
     setActiveMediaIndex((prev) =>
-      prev === 0 ? imageMedia.length - 1 : prev - 1
+      prev === 0 ? imageMedia.length - 1 : prev - 1,
     );
   };
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (isMediaDialogOpen) {
-        if (e.key === 'ArrowLeft') {
+        if (e.key === "ArrowLeft") {
           handlePrevImage();
-        } else if (e.key === 'ArrowRight') {
+        } else if (e.key === "ArrowRight") {
           handleNextImage();
-        } else if (e.key === 'Escape') {
+        } else if (e.key === "Escape") {
           setIsMediaDialogOpen(false);
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
     return () => {
-      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener("keydown", handleKeyPress);
     };
   }, [isMediaDialogOpen]);
 
@@ -135,7 +161,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
       <div className="space-y-6">
         <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
           <img
-            src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            src={
+              imageMedia[activeMediaIndex]?.url ||
+              dog.profileImageUrl ||
+              (dog.media && dog.media[0]?.url)
+            }
             alt={dog.name}
             className="w-full h-full object-cover"
           />
@@ -166,7 +196,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             {dog.name} {genderSymbol}
           </h1>
           {dog.registrationName && (
-            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+            <p className="text-xl text-muted-foreground">
+              {dog.registrationName}
+            </p>
           )}
         </div>
 
@@ -183,7 +215,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               <div>
                 <h3 className="font-semibold mb-1">Gender</h3>
                 <p className="flex items-center gap-1">
-                  {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                  {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)}{" "}
+                  {genderSymbol}
                 </p>
               </div>
               <div>
@@ -234,7 +267,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Health Information</CardTitle>
+              <CardTitle className="break-words">Health Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -245,7 +278,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 )}
                 {healthDocuments.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="font-semibold">Health Documents</h3>
+                    <h3 className="font-semibold break-words">
+                      Health Documents
+                    </h3>
                     <div className="grid gap-4">
                       {healthDocuments.map((doc, index) => (
                         <DocumentLink key={index} document={doc} />
@@ -262,7 +297,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Pedigree Information</CardTitle>
+              <CardTitle className="break-words">
+                Pedigree Information
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -273,7 +310,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 )}
                 {pedigreeDocuments.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="font-semibold">Pedigree Documents</h3>
+                    <h3 className="font-semibold break-words">
+                      Pedigree Documents
+                    </h3>
                     <div className="grid gap-4">
                       {pedigreeDocuments.map((doc, index) => (
                         <DocumentLink key={index} document={doc} />
@@ -297,7 +336,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
       <div className="space-y-6">
         <div className="aspect-square rounded-lg overflow-hidden bg-muted">
           <img
-            src={imageMedia[activeMediaIndex]?.url || dog.profileImageUrl || (dog.media && dog.media[0]?.url)}
+            src={
+              imageMedia[activeMediaIndex]?.url ||
+              dog.profileImageUrl ||
+              (dog.media && dog.media[0]?.url)
+            }
             alt={dog.name}
             className="w-full h-full object-cover"
           />
@@ -311,7 +354,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                 onClick={() => setActiveMediaIndex(index)}
                 className={cn(
                   "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
-                  activeMediaIndex === index && "ring-2 ring-primary ring-offset-2"
+                  activeMediaIndex === index &&
+                    "ring-2 ring-primary ring-offset-2",
                 )}
               >
                 <img
@@ -331,7 +375,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             {dog.name} {genderSymbol}
           </h1>
           {dog.registrationName && (
-            <p className="text-xl text-muted-foreground">{dog.registrationName}</p>
+            <p className="text-xl text-muted-foreground">
+              {dog.registrationName}
+            </p>
           )}
         </div>
 
@@ -376,7 +422,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                       "w-2 h-2 rounded-full",
                       index === activeMediaIndex
                         ? "bg-primary"
-                        : "bg-muted hover:bg-muted-foreground/50"
+                        : "bg-muted hover:bg-muted-foreground/50",
                     )}
                   />
                 ))}
@@ -408,7 +454,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <div>
                     <h3 className="font-semibold mb-2">Gender</h3>
                     <p className="flex items-center gap-1">
-                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)} {genderSymbol}
+                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)}{" "}
+                      {genderSymbol}
                     </p>
                   </div>
                   <div>
@@ -424,7 +471,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Story</CardTitle>
-                <CardDescription>Learn more about {dog.name}'s personality and background</CardDescription>
+                <CardDescription>
+                  Learn more about {dog.name}'s personality and background
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
@@ -440,7 +489,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Physical Characteristics</CardTitle>
-                <CardDescription>Detailed physical attributes and measurements</CardDescription>
+                <CardDescription>
+                  Detailed physical attributes and measurements
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -454,7 +505,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Height</h3>
-                    <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+                    <p>
+                      {dog.height ? `${dog.height} inches` : "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Weight</h3>
@@ -472,22 +525,30 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           <TabsContent value="health">
             <Card>
               <CardHeader>
-                <CardTitle>Health Information</CardTitle>
-                <CardDescription>Health records and certifications</CardDescription>
+                <CardTitle className="break-words">
+                  Health Information
+                </CardTitle>
+                <CardDescription>
+                  Health records and certifications
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   {dog.healthData && (
                     <div className="prose max-w-none mb-6">
-                      <div dangerouslySetInnerHTML={{ __html: dog.healthData }} />
+                      <div
+                        dangerouslySetInnerHTML={{ __html: dog.healthData }}
+                      />
                     </div>
                   )}
                   {healthDocuments.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="font-semibold">Health Documents</h3>
+                      <h3 className="font-semibold break-words">
+                        Health Documents
+                      </h3>
                       <div className="grid gap-4">
                         {healthDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} onRemove={() => {}} />
+                          <DocumentLink key={index} document={doc} />
                         ))}
                       </div>
                     </div>
@@ -503,7 +564,9 @@ export default function DogDetails({ dog }: DogDetailsProps) {
           <TabsContent value="pedigree">
             <Card>
               <CardHeader>
-                <CardTitle>Pedigree Information</CardTitle>
+                <CardTitle className="break-words">
+                  Pedigree Information
+                </CardTitle>
                 <CardDescription>Family history and lineage</CardDescription>
               </CardHeader>
               <CardContent>
@@ -515,10 +578,12 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   )}
                   {pedigreeDocuments.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="font-semibold">Pedigree Documents</h3>
+                      <h3 className="font-semibold break-words">
+                        Pedigree Documents
+                      </h3>
                       <div className="grid gap-4">
                         {pedigreeDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} onRemove={() => {}} />
+                          <DocumentLink key={index} document={doc} />
                         ))}
                       </div>
                     </div>
