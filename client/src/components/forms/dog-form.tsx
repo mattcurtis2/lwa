@@ -308,10 +308,14 @@ export default function DogForm({
       }
 
       const data = await res.json();
+      if (!data || data.length === 0 || !data[0]?.url) {
+        throw new Error('Invalid response from upload endpoint');
+      }
+
       const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
       const newMedia = {
-        url: data.url,
+        url: data[0].url,
         type: fileType,
         fileName: file.name,
         isNew: true,
@@ -322,6 +326,7 @@ export default function DogForm({
       form.setValue("media", newInputs);
       setShowAddMedia(false);
     } catch (error) {
+      console.error('Upload error:', error);
       toast({
         title: "Error",
         description: "Failed to upload file",
@@ -363,41 +368,10 @@ export default function DogForm({
 
       if (croppedFile) {
         fileToUpload = croppedFile;
-      } else if (uploadedUrl.startsWith('/uploads/')) {
-        fileToUpload = new File([], 'cropped-image.jpg', { type: 'image/jpeg' });
       } else {
         const res = await fetch(uploadedUrl);
         const blob = await res.blob();
         fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-      }
-
-      if (uploadedUrl.startsWith('/uploads/')) {
-
-        form.setValue("profileImageUrl", uploadedUrl, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-
-        form.trigger("profileImageUrl");
-
-        const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
-
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
-        }
-
-        const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
-        previewElements.forEach(el => {
-          (el as HTMLImageElement).src = timestampedUrl;
-        });
-
-        toast({
-          title: "Success",
-          description: "Image cropped and uploaded successfully",
-        });
-        return;
       }
 
       const formData = new FormData();
@@ -414,34 +388,30 @@ export default function DogForm({
 
       const data = await uploadRes.json();
 
-      if (data && data.length > 0 && data[0].url) {
-        const imageUrl = data[0].url;
-
-        form.setValue("profileImageUrl", imageUrl, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-
-        form.trigger("profileImageUrl");
-
-        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          (profileImageUrlField as HTMLInputElement).value = imageUrl;
-        }
-
-        const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
-        previewElements.forEach(el => {
-          (el as HTMLImageElement).src = timestampedUrl;
-        });
-
-        toast({
-          title: "Success",
-          description: "Image cropped and uploaded successfully",
-        });
+      if (!data || data.length === 0 || !data[0]?.url) {
+        throw new Error('Invalid response from upload endpoint');
       }
+
+      const imageUrl = data[0].url;
+
+      form.setValue("profileImageUrl", imageUrl, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+
+      form.trigger("profileImageUrl");
+
+      // Refresh image preview
+      const previewElements = document.querySelectorAll(`img[src="${uploadedUrl}"]`);
+      previewElements.forEach(el => {
+        (el as HTMLImageElement).src = imageUrl;
+      });
+
+      toast({
+        title: "Success",
+        description: "Image cropped and uploaded successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -452,14 +422,6 @@ export default function DogForm({
       setIsUploadingProfile(false);
       setShowCropper(false);
       setCropImageUrl("");
-
-      setTimeout(() => {
-        const event = new Event('input', { bubbles: true });
-        const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-        if (profileImageUrlField) {
-          profileImageUrlField.dispatchEvent(event);
-        }
-      }, 100);
     }
   };
 
@@ -1040,9 +1002,8 @@ export default function DogForm({
           <FormField
             control={form.control}
             name="color"
-            render={({ field }) => (<FormItem>
-                <FormLabel>Color</FormLabel>
-                <FormControl>
+            render={({ field}) => (<FormItem>
+                <FormLabel>Color</FormLabel>                <FormControl>
                   <Input {...field} placeholder="e.g., White with brown markings" />
                 </FormControl>
                 <FormMessage />
