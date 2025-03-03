@@ -104,6 +104,8 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       ContentLength: fileData.length,
       ContentDisposition: isImage ? 'inline' : 'attachment',
       CacheControl: 'max-age=31536000',
+      // Set the object to be public-readable
+      ACL: 'public-read',
     };
 
     console.log('S3 Upload - Params prepared:', {
@@ -122,11 +124,17 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     console.log('S3 Upload - Success! Response:', response);
 
-    // Instead of using ACL, make the file public via the correct URL format 
-    // Format: https://[bucketname].s3.[region].amazonaws.com/[key]
+    // Try direct S3 URL access using the standard bucket URL format
+    // This will work if bucket is configured with proper CORS and public access
     const region = process.env.AWS_REGION || 'us-east-2';
+    
+    // Generate two potential URLs - try the virtual hosted style first
     const s3Url = `https://${bucketName}.s3.${region}.amazonaws.com/${objectKey}`;
+    
+    // Also log the path-style URL as a fallback
+    const pathStyleUrl = `https://s3.${region}.amazonaws.com/${bucketName}/${objectKey}`;
     console.log(`S3 upload successful: ${s3Url}`);
+    console.log(`Alternative URL (path-style): ${pathStyleUrl}`);
     return s3Url;
   } catch (error) {
     console.error('S3 Upload - Error during upload:', error);
