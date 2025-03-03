@@ -8,7 +8,7 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs-extra";
 import { randomUUID } from "crypto";
 import s3TestRoutes from './routes/s3-test';
 import express from 'express';
