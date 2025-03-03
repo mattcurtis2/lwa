@@ -129,10 +129,10 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate"
+                              className="text-blue-600 hover:underline w-full inline-flex items-start"
                             >
-                              <span className="mr-2">📄</span>
-                              <span>{doc.fileName || `Health Document ${i + 1}`}</span>
+                              <span className="mr-2 flex-shrink-0">📄</span>
+                              <span className="break-words">{doc.fileName || `Health Document ${i + 1}`}</span>
                             </a>
                           </li>
                         ))}
@@ -150,10 +150,10 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate"
+                              className="text-blue-600 hover:underline w-full inline-flex items-start"
                             >
-                              <span className="mr-2">📄</span>
-                              <span>{doc.fileName || `Pedigree Document ${i + 1}`}</span>
+                              <span className="mr-2 flex-shrink-0">📄</span>
+                              <span className="break-words">{doc.fileName || `Pedigree Document ${i + 1}`}</span>
                             </a>
                           </li>
                         ))}

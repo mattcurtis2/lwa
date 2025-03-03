@@ -67,10 +67,10 @@ function DocumentLink({ document }: { document: Document }) {
             <button
               type="button"
               onClick={() => setPreviewOpen(true)}
-              className="flex items-center mr-2 max-w-full overflow-hidden"
+              className="flex items-start mr-2 max-w-full overflow-hidden"
             >
-              <div className="mr-2 flex-shrink-0">{getIcon()}</div>
-              <div className="truncate max-w-[calc(100%-2rem)]">
+              <div className="mr-2 flex-shrink-0 mt-1">{getIcon()}</div>
+              <div className="break-words">
                 {document.name || url.split("/").pop()}
               </div>
             </button>
