@@ -129,7 +129,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate"
+                              className="text-blue-600 hover:underline w-full" // Removed truncate class
                             >
                               <span className="mr-2">📄</span>
                               <span>{doc.fileName || `Health Document ${i + 1}`}</span>
@@ -150,7 +150,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate"
+                              className="text-blue-600 hover:underline w-full" // Removed truncate class
                             >
                               <span className="mr-2">📄</span>
                               <span>{doc.fileName || `Pedigree Document ${i + 1}`}</span>
