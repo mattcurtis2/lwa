@@ -27,7 +27,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Contact</h3>
             {contactInfo ? (
               <>
-                <p className="text-stone-300">Email: {contactData?.email || 'littlewayacresmi@gmail.com'}</p>
+                <p className="text-stone-300">Email: {contactInfo?.email || 'littlewayacresmi@gmail.com'}</p>
                 <p className="text-stone-300">Phone: {contactInfo.phone}</p>
               </>
             ) : (
