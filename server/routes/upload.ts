@@ -27,9 +27,14 @@ router.post('/upload', upload.array('file'), async (req, res) => {
     })));
 
     const uploadPromises = req.files.map(async (file) => {
-      const url = await uploadToS3(file);
-      console.log(`File uploaded successfully to S3: ${file.originalname}`);
-      return { url };
+      try {
+        const s3Url = await uploadToS3(file);
+        console.log(`File uploaded successfully to S3: ${file.originalname} -> ${s3Url}`);
+        return { url: s3Url };
+      } catch (err) {
+        console.error(`Failed to upload file ${file.originalname} to S3:`, err);
+        throw err;
+      }
     });
 
     const results = await Promise.all(uploadPromises);
