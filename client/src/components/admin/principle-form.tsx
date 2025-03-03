@@ -24,13 +24,27 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
 
   const handleCropComplete = async (croppedUrl: string) => {
     console.log('Crop completed, setting cropped image:', croppedUrl?.substring(0, 50) + '...');
-    //form.setValue('imageUrl', croppedUrl); // Removed direct setting
-    // Upload to S3
-    const s3Url = await handleUploadImage(croppedUrl);
-    if (s3Url) {
+    
+    setIsUploading(true);
+    try {
+      // Upload to S3
+      const s3Url = await handleUploadImage(croppedUrl);
+      if (s3Url) {
+        console.log('Image uploaded to S3 successfully:', s3Url);
         form.setValue('imageUrl', s3Url);
+      } else {
+        throw new Error('Failed to get S3 URL from server');
+      }
+    } catch (error) {
+      console.error('Error uploading image to S3:', error);
+      toast({
+        title: 'Image upload failed',
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
     }
-
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,45 +72,59 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
   };
 
   const handleUploadImage = async (croppedUrl: string) => {
-    setIsUploading(true);
     try {
+      if (!croppedUrl || !croppedUrl.startsWith('data:image')) {
+        throw new Error('Invalid image data');
+      }
+
       // Create a FormData object to send the image
       const formData = new FormData();
 
       // Convert base64 to a blob
       const base64Response = await fetch(croppedUrl);
       const blob = await base64Response.blob();
+      
+      if (!blob || blob.size === 0) {
+        throw new Error('Failed to convert image to blob');
+      }
+
       const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
       formData.append('file', blob, filename);
 
-
       // Upload the image to S3 using the general upload endpoint
-      console.log('Uploading principle image to S3...');
+      console.log('Uploading principle image to S3...', filename);
+      console.log('Blob size:', blob.size, 'bytes');
+      
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(`Failed to upload image: ${errorData.error || 'Unknown error'}`);
+        let errorMessage = 'Unknown error';
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage = errorData.error || errorData.message || errorData.details || 'Upload failed';
+          console.error('Upload error details:', errorData);
+        } catch (e) {
+          console.error('Could not parse error response:', e);
+        }
+        throw new Error(`Failed to upload image: ${errorMessage}`);
       }
 
       // Get the S3 URL from the response
       const uploadData = await uploadResponse.json();
+      
+      if (!uploadData || !uploadData[0] || !uploadData[0].url) {
+        console.error('Invalid upload response:', uploadData);
+        throw new Error('Server returned invalid upload data');
+      }
+      
       console.log('S3 upload successful:', uploadData[0].url);
       return uploadData[0].url;
-
     } catch (error) {
       console.error('Error during S3 upload:', error);
-      toast({
-        title: 'Image upload failed',
-        description: `Error uploading image to S3: ${error.message}`,
-        variant: 'destructive',
-      });
       throw error;
-    } finally {
-      setIsUploading(false);
     }
   };
 

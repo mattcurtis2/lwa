@@ -1284,78 +1284,64 @@ export function registerRoutes(app: Express): Server {
       
       let finalImageUrl = imageUrl;
       
-      // Check if the image URL is a local path (not an S3 URL) or base64 data
-      if ((finalImageUrl && finalImageUrl.startsWith('/uploads/')) || 
-          (finalImageUrl && finalImageUrl.startsWith('data:image'))) {
-        
+      // Check if the image URL is a base64 data
+      if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
         try {
-          console.log(`Processing principle image for S3: ${finalImageUrl.substring(0, 50)}...`);
+          console.log(`=== PROCESSING PRINCIPLE IMAGE FOR S3 ===`);
+          console.log(`Processing image for principle ID: ${id}`);
           
           // Import S3 utility
           const { uploadToS3 } = await import('./utils/s3.js');
           
-          if (finalImageUrl.startsWith('data:image')) {
-            // Handle base64 image data
-            const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-            
-            if (!matches || matches.length !== 3) {
-              throw new Error('Invalid base64 image format');
-            }
-            
-            const mimetype = matches[1];
-            const base64Data = matches[2];
-            console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
-            
-            // Create a buffer from the base64 data
-            const imageBuffer = Buffer.from(base64Data, 'base64');
-            
-            // Create a mock file object that uploadToS3 can handle
-            const filename = `principle-${id}-${Date.now()}.jpg`;
-            const mockFile = {
-              buffer: imageBuffer,
-              mimetype: mimetype || 'image/jpeg',
-              originalname: filename
-            };
-            
-            // Upload to S3
-            const s3Url = await uploadToS3(mockFile);
-            if (s3Url) {
-              console.log(`Successfully uploaded principle base64 image to S3: ${s3Url}`);
-              finalImageUrl = s3Url;
-            }
-          } else {
-            // Handle local file path
-            const filePath = path.join(process.cwd(), finalImageUrl.substring(1));
-            if (fs.existsSync(filePath)) {
-              const fileData = fs.readFileSync(filePath);
-              const file = {
-                originalname: path.basename(filePath),
-                path: filePath,
-                mimetype: path.extname(filePath).toLowerCase() === '.pdf' 
-                  ? 'application/pdf'
-                  : 'image/jpeg',
-                size: fileData.length
-              };
-              
-              // Upload to S3
-              const s3Url = await uploadToS3(file);
-              if (s3Url) {
-                console.log(`Successfully migrated principle image to S3: ${s3Url}`);
-                finalImageUrl = s3Url;
-                
-                // Optionally remove the local file
-                // fs.unlinkSync(filePath);
-              }
-            } else {
-              console.log(`Local file not found: ${filePath}`);
-            }
+          // Handle base64 image data
+          const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          
+          if (!matches || matches.length !== 3) {
+            throw new Error('Invalid base64 image format');
           }
-        } catch (error) {
-          console.error("Error processing principle image for S3:", error);
-          // Continue with the update even if S3 upload fails
+          
+          const mimetype = matches[1];
+          const base64Data = matches[2];
+          console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
+          
+          // Create a buffer from the base64 data
+          const imageBuffer = Buffer.from(base64Data, 'base64');
+          
+          // Create a mock file object that uploadToS3 can handle
+          const filename = `principle-${id}-${Date.now()}.jpg`;
+          const mockFile = {
+            buffer: imageBuffer,
+            mimetype: mimetype || 'image/jpeg',
+            originalname: filename
+          };
+          
+          // Upload to S3
+          console.log(`Uploading principle image to S3...`);
+          const s3Url = await uploadToS3(mockFile);
+          
+          if (!s3Url) {
+            throw new Error('Failed to upload to S3 - No URL returned');
+          }
+          
+          console.log(`Successfully uploaded principle image to S3: ${s3Url}`);
+          finalImageUrl = s3Url;
+        } catch (uploadError) {
+          console.error(`Failed to upload principle image to S3:`, uploadError);
+          return res.status(500).json({ 
+            error: 'Failed to upload image to S3', 
+            details: uploadError.message,
+            code: uploadError.code || 'unknown'
+          });
         }
+      } else if (finalImageUrl && finalImageUrl.startsWith('/uploads/')) {
+        // Don't allow local paths anymore - return error
+        return res.status(400).json({
+          error: 'Local file paths are no longer supported. Please upload images directly.',
+          details: 'Images must be uploaded to S3 for proper storage and delivery.'
+        });
       }
 
+      // Continue with database update only if image upload was successful or no new image
       const updateData = {
         title,
         description,
@@ -1371,7 +1357,10 @@ export function registerRoutes(app: Express): Server {
       res.json(principle[0]);
     } catch (error) {
       console.error("Error updating principle:", error);
-      res.status(500).json({ message: "Failed to update principle" });
+      res.status(500).json({ 
+        message: "Failed to update principle",
+        error: error.message
+      });
     }
   });
 

@@ -42,101 +42,113 @@ async function ensureBucketCorsConfig(s3Client, bucketName) {
 }
 
 // Initialize the S3 client with AWS credentials
-export async function uploadToS3(file: Express.Multer.File): Promise<string> {
-  // Log environment variables for debugging
+export async function uploadToS3(file: any): Promise<string | null> {
   console.log('==== S3 UPLOAD ATTEMPT ====');
+  // Check if AWS credentials are set
   console.log('AWS Credentials Check:');
-  console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
-  console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set (starts with: ' + process.env.AWS_ACCESS_KEY_ID?.substring(0, 4) + '...)' : 'Not set');
-  console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + (process.env.AWS_SECRET_ACCESS_KEY?.length || 0) + ')' : 'Not set');
-  console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
-  console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
+  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
+  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
+  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+  console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
+  console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
 
-  // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-
-  if (!bucketName) {
-    console.error('S3 Upload Error: No bucket name configured in environment variables');
-    throw new Error('S3 bucket name not configured');
+  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || 
+      (!process.env.AWS_BUCKET_NAME && !process.env.S3_BUCKET_NAME)) {
+    console.error('S3 Upload - Missing AWS credentials');
+    return null;
   }
 
-  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-    console.error('S3 Upload Error: Missing AWS credentials');
-    throw new Error('AWS credentials not configured properly');
+  // Validate the file object
+  if (!file) {
+    console.error('S3 Upload - No file provided');
+    return null;
+  }
+
+  if (!file.originalname) {
+    console.error('S3 Upload - File missing originalname');
+    return null;
+  }
+
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+
+  // Set CORS for the bucket (this only needs to be done once per bucket)
+  try {
+    console.log('Checking S3 bucket CORS configuration...');
+    await s3.send(
+      new PutBucketCorsCommand({
+        Bucket: bucketName,
+        CORSConfiguration: {
+          CORSRules: [
+            {
+              AllowedHeaders: ['*'],
+              AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+              AllowedOrigins: ['*'],
+              ExposeHeaders: ['ETag']
+            }
+          ]
+        }
+      })
+    );
+    console.log('CORS configuration set successfully');
+  } catch (error) {
+    console.error('Error setting CORS configuration', error);
+    // Continue anyway as this might just be a permissions issue
   }
 
   try {
+    // Generate a unique key for the file
+    const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`;
     console.log(`S3 Upload - Processing file: ${file.originalname}`);
 
-    // Initialize the S3 client with more options
-    const s3Client = new S3Client({
-      region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-      // Use path-style endpoint for better compatibility
-      forcePathStyle: true,
-    });
-
-    // Try to ensure the bucket has proper CORS settings
-    try {
-      await ensureBucketCorsConfig(s3Client, bucketName);
-    } catch (error) {
-      console.warn('CORS configuration check failed, continuing anyway:', error);
+    let fileContent;
+    if (file.buffer) {
+      // If the file is already in memory (from multer's memoryStorage or manual buffer)
+      console.log(`Using buffer content with size: ${file.buffer.length} bytes`);
+      fileContent = file.buffer;
+    } else if (file.path) {
+      // If the file is on disk (from multer's diskStorage)
+      console.log(`Reading file from path: ${file.path}`);
+      fileContent = await fs.readFile(file.path);
+    } else {
+      throw new Error('File has neither buffer nor path');
     }
 
-    // Read the file data
-    const fileData = await fs.readFile(file.path);
+    if (!fileContent) {
+      throw new Error('Failed to get file content');
+    }
 
-    // Generate a unique key for the file to avoid overwriting existing files
-    const fileExtension = path.extname(file.originalname);
-    const objectKey = `${uuidv4()}${fileExtension}`;
+    console.log(`File content obtained, size: ${fileContent.length} bytes`);
+    console.log(`Content type: ${file.mimetype || 'application/octet-stream'}`);
 
-    // Configure S3 params - adding ContentDisposition to make browser display the file
-    // instead of downloading it for images
-    const isImage = file.mimetype.startsWith('image/');
-    const params = {
-      Bucket: bucketName,
-      Key: objectKey,
-      Body: fileData,
-      ContentType: file.mimetype,
-      ContentLength: fileData.length,
-      ContentDisposition: isImage ? 'inline' : 'attachment',
-      CacheControl: 'max-age=31536000',
-      // ACL disabled - bucket policy will manage access
-    };
+    // Upload the file to S3
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: fileKey,
+        Body: fileContent,
+        ContentType: file.mimetype || 'application/octet-stream',
+        // Remove ACL setting as it might cause issues with some bucket configurations
+      })
+    );
 
-    console.log('S3 Upload - Params prepared:', {
-      Bucket: bucketName,
-      Key: objectKey,
-      ContentType: file.mimetype,
-      ContentLength: fileData.length,
-      ContentDisposition: params.ContentDisposition
-    });
-
-    console.log('S3 Upload - Sending file to S3...');
-
-    // Upload to S3
-    const command = new PutObjectCommand(params);
-    const response = await s3Client.send(command);
-
-    console.log('S3 Upload - Success! Response:', response);
-
-    // Try direct S3 URL access using the standard bucket URL format
-    // This will work if bucket is configured with proper CORS and public access
-    const region = process.env.AWS_REGION || 'us-east-2';
-    
-    // Generate two potential URLs - try the virtual hosted style first
-    const s3Url = `https://${bucketName}.s3.${region}.amazonaws.com/${objectKey}`;
-    
-    // Also log the path-style URL as a fallback
-    const pathStyleUrl = `https://s3.${region}.amazonaws.com/${bucketName}/${objectKey}`;
-    console.log(`S3 upload successful: ${s3Url}`);
-    console.log(`Alternative URL (path-style): ${pathStyleUrl}`);
-    return s3Url;
+    // Return the URL to the uploaded file
+    const url = `https://${bucketName}.s3.amazonaws.com/${fileKey}`;
+    console.log(`S3 Upload - Success. URL: ${url}`);
+    return url;
   } catch (error) {
     console.error('S3 Upload - Error during upload:', error);
-    throw error;
+    if (error instanceof Error) {
+      console.error(`Error name: ${error.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
+    }
+    throw error; // Re-throw to allow proper error handling at the caller
   }
 }
