@@ -66,7 +66,7 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-4xl w-[90vw]">
           <DialogHeader>
-            <DialogTitle className="break-words">{document.name || url.split('/').pop()}</DialogTitle>
+            <DialogTitle className="truncate break-words">{document.name || url.split('/').pop()}</DialogTitle>
           </DialogHeader>
           <div className="mt-2">
             {isPdf && (
