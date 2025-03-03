@@ -1281,11 +1281,52 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const { title, description, imageUrl } = req.body;
+      
+      let finalImageUrl = imageUrl;
+      
+      // Check if the image URL is a local path (not an S3 URL)
+      if (finalImageUrl && finalImageUrl.startsWith('/uploads/')) {
+        try {
+          console.log(`Migrating principle image to S3: ${finalImageUrl}`);
+          
+          // Import S3 utility
+          const { uploadToS3 } = await import('./utils/s3.js');
+          
+          // Create a file object from the local file
+          const filePath = path.join(process.cwd(), finalImageUrl.substring(1));
+          if (fs.existsSync(filePath)) {
+            const fileData = fs.readFileSync(filePath);
+            const file = {
+              originalname: path.basename(filePath),
+              path: filePath,
+              mimetype: path.extname(filePath).toLowerCase() === '.pdf' 
+                ? 'application/pdf'
+                : 'image/jpeg',
+              size: fileData.length
+            };
+            
+            // Upload to S3
+            const s3Url = await uploadToS3(file);
+            if (s3Url) {
+              console.log(`Successfully migrated principle image to S3: ${s3Url}`);
+              finalImageUrl = s3Url;
+              
+              // Optionally remove the local file
+              // fs.unlinkSync(filePath);
+            }
+          } else {
+            console.log(`Local file not found: ${filePath}`);
+          }
+        } catch (error) {
+          console.error("Error migrating principle image to S3:", error);
+          // Continue with the update even if migration fails
+        }
+      }
 
       const updateData = {
         title,
         description,
-        imageUrl,
+        imageUrl: finalImageUrl,
         updatedAt: new Date(),
       };
 

@@ -71,9 +71,9 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
           const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
           formData.append('file', blob, filename);
 
-          // Upload the image to S3 using the specific endpoint for principles
+          // Upload the image to S3 using the general upload endpoint
           console.log('Uploading principle image to S3...');
-          const uploadResponse = await fetch('/api/principles/upload-image', {
+          const uploadResponse = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
           });
@@ -85,7 +85,10 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
 
           // Get the S3 URL from the response
           const uploadData = await uploadResponse.json();
-          console.log('S3 upload successful:', uploadData.url);
+          console.log('S3 upload successful:', uploadData[0].url);
+          
+          // Use the first URL from the array returned by the upload endpoint
+          values.imageUrl = uploadData[0].url;
 
           // Update the imageUrl with the S3 URL
           finalValues.imageUrl = uploadData.url;

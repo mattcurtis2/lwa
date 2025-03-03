@@ -670,6 +670,10 @@ export default function ContentSection() {
                           pendingChanges.principles[principle.id]?.imageUrl ??
                           principle.imageUrl;
                         if (imageUrl) {
+                          // Check if it's a local URL and handle accordingly
+                          if (imageUrl.startsWith('/uploads/')) {
+                            console.warn('Found local image URL. This should be migrated to S3.');
+                          }
                           setCropImageUrl(imageUrl);
                           setPendingPrincipleId(principle.id);
                           setShowCropper(true);
