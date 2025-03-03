@@ -1,0 +1,61 @@
+Here is what i got this time:
+
+I don't see any s3 logging and Its still storing it locally from the /upload call.
+
+TH
+
+mattcurtis2
+=== Upload Request Received ===
+Headers: {
+host: 'c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev',
+'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+'content-length': '36684',
+accept: '/',
+'accept-encoding': 'gzip, deflate, br, zstd',
+'accept-language': 'en-US,en;q=0.9',
+'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryyITTETltXWBlnUAU',
+cookie: 'connect.sid=s%3AZZXebQHyFjWdiFj6f3YQaxRw2hXnP1VZ.bX0vbfhVT5fXkSP%2Fe%2B%2BsmQ2RelODZ9ndrfvkdw9zSnI',
+origin: 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev',
+referer: 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/admin',
+'sec-ch-ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+'sec-ch-ua-mobile': '?0',
+'sec-ch-ua-platform': '"macOS"',
+'sec-fetch-dest': 'empty',
+'sec-fetch-mode': 'cors',
+'sec-fetch-site': 'same-origin',
+'sec-fetch-storage-access': 'active',
+'x-forwarded-for': '154.27.61.71, 10.83.7.23',
+'x-forwarded-proto': 'https',
+'x-replit-user-bio': '',
+'x-replit-user-id': '',
+'x-replit-user-name': '',
+'x-replit-user-profile-image': '',
+'x-replit-user-roles': '',
+'x-replit-user-teams': '',
+'x-replit-user-url': ''
+}
+Files: [
+{
+originalName: 'cropped-image.jpg',
+size: 36493,
+mimetype: 'image/jpeg',
+path: '/home/runner/workspace/uploads/file-1741024071333-556699004.jpg'
+}
+]
+Request body: [Object: null prototype] {}
+Request body: [Object: null prototype] {}
+Processing 1 files
+Processing file: {
+originalName: 'cropped-image.jpg',
+size: 36493,
+mimetype: 'image/jpeg',
+path: '/home/runner/workspace/uploads/file-1741024071333-556699004.jpg'
+}
+Files processed successfully: [
+{
+url: '/uploads/file-1741024071333-556699004.jpg',
+type: 'image',
+originalName: 'cropped-image.jpg',
+mimeType: 'image/jpeg'
+}
+]
