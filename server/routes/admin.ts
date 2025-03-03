@@ -31,34 +31,50 @@ app.post('/api/admin/upload-principle-image', upload.single('image'), async (req
 // Handle base64 image uploads for principles (from cropper)
 app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
   try {
+    console.log('==== PROCESSING PRINCIPLE IMAGE UPLOAD (BASE64) ====');
     const { base64Image } = req.body;
     
     if (!base64Image) {
+      console.error('No base64 image provided in request body');
       return res.status(400).json({ error: 'No base64 image provided' });
     }
     
+    console.log(`Received base64 image (length: ${base64Image.length}, starts with: ${base64Image.substring(0, 30)}...)`);
+    
     // Extract the base64 data (remove data:image/jpeg;base64, prefix)
     const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+    console.log(`Extracted base64 data (length: ${base64Data.length})`);
     
     // Create a buffer from the base64 data
     const imageBuffer = Buffer.from(base64Data, 'base64');
+    console.log(`Created buffer from base64 data (size: ${imageBuffer.length} bytes)`);
     
     // Create a mock file object that uploadToS3 can handle
+    const filename = `principle-${Date.now()}.jpg`;
     const mockFile = {
       buffer: imageBuffer,
       mimetype: 'image/jpeg',
-      originalname: `principle-${Date.now()}.jpg`
+      originalname: filename
     };
+    console.log(`Created mock file object with name: ${filename}`);
     
     // Import and call the S3 upload function
+    console.log('Importing S3 utility...');
     const { uploadToS3 } = await import('../utils/s3.js');
+    console.log('Calling uploadToS3...');
     const s3Url = await uploadToS3(mockFile);
     
     if (!s3Url) {
-      throw new Error('Failed to upload base64 image to S3');
+      console.error('S3 upload failed: No URL returned');
+      throw new Error('Failed to upload base64 image to S3 - No URL returned');
     }
     
-    console.log(`Principle base64 image uploaded to S3: ${s3Url}`);
+    if (!s3Url.includes('s3.amazonaws.com') && !s3Url.includes('amazonaws.com')) {
+      console.error(`S3 upload returned invalid URL: ${s3Url}`);
+      throw new Error(`Invalid S3 URL returned: ${s3Url}`);
+    }
+    
+    console.log(`Principle base64 image uploaded to S3 successfully: ${s3Url}`);
     
     // Return the S3 URL
     res.json({
@@ -67,7 +83,20 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
     });
   } catch (error) {
     console.error('Error uploading base64 principle image:', error);
-    res.status(500).json({ error: 'Failed to upload image', details: error.message });
+    // Log more detailed error information
+    if (error.code) console.error(`AWS Error Code: ${error.code}`);
+    if (error.statusCode) console.error(`Status Code: ${error.statusCode}`);
+    if (error.region) console.error(`Region: ${error.region}`);
+    if (error.hostname) console.error(`Hostname: ${error.hostname}`);
+    if (error.time) console.error(`Time: ${error.time}`);
+    if (error.stack) console.error(`Stack: ${error.stack}`);
+    
+    res.status(500).json({ 
+      error: 'Failed to upload image', 
+      details: error.message,
+      code: error.code || 'unknown',
+      statusCode: error.statusCode || 500
+    });
   }
 });
 
@@ -149,5 +178,67 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
   } catch (error) {
     console.error('Error saving cropped image:', error);
     res.status(500).json({ error: 'Failed to save cropped image', details: error.message });
+  }
+});
+
+// Add a test route for S3 connectivity
+app.get('/api/admin/test-s3-connection', async (req, res) => {
+  try {
+    console.log('Testing S3 connection...');
+    
+    // Check environment variables
+    const envCheck = {
+      AWS_REGION: process.env.AWS_REGION ? 'Set' : 'Not set',
+      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set',
+      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set',
+      AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME || 'Not set',
+      S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || 'Not set'
+    };
+    
+    const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+    
+    if (!bucketName) {
+      return res.status(500).json({
+        success: false,
+        message: 'S3 bucket name not configured',
+        envCheck
+      });
+    }
+    
+    // Initialize S3 client
+    const { S3Client, ListObjectsCommand } = await import('@aws-sdk/client-s3');
+    const s3Client = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    });
+    
+    // Test connection by listing objects (max 1)
+    const command = new ListObjectsCommand({
+      Bucket: bucketName,
+      MaxKeys: 1
+    });
+    
+    const response = await s3Client.send(command);
+    
+    res.json({
+      success: true,
+      message: 'S3 connection successful',
+      bucketName,
+      region: process.env.AWS_REGION,
+      objects: response.Contents ? response.Contents.length : 0,
+      envCheck
+    });
+  } catch (error) {
+    console.error('S3 connection test failed:', error);
+    res.status(500).json({
+      success: false,
+      message: `S3 connection failed: ${error.message}`,
+      code: error.code,
+      region: process.env.AWS_REGION,
+      errorDetails: error.stack
+    });
   }
 });

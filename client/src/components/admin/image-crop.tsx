@@ -1,78 +1,50 @@
 const handleCropComplete = useCallback(async () => {
-    if (!completedCrop || !previewCanvasRef.current) return;
-
-    console.log('Crop completed:', completedCrop);
-
-    // Generate the cropped image
-    const canvas = previewCanvasRef.current;
-    const image = imageRef.current;
-
-    if (!image) return;
-
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      console.error('No 2d context');
-      return;
-    }
-
-    const pixelRatio = window.devicePixelRatio;
-
-    canvas.width = completedCrop.width * pixelRatio;
-    canvas.height = completedCrop.height * pixelRatio;
-
-    ctx.scale(pixelRatio, pixelRatio);
-    ctx.imageSmoothingQuality = 'high';
-
-    const cropX = completedCrop.x * scaleX;
-    const cropY = completedCrop.y * scaleY;
-    const cropWidth = completedCrop.width * scaleX;
-    const cropHeight = completedCrop.height * scaleY;
-
-    ctx.drawImage(
-      image,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      completedCrop.width,
-      completedCrop.height
-    );
-
-    const base64Image = canvas.toDataURL('image/jpeg', 0.95);
-    console.log('Created cropped image URL:', base64Image.substring(0, 500) + '...');
+    if (!completedCrop || !onCropComplete) return;
 
     try {
-      // Convert base64 to blob for upload
-      const fetchResponse = await fetch(base64Image);
-      const blob = await fetchResponse.blob();
+      // Convert the cropped image to a base64 string
+      const base64Image = await getCroppedImage(imgRef.current, completedCrop);
+      console.log('Created cropped image URL:', base64Image.substring(0, 50) + '...');
+
+      // Create a blob from the base64 data
+      // This step is now unnecessary because we send base64 directly.
+      // const response = await fetch(base64Image);
+      // const blob = await response.blob();
 
       // Create FormData and append the blob
-      const formData = new FormData();
-      formData.append('image', blob, 'cropped-image.jpg');
+      // This step is now unnecessary because we send base64 directly.
+      // const formData = new FormData();
+      // formData.append('image', blob, 'cropped-image.jpg');
 
       // Upload to the API endpoint that handles S3 uploads
-      const response = await fetch('/api/admin/upload-principle-image', {
+      console.log('Sending image to S3 upload endpoint...');
+      const uploadResponse = await fetch('/api/admin/upload-principle-image-base64', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ base64Image }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed with status: ${response.status}`);
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        throw new Error(`Upload failed with status: ${uploadResponse.status}, details: ${errorText}`);
       }
 
-      const data = await response.json();
-      console.log('Applying crop with URL:', data.url);
+      const data = await uploadResponse.json();
+
+      if (!data.url || !data.url.includes('s3.amazonaws.com')) {
+        throw new Error(`Invalid S3 URL returned: ${data.url}`);
+      }
+
+      console.log('S3 upload successful, URL:', data.url);
 
       // Return the S3 URL from the server
       onCropComplete(data.url);
     } catch (error) {
       console.error('Error completing crop:', error);
-      // Fall back to base64 if upload fails
-      onCropComplete(base64Image);
+      alert('Failed to upload image to S3. Please try again or contact support.');
+      // Do not complete the crop with fallback data
+      // Instead, let the user know there was an error
     }
   }, [completedCrop, onCropComplete]);
