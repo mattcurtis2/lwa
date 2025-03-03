@@ -927,7 +927,6 @@ export function registerRoutes(app: Express): Server {
         path: f.path
       })) : 'No files');
       console.log('Request body:', req.body);
-      console.log('Request body:', req.body);
 
       if (!req.files) {
         console.error('No files in request - files object is undefined');
@@ -938,29 +937,47 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      console.log(`Processing ${req.files.length} files`);
+      // Import the S3 upload utility
+      const { uploadToS3 } = await import('./utils/s3');
+
+      console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file) => {
-        console.log('Processing file:', {
+        console.log('Processing file for S3:', {
           originalName: file.originalname,
           size: file.size,
-          mimetype: file.mimetype,
-          path: file.path
+          mimetype: file.mimetype
         });
 
-        const targetPath = path.join(uploadDir, file.filename);
-        await fs.ensureDir(uploadDir);
+        try {
+          // Upload file to S3
+          const s3Url = await uploadToS3(file);
 
-        if (file.path !== targetPath) {
-          console.log('Copying file to:', targetPath);
-          await fs.copy(file.path, targetPath);
+          console.log(`File uploaded to S3: ${s3Url}`);
+          return {
+            url: s3Url,
+            type: file.mimetype.split('/')[0],
+            originalName: file.originalname,
+            mimeType: file.mimetype
+          };
+        } catch (uploadError) {
+          console.error('Error uploading to S3:', uploadError);
+
+          // Fallback to local storage if S3 upload fails
+          console.log('Falling back to local storage');
+          const targetPath = path.join(uploadDir, file.filename);
+          await fs.ensureDir(uploadDir);
+
+          if (file.path !== targetPath) {
+            await fs.copy(file.path, targetPath);
+          }
+
+          return {
+            url: `/uploads/${file.filename}`,
+            type: file.mimetype.split('/')[0],
+            originalName: file.originalname,
+            mimeType: file.mimetype
+          };
         }
-
-        return {
-          url: `/uploads/${file.filename}`,
-          type: file.mimetype.split('/')[0],
-          originalName: file.originalname,
-          mimeType: file.mimetype
-        };
       }));
 
       console.log('Files processed successfully:', uploadedFiles);
