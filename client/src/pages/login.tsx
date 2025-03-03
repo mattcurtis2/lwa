@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ export default function Login() {
           description: "You have been logged in successfully",
         });
         // Redirect to admin page after successful login
-        navigate("/admin");
+        setLocation("/admin");
       } else {
         toast({
           title: "Error",
