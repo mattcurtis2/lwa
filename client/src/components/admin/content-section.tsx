@@ -1344,6 +1344,34 @@ export default function ContentSection() {
                 <Input
                   id="contact-email"
                   value={getContentValue("contact_email")}
+                  onChange={(e) =>
+                    handleContentChange("contact_email", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-phone">Phone</Label>
+                <Input
+                  id="contact-phone"
+                  value={getContentValue("contact_phone")}
+                  onChange={(e) =>
+                    handleContentChange("contact_phone", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-address">Address</Label>
+                <Textarea
+                  id="contact-address"
+                  value={getContentValue("contact_address")}
+                  onChange={(e) =>
+                    handleContentChange("contact_address", e.target.value)
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+                  value={getContentValue("contact_email")}
                   onChange={(e) => handleContentChange("contact_email", e.target.value)}
                   placeholder="contact@example.com"
                 />
