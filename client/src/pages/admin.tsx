@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAuth } from "@/providers/auth-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DogManagement from "@/components/admin/dog-management";
@@ -61,7 +61,11 @@ export default function Admin() {
         {/* Sidebar */}
         <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-8">Admin Dashboard</h2>
+            <h2 className="text-2xl font-bold mb-8">
+              <Link href="/">
+                <a className="hover:text-primary transition-colors">Little Way Acres</a>
+              </Link>
+            </h2>
             <TabsList className="flex-col gap-1 bg-transparent p-0">
               <TabsTrigger
                 value="dogs"
