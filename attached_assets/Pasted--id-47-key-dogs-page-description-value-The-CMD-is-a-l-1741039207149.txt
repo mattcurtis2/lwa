@@ -1,0 +1,254 @@
+[
+    {
+        "id": 47,
+        "key": "dogs_page_description",
+        "value": "\"The CMD is a livestock guardian dog being developed to be able to work on smaller farms, where there is eco tourism or milk share clients, etc, and where we need a dog who isn't a liability to farm guests. We're working on selecting traits for a smaller perimeter (less wandering), and discerning barking rather than constant warning barking. Our hope is a dog that will be more appropriate for smaller acreages where neighbors may be present. Genetic work has been going on for 15 years, since the founding stud Caspian appeared. He was all of this and inspired the breed.\"\n- Wendy Francisco, Breed Founder",
+        "type": "text",
+        "updatedAt": "2025-02-19T01:06:21.715Z"
+    },
+    {
+        "id": 5,
+        "key": "about_title",
+        "value": "What We Offer",
+        "type": "text",
+        "updatedAt": "2025-01-22T15:49:39.743Z"
+    },
+    {
+        "id": 48,
+        "key": "dogs_breeding_program",
+        "value": "Test",
+        "type": "text",
+        "updatedAt": "2025-03-03T14:00:57.116Z"
+    },
+    {
+        "id": 7,
+        "key": "mission_text",
+        "value": "A small family farm and sourdough bakery in West Michigan raising ADGA registered Nigerian Dwarf goats, hens, meat chickens, honey bees, vegetables, fruit, and our beautiful CMDR registered Colorado Mountain Dogs.",
+        "type": "text",
+        "updatedAt": "2025-01-23T03:04:14.205Z"
+    },
+    {
+        "id": 4,
+        "key": "hero_subtext",
+        "value": "Living out God's great plan in small ways, daily.",
+        "type": "text",
+        "updatedAt": "2025-01-24T01:17:56.911Z"
+    },
+    {
+        "id": 19,
+        "key": "bakery_image",
+        "value": "https://lwacontent.s3.amazonaws.com/uploads/1741038321304-IMG_20250105_184856.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T21:45:36.260Z"
+    },
+    {
+        "id": 9,
+        "key": "animals_text",
+        "value": "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and friends and fierce loyalty in guarding livestock, these magnificent animals are raised with hands-on care and early socialization.",
+        "type": "text",
+        "updatedAt": "2025-01-24T22:21:34.277Z"
+    },
+    {
+        "id": 13,
+        "key": "bakery_text",
+        "value": "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're ADGA registered, health-tested, and raised with love.",
+        "type": "text",
+        "updatedAt": "2025-01-24T22:21:34.276Z"
+    },
+    {
+        "id": 27,
+        "key": "principles_description",
+        "value": "These foundational principles guide our daily operations and long-term vision at Little Way Acres.",
+        "type": "text",
+        "updatedAt": "2025-01-24T23:48:19.975Z"
+    },
+    {
+        "id": 26,
+        "key": "principles_title",
+        "value": "Our Principles",
+        "type": "text",
+        "updatedAt": "2025-01-24T23:51:08.798Z"
+    },
+    {
+        "id": 39,
+        "key": "goat_hero_image",
+        "value": "https://lwacontent.s3.amazonaws.com/uploads/1741038567772-PXL_20240304_234354402~2.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T21:49:34.006Z"
+    },
+    {
+        "id": 21,
+        "key": "bakery_redirect",
+        "value": "/goats",
+        "type": "text",
+        "updatedAt": "2025-02-07T01:34:05.222Z"
+    },
+    {
+        "id": 40,
+        "key": "market_description",
+        "value": "Welcome to our market! Discover our fresh, locally sourced products",
+        "type": "text",
+        "updatedAt": "2025-01-28T17:56:36.562Z"
+    },
+    {
+        "id": 24,
+        "key": "products_redirect",
+        "value": "/market",
+        "type": "text",
+        "updatedAt": "2025-02-07T01:34:05.321Z"
+    },
+    {
+        "id": 6,
+        "key": "mission_title",
+        "value": "Our Mission",
+        "type": "text",
+        "updatedAt": "2025-01-21T16:20:44.505Z"
+    },
+    {
+        "id": 42,
+        "key": "market_hero_image",
+        "value": "https://lwacontent.s3.amazonaws.com/uploads/1741038592857-PXL_20240304_234354402~2.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T21:50:03.027Z"
+    },
+    {
+        "id": 14,
+        "key": "products_title",
+        "value": "Farmers Markets",
+        "type": "text",
+        "updatedAt": "2025-01-21T16:55:52.812Z"
+    },
+    {
+        "id": 12,
+        "key": "bakery_title",
+        "value": "Nigerian Dwarf Goats",
+        "type": "text",
+        "updatedAt": "2025-01-21T16:55:54.449Z"
+    },
+    {
+        "id": 8,
+        "key": "animals_title",
+        "value": "Colorado Mountain Dogs",
+        "type": "text",
+        "updatedAt": "2025-01-21T16:55:55.975Z"
+    },
+    {
+        "id": 15,
+        "key": "products_text",
+        "value": "Learn about our bakery and farm products available at the farmers market. ",
+        "type": "text",
+        "updatedAt": "2025-01-21T17:03:42.187Z"
+    },
+    {
+        "id": 18,
+        "key": "animals_redirect",
+        "value": "/dogs",
+        "type": "text",
+        "updatedAt": "2025-01-21T20:26:17.261Z"
+    },
+    {
+        "id": 17,
+        "key": "animals_button_text",
+        "value": "Learn More",
+        "type": "text",
+        "updatedAt": "2025-01-21T20:29:52.019Z"
+    },
+    {
+        "id": 20,
+        "key": "bakery_button_text",
+        "value": "Learn More",
+        "type": "text",
+        "updatedAt": "2025-01-21T20:29:52.135Z"
+    },
+    {
+        "id": 23,
+        "key": "products_button_text",
+        "value": "Learn More",
+        "type": "text",
+        "updatedAt": "2025-01-21T20:29:52.237Z"
+    },
+    {
+        "id": 41,
+        "key": "goat_hero_title",
+        "value": "Nigerian Dwarf Goatss",
+        "type": "text",
+        "updatedAt": "2025-01-28T17:57:09.358Z"
+    },
+    {
+        "id": 25,
+        "key": "about_text",
+        "value": "Some extra in",
+        "type": "text",
+        "updatedAt": "2025-01-22T15:09:50.767Z"
+    },
+    {
+        "id": 3,
+        "key": "hero_text",
+        "value": "Little Way Acres",
+        "type": "text",
+        "updatedAt": "2025-01-22T15:10:11.096Z"
+    },
+    {
+        "id": 43,
+        "key": "market_page_title",
+        "value": "Market",
+        "type": "text",
+        "updatedAt": "2025-02-07T03:45:53.267Z"
+    },
+    {
+        "id": 46,
+        "key": "dog_hero_image",
+        "value": "https://lwacontent.s3.amazonaws.com/uploads/1741038500254-PXL_20240304_234354402~2.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T21:48:40.583Z"
+    },
+    {
+        "id": 28,
+        "key": "about_section_title",
+        "value": "What We Offer",
+        "type": "text",
+        "updatedAt": "2025-03-03T21:48:40.677Z"
+    },
+    {
+        "id": 29,
+        "key": "about_section_description",
+        "value": "Discover our range of services",
+        "type": "text",
+        "updatedAt": "2025-03-03T21:48:40.719Z"
+    },
+    {
+        "id": 1,
+        "key": "logo",
+        "value": "https://lwacontent.s3.us-east-2.amazonaws.com/77aeb86d-284a-40f9-ba35-0a514d86223f.png",
+        "type": "image",
+        "updatedAt": "2025-03-03T20:37:08.782Z"
+    },
+    {
+        "id": 22,
+        "key": "products_image",
+        "value": "https://lwacontent.s3.us-east-2.amazonaws.com/e6e4e6db-b6b5-4a42-bdc5-465627a25688.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T20:37:09.833Z"
+    },
+    {
+        "id": 16,
+        "key": "animals_image",
+        "value": "https://lwacontent.s3.us-east-2.amazonaws.com/0816a67f-974c-4749-b4c0-0025b48bcbf3.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T20:37:11.004Z"
+    },
+    {
+        "id": 2,
+        "key": "hero_background",
+        "value": "https://lwacontent.s3.us-east-2.amazonaws.com/3440be95-f739-409c-89bd-ee3755960b57.jpg",
+        "type": "image",
+        "updatedAt": "2025-03-03T20:37:12.490Z"
+    },
+    {
+        "id": 49,
+        "key": "og_image",
+        "value": "https://askanswercontent.s3.us-east-2.amazonaws.com/LITTLE%20WAY%20ACRES%20%2824%29.png",
+        "type": "image",
+        "updatedAt": "2025-03-01T16:41:46.717Z"
+    }
+]

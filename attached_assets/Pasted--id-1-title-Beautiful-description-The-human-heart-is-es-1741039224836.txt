@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "title": "Beautiful",
+        "description": "The human heart is especially designed to seek out and rejoice in beauty. We desire for beauty to permeate everything that our farm produces, from the stunning array of animals out in the pastures, to multi-colored eggs, gorgeous artisan breads and pastries, the wide range of flowers that we plant and the beautiful vegetables that we grow. ",
+        "imageUrl": "https://lwacontent.s3.us-east-2.amazonaws.com/e0159faa-4388-4839-a1bb-54c8f602f35d.jpg",
+        "order": 1,
+        "createdAt": "2025-01-22T16:41:46.607Z",
+        "updatedAt": "2025-03-03T20:52:41.133Z"
+    },
+    {
+        "id": 3,
+        "title": "Self-Sustaining",
+        "description": "We want to be able to breed and produce top-quality lines of our own animals and to grow the feed for them on our farm.  We love our animals, but we don't love the constant trips to the feed mill or endless purchasing of new animals!  Therefore, we strive to raise animals that are prolific reproducers and that flourish on pasture and hay with relatively low grain inputs.  Our long-term goal is to primarily select only the breeds and species of animals that allow us to do just that.",
+        "imageUrl": "https://lwacontent.s3.us-east-2.amazonaws.com/c1c8866a-deda-446f-a341-db1b4c0d6a03.jpg",
+        "order": 3,
+        "createdAt": "2025-01-22T16:41:46.607Z",
+        "updatedAt": "2025-03-03T20:52:40.320Z"
+    },
+    {
+        "id": 4,
+        "title": "Profitable (Eventually)",
+        "description": "While the joy of working with God's incredible creation is a form of payment in itself, earning fair compensation for our time, inputs, and labor is also important.  The ability to make profits enables us to keep bringing you these awesome animals and products that we love so much!",
+        "imageUrl": "https://lwacontent.s3.amazonaws.com/uploads/1741037823408-principle-4-1741037823121.jpg",
+        "order": 4,
+        "createdAt": "2025-01-22T16:41:46.607Z",
+        "updatedAt": "2025-03-03T21:37:03.859Z"
+    }
+]
