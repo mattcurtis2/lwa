@@ -19,7 +19,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
   // Use AWS_BUCKET_NAME for the new bucket
   const bucketName = 'lwa-images';  // Hardcoded to ensure we use the correct bucket
-  
+
   console.log(`S3 Upload - Using bucket: ${bucketName}`);
 
   if (!bucketName) {
@@ -57,14 +57,15 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       Key: key,
       Body: fileData,
       ContentType: file.mimetype,
-      // ACL parameter removed as the bucket doesn't allow ACLs
+      ACL: 'public-read', // Added ACL for public access
     };
 
     console.log('S3 Upload - Params prepared:', {
       Bucket: bucketName,
       Key: key,
       ContentType: file.mimetype,
-      ContentLength: fileData.length
+      ContentLength: fileData.length,
+      ACL: 'public-read'
     });
 
     console.log('S3 Upload - Sending file to S3...');
