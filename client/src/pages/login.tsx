@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -18,16 +17,16 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const success = await login(username, password);
-      
+
       if (success) {
         toast({
           title: "Success",
           description: "You have been logged in successfully",
         });
-        setLocation("/admin");
+        setLocation("/admin"); // This will redirect to the admin page
       } else {
         toast({
           title: "Error",
