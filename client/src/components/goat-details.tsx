@@ -120,16 +120,16 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
               <TabsContent value="documents">
                 <div className="space-y-4">
                   {healthDocuments.length > 0 && (
-                    <div className="border rounded-lg p-3"> {/* Added card wrapping */}
+                    <div className="border rounded-lg p-3">
                       <h3 className="text-lg font-semibold mb-2">Health Records</h3>
                       <ul className="space-y-2">
                         {healthDocuments.map((doc, i) => (
-                          <li key={i} className="flex items-center"> {/*Added flex for better alignment*/}
+                          <li key={i} className="flex items-center">
                             <a
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate" {/*Added truncate for text overflow*/}
+                              className="text-blue-600 hover:underline w-full truncate"
                             >
                               <span className="mr-2">📄</span>
                               <span>{doc.fileName || `Health Document ${i + 1}`}</span>
@@ -141,16 +141,16 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                   )}
 
                   {pedigreeDocuments.length > 0 && (
-                    <div className="border rounded-lg p-3"> {/* Added card wrapping */}
+                    <div className="border rounded-lg p-3">
                       <h3 className="text-lg font-semibold mb-2">Pedigree Documents</h3>
                       <ul className="space-y-2">
                         {pedigreeDocuments.map((doc, i) => (
-                          <li key={i} className="flex items-center"> {/*Added flex for better alignment*/}
+                          <li key={i} className="flex items-center">
                             <a
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline w-full truncate" {/*Added truncate for text overflow*/}
+                              className="text-blue-600 hover:underline w-full truncate"
                             >
                               <span className="mr-2">📄</span>
                               <span>{doc.fileName || `Pedigree Document ${i + 1}`}</span>
