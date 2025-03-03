@@ -50,14 +50,13 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set (starts with: ' + process.env.AWS_ACCESS_KEY_ID?.substring(0, 4) + '...)' : 'Not set');
   console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + (process.env.AWS_SECRET_ACCESS_KEY?.length || 0) + ')' : 'Not set');
   console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
-  console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
 
-  // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  // Use AWS_BUCKET_NAME consistently for bucket configuration
+  const bucketName = process.env.AWS_BUCKET_NAME;
 
   if (!bucketName) {
-    console.error('S3 Upload Error: No bucket name configured in environment variables');
-    throw new Error('S3 bucket name not configured');
+    console.error('S3 Upload Error: No bucket name configured in AWS_BUCKET_NAME environment variable');
+    throw new Error('S3 bucket name not configured in AWS_BUCKET_NAME');
   }
 
   if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
