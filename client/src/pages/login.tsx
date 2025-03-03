@@ -10,7 +10,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const { login } = useAuth();
 
@@ -26,7 +26,7 @@ export default function Login() {
           title: "Success",
           description: "You have been logged in successfully",
         });
-        setLocation("/admin"); // This will redirect to the admin page
+        navigate("/admin", { replace: true });
       } else {
         toast({
           title: "Error",
