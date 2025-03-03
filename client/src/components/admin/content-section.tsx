@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -24,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Toaster } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUpload from "@/components/ui/image-upload";
 import { SiteContent, ContactInfo } from "@db/schema";
@@ -180,6 +179,7 @@ export function ContentSection() {
 
   return (
     <>
+      <Toaster /> {/* Added Toaster component */}
       <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="content">Site Content</TabsTrigger>
