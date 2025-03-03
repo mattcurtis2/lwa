@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, File, FileImage, FileText, FileVideo, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, File, FileImage, FileVideo, ExternalLink, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
@@ -25,7 +25,7 @@ interface DogDetailsProps {
   };
 }
 
-function DocumentLink({ document }: { document: Document }) {
+function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (document: Document) => void }) {
   const isImage = document.mimeType.startsWith('image/');
   const isVideo = document.mimeType.startsWith('video/');
   const isPdf = document.mimeType === 'application/pdf';
@@ -39,7 +39,7 @@ function DocumentLink({ document }: { document: Document }) {
 
   return (
     <div className="border rounded-lg p-4 space-y-3">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row items-start gap-4">
         <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
           {isImage ? (
             <img
@@ -58,23 +58,32 @@ function DocumentLink({ document }: { document: Document }) {
             </div>
           )}
         </div>
-
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate">{document.name}</h4>
-          <p className="text-sm text-muted-foreground">
-            {document.mimeType.split('/')[1].toUpperCase()}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            asChild
-          >
-            <a href={document.url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Document
+        <div className="flex-1 min-w-0 w-full">
+          <h4 className="text-lg font-medium break-words">{document.name}</h4>
+          {isPdf && (
+            <div className="mt-2">
+              <iframe
+                src={`${document.url}#toolbar=0&navpanes=0`}
+                className="w-full h-64 border rounded"
+                title={document.name}
+              />
+            </div>
+          )}
+          <div className="mt-2 flex items-center gap-2">
+            <a
+              href={document.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>View</span>
             </a>
-          </Button>
+            {onRemove && <Button variant="ghost" size="sm" className="text-sm" onClick={() => onRemove?.(document)}>
+              <Trash2 className="h-4 w-4 mr-1" />
+              Remove
+            </Button>}
+          </div>
         </div>
       </div>
     </div>
@@ -483,7 +492,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                       <h3 className="font-semibold">Health Documents</h3>
                       <div className="grid gap-4">
                         {healthDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
+                          <DocumentLink key={index} document={doc} onRemove={() => {}} />
                         ))}
                       </div>
                     </div>
@@ -514,7 +523,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                       <h3 className="font-semibold">Pedigree Documents</h3>
                       <div className="grid gap-4">
                         {pedigreeDocuments.map((doc, index) => (
-                          <DocumentLink key={index} document={doc} />
+                          <DocumentLink key={index} document={doc} onRemove={() => {}} />
                         ))}
                       </div>
                     </div>

@@ -46,7 +46,7 @@ function DocumentLink({ document }: { document: Document }) {
 
   return (
     <div className="border rounded-lg p-4 space-y-3">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row items-start gap-4">
         <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
           {isImage ? (
             <img
@@ -65,23 +65,28 @@ function DocumentLink({ document }: { document: Document }) {
             </div>
           )}
         </div>
-
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate">{document.name}</h4>
-          <p className="text-sm text-muted-foreground">
-            {document.mimeType.split('/')[1].toUpperCase()}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            asChild
-          >
-            <a href={document.url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Document
+        <div className="flex-1 min-w-0 w-full">
+          <h4 className="text-lg font-medium break-words">{document.name}</h4>
+          {isPdf && (
+            <div className="mt-2">
+              <iframe
+                src={`${document.url}#toolbar=0&navpanes=0`}
+                className="w-full h-64 border rounded"
+                title={document.name}
+              />
+            </div>
+          )}
+          <div className="mt-2">
+            <a
+              href={document.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>View</span>
             </a>
-          </Button>
+          </div>
         </div>
       </div>
     </div>
