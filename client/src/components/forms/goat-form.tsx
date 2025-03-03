@@ -451,6 +451,18 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
+  const handleDeleteMedia = (index: number) => {
+    const updatedMedia = [...mediaInputs];
+    updatedMedia.splice(index, 1);
+    setMediaInputs(updatedMedia);
+    form.setValue("media", updatedMedia);
+  };
+
+  const handleImageEdit = (index: number) => {
+    setTempMediaData({index, file: mediaInputs[index].file});
+    setCropImageUrl(mediaInputs[index].url);
+    setShowCropper(true);
+  };
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
@@ -957,25 +969,43 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
                               />
-                              <div
-                                className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
-                                onClick={() => {
-                                  setTempMediaData({ index, file: input.file });
-                                  setCropImageUrl(input.url);
-                                  setShowCropper(true);
-                                }}
-                              >
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div 
+                                  className="bg-white/90 rounded-md py-1 px-3 cursor-pointer hover:bg-white"
+                                  onClick={() => handleImageEdit(index)}
+                                >
                                   Edit Image
                                 </div>
                               </div>
+                              <button 
+                                type="button"
+                                onClick={() => handleDeleteMedia(index)}
+                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                aria-label="Delete media"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
                             </>
                           ) : input.type === 'video' ? (
-                            <video
-                              src={input.url}
-                              className="w-full h-full object-cover"
-                              controls
-                            />
+                            <>
+                              <video
+                                src={input.url}
+                                className="w-full h-full object-cover"
+                                controls
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => handleDeleteMedia(index)}
+                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                aria-label="Delete media"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </>
                           ) : null}
                         </div>
                       )}
