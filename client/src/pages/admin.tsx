@@ -27,7 +27,8 @@ export default function Admin() {
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
 
   // Import useAuth hook
-  const { logout, isLoading, isLoggedIn } = useAuth();
+  const auth = useAuth();
+  const { logout, isLoading, isLoggedIn } = auth;
   
   const handleLogout = () => {
     logout();
