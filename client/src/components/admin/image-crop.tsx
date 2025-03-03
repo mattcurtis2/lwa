@@ -1,81 +1,78 @@
-const handleSave = async () => {
-    if (!completedCrop || !imgRef.current) return;
+const handleCropComplete = useCallback(async () => {
+    if (!completedCrop || !previewCanvasRef.current) return;
+
+    console.log('Crop completed:', completedCrop);
+
+    // Generate the cropped image
+    const canvas = previewCanvasRef.current;
+    const image = imageRef.current;
+
+    if (!image) return;
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      console.error('No 2d context');
+      return;
+    }
+
+    const pixelRatio = window.devicePixelRatio;
+
+    canvas.width = completedCrop.width * pixelRatio;
+    canvas.height = completedCrop.height * pixelRatio;
+
+    ctx.scale(pixelRatio, pixelRatio);
+    ctx.imageSmoothingQuality = 'high';
+
+    const cropX = completedCrop.x * scaleX;
+    const cropY = completedCrop.y * scaleY;
+    const cropWidth = completedCrop.width * scaleX;
+    const cropHeight = completedCrop.height * scaleY;
+
+    ctx.drawImage(
+      image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height
+    );
+
+    const base64Image = canvas.toDataURL('image/jpeg', 0.95);
+    console.log('Created cropped image URL:', base64Image.substring(0, 500) + '...');
 
     try {
-      setIsSaving(true);
+      // Convert base64 to blob for upload
+      const fetchResponse = await fetch(base64Image);
+      const blob = await fetchResponse.blob();
 
-      // Use a canvas to create the cropped image
-      const canvas = document.createElement('canvas');
-      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+      // Create FormData and append the blob
+      const formData = new FormData();
+      formData.append('image', blob, 'cropped-image.jpg');
 
-      const ctx = canvas.getContext('2d');
-
-      // Set canvas dimensions to the crop size
-      canvas.width = completedCrop.width;
-      canvas.height = completedCrop.height;
-
-      // Draw the cropped portion of the image
-      ctx?.drawImage(
-        imgRef.current,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        completedCrop.width,
-        completedCrop.height
-      );
-
-      // Convert canvas to data URL
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      console.log('Created cropped image URL:', dataUrl.substring(0, 200) + '...');
-
-      // Extract filename from original image or generate a new one
-      let filename;
-      if (imageUrl.includes('/')) {
-        const urlParts = imageUrl.split('/');
-        const originalFilename = urlParts[urlParts.length - 1];
-        // Keep the extension if it exists, otherwise default to jpg
-        const extension = originalFilename.includes('.') ? 
-          originalFilename.split('.').pop() : 'jpg';
-        filename = `cropped-${originalFilename.split('.')[0]}-${Date.now()}.${extension}`;
-      } else {
-        filename = `cropped-image-${Date.now()}.jpg`;
-      }
-
-      // Save the cropped image
-      const response = await fetch('/api/admin/save-cropped-image', {
+      // Upload to the API endpoint that handles S3 uploads
+      const response = await fetch('/api/admin/upload-principle-image', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          dataUrl,
-          fileName: filename,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to save cropped image: ${errorData.details || errorData.error}`);
+        throw new Error(`Upload failed with status: ${response.status}`);
       }
 
-      const { url } = await response.json();
-      console.log('Applying crop with URL:', url);
+      const data = await response.json();
+      console.log('Applying crop with URL:', data.url);
 
-      // Trigger the onCropComplete callback with the URL
-      onCropComplete(url);
-      onClose();
+      // Return the S3 URL from the server
+      onCropComplete(data.url);
     } catch (error) {
       console.error('Error completing crop:', error);
-      toast({
-        title: 'Error',
-        description: `Failed to save cropped image: ${error.message}`,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSaving(false);
+      // Fall back to base64 if upload fails
+      onCropComplete(base64Image);
     }
-  };
+  }, [completedCrop, onCropComplete]);

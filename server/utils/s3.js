@@ -12,59 +12,51 @@ const configureCors = async (s3, bucketName) => {
 };
 
 
-export const uploadToS3 = async (file) => {
+async function uploadToS3(file, customFileName = null) {
   try {
-    console.log('==== S3 UPLOAD ATTEMPT ====');
+    // AWS SDK setup
+    const { S3Client, PutObjectCommand, GetBucketCorsCommand, PutBucketCorsCommand } = await import('@aws-sdk/client-s3');
 
-    // Check AWS credentials
-    const AWS_REGION = process.env.AWS_REGION;
-    const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-    const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-
-    console.log('AWS Credentials Check:');
-    console.log(`- AWS_REGION: ${AWS_REGION ? 'Set' : 'Not set'}`);
-    console.log(`- AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
-    console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-    console.log(`- AWS_BUCKET_NAME: ${AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
+    console.log("==== S3 UPLOAD ATTEMPT ====");
+    // Check credentials
+    console.log("AWS Credentials Check:");
+    console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
+    console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
+    console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+    console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
     console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
 
-    if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET_NAME) {
+    if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_BUCKET_NAME) {
       throw new Error('Missing AWS credentials. Please check your environment variables.');
     }
 
     // Create S3 client
     const s3 = new S3Client({
-      region: AWS_REGION,
+      region: process.env.AWS_REGION,
       credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
       }
     });
 
-    // Generate unique file name with UUID
-    const fileExtension = path.extname(file.originalname);
-    const uuid = randomUUID();
-    const key = `${uuid}${fileExtension}`;
+    // Generate unique file name with UUID or use customFileName
+    const fileExtension = path.extname(file.originalname || file.name); // Handle both file objects
+    const key = customFileName ? customFileName + fileExtension : `${randomUUID()}${fileExtension}`;
 
-    console.log(`S3 Upload - Processing file: ${file.originalname}`);
+    console.log(`S3 Upload - Processing file: ${file.originalname || file.name}`);
 
     // Check and set CORS configuration for the bucket
-    await configureCors(s3, AWS_BUCKET_NAME);
+    await configureCors(s3, process.env.AWS_BUCKET_NAME);
 
-    // Check if the file exists
-    if (!file.path || !fs.existsSync(file.path)) {
-      throw new Error(`File not found at path: ${file.path}`);
-    }
 
-    // Create upload parameters
+    // Create upload parameters.  Handle Buffer or file stream.
     const uploadParams = {
-      Bucket: AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: key,
-      ContentType: file.mimetype,
-      ContentLength: file.size,
+      ContentType: file.mimetype || 'application/octet-stream', // Handle missing mimetype
+      ContentLength: file.size || file.length, //Handle Buffer or file size
       ContentDisposition: 'inline',
-      Body: fs.createReadStream(file.path)
+      Body: file.path ? fs.createReadStream(file.path) : file // Use file stream if path exists, otherwise use Buffer
     };
 
     console.log('S3 Upload - Params prepared:', uploadParams);
@@ -76,15 +68,15 @@ export const uploadToS3 = async (file) => {
 
     // Generate S3 URL
     // Virtual-hosted style URL (default)
-    const s3Url = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${key}`;
+    const s3Url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     // Path-style URL (alternative)
-    const pathStyleUrl = `https://s3.${AWS_REGION}.amazonaws.com/${AWS_BUCKET_NAME}/${key}`;
+    const pathStyleUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.AWS_BUCKET_NAME}/${key}`;
 
     console.log(`S3 upload successful: ${s3Url}`);
     console.log(`Alternative URL (path-style): ${pathStyleUrl}`);
 
-    // Clean up temporary file
-    if (fs.existsSync(file.path)) {
+    // Clean up temporary file if it's a file stream
+    if (file.path && fs.existsSync(file.path)) {
       fs.unlinkSync(file.path);
       console.log(`Temporary file removed: ${file.path}`);
     }
@@ -95,4 +87,6 @@ export const uploadToS3 = async (file) => {
     // Re-throw the error so the calling function can handle it
     throw error;
   }
-};
+}
+
+export {uploadToS3};

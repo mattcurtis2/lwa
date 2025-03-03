@@ -28,6 +28,49 @@ app.post('/api/admin/upload-principle-image', upload.single('image'), async (req
   }
 });
 
+// Handle base64 image uploads for principles (from cropper)
+app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
+  try {
+    const { base64Image } = req.body;
+    
+    if (!base64Image) {
+      return res.status(400).json({ error: 'No base64 image provided' });
+    }
+    
+    // Extract the base64 data (remove data:image/jpeg;base64, prefix)
+    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+    
+    // Create a buffer from the base64 data
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+    
+    // Create a mock file object that uploadToS3 can handle
+    const mockFile = {
+      buffer: imageBuffer,
+      mimetype: 'image/jpeg',
+      originalname: `principle-${Date.now()}.jpg`
+    };
+    
+    // Import and call the S3 upload function
+    const { uploadToS3 } = await import('../utils/s3.js');
+    const s3Url = await uploadToS3(mockFile);
+    
+    if (!s3Url) {
+      throw new Error('Failed to upload base64 image to S3');
+    }
+    
+    console.log(`Principle base64 image uploaded to S3: ${s3Url}`);
+    
+    // Return the S3 URL
+    res.json({
+      url: s3Url,
+      size: imageBuffer.length
+    });
+  } catch (error) {
+    console.error('Error uploading base64 principle image:', error);
+    res.status(500).json({ error: 'Failed to upload image', details: error.message });
+  }
+});
+
 // Handle the ImageUpload
 app.post('/api/admin/upload-carousel-image', upload.single('image'), async (req, res) => {
   try {
