@@ -20,7 +20,8 @@ const CONTENT_SECTION_KEYS = [
   'bakery_title', 'bakery_text', 'bakery_image', 'bakery_button_text', 'bakery_redirect',
   'products_title', 'products_text', 'products_image', 'products_button_text', 'products_redirect',
   'mission_title', 'mission_text',
-  'about_title', 'about_text'
+  'about_title', 'about_text',
+  'about_section_title', 'about_section_description'
 ];
 
 // Keys likely used for page-specific content
@@ -32,7 +33,6 @@ const PAGE_SPECIFIC_KEYS = [
 
 // Keys that appear to be for the about cards feature
 const ABOUT_CARD_KEYS = [
-  'about_section_title', 'about_section_description',
   'about_card_1_title', 'about_card_1_description', 'about_card_1_icon',
   'about_card_2_title', 'about_card_2_description', 'about_card_2_icon',
   'about_card_3_title', 'about_card_3_description', 'about_card_3_icon'
@@ -72,6 +72,9 @@ async function removeUnusedSiteContent() {
       )
     };
     
+    // Find empty content items (with empty values)
+    const emptyContent = allContent.filter(item => item.value === "" || item.value === null);
+    
     // Display content by category
     console.log("\n=== CONTENT ORGANIZATION ===");
     Object.entries(contentByCategory).forEach(([category, items]) => {
@@ -81,41 +84,44 @@ async function removeUnusedSiteContent() {
       });
     });
     
+    console.log(`\nEmpty Content (${emptyContent.length} items):`);
+    emptyContent.forEach(item => {
+      console.log(`  ID: ${item.id}, Key: ${item.key}, Type: ${item.type}`);
+    });
+    
     // Ask user which categories to remove
     const potentiallyUnusedCount = contentByCategory.potentiallyUnused.length;
     
-    if (potentiallyUnusedCount === 0) {
-      console.log("\nNo potentially unused content identified.");
-      return;
-    }
-    
-    const confirmation = await prompts({
-      type: 'confirm',
-      name: 'proceed',
-      message: `Do you want to remove the ${potentiallyUnusedCount} potentially unused items?`,
-      initial: false
-    });
-    
-    if (!confirmation.proceed) {
-      console.log("Operation cancelled.");
-      return;
-    }
-    
-    // Remove confirmed unused items
-    const unusedIds = contentByCategory.potentiallyUnused.map(item => item.id);
-    
-    for (const id of unusedIds) {
-      const item = await db.query.siteContent.findFirst({
-        where: eq(siteContent.id, id)
+    if (potentiallyUnusedCount > 0) {
+      const confirmation = await prompts({
+        type: 'confirm',
+        name: 'proceed',
+        message: `Do you want to remove the ${potentiallyUnusedCount} potentially unused items?`,
+        initial: false
       });
       
-      if (item) {
-        await db.delete(siteContent).where(eq(siteContent.id, id));
-        console.log(`Deleted: ID: ${id}, Key: ${item.key}`);
+      if (confirmation.proceed) {
+        // Remove confirmed unused items
+        const unusedIds = contentByCategory.potentiallyUnused.map(item => item.id);
+        
+        for (const id of unusedIds) {
+          const item = await db.query.siteContent.findFirst({
+            where: eq(siteContent.id, id)
+          });
+          
+          if (item) {
+            await db.delete(siteContent).where(eq(siteContent.id, id));
+            console.log(`Deleted: ID: ${id}, Key: ${item.key}`);
+          }
+        }
+        
+        console.log(`\nRemoved ${unusedIds.length} unused site content items.`);
+      } else {
+        console.log("Skipped removal of potentially unused items.");
       }
+    } else {
+      console.log("\nNo potentially unused content identified.");
     }
-    
-    console.log(`\nRemoved ${unusedIds.length} unused site content items.`);
     
     // Ask if user wants to remove empty about cards
     const emptyAboutCards = contentByCategory.aboutCards.filter(
@@ -127,7 +133,7 @@ async function removeUnusedSiteContent() {
         type: 'confirm',
         name: 'proceed',
         message: `Do you want to remove ${emptyAboutCards.length} empty about card entries?`,
-        initial: false
+        initial: true
       });
       
       if (confirmAboutCards.proceed) {
@@ -136,7 +142,37 @@ async function removeUnusedSiteContent() {
           console.log(`Deleted empty about card: ID: ${item.id}, Key: ${item.key}`);
         }
         console.log(`\nRemoved ${emptyAboutCards.length} empty about card entries.`);
+      } else {
+        console.log("Skipped removal of empty about card entries.");
       }
+    } else {
+      console.log("\nNo empty about card entries found.");
+    }
+    
+    // Handle other empty content
+    const otherEmptyContent = emptyContent.filter(
+      item => !ABOUT_CARD_KEYS.includes(item.key)
+    );
+    
+    if (otherEmptyContent.length > 0) {
+      const confirmOtherEmpty = await prompts({
+        type: 'confirm',
+        name: 'proceed',
+        message: `Do you want to remove ${otherEmptyContent.length} other empty content entries?`,
+        initial: false
+      });
+      
+      if (confirmOtherEmpty.proceed) {
+        for (const item of otherEmptyContent) {
+          await db.delete(siteContent).where(eq(siteContent.id, item.id));
+          console.log(`Deleted empty content: ID: ${item.id}, Key: ${item.key}`);
+        }
+        console.log(`\nRemoved ${otherEmptyContent.length} empty content entries.`);
+      } else {
+        console.log("Skipped removal of other empty content entries.");
+      }
+    } else {
+      console.log("\nNo other empty content entries found.");
     }
   } catch (error) {
     console.error("Error removing unused site content:", error);
