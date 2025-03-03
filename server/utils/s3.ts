@@ -55,7 +55,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       Key: key,
       Body: fileData,
       ContentType: file.mimetype,
-      ACL: 'public-read', // Make the file publicly accessible
+      // ACL parameter removed as the bucket doesn't allow ACLs
     };
 
     console.log('S3 Upload - Params prepared:', {
