@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutObjectAclCommand } from '@aws-sdk/client-s3';
 import path from 'path';
 import { randomUUID } from "crypto";
 import dotenv from 'dotenv';
@@ -73,6 +73,15 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     console.log('S3 Upload - Success! Response:', response);
 
+    // Set the object to be publicly readable
+    await s3Client.send(
+      new PutObjectAclCommand({
+        Bucket: bucketName,
+        Key: key,
+        ACL: 'public-read'
+      })
+    );
+    
     // Construct the S3 URL
     const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     console.log(`S3 Upload - Generated URL: ${s3Url}`);
