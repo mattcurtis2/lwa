@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { S3Client, PutObjectCommand, PutObjectAclCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
 import path from 'path';
 import { randomUUID } from "crypto";
 import dotenv from 'dotenv';
@@ -11,7 +11,7 @@ dotenv.config();
 async function ensureBucketCorsConfig(s3Client, bucketName) {
   try {
     console.log('Checking S3 bucket CORS configuration...');
-    
+
     // Set a permissive CORS configuration for the bucket
     const corsParams = {
       Bucket: bucketName,
@@ -27,12 +27,12 @@ async function ensureBucketCorsConfig(s3Client, bucketName) {
         ]
       }
     };
-    
+
     // Import the PutBucketCorsCommand dynamically to avoid potential issues
     const { PutBucketCorsCommand } = await import('@aws-sdk/client-s3');
     await s3Client.send(new PutBucketCorsCommand(corsParams));
     console.log('CORS configuration set successfully');
-    
+
     return true;
   } catch (error) {
     console.warn('Warning: Failed to set CORS configuration:', error);
@@ -78,7 +78,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       // Use path-style endpoint for better compatibility
       forcePathStyle: true,
     });
-    
+
     // Try to ensure the bucket has proper CORS settings
     try {
       await ensureBucketCorsConfig(s3Client, bucketName);
@@ -99,7 +99,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       Key: key,
       Body: fileData,
       ContentType: file.mimetype,
-      ACL: 'public-read', // Try with public-read ACL
+      //ACL: 'public-read', // Removed ACL setting
     };
 
     console.log('S3 Upload - Params prepared:', {
@@ -120,7 +120,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
     // Skip setting ACL since the bucket has ACLs disabled
     // This is common for buckets with "Bucket owner enforced" object ownership
     console.log('S3 Upload - Skipping ACL setting (bucket has ACLs disabled)');
-    
+
     // Construct the S3 URL - Use path-style URL instead of virtual-hosted style
     // This is more compatible with certain S3 configurations
     const s3Url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${bucketName}/${key}`;
