@@ -26,9 +26,12 @@ interface DogDetailsProps {
 }
 
 function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (document: Document) => void }) {
-  const isImage = document.mimeType.startsWith('image/');
-  const isVideo = document.mimeType.startsWith('video/');
-  const isPdf = document.mimeType === 'application/pdf';
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const { url, type } = document;
+
+  const isPdf = url.toLowerCase().endsWith('.pdf');
+  const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url);
+  const isVideo = /\.(mp4|webm|mov)$/i.test(url);
 
   const getIcon = () => {
     if (isPdf) return <FileText className="h-5 w-5" />;
@@ -38,47 +41,20 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
   };
 
   return (
-    <div className="border rounded-lg p-4 space-y-3">
-      <div className="flex flex-col sm:flex-row items-start gap-4">
-        <div className="w-24 h-24 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-          {isImage ? (
-            <img
-              src={document.url}
-              alt={document.name}
-              className="w-full h-full object-cover"
-            />
-          ) : isVideo ? (
-            <video
-              src={document.url}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              {getIcon()}
-            </div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0 w-full">
-          <h4 className="text-lg font-medium break-words">{document.name}</h4>
-          {isPdf && (
-            <div className="mt-2">
-              <iframe
-                src={`${document.url}#toolbar=0&navpanes=0`}
-                className="w-full h-64 border rounded"
-                title={document.name}
-              />
-            </div>
-          )}
-          <div className="mt-2 flex items-center gap-2">
-            <a
-              href={document.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+    <div className="mt-2 w-full">
+      <div className="flex flex-col overflow-hidden">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex overflow-hidden text-primary">
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="flex items-center overflow-hidden mr-2"
             >
-              <ExternalLink className="h-4 w-4" />
-              <span>View</span>
-            </a>
+              <div className="mr-2">{getIcon()}</div>
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                {document.name || url.split('/').pop()}
+              </div>
+            </button>
             {onRemove && <Button variant="ghost" size="sm" className="text-sm" onClick={() => onRemove?.(document)}>
               <Trash2 className="h-4 w-4 mr-1" />
               Remove
@@ -86,6 +62,25 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
           </div>
         </div>
       </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl w-[90vw]">
+          <DialogHeader>
+            <DialogTitle className="break-words">{document.name || url.split('/').pop()}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-2">
+            {isPdf && (
+              <iframe src={url} className="w-full h-[80vh]" title={document.name || "PDF document"} />
+            )}
+            {isImage && (
+              <img src={url} alt={document.name || "Image"} className="w-full h-auto" />
+            )}
+            {isVideo && (
+              <video src={url} controls className="w-full h-auto" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
