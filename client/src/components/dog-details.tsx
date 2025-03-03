@@ -48,10 +48,10 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
             <button
               type="button"
               onClick={() => setPreviewOpen(true)}
-              className="flex items-center mr-2 max-w-full"
+              className="flex items-center mr-2 max-w-full overflow-hidden"
             >
               <div className="mr-2 flex-shrink-0">{getIcon()}</div>
-              <div className="truncate">
+              <div className="truncate max-w-[calc(100%-2rem)]">
                 {document.name || url.split('/').pop()}
               </div>
             </button>
@@ -66,7 +66,7 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-4xl w-[90vw]">
           <DialogHeader>
-            <DialogTitle className="truncate break-words">{document.name || url.split('/').pop()}</DialogTitle>
+            <DialogTitle className="max-w-full truncate">{document.name || url.split('/').pop()}</DialogTitle>
           </DialogHeader>
           <div className="mt-2">
             {isPdf && (
