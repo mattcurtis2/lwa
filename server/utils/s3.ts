@@ -1,39 +1,43 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
 import { env } from "process";
 
 // Initialize S3 client
 const s3Client = new S3Client({
-  region: env.AWS_REGION,
+  region: env.AWS_REGION || '',
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY || '',
   },
 });
 
 export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => {
-  const fileName = `${crypto.randomUUID()}-${file.originalname}`;
-  
-  const command = new PutObjectCommand({
-    Bucket: env.AWS_BUCKET_NAME,
-    Key: fileName,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-    ACL: 'public-read',
-  });
+  if (!env.AWS_BUCKET_NAME) {
+    throw new Error('AWS_BUCKET_NAME environment variable is not set');
+  }
 
-  await s3Client.send(command);
+  const fileName = `${crypto.randomUUID()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-  // Return the public URL
-  return `https://${env.AWS_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${fileName}`;
-};
+  try {
+    console.log(`Uploading ${fileName} to S3...`);
 
-export const getSignedS3Url = async (key: string) => {
-  const command = new GetObjectCommand({
-    Bucket: env.AWS_BUCKET_NAME,
-    Key: key,
-  });
+    const command = new PutObjectCommand({
+      Bucket: env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ACL: 'public-read',
+    });
 
-  return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    await s3Client.send(command);
+
+    // Construct the S3 URL
+    const s3Url = `https://${env.AWS_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${fileName}`;
+    console.log(`File uploaded successfully. S3 URL: ${s3Url}`);
+
+    return s3Url;
+  } catch (error) {
+    console.error('Error uploading to S3:', error);
+    throw new Error(`Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };

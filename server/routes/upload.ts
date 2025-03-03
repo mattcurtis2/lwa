@@ -19,26 +19,34 @@ router.post('/upload', upload.array('file'), async (req, res) => {
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    console.log('=== S3 Upload Request Received ===');
-    console.log('Processing files:', req.files.map(f => ({
+    console.log('=== S3 Upload Request Started ===');
+    const files = req.files.map(f => ({
       originalName: f.originalname,
       size: f.size,
       mimetype: f.mimetype
-    })));
+    }));
+    console.log('Files to process:', files);
 
     const uploadPromises = req.files.map(async (file) => {
       try {
         const s3Url = await uploadToS3(file);
-        console.log(`File uploaded successfully to S3: ${file.originalname} -> ${s3Url}`);
-        return { url: s3Url };
+        console.log(`Successfully uploaded to S3: ${file.originalname} -> ${s3Url}`);
+        return {
+          url: s3Url,
+          type: file.mimetype.startsWith('image/') ? 'image' : 'video',
+          originalName: file.originalname,
+          mimeType: file.mimetype
+        };
       } catch (err) {
-        console.error(`Failed to upload file ${file.originalname} to S3:`, err);
+        console.error(`Failed to upload ${file.originalname} to S3:`, err);
         throw err;
       }
     });
 
     const results = await Promise.all(uploadPromises);
-    console.log('All files processed successfully:', results);
+    console.log('=== S3 Upload Complete ===');
+    console.log('Results:', results);
+
     res.json(results);
   } catch (error) {
     console.error('S3 Upload error:', error);
