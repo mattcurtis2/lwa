@@ -1,69 +1,57 @@
-
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import fs from 'fs-extra';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import path from 'path';
 import { randomUUID } from "crypto";
 import dotenv from 'dotenv';
-import fs from 'fs';
 
 dotenv.config();
 
-// Check and log S3 configuration
-const region = process.env.AWS_REGION || 'us-east-1';
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+// Initialize the S3 client with AWS credentials
+export async function uploadToS3(file: Express.Multer.File): Promise<string> {
+  // Log environment variables for debugging
+  console.log('==== S3 UPLOAD ATTEMPT ====');
+  console.log('AWS Credentials Check:');
+  console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
+  console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set');
+  console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set');
+  console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
+  console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
 
-// Log S3 config (excluding secret key)
-console.log('S3 Config:', { 
-  region,
-  accessKeyConfigured: accessKeyId ? "YES" : "NO",
-  secretKeyConfigured: secretAccessKey ? "YES" : "NO",
-  bucketName,
-});
+  // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
 
-if (!accessKeyId || !secretAccessKey) {
-  console.error('WARNING: AWS credentials are not properly configured', { 
-    accessKeyId: accessKeyId ? "Key present" : "MISSING", 
-    secretAccessKey: secretAccessKey ? "Key present" : "MISSING" 
-  });
-}
-
-if (!bucketName) {
-  console.error('WARNING: AWS_BUCKET_NAME is not configured');
-}
-
-// Create an S3 client
-const s3Client = new S3Client({
-  region,
-  credentials: {
-    accessKeyId: accessKeyId || '',
-    secretAccessKey: secretAccessKey || ''
+  if (!bucketName) {
+    console.error('S3 Upload Error: No bucket name configured in environment variables');
+    throw new Error('S3 bucket name not configured');
   }
-});
 
-export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => {
+  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    console.error('S3 Upload Error: Missing AWS credentials');
+    throw new Error('AWS credentials not configured properly');
+  }
+
   try {
-    console.log("\n=== S3 UPLOAD ATTEMPT ===");
-    
-    // Check credentials before proceeding
-    if (!accessKeyId || !secretAccessKey) {
-      console.error("S3 upload aborted: AWS credentials are missing");
-      throw new Error('AWS credentials are missing. Check your .env file');
-    }
-    
-    if (!bucketName) {
-      console.error("S3 upload aborted: AWS_BUCKET_NAME is missing");
-      throw new Error('AWS_BUCKET_NAME environment variable is not set');
-    }
-    
-    // Use the original file name but sanitize it and make it unique
-    const fileExtension = file.originalname.split('.').pop() || 'jpg';
-    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_').substring(0, 50);
-    const key = `${randomUUID()}-${sanitizedName}.${fileExtension}`;
-    
-    console.log(`S3 Upload - File: ${sanitizedName}, Size: ${file.size} bytes, Type: ${file.mimetype}`);
-    console.log(`S3 Upload - Target: s3://${bucketName}/${key}`);
+    // Create a unique key for the S3 object
+    const fileExt = path.extname(file.originalname);
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 12);
+    const key = `uploads/${timestamp}-${randomString}${fileExt}`;
 
-    // Read the file data
+    console.log(`S3 Upload - Creating S3 client with region: ${process.env.AWS_REGION}`);
+    console.log(`S3 Upload - Target bucket: ${bucketName}`);
+    console.log(`S3 Upload - File: ${file.originalname} (${file.size} bytes)`);
+    console.log(`S3 Upload - Target key: ${key}`);
+
+    // Create S3 client
+    const s3Client = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
+    });
+
+    // Prepare file data for upload
     let fileData: Buffer;
 
     // If file.buffer exists, use it directly (memory storage)
@@ -79,6 +67,7 @@ export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => 
       throw new Error('No file data available');
     }
 
+    // Prepare the S3 upload parameters
     const params = {
       Bucket: bucketName,
       Key: key,
@@ -87,51 +76,21 @@ export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => 
       ACL: 'public-read', // Make the file publicly accessible
     };
 
-    console.log("S3 Upload - Sending PUT request to S3", { bucket: bucketName, key });
-    console.log("S3 Upload - Using client with region:", region);
-    
-    try {
-      console.log(`Sending file to S3 bucket: ${bucketName}`);
-      const result = await s3Client.send(new PutObjectCommand(params));
-      console.log("S3 Upload - S3 response:", result);
-      
-      const s3Url = `https://${bucketName}.s3.amazonaws.com/${key}`;
-      console.log(`S3 Upload - SUCCESS! File URL: ${s3Url}`);
-      return s3Url;
-    } catch (error) {
-      console.error('S3 Upload - ERROR during AWS API call:', error);
-      
-      // Additional error inspection
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        
-        // Check for common S3 errors
-        if (error.message.includes('AccessDenied')) {
-          console.error('S3 Upload - Access Denied. Check your IAM permissions and bucket policy.');
-        } else if (error.message.includes('NoSuchBucket')) {
-          console.error(`S3 Upload - Bucket not found: ${bucketName}`);
-        } else if (error.message.includes('NetworkingError')) {
-          console.error('S3 Upload - Network error. Check your internet connection or AWS endpoints.');
-        } else if (error.message.includes('CredentialsError')) {
-          console.error('S3 Upload - Invalid credentials. Check your AWS access keys.');
-        }
-      }
-      
-      // Re-throw with more details
-      throw new Error(`Failed to upload to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    console.log('S3 Upload - Sending file to S3...');
+
+    // Upload to S3
+    const command = new PutObjectCommand(params);
+    const response = await s3Client.send(command);
+
+    console.log('S3 Upload - Success! Response:', response);
+
+    // Construct the S3 URL
+    const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    console.log(`S3 Upload - Generated URL: ${s3Url}`);
+
+    return s3Url;
   } catch (error) {
-    console.error('S3 Upload - PROCESS FAILED:', error);
-    
-    // Fall back to local storage - TEMPORARY
-    console.warn('S3 Upload - Falling back to local storage due to S3 upload failure');
-    if (file.path) {
-      const localPath = `/uploads/${file.path.split('/').pop()}`;
-      console.log(`S3 Upload - Using local file path as fallback: ${localPath}`);
-      return localPath;
-    }
-    
+    console.error('S3 Upload - Error during upload:', error);
     throw error;
   }
-};
+}

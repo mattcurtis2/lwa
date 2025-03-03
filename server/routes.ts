@@ -937,18 +937,9 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      // Import the S3 upload utility
-      console.log('=== Importing S3 module ===');
-      const s3Module = await import('./utils/s3');
+      // Import the S3 upload utility - using direct import to avoid dynamic import issues
+      const { uploadToS3 } = require('./utils/s3');
       
-      if (!s3Module || !s3Module.uploadToS3) {
-        console.error('Failed to load S3 module properly', s3Module);
-        throw new Error('S3 upload module failed to load');
-      }
-      
-      const { uploadToS3 } = s3Module;
-      console.log('S3 module imported successfully');
-
       console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
         console.log(`\n=== Processing file ${index + 1}/${req.files.length} ===`);
@@ -960,26 +951,11 @@ export function registerRoutes(app: Express): Server {
         });
 
         try {
-          // Check environment variables directly in this scope too
-          console.log('Checking AWS environment variables for upload:');
-          console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
-          console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set');
-          console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set');
-          console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
-          console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
-
           // Attempt to upload to S3
-          console.log('Calling uploadToS3 function...');
+          console.log('Calling uploadToS3 function directly...');
           const s3Url = await uploadToS3(file);
           
-          // Check if the URL is an S3 URL or a local path
-          const isS3Url = s3Url.includes('s3.amazonaws.com');
-          console.log(`File upload result: ${s3Url}`);
-          console.log(`Is S3 URL: ${isS3Url}`);
-          
-          if (!isS3Url) {
-            console.warn('WARNING: URL returned is not an S3 URL - may be using local storage');
-          }
+          console.log(`S3 upload successful: ${s3Url}`);
           
           return {
             url: s3Url,
@@ -992,7 +968,7 @@ export function registerRoutes(app: Express): Server {
           
           // Fall back to local storage
           console.warn('FALLBACK: Using local storage due to S3 upload failure');
-          const localUrl = `/uploads/${file.path.split('/').pop()}`;
+          const localUrl = `/uploads/${path.basename(file.path)}`;
           
           return {
             url: localUrl,
