@@ -104,8 +104,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       ContentLength: fileData.length,
       ContentDisposition: isImage ? 'inline' : 'attachment',
       CacheControl: 'max-age=31536000',
-      // Set the object to be public-readable
-      ACL: 'public-read',
+      // ACL disabled - bucket policy will manage access
     };
 
     console.log('S3 Upload - Params prepared:', {
