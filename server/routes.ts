@@ -149,18 +149,18 @@ export function registerRoutes(app: Express): Server {
 
     // Add default dogs hero content if none exists
     const existingHero = await db.query.dogsHero.findFirst();
-    
+
     // Add endpoint to serve content images for social media preview
     app.get("/api/site-content/:key", async (req, res) => {
       try {
         const content = await db.query.siteContent.findFirst({
           where: (siteContent, { eq }) => eq(siteContent.key, req.params.key)
         });
-        
+
         if (!content || !content.value) {
           return res.status(404).send("Image not found");
         }
-        
+
         // Redirect to the actual image URL
         res.redirect(content.value);
       } catch (error) {
@@ -777,49 +777,6 @@ export function registerRoutes(app: Express): Server {
             media: true,
             documents: true,
             mother: true,
-
-  // Auth routes
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      
-      if (username === "LWA" && password === "Tecumseh1-") {
-        // Create a session for 30 days
-        req.session.isAdmin = true;
-        req.session.username = username;
-        
-        // Set cookie to expire in 30 days
-        if (req.session.cookie) {
-          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-        }
-        
-        res.status(200).json({ success: true });
-      } else {
-        res.status(401).json({ message: "Invalid credentials" });
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Server error during login" });
-    }
-  });
-
-  app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Failed to logout" });
-      }
-      res.status(200).json({ success: true });
-    });
-  });
-
-  app.get("/api/auth/status", (req, res) => {
-    if (req.session.isAdmin) {
-      res.json({ isLoggedIn: true, username: req.session.username });
-    } else {
-      res.json({ isLoggedIn: false });
-    }
-  });
-
             father: true,
             litter: true,
           },
@@ -1811,8 +1768,7 @@ export function registerRoutes(app: Express): Server {
       const { id, field } = req.params;
       const { value } = req.body;
 
-      // Here you would typically update the database
-      // For now, we'll just return success
+      // Here you would typically update the database      // For now, we'll just return success
       res.json({ id, field, value });
     } catch (error) {
       console.error("Error updating page field:", error);
@@ -1887,6 +1843,48 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error updating about cards:", error);
       res.status(500).json({ message: "Failed to update about cards" });
+    }
+  });
+
+  // Auth routes section update
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      if (username === "LWA" && password === "Tecumseh1-") {
+        // Create a session for 30 days
+        req.session.isAdmin = true;
+        req.session.username = username;
+
+        // Set cookie to expire in 30 days
+        if (req.session.cookie) {
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+        }
+
+        res.status(200).json({ success: true });
+      } else {
+        res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Server error during login" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to logout" });
+      }
+      res.status(200).json({ success: true });
+    });
+  });
+
+  app.get("/api/auth/status", (req, res) => {
+    if (req.session.isAdmin) {
+      res.json({ isLoggedIn: true, username: req.session.username });
+    } else {
+      res.json({ isLoggedIn: false });
     }
   });
 

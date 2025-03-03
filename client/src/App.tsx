@@ -2,9 +2,11 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/providers/auth-provider";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import Login from "@/pages/login";
 import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
 import LitterDetail from "@/pages/litter-detail";
@@ -35,11 +37,13 @@ function Router() {
   const [location] = useLocation();
   return (
     <div className="min-h-screen flex flex-col">
-      {location !== '/admin' && <Header />}
+      {location !== '/admin' && location !== '/login' && <Header />}
       <ScrollToTop />
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/login" component={Login} />
+          <Route path="/admin" component={Admin} />
           {/* Dog Routes */}
           <Route path="/dogs">
             {() => <Dogs />}
@@ -79,11 +83,10 @@ function Router() {
           <Route path="/market/bakery" component={MarketSection} />
           <Route path="/market/market-garden" component={MarketSection} />
           <Route path="/market/animal-products" component={MarketSection} />
-          <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
       </main>
-      {location !== '/admin' && <Footer />}
+      {location !== '/admin' && location !== '/login' && <Footer />}
     </div>
   );
 }
@@ -91,8 +94,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

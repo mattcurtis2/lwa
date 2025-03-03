@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/providers/auth-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
@@ -13,22 +14,41 @@ import {
   Dog as DogIcon,
   Cat,
   ShoppingBag,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react"; //Import LogOut icon
-
+import { LogOut } from "lucide-react";
 
 export default function Admin() {
   const [_, navigate] = useLocation();
+  const { isLoggedIn, isLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("dogs");
   const [activeDogTab, setActiveDogTab] = useState("overview");
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
 
-  const handleLogout = () => {
-    // Add logout logic here (e.g., clear cookies, redirect)
-    console.log("Logout clicked"); // Placeholder
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, isLoading, navigate]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen">
