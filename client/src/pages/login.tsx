@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "wouter"; // Added useNavigate
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,9 +10,8 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(""); // Added error state
-  const [, setLocation] = useLocation();
-  const navigate = useNavigate(); // Added useNavigate hook
+  const [error, setError] = useState("");
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const { login } = useAuth();
 
