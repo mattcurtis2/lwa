@@ -128,3 +128,28 @@ const handleCropComplete = useCallback(async () => {
       }
     }, 'image/jpeg', 0.95);
   }, [completedCrop, onCropComplete, onClose]);
+
+const handleApplyCrop = useCallback(async () => {
+    if (completedCrop) {
+      try {
+        const croppedImageUrl = await getCroppedImg(
+          imgRef.current,
+          completedCrop,
+          'newFile.jpg'
+        );
+        console.log('Applying crop with URL:', croppedImageUrl);
+
+        // For debugging - log the start of the URL to check it's a base64 image
+        if (croppedImageUrl && croppedImageUrl.startsWith('data:image/')) {
+          console.log('Successfully created base64 image of length:', croppedImageUrl.length);
+        } else {
+          console.warn('Created image is not in expected base64 format');
+        }
+
+        onCropComplete(croppedImageUrl);
+        onClose();
+      } catch (e) {
+        console.error('Error applying crop:', e);
+      }
+    }
+  }, [completedCrop, onCropComplete, onClose]);

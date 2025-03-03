@@ -101,12 +101,9 @@ async function uploadToS3(file) {
       Key: filename,
       Body: fileBuffer,
       ContentType: contentType,
-      ContentDisposition: 'inline'
+      ContentDisposition: 'inline',
+      ContentLength: fileBuffer.length
     };
-
-    if (file.size) {
-      uploadParams.ContentLength = file.size;
-    }
 
     console.log('S3 Upload - Params prepared:', uploadParams);
 
@@ -171,3 +168,25 @@ async function uploadBase64ToS3(base64Data, fileName) {
 }
 
 export {uploadToS3, uploadBase64ToS3};
+
+//Example PUT route handler (needs to be integrated into your existing server code)
+//This is a placeholder and needs to be adapted to your specific framework (Express, Fastify etc.)
+const handlePutPrinciple = async (req, res) => {
+    try {
+        const principleId = req.params.id;
+        const updatedPrinciple = req.body;
+
+        if (updatedPrinciple.imageUrl && updatedPrinciple.imageUrl.startsWith('data:image/')) {
+            const imageUrl = await uploadBase64ToS3(updatedPrinciple.imageUrl, `principle-${principleId}-image.jpg`);
+            updatedPrinciple.imageUrl = imageUrl;
+        }
+
+        // ... your existing principle update logic ...
+
+        res.status(200).json({ message: 'Principle updated successfully', principle: updatedPrinciple });
+
+    } catch (error) {
+        console.error('Error updating principle:', error);
+        res.status(500).json({ error: 'Failed to update principle' });
+    }
+};

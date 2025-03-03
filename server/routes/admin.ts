@@ -256,13 +256,42 @@ app.put("/api/principles/:id", async (req, res) => {
       if (imageUrl && imageUrl.startsWith('data:image')) {
         console.log(`Principle ${id} has a base64 image that needs to be uploaded to S3`);
         try {
-          const { uploadBase64ToS3 } = require('../utils/s3');
-          const s3Url = await uploadBase64ToS3(imageUrl, `principle-${id}-${Date.now()}.jpg`);
-          console.log(`Uploaded principle image to S3: ${s3Url}`);
+          // Use async import to ensure we get the latest version of the module
+          const { uploadToS3 } = await import('../utils/s3.js');
+          
+          // Extract the base64 data (remove data:image/jpeg;base64, prefix)
+          const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, '');
+          console.log(`Extracted base64 data (length: ${base64Data.length})`);
+          
+          // Create a buffer from the base64 data
+          const imageBuffer = Buffer.from(base64Data, 'base64');
+          console.log(`Created buffer from base64 data (size: ${imageBuffer.length} bytes)`);
+          
+          // Create a mock file object that uploadToS3 can handle
+          const filename = `principle-${id}-${Date.now()}.jpg`;
+          const mockFile = {
+            buffer: imageBuffer,
+            mimetype: 'image/jpeg',
+            originalname: filename
+          };
+          console.log(`Created mock file object with name: ${filename}`);
+          
+          console.log('=== S3 UPLOAD FOR PRINCIPLE UPDATE ===');
+          const s3Url = await uploadToS3(mockFile);
+          
+          if (!s3Url) {
+            throw new Error('Failed to upload to S3 - No URL returned');
+          }
+          
+          console.log(`Successfully uploaded principle image to S3: ${s3Url}`);
           finalImageUrl = s3Url;
         } catch (uploadError) {
           console.error(`Failed to upload principle image to S3:`, uploadError);
-          // Will continue with original image URL if S3 upload fails
+          return res.status(500).json({ 
+            error: 'Failed to upload image to S3', 
+            details: uploadError.message,
+            code: uploadError.code || 'unknown'
+          });
         }
       } else {
         console.log(`Principle ${id} image is already a URL or empty: ${finalImageUrl?.substring(0, 50)}...`);
