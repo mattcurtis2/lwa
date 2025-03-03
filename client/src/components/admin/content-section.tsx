@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,7 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { uploadFileToS3 } from "../../lib/upload-utils"; //Import added here
+import { uploadFileToS3 } from "../../lib/upload-utils";
 
 type SiteContent = {
   id: number;
@@ -216,7 +216,7 @@ export default function ContentSection() {
   });
 
   const { data: aboutCards = [] } = useQuery<AboutCard[]>({
-    queryKey: ["/api/about-cards-old"], //Use old endpoint for individual cards.
+    queryKey: ["/api/about-cards-old"],
   });
 
   const {
@@ -240,7 +240,7 @@ export default function ContentSection() {
   }, [aboutCardsData]);
 
   const handleFileUpload = async (file: File): Promise<string> => {
-    return uploadFileToS3(file); // Use the shared S3 upload function
+    return uploadFileToS3(file);
   };
 
   const updateSiteContent = useMutation({
@@ -366,7 +366,7 @@ export default function ContentSection() {
       queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
       queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
       queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/market"] }); //Invalidate market queries
+      queryClient.invalidateQueries({ queryKey: ["/api/market"] });
 
       toast({ title: "All changes saved successfully" });
     } catch (error) {
@@ -541,6 +541,7 @@ export default function ContentSection() {
           <TabsTrigger value="dogs">Dogs</TabsTrigger>
           <TabsTrigger value="goats">Goats</TabsTrigger>
           <TabsTrigger value="market">Market</TabsTrigger>
+          <TabsTrigger value="contact">Contact Information</TabsTrigger> {/* Added tab */}
         </TabsList>
 
         <TabsContent value="global">
@@ -665,7 +666,6 @@ export default function ContentSection() {
                           pendingChanges.principles[principle.id]?.imageUrl ??
                           principle.imageUrl;
                         if (imageUrl) {
-                          // Check if it's a local URL and handle accordingly
                           if (imageUrl.startsWith('/uploads/')) {
                             console.warn('Found local image URL. This should be migrated to S3.');
                           }
@@ -1328,6 +1328,77 @@ export default function ContentSection() {
                     }
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="contact" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>Update the contact information displayed in the footer</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="contact-email">Email</Label>
+                <Input
+                  id="contact-email"
+                  value={getContentValue("contact_email")}
+                  onChange={(e) => handleContentChange("contact_email", e.target.value)}
+                  placeholder="contact@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact-phone">Phone</Label>
+                <Input
+                  id="contact-phone"
+                  value={getContentValue("contact_phone")}
+                  onChange={(e) => handleContentChange("contact_phone", e.target.value)}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact-address">Address</Label>
+                <Textarea
+                  id="contact-address"
+                  value={getContentValue("contact_address")}
+                  onChange={(e) => handleContentChange("contact_address", e.target.value)}
+                  placeholder="123 Farm Lane, Rural Town, ST 12345"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact-hours">Hours</Label>
+                <Textarea
+                  id="contact-hours"
+                  value={getContentValue("contact_hours")}
+                  onChange={(e) => handleContentChange("contact_hours", e.target.value)}
+                  placeholder="Monday-Friday: 9am-5pm, Saturday: 10am-4pm, Sunday: Closed"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="facebook-url">Facebook URL</Label>
+                <Input
+                  id="facebook-url"
+                  value={getContentValue("social_facebook")}
+                  onChange={(e) => handleContentChange("social_facebook", e.target.value)}
+                  placeholder="https://facebook.com/yourbusiness"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram-url">Instagram URL</Label>
+                <Input
+                  id="instagram-url"
+                  value={getContentValue("social_instagram")}
+                  onChange={(e) => handleContentChange("social_instagram", e.target.value)}
+                  placeholder="https://instagram.com/yourbusiness"
+                />
               </div>
             </CardContent>
           </Card>
