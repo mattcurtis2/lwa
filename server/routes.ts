@@ -1770,7 +1770,7 @@ export function registerRoutes(app: Express): Server {
           id: 3,
           name: "Goats",
           fields: {
-            title: ""Nigerian Dwarf Goats",
+            title: "Nigerian Dwarf Goats",
             description: "Explore our goat breeding program...",
             hero_image: "/images/goats-hero.jpg",
             care_info: "Our approach to goat care...",
