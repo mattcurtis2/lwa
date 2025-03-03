@@ -43,6 +43,8 @@ import { ImageCrop } from "@/components/ui/image-crop";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
+import { useNavigate } from "wouter";
+import { uploadFileToS3 } from "../../lib/upload-utils";
 
 
 interface Document {
@@ -294,28 +296,13 @@ export default function DogForm({
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to upload file");
-      }
-
-      const data = await res.json();
-      if (!data || data.length === 0 || !data[0]?.url) {
-        throw new Error('Invalid response from upload endpoint');
-      }
+      const url = await uploadFileToS3(file);
 
       const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
       const newMedia = {
-        url: data[0].url,
+        url: url,
         type: fileType,
         fileName: file.name,
         isNew: true,

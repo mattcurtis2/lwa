@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CarouselItem } from "@db/schema";
 import { FileUpload } from "@/components/ui/file-upload";
+import { uploadFileToS3 } from "../../lib/upload-utils"; // Added import
+
 
 const carouselItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -62,28 +64,23 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
     },
   });
 
-  const handleImageUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  const onDrop = async (acceptedFiles: File[]) => {
+    if (!acceptedFiles || acceptedFiles.length === 0) return;
 
+    const file = acceptedFiles[0];
     try {
-      // Use the common S3 upload endpoint
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-      return data[0].url; // Return the first URL from the array
+      const url = await uploadFileToS3(file);
+      form.setValue("imageUrl", url, { shouldValidate: true });
     } catch (error) {
-      console.error("Upload error:", error);
-      throw error;
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
     }
   };
+
 
   return (
     <Form {...form}>
@@ -127,7 +124,7 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
                   <div className="space-y-4">
                     <FileUpload
                       value={field.value}
-                      onFileSelect={handleImageUpload}
+                      onFileSelect={onDrop} // Changed to use onDrop
                       onChange={field.onChange}
                     />
                     <div className="text-center text-sm text-muted-foreground">or</div>

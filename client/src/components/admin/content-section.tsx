@@ -11,6 +11,7 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { uploadFileToS3 } from "../../lib/upload-utils"; //Import added here
 
 type SiteContent = {
   id: number;
@@ -198,7 +199,9 @@ export default function ContentSection() {
     carouselItems: {},
   });
   const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
-  const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(null);
+  const [pendingAboutCards, setPendingAboutCards] = useState<AboutCardsData | null>(
+    null,
+  );
   const [pendingPrincipleId, setPendingPrincipleId] = useState<number | null>(
     null,
   );
