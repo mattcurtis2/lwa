@@ -67,22 +67,21 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
     formData.append("file", file);
 
     try {
-      const uploadRes = await fetch("/api/upload", {
+      // Use the common S3 upload endpoint
+      const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
-      if (!uploadRes.ok) throw new Error("Failed to upload image");
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
 
-      const { url } = await uploadRes.json();
-      form.setValue("imageUrl", url, { shouldValidate: true });
+      const data = await response.json();
+      return data[0].url; // Return the first URL from the array
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
+      console.error("Upload error:", error);
+      throw error;
     }
   };
 

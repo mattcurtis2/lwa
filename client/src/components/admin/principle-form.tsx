@@ -134,9 +134,16 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
     try {
       let finalValues = { ...values };
 
+      // Ensure no base64 images are allowed to be saved
       if (values.imageUrl && values.imageUrl.startsWith('data:image')) {
-        console.log('Detected base64 image, uploading to S3 first...');
-        //this section now handled by handleCropComplete
+        console.log('Detected base64 image that was not properly uploaded to S3');
+        toast({
+          title: "Error",
+          description: "Please wait for image to finish uploading to S3",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       let response;

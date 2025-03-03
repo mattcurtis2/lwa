@@ -236,16 +236,8 @@ export default function ContentSection() {
     }
   }, [aboutCardsData]);
 
-  const handleFileUpload = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        resolve(result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  const handleFileUpload = async (file: File): Promise<string> => {
+    return uploadFileToS3(file); // Use the shared S3 upload function
   };
 
   const updateSiteContent = useMutation({
@@ -1308,7 +1300,7 @@ export default function ContentSection() {
               </CardContent>
             </Card>
 
-            
+
           </div>
         </TabsContent>
         <TabsContent value="welcome" className="space-y-6">
