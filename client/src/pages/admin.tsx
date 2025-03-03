@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/providers/auth-provider";
 import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
@@ -26,30 +25,9 @@ export default function Admin() {
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
 
-  // Use try/catch to handle potential context errors
-  let authContext;
-  try {
-    authContext = useAuth();
-  } catch (error) {
-    console.error("Auth context error:", error);
-    // Redirect to login if auth context is not available
-    useEffect(() => {
-      navigate("/login");
-    }, []);
-    return <div>Redirecting to login...</div>;
-  }
-  
-  const { logout, isLoading, isLoggedIn } = authContext;
-  
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      navigate("/login");
-    }
-  }, [isLoading, isLoggedIn, navigate]);
-  
   const handleLogout = () => {
-    logout();
+    // Add logout logic here (e.g., clear cookies, redirect)
+    console.log("Logout clicked"); // Placeholder
   };
 
   return (

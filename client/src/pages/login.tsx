@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -10,26 +11,36 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(""); // Clear any previous errors
-
+    
     try {
-      const result = await login(username, password);
-      if (result.success) {
-        // Navigate to admin panel
-        navigate("/admin");
+      const success = await login(username, password);
+      
+      if (success) {
+        toast({
+          title: "Success",
+          description: "You have been logged in successfully",
+        });
+        setLocation("/admin");
       } else {
-        setError("Invalid credentials");
+        toast({
+          title: "Error",
+          description: "Invalid credentials",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      setError("An error occurred during login");
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +70,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>} {/* Display error message */}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
