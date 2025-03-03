@@ -26,8 +26,27 @@ export default function Admin() {
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
 
-  // Import useAuth hook
-  const { logout, isLoading, isLoggedIn } = useAuth();
+  // Use try/catch to handle potential context errors
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    console.error("Auth context error:", error);
+    // Redirect to login if auth context is not available
+    useEffect(() => {
+      navigate("/login");
+    }, []);
+    return <div>Redirecting to login...</div>;
+  }
+  
+  const { logout, isLoading, isLoggedIn } = authContext;
+  
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoading, isLoggedIn, navigate]);
   
   const handleLogout = () => {
     logout();

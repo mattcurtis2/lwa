@@ -110,6 +110,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    console.error("Auth context is undefined - this component is not wrapped with AuthProvider");
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
