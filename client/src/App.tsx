@@ -20,6 +20,7 @@ import MarketSection from "@/pages/market-section";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useEffect } from "react";
+import Login from "@/pages/login";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -32,58 +33,31 @@ function ScrollToTop() {
 }
 
 function Router() {
-  const [location] = useLocation();
   return (
     <div className="min-h-screen flex flex-col">
-      {location !== '/admin' && <Header />}
       <ScrollToTop />
-      <main className="flex-grow">
+      <Header />
+      <main className="flex-1 container py-8">
         <Switch>
           <Route path="/" component={Home} />
-          {/* Dog Routes */}
-          <Route path="/dogs">
-            {() => <Dogs />}
-          </Route>
-          <Route path="/dogs/males">
-            {() => <Dogs genderFilter="male" />}
-          </Route>
-          <Route path="/dogs/females">
-            {() => <Dogs genderFilter="female" />}
-          </Route>
-          <Route path="/dogs/available">
-            {() => <Dogs showAvailable={true} />}
-          </Route>
-          <Route path="/dogs/litters/upcoming" component={UpcomingLitters} />
-          <Route path="/dogs/litters/past" component={PastLitters} />
-          <Route path="/dogs/litters/:id" component={LitterDetail} />
-          <Route path="/dogs/:id" component={DogDetail} />
-          {/* Goat Routes */}
-          <Route path="/goats">
-            {() => <Goats />}
-          </Route>
-          <Route path="/goats/males">
-            {() => <Goats genderFilter="male" />}
-          </Route>
-          <Route path="/goats/females">
-            {() => <Goats genderFilter="female" />}
-          </Route>
-          <Route path="/goats/available">
-            {() => <Goats showAvailable={true} />}
-          </Route>
-          <Route path="/goats/litters/upcoming" component={GoatUpcomingLitters} />
-          <Route path="/goats/litters/past" component={GoatPastLitters} />
-          <Route path="/goats/litters/:id" component={GoatLitterDetail} />
-          <Route path="/goats/:id" component={GoatDetail} />
-          {/* Market Routes */}
+          <Route path="/dogs" component={Dogs} />
+          <Route path="/dog/:id" component={DogDetail} />
+          <Route path="/litter/:id" component={LitterDetail} />
+          <Route path="/upcoming-litters" component={UpcomingLitters} />
+          <Route path="/past-litters" component={PastLitters} />
+          <Route path="/goats" component={Goats} />
+          <Route path="/goat/:id" component={GoatDetail} />
+          <Route path="/goat-litter/:id" component={GoatLitterDetail} />
+          <Route path="/goat-upcoming-litters" component={GoatUpcomingLitters} />
+          <Route path="/goat-past-litters" component={GoatPastLitters} />
           <Route path="/market" component={Market} />
-          <Route path="/market/bakery" component={MarketSection} />
-          <Route path="/market/market-garden" component={MarketSection} />
-          <Route path="/market/animal-products" component={MarketSection} />
+          <Route path="/market/:section" component={MarketSection} />
           <Route path="/admin" component={Admin} />
+          <Route path="/login" component={Login} />
           <Route component={NotFound} />
         </Switch>
       </main>
-      {location !== '/admin' && <Footer />}
+      <Footer />
     </div>
   );
 }
