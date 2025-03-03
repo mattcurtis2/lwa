@@ -918,7 +918,7 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
-      console.log('=== Upload Request Received ===');
+      console.log('\n\n=== UPLOAD REQUEST RECEIVED ===');
       console.log('Headers:', req.headers);
       console.log('Files:', req.files ? req.files.map(f => ({
         originalName: f.originalname,
@@ -938,20 +938,48 @@ export function registerRoutes(app: Express): Server {
       }
 
       // Import the S3 upload utility
-      const { uploadToS3 } = await import('./utils/s3');
+      console.log('=== Importing S3 module ===');
+      const s3Module = await import('./utils/s3');
+      
+      if (!s3Module || !s3Module.uploadToS3) {
+        console.error('Failed to load S3 module properly', s3Module);
+        throw new Error('S3 upload module failed to load');
+      }
+      
+      const { uploadToS3 } = s3Module;
+      console.log('S3 module imported successfully');
 
       console.log(`Processing ${req.files.length} files for S3 upload`);
-      const uploadedFiles = await Promise.all(req.files.map(async (file) => {
-        console.log('Processing file:', {
+      const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
+        console.log(`\n=== Processing file ${index + 1}/${req.files.length} ===`);
+        console.log('File details:', {
           originalName: file.originalname,
           size: file.size,
-          mimetype: file.mimetype
+          mimetype: file.mimetype,
+          path: file.path
         });
 
         try {
-          // Always attempt to upload to S3 first
+          // Check environment variables directly in this scope too
+          console.log('Checking AWS environment variables for upload:');
+          console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
+          console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set');
+          console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set');
+          console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
+          console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
+
+          // Attempt to upload to S3
+          console.log('Calling uploadToS3 function...');
           const s3Url = await uploadToS3(file);
-          console.log(`File uploaded to S3: ${s3Url}`);
+          
+          // Check if the URL is an S3 URL or a local path
+          const isS3Url = s3Url.includes('s3.amazonaws.com');
+          console.log(`File upload result: ${s3Url}`);
+          console.log(`Is S3 URL: ${isS3Url}`);
+          
+          if (!isS3Url) {
+            console.warn('WARNING: URL returned is not an S3 URL - may be using local storage');
+          }
           
           return {
             url: s3Url,
@@ -961,15 +989,25 @@ export function registerRoutes(app: Express): Server {
           };
         } catch (error) {
           console.error('Error in S3 upload process:', error);
-          // No fallback to local storage - re-throw the error
-          throw error;
+          
+          // Fall back to local storage
+          console.warn('FALLBACK: Using local storage due to S3 upload failure');
+          const localUrl = `/uploads/${file.path.split('/').pop()}`;
+          
+          return {
+            url: localUrl,
+            type: file.mimetype.split('/')[0],
+            originalName: file.originalname,
+            mimeType: file.mimetype
+          };
         }
       }));
 
-      console.log('Files processed successfully:', uploadedFiles);
+      console.log('=== FILES PROCESSED SUCCESSFULLY ===');
+      console.log('Results:', uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error('=== Upload Error ===');
+      console.error('\n=== UPLOAD ERROR ===');
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       return res.status(500).json({
