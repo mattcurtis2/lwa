@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
 import path from 'path';
-import { randomUUID } from "crypto";
+import { randomUUID as uuidv4 } from "crypto";
 import dotenv from 'dotenv';
 import { sleep } from '../helpers';
 
@@ -91,22 +91,27 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     // Generate a unique key for the file to avoid overwriting existing files
     const fileExtension = path.extname(file.originalname);
-    const key = `${randomUUID()}${fileExtension}`;
+    const objectKey = `${uuidv4()}${fileExtension}`;
 
-    // Prepare the S3 upload parameters
+    // Configure S3 params - adding ContentDisposition to make browser display the file
+    // instead of downloading it for images
+    const isImage = file.mimetype.startsWith('image/');
     const params = {
       Bucket: bucketName,
-      Key: key,
+      Key: objectKey,
       Body: fileData,
       ContentType: file.mimetype,
-      //ACL: 'public-read', // Removed ACL setting
+      ContentLength: fileData.length,
+      ContentDisposition: isImage ? 'inline' : 'attachment',
+      CacheControl: 'max-age=31536000',
     };
 
     console.log('S3 Upload - Params prepared:', {
       Bucket: bucketName,
-      Key: key,
+      Key: objectKey,
       ContentType: file.mimetype,
-      ContentLength: fileData.length
+      ContentLength: fileData.length,
+      ContentDisposition: params.ContentDisposition
     });
 
     console.log('S3 Upload - Sending file to S3...');
@@ -117,15 +122,11 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     console.log('S3 Upload - Success! Response:', response);
 
-    // Skip setting ACL since the bucket has ACLs disabled
-    // This is common for buckets with "Bucket owner enforced" object ownership
-    console.log('S3 Upload - Skipping ACL setting (bucket has ACLs disabled)');
-
-    // Construct the S3 URL - Use path-style URL instead of virtual-hosted style
-    // This is more compatible with certain S3 configurations
-    const s3Url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${bucketName}/${key}`;
-    console.log(`S3 Upload - Generated URL: ${s3Url}`);
-
+    // Instead of using ACL, make the file public via the correct URL format 
+    // Format: https://[bucketname].s3.[region].amazonaws.com/[key]
+    const region = process.env.AWS_REGION || 'us-east-2';
+    const s3Url = `https://${bucketName}.s3.${region}.amazonaws.com/${objectKey}`;
+    console.log(`S3 upload successful: ${s3Url}`);
     return s3Url;
   } catch (error) {
     console.error('S3 Upload - Error during upload:', error);
