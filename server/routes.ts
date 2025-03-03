@@ -1284,42 +1284,75 @@ export function registerRoutes(app: Express): Server {
       
       let finalImageUrl = imageUrl;
       
-      // Check if the image URL is a local path (not an S3 URL)
-      if (finalImageUrl && finalImageUrl.startsWith('/uploads/')) {
+      // Check if the image URL is a local path (not an S3 URL) or base64 data
+      if ((finalImageUrl && finalImageUrl.startsWith('/uploads/')) || 
+          (finalImageUrl && finalImageUrl.startsWith('data:image'))) {
+        
         try {
-          console.log(`Migrating principle image to S3: ${finalImageUrl}`);
+          console.log(`Processing principle image for S3: ${finalImageUrl.substring(0, 50)}...`);
           
           // Import S3 utility
           const { uploadToS3 } = await import('./utils/s3.js');
           
-          // Create a file object from the local file
-          const filePath = path.join(process.cwd(), finalImageUrl.substring(1));
-          if (fs.existsSync(filePath)) {
-            const fileData = fs.readFileSync(filePath);
-            const file = {
-              originalname: path.basename(filePath),
-              path: filePath,
-              mimetype: path.extname(filePath).toLowerCase() === '.pdf' 
-                ? 'application/pdf'
-                : 'image/jpeg',
-              size: fileData.length
+          if (finalImageUrl.startsWith('data:image')) {
+            // Handle base64 image data
+            const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            
+            if (!matches || matches.length !== 3) {
+              throw new Error('Invalid base64 image format');
+            }
+            
+            const mimetype = matches[1];
+            const base64Data = matches[2];
+            console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
+            
+            // Create a buffer from the base64 data
+            const imageBuffer = Buffer.from(base64Data, 'base64');
+            
+            // Create a mock file object that uploadToS3 can handle
+            const filename = `principle-${id}-${Date.now()}.jpg`;
+            const mockFile = {
+              buffer: imageBuffer,
+              mimetype: mimetype || 'image/jpeg',
+              originalname: filename
             };
             
             // Upload to S3
-            const s3Url = await uploadToS3(file);
+            const s3Url = await uploadToS3(mockFile);
             if (s3Url) {
-              console.log(`Successfully migrated principle image to S3: ${s3Url}`);
+              console.log(`Successfully uploaded principle base64 image to S3: ${s3Url}`);
               finalImageUrl = s3Url;
-              
-              // Optionally remove the local file
-              // fs.unlinkSync(filePath);
             }
           } else {
-            console.log(`Local file not found: ${filePath}`);
+            // Handle local file path
+            const filePath = path.join(process.cwd(), finalImageUrl.substring(1));
+            if (fs.existsSync(filePath)) {
+              const fileData = fs.readFileSync(filePath);
+              const file = {
+                originalname: path.basename(filePath),
+                path: filePath,
+                mimetype: path.extname(filePath).toLowerCase() === '.pdf' 
+                  ? 'application/pdf'
+                  : 'image/jpeg',
+                size: fileData.length
+              };
+              
+              // Upload to S3
+              const s3Url = await uploadToS3(file);
+              if (s3Url) {
+                console.log(`Successfully migrated principle image to S3: ${s3Url}`);
+                finalImageUrl = s3Url;
+                
+                // Optionally remove the local file
+                // fs.unlinkSync(filePath);
+              }
+            } else {
+              console.log(`Local file not found: ${filePath}`);
+            }
           }
         } catch (error) {
-          console.error("Error migrating principle image to S3:", error);
-          // Continue with the update even if migration fails
+          console.error("Error processing principle image for S3:", error);
+          // Continue with the update even if S3 upload fails
         }
       }
 
