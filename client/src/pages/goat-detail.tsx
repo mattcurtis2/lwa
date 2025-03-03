@@ -39,18 +39,18 @@ export default function GoatDetail() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <GoatCard goat={goat} />
-          
+
           <Tabs defaultValue="info" className="mt-8">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="info">Information</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="info">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">About {goat.name}</h3>
                 <p className="text-muted-foreground">{goat.description}</p>
-                
+
                 {goat.birthDate && (
                   <div>
                     <h4 className="font-medium">Birth Date</h4>
@@ -59,14 +59,14 @@ export default function GoatDetail() {
                     </p>
                   </div>
                 )}
-                
+
                 {goat.breed && (
                   <div>
                     <h4 className="font-medium">Breed</h4>
                     <p className="text-muted-foreground">{goat.breed}</p>
                   </div>
                 )}
-                
+
                 {goat.color && (
                   <div>
                     <h4 className="font-medium">Color</h4>
@@ -75,7 +75,7 @@ export default function GoatDetail() {
                 )}
               </div>
             </TabsContent>
-            
+
             <TabsContent value="media">
               <ScrollArea className="h-[400px] rounded-md border p-4">
                 {goat.media?.length ? (
