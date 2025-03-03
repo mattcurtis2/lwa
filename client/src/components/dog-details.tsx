@@ -42,20 +42,20 @@ function DocumentLink({ document, onRemove }: { document: Document; onRemove?: (
 
   return (
     <div className="mt-2 w-full">
-      <div className="flex flex-col overflow-hidden">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex overflow-hidden text-primary">
+      <div className="border rounded-lg p-3 overflow-hidden">
+        <div className="flex w-full items-center">
+          <div className="flex flex-1 min-w-0 overflow-hidden text-primary">
             <button
               type="button"
               onClick={() => setPreviewOpen(true)}
-              className="flex items-center overflow-hidden mr-2"
+              className="flex items-center mr-2 max-w-full"
             >
-              <div className="mr-2">{getIcon()}</div>
-              <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="mr-2 flex-shrink-0">{getIcon()}</div>
+              <div className="truncate">
                 {document.name || url.split('/').pop()}
               </div>
             </button>
-            {onRemove && <Button variant="ghost" size="sm" className="text-sm" onClick={() => onRemove?.(document)}>
+            {onRemove && <Button variant="ghost" size="sm" className="text-sm ml-auto flex-shrink-0" onClick={() => onRemove?.(document)}>
               <Trash2 className="h-4 w-4 mr-1" />
               Remove
             </Button>}
