@@ -259,9 +259,16 @@ app.put("/api/principles/:id", async (req, res) => {
           // Use async import to ensure we get the latest version of the module
           const { uploadToS3 } = await import('../utils/s3.js');
           
-          // Extract the base64 data (remove data:image/jpeg;base64, prefix)
-          const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, '');
-          console.log(`Extracted base64 data (length: ${base64Data.length})`);
+          // Extract the base64 data and determine mimetype
+          const matches = imageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          
+          if (!matches || matches.length !== 3) {
+            throw new Error('Invalid base64 image format');
+          }
+          
+          const mimetype = matches[1];
+          const base64Data = matches[2];
+          console.log(`Extracted base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
           
           // Create a buffer from the base64 data
           const imageBuffer = Buffer.from(base64Data, 'base64');
@@ -271,7 +278,7 @@ app.put("/api/principles/:id", async (req, res) => {
           const filename = `principle-${id}-${Date.now()}.jpg`;
           const mockFile = {
             buffer: imageBuffer,
-            mimetype: 'image/jpeg',
+            mimetype: mimetype || 'image/jpeg',
             originalname: filename
           };
           console.log(`Created mock file object with name: ${filename}`);
@@ -314,3 +321,43 @@ app.put("/api/principles/:id", async (req, res) => {
       res.status(500).json({ error: "Failed to update principle" });
     }
   });
+
+// Handle direct principle image uploads (for troubleshooting)
+app.post('/api/principles/upload-image', upload.single('file'), async (req, res) => {
+  try {
+    console.log('=== PRINCIPLE IMAGE UPLOAD ENDPOINT ===');
+    // Get the uploaded file
+    const file = req.file;
+    if (!file) {
+      console.error('No file uploaded to principle upload endpoint');
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    console.log(`Received file: ${file.originalname}, size: ${file.size}, type: ${file.mimetype}`);
+
+    // Upload to S3
+    const { uploadToS3 } = await import('../utils/s3.js');
+    console.log('Calling uploadToS3 for principle image...');
+    const s3Url = await uploadToS3(file);
+
+    if (!s3Url) {
+      console.error('S3 upload failed for principle image - No URL returned');
+      throw new Error('Failed to upload to S3');
+    }
+
+    console.log(`Principle image uploaded to S3: ${s3Url}`);
+
+    // Return the S3 URL
+    res.json({ 
+      url: s3Url,
+      size: file.size
+    });
+  } catch (error) {
+    console.error('Error uploading principle image:', error);
+    res.status(500).json({ 
+      error: 'Failed to upload principle image', 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});

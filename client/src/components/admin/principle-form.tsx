@@ -59,34 +59,45 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
       if (values.imageUrl && values.imageUrl.startsWith('data:image')) {
         console.log('Detected base64 image, uploading to S3 first...');
 
-        // Create a FormData object to send the image
-        const formData = new FormData();
+        try {
+          // Create a FormData object to send the image
+          const formData = new FormData();
 
-        // Convert base64 to a blob
-        const base64Response = await fetch(values.imageUrl);
-        const blob = await base64Response.blob();
+          // Convert base64 to a blob
+          const base64Response = await fetch(values.imageUrl);
+          const blob = await base64Response.blob();
 
-        // Append the file to the form data
-        const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
-        formData.append('file', blob, filename);
+          // Append the file to the form data
+          const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
+          formData.append('file', blob, filename);
 
-        // Upload the image to S3
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+          // Upload the image to S3 using the specific endpoint for principles
+          console.log('Uploading principle image to S3...');
+          const uploadResponse = await fetch('/api/principles/upload-image', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json();
-          throw new Error(`Failed to upload image: ${errorData.error || 'Unknown error'}`);
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(`Failed to upload image: ${errorData.error || 'Unknown error'}`);
+          }
+
+          // Get the S3 URL from the response
+          const uploadData = await uploadResponse.json();
+          console.log('S3 upload successful:', uploadData.url);
+
+          // Update the imageUrl with the S3 URL
+          finalValues.imageUrl = uploadData.url;
+        } catch (error) {
+          console.error('Error during S3 upload:', error);
+          toast({
+            title: 'Image upload failed',
+            description: `Error uploading image to S3: ${error.message}`,
+            variant: 'destructive',
+          });
+          throw error;
         }
-
-        // Get the S3 URL from the response
-        const uploadData = await uploadResponse.json();
-        console.log('S3 upload successful:', uploadData.url);
-
-        // Update the imageUrl with the S3 URL
-        finalValues.imageUrl = uploadData.url;
       }
 
       let response;
