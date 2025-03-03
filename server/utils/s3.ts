@@ -12,7 +12,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   console.log('==== S3 UPLOAD ATTEMPT ====');
   console.log('AWS Credentials Check:');
   console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
-  console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set');
+  console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set (starts with: ' + process.env.AWS_ACCESS_KEY_ID?.substring(0, 4) + '...)' : 'Not set');
   console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + (process.env.AWS_SECRET_ACCESS_KEY?.length || 0) + ')' : 'Not set');
   console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
   console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
@@ -31,41 +31,23 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   }
 
   try {
-    // Create a unique key for the S3 object
-    const fileExt = path.extname(file.originalname);
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 12);
-    const key = `uploads/${timestamp}-${randomString}${fileExt}`;
+    console.log(`S3 Upload - Processing file: ${file.originalname}`);
 
-    console.log(`S3 Upload - Creating S3 client with region: ${process.env.AWS_REGION}`);
-    console.log(`S3 Upload - Target bucket: ${bucketName}`);
-    console.log(`S3 Upload - File: ${file.originalname} (${file.size} bytes)`);
-    console.log(`S3 Upload - Target key: ${key}`);
-
-    // Create S3 client
+    // Initialize the S3 client
     const s3Client = new S3Client({
       region: process.env.AWS_REGION,
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      }
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
     });
 
-    // Prepare file data for upload
-    let fileData: Buffer;
+    // Read the file data
+    const fileData = await fs.readFile(file.path);
 
-    // If file.buffer exists, use it directly (memory storage)
-    if (file.buffer) {
-      fileData = file.buffer;
-      console.log('S3 Upload - Using file buffer for upload');
-    } else if (file.path) {
-      // Otherwise read from the file path (disk storage)
-      fileData = fs.readFileSync(file.path);
-      console.log(`S3 Upload - Reading file from disk: ${file.path}`);
-    } else {
-      console.error("S3 Upload - Error: No file data available");
-      throw new Error('No file data available');
-    }
+    // Generate a unique key for the file to avoid overwriting existing files
+    const fileExtension = path.extname(file.originalname);
+    const key = `${randomUUID()}${fileExtension}`;
 
     // Prepare the S3 upload parameters
     const params = {
@@ -75,7 +57,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       ContentType: file.mimetype,
       ACL: 'public-read', // Make the file publicly accessible
     };
-    
+
     console.log('S3 Upload - Params prepared:', {
       Bucket: bucketName,
       Key: key,
