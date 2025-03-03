@@ -937,8 +937,8 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      // Import the S3 upload utility - using ES module import
-      import { uploadToS3 } from './utils/s3.js';
+      // Import the S3 upload utility dynamically
+      const { uploadToS3 } = await import('./utils/s3.js');
       
       console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
