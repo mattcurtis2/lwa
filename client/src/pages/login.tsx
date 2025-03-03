@@ -1,37 +1,31 @@
+
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/providers/auth-provider";
-import { useNavigate } from "react-router-dom";
 
-
-export default function LoginPage() {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const success = await login(username, password);
 
-      if (response.ok) {
+      if (success) {
         toast({
           title: "Success",
-          description: "Logged in successfully",
+          description: "You have been logged in successfully",
         });
         // Redirect to admin page after successful login
         navigate("/admin");
@@ -54,30 +48,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-14rem)]">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-stone-50">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Enter your credentials to access the admin area</CardDescription>
+          <CardTitle>Admin Login</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
               <Input
                 type="text"
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required
               />
             </div>
-            <div className="space-y-2">
+            <div>
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
