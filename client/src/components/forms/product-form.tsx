@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
+import { ImageCrop } from "@/components/ui/image-crop";
 import {
   Form,
   FormControl,
@@ -263,8 +264,8 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
+              <Select
+                onValueChange={field.onChange}
                 value={field.value}
               >
                 <FormControl>
@@ -304,7 +305,7 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   {...field}
                   placeholder="$0.00"
                   value={field.value || ""}
