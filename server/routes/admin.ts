@@ -33,22 +33,22 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
   try {
     console.log('==== PROCESSING PRINCIPLE IMAGE UPLOAD (BASE64) ====');
     const { base64Image } = req.body;
-    
+
     if (!base64Image) {
       console.error('No base64 image provided in request body');
       return res.status(400).json({ error: 'No base64 image provided' });
     }
-    
+
     console.log(`Received base64 image (length: ${base64Image.length}, starts with: ${base64Image.substring(0, 30)}...)`);
-    
+
     // Extract the base64 data (remove data:image/jpeg;base64, prefix)
     const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
     console.log(`Extracted base64 data (length: ${base64Data.length})`);
-    
+
     // Create a buffer from the base64 data
     const imageBuffer = Buffer.from(base64Data, 'base64');
     console.log(`Created buffer from base64 data (size: ${imageBuffer.length} bytes)`);
-    
+
     // Create a mock file object that uploadToS3 can handle
     const filename = `principle-${Date.now()}.jpg`;
     const mockFile = {
@@ -57,25 +57,25 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
       originalname: filename
     };
     console.log(`Created mock file object with name: ${filename}`);
-    
+
     // Import and call the S3 upload function
     console.log('Importing S3 utility...');
     const { uploadToS3 } = await import('../utils/s3.js');
     console.log('Calling uploadToS3...');
     const s3Url = await uploadToS3(mockFile);
-    
+
     if (!s3Url) {
       console.error('S3 upload failed: No URL returned');
       throw new Error('Failed to upload base64 image to S3 - No URL returned');
     }
-    
+
     if (!s3Url.includes('s3.amazonaws.com') && !s3Url.includes('amazonaws.com')) {
       console.error(`S3 upload returned invalid URL: ${s3Url}`);
       throw new Error(`Invalid S3 URL returned: ${s3Url}`);
     }
-    
+
     console.log(`Principle base64 image uploaded to S3 successfully: ${s3Url}`);
-    
+
     // Return the S3 URL
     res.json({
       url: s3Url,
@@ -90,7 +90,7 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
     if (error.hostname) console.error(`Hostname: ${error.hostname}`);
     if (error.time) console.error(`Time: ${error.time}`);
     if (error.stack) console.error(`Stack: ${error.stack}`);
-    
+
     res.status(500).json({ 
       error: 'Failed to upload image', 
       details: error.message,
@@ -185,7 +185,7 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
 app.get('/api/admin/test-s3-connection', async (req, res) => {
   try {
     console.log('Testing S3 connection...');
-    
+
     // Check environment variables
     const envCheck = {
       AWS_REGION: process.env.AWS_REGION ? 'Set' : 'Not set',
@@ -194,9 +194,9 @@ app.get('/api/admin/test-s3-connection', async (req, res) => {
       AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME || 'Not set',
       S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || 'Not set'
     };
-    
+
     const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-    
+
     if (!bucketName) {
       return res.status(500).json({
         success: false,
@@ -204,7 +204,7 @@ app.get('/api/admin/test-s3-connection', async (req, res) => {
         envCheck
       });
     }
-    
+
     // Initialize S3 client
     const { S3Client, ListObjectsCommand } = await import('@aws-sdk/client-s3');
     const s3Client = new S3Client({
@@ -214,15 +214,15 @@ app.get('/api/admin/test-s3-connection', async (req, res) => {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
     });
-    
+
     // Test connection by listing objects (max 1)
     const command = new ListObjectsCommand({
       Bucket: bucketName,
       MaxKeys: 1
     });
-    
+
     const response = await s3Client.send(command);
-    
+
     res.json({
       success: true,
       message: 'S3 connection successful',
@@ -242,3 +242,46 @@ app.get('/api/admin/test-s3-connection', async (req, res) => {
     });
   }
 });
+
+// Update principle
+app.put("/api/principles/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, imageUrl } = req.body;
+
+      console.log(`Updating principle ${id} with image: ${imageUrl?.substring(0, 100)}...`);
+
+      // Check if image is a base64 string that needs to be uploaded to S3
+      let finalImageUrl = imageUrl;
+      if (imageUrl && imageUrl.startsWith('data:image')) {
+        console.log(`Principle ${id} has a base64 image that needs to be uploaded to S3`);
+        try {
+          const { uploadBase64ToS3 } = require('../utils/s3');
+          const s3Url = await uploadBase64ToS3(imageUrl, `principle-${id}-${Date.now()}.jpg`);
+          console.log(`Uploaded principle image to S3: ${s3Url}`);
+          finalImageUrl = s3Url;
+        } catch (uploadError) {
+          console.error(`Failed to upload principle image to S3:`, uploadError);
+          // Will continue with original image URL if S3 upload fails
+        }
+      } else {
+        console.log(`Principle ${id} image is already a URL or empty: ${finalImageUrl?.substring(0, 50)}...`);
+      }
+
+      // Update principle
+      await db
+        .update(principles)
+        .set({
+          title,
+          description,
+          imageUrl: finalImageUrl,
+          updatedAt: new Date(),
+        })
+        .where(eq(principles.id, parseInt(id)));
+
+      res.json({ success: true, imageUrl: finalImageUrl });
+    } catch (error) {
+      console.error("Error updating principle:", error);
+      res.status(500).json({ error: "Failed to update principle" });
+    }
+  });

@@ -1,5 +1,5 @@
-import { S3Client, PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { randomUUID } from "crypto";
+import { S3Client, PutObjectCommand, PutBucketCorsCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID, v4 as uuidv4 } from "crypto";
 import fs from "fs";
 import path from "path";
 
@@ -14,153 +14,160 @@ const configureCors = async (s3, bucketName) => {
 
 async function uploadToS3(file) {
   try {
-    // Check that we have the AWS credentials
     console.log('==== S3 UPLOAD ATTEMPT ====');
-    console.log('AWS Credentials Check:');
-    console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
-    console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
-    console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-    console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? `Set (${process.env.AWS_BUCKET_NAME})` : 'Not set'}`);
-    console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? `Set (${process.env.S3_BUCKET_NAME})` : 'Not set'}`);
+    // Check AWS credentials
+    const AWS_REGION = process.env.AWS_REGION;
+    const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+    const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
 
-    const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-    if (!bucketName) {
-      console.error('S3 bucket name not configured in environment variables');
-      throw new Error('S3 bucket name not configured');
+    console.log('AWS Credentials Check:');
+    console.log(`- AWS_REGION: ${AWS_REGION ? 'Set' : 'Not set'}`);
+    console.log(`- AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
+    console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+    console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
+    console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+
+    if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !BUCKET_NAME) {
+      console.error('AWS credentials missing: ', {
+        AWS_REGION_MISSING: !AWS_REGION,
+        AWS_ACCESS_KEY_ID_MISSING: !AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY_MISSING: !AWS_SECRET_ACCESS_KEY,
+        BUCKET_NAME_MISSING: !BUCKET_NAME
+      });
+      throw new Error('Missing AWS credentials or bucket name');
     }
 
-    console.log(`Using S3 bucket: ${bucketName}`);
-    console.log(`Initializing S3 client with region: ${process.env.AWS_REGION}`);
+    // Create a unique filename to prevent overwriting
+    const fileExtension = path.extname(file.originalname || 'unknown.jpg').toLowerCase();
+    const sanitizedName = (file.originalname || '').replace(/[^a-zA-Z0-9]/g, '-').substring(0, 30);
+    const filename = `${uuidv4()}-${sanitizedName}${fileExtension}`;
 
-    const s3Client = new S3Client({
-      region: process.env.AWS_REGION,
+    console.log(`S3 Upload - Processing file: ${file.originalname || 'unnamed'}, size: ${file.size || 'unknown'} bytes`);
+
+    // Configure AWS SDK
+    const s3 = new S3Client({
+      region: AWS_REGION,
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY
+      }
     });
 
-    // Generate a unique filename
-    const randomId = randomUUID();
-    let fileExtension = path.extname(file.originalname || '');
-    if (!fileExtension && file.mimetype) {
-      const mimeToExt = {
-        'image/jpeg': '.jpg',
-        'image/png': '.png',
-        'image/gif': '.gif',
-        'application/pdf': '.pdf',
-        'text/plain': '.txt',
-      };
-      fileExtension = mimeToExt[file.mimetype] || '';
-    }
-
-    const key = `${randomId}${fileExtension}`;
-    console.log(`S3 Upload - Processing file: ${file.originalname || 'unnamed'} (${file.mimetype || 'unknown type'})`);
-    console.log(`Generated key for S3: ${key}`);
-
-    // Ensure CORS is set up on the bucket
+    // Check CORS configuration of the bucket
     try {
-      await configureCors(s3Client, bucketName);
+      console.log('Checking S3 bucket CORS configuration...');
+
+      await s3.send(new PutBucketCorsCommand({
+        Bucket: BUCKET_NAME,
+        CORSConfiguration: {
+          CORSRules: [
+            {
+              AllowedHeaders: ['*'],
+              AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+              AllowedOrigins: ['*'],
+              ExposeHeaders: ['ETag'],
+              MaxAgeSeconds: 3000
+            }
+          ]
+        }
+      }));
+
+      console.log('CORS configuration set successfully');
     } catch (corsError) {
-      console.warn(`Warning: CORS configuration failed, but continuing with upload: ${corsError.message}`);
+      console.warn('Could not set CORS configuration:', corsError.message);
+      // Continue despite CORS error - not critical
     }
 
-    // Get content type and file content
-    let contentType = file.mimetype || 'application/octet-stream';
-    let fileContent;
-    let contentLength = 0;
+    // Get the content type
+    const contentType = file.mimetype || 'application/octet-stream';
 
-    console.log(`Processing file content. File has path: ${!!file.path}, File has buffer: ${!!file.buffer}`);
-
-    if (file.path) {
-      // File is on disk
-      console.log(`Reading file from disk: ${file.path}`);
-      fileContent = fs.readFileSync(file.path);
-      contentLength = fileContent.length;
-      console.log(`File read successfully, size: ${contentLength} bytes`);
-    } else if (file.buffer) {
-      // File is in memory
-      console.log(`Using buffer from memory, size: ${file.buffer.length} bytes`);
-      fileContent = file.buffer;
-      contentLength = file.buffer.length;
+    // Make sure we have a buffer to upload
+    let fileBuffer;
+    if (file.buffer) {
+      fileBuffer = file.buffer;
+    } else if (file.path) {
+      fileBuffer = fs.readFileSync(file.path);
     } else {
-      console.error('File has neither path nor buffer');
-      throw new Error('File has no path or buffer');
+      throw new Error('No file buffer or path provided for S3 upload');
     }
 
-    if (contentLength === 0) {
-      console.error('File content is empty');
-      throw new Error('Cannot upload empty file');
-    }
+    // Log buffer size to confirm we have data
+    console.log(`File buffer size: ${fileBuffer.length} bytes`);
 
-    // Upload parameters
-    const params = {
-      Bucket: bucketName,
-      Key: key,
-      Body: fileContent,
+    // Set upload parameters
+    const uploadParams = {
+      Bucket: BUCKET_NAME,
+      Key: filename,
+      Body: fileBuffer,
       ContentType: contentType,
-      ContentLength: contentLength,
       ContentDisposition: 'inline'
     };
 
-    console.log('S3 Upload - Params prepared:', JSON.stringify({
-      Bucket: params.Bucket,
-      Key: params.Key,
-      ContentType: params.ContentType,
-      ContentLength: params.ContentLength,
-      ContentDisposition: params.ContentDisposition
-    }, null, 2));
+    if (file.size) {
+      uploadParams.ContentLength = file.size;
+    }
 
+    console.log('S3 Upload - Params prepared:', uploadParams);
+
+    // Upload to S3
     console.log('S3 Upload - Sending file to S3...');
+    const uploadResult = await s3.send(new PutObjectCommand(uploadParams));
+    console.log('S3 Upload - Success! Response:', uploadResult);
 
-    // Upload the file
-    const command = new PutObjectCommand(params);
-    let response;
-    try {
-      response = await s3Client.send(command);
-      console.log('S3 Upload - Success! Response:', JSON.stringify(response, null, 2));
-    } catch (uploadError) {
-      console.error('S3 Upload - Error during S3 client.send:', uploadError);
-      console.error('Upload error details:', JSON.stringify({
-        code: uploadError.code,
-        message: uploadError.message,
-        region: uploadError.$metadata?.region || process.env.AWS_REGION,
-        requestId: uploadError.$metadata?.requestId,
-        extendedRequestId: uploadError.$metadata?.extendedRequestId,
-        statusCode: uploadError.$metadata?.httpStatusCode
-      }, null, 2));
-      throw uploadError;
-    }
+    // Construct the URL
+    const s3Url = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${filename}`;
+    console.log(`S3 upload successful: ${s3Url}`);
+    console.log(`Alternative URL (path-style): https://s3.${AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${filename}`);
 
-    // Generate the URL
-    const objectUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-    const pathStyleUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${bucketName}/${key}`;
-
-    console.log(`S3 upload successful: ${objectUrl}`);
-    console.log(`Alternative URL (path-style): ${pathStyleUrl}`);
-
-    // Verify the URL is accessible
-    try {
-      const headCommand = new HeadObjectCommand({
-        Bucket: bucketName,
-        Key: key
-      });
-      await s3Client.send(headCommand);
-      console.log(`S3 object verification successful, object exists`);
-    } catch (verifyError) {
-      console.warn(`Warning: Couldn't verify object exists: ${verifyError.message}`);
-      // Continue anyway since the upload appeared successful
-    }
-
-    // Return the virtual-hosted style URL
-    return objectUrl;
+    return s3Url;
   } catch (error) {
-    console.error('S3 Upload - Error during upload process:', error);
-    if (error.code) console.error(`AWS Error Code: ${error.code}`);
-    if (error.$metadata) console.error(`AWS Metadata: ${JSON.stringify(error.$metadata)}`);
-    if (error.stack) console.error(`Error Stack: ${error.stack}`);
+    console.error('S3 Upload - Error during upload:', error);
+    console.error('Error details:', error.message);
+    if (error.stack) console.error('Stack trace:', error.stack);
     throw error;
   }
 }
 
-export {uploadToS3};
+// Upload a base64 encoded image to S3
+async function uploadBase64ToS3(base64Data, fileName) {
+  try {
+    console.log('Starting base64 to S3 upload process...');
+
+    // Extract the MIME type and binary data
+    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+    if (!matches || matches.length !== 3) {
+      console.error('Invalid base64 data URL format');
+      throw new Error('Invalid base64 data URL format');
+    }
+
+    const type = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    console.log(`Processing base64 image: ${type}, size: ${buffer.length} bytes`);
+
+    const extension = type.split('/')[1] || 'jpeg';
+    const generatedFileName = fileName || `image-${Date.now()}.${extension}`;
+
+    // Create a mock file object for the uploadToS3 function
+    const mockFile = {
+      buffer,
+      originalname: generatedFileName,
+      mimetype: type,
+      size: buffer.length
+    };
+
+    console.log(`Created mock file for S3 upload: ${generatedFileName} (${type})`);
+
+    const uploadResult = await uploadToS3(mockFile);
+    console.log(`Base64 image successfully uploaded to S3: ${uploadResult}`);
+
+    return uploadResult;
+  } catch (error) {
+    console.error('Error uploading base64 to S3:', error);
+    throw error;
+  }
+}
+
+export {uploadToS3, uploadBase64ToS3};

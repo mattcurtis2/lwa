@@ -48,3 +48,83 @@ const handleCropComplete = useCallback(async () => {
       // Instead, let the user know there was an error
     }
   }, [completedCrop, onCropComplete]);
+
+// Apply the crop to the image
+  const applyCrop = useCallback(async () => {
+    if (!completedCrop || !imgRef.current) return;
+
+    console.log("Applying crop with URL:", imageRef.current);
+
+    const canvas = document.createElement('canvas');
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      console.error('No 2d context');
+      return;
+    }
+
+    canvas.width = completedCrop.width;
+    canvas.height = completedCrop.height;
+
+    ctx.drawImage(
+      imgRef.current,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height
+    );
+
+    // Convert to blob for upload instead of using data URL directly
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        console.error('Failed to create blob from canvas');
+        return;
+      }
+
+      try {
+        console.log("Uploading cropped image to S3...");
+
+        // Create a file from the blob for upload
+        const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+
+        // Upload directly to S3 through our API
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Use the S3 URL from the response
+        if (data && data.url) {
+          console.log("Image uploaded to S3:", data.url);
+          imageRef.current = data.url;
+          onCropComplete && onCropComplete(data.url);
+        } else {
+          throw new Error('Invalid upload response - no URL returned');
+        }
+      } catch (error) {
+        console.error("Failed to upload cropped image to S3:", error);
+        // Fall back to data URL only if S3 upload fails
+        const base64 = canvas.toDataURL('image/jpeg');
+        imageRef.current = base64;
+        onCropComplete && onCropComplete(base64);
+      } finally {
+        onClose && onClose();
+      }
+    }, 'image/jpeg', 0.95);
+  }, [completedCrop, onCropComplete, onClose]);
