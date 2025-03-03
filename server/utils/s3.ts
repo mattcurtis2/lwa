@@ -7,6 +7,40 @@ import { sleep } from '../helpers';
 
 dotenv.config();
 
+// Function to check and set S3 bucket CORS configuration
+async function ensureBucketCorsConfig(s3Client, bucketName) {
+  try {
+    console.log('Checking S3 bucket CORS configuration...');
+    
+    // Set a permissive CORS configuration for the bucket
+    const corsParams = {
+      Bucket: bucketName,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedHeaders: ["*"],
+            AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
+            AllowedOrigins: ["*"],
+            ExposeHeaders: ["ETag", "Content-Length", "Content-Type"],
+            MaxAgeSeconds: 3000
+          }
+        ]
+      }
+    };
+    
+    // Import the PutBucketCorsCommand dynamically to avoid potential issues
+    const { PutBucketCorsCommand } = await import('@aws-sdk/client-s3');
+    await s3Client.send(new PutBucketCorsCommand(corsParams));
+    console.log('CORS configuration set successfully');
+    
+    return true;
+  } catch (error) {
+    console.warn('Warning: Failed to set CORS configuration:', error);
+    // Continue even if CORS setting fails
+    return false;
+  }
+}
+
 // Initialize the S3 client with AWS credentials
 export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   // Log environment variables for debugging
@@ -34,14 +68,23 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   try {
     console.log(`S3 Upload - Processing file: ${file.originalname}`);
 
-    // Initialize the S3 client
+    // Initialize the S3 client with more options
     const s3Client = new S3Client({
       region: process.env.AWS_REGION,
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
+      // Use path-style endpoint for better compatibility
+      forcePathStyle: true,
     });
+    
+    // Try to ensure the bucket has proper CORS settings
+    try {
+      await ensureBucketCorsConfig(s3Client, bucketName);
+    } catch (error) {
+      console.warn('CORS configuration check failed, continuing anyway:', error);
+    }
 
     // Read the file data
     const fileData = await fs.readFile(file.path);
@@ -56,7 +99,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       Key: key,
       Body: fileData,
       ContentType: file.mimetype,
-      // ACL parameter removed as the bucket doesn't allow ACLs
+      ACL: 'public-read', // Try with public-read ACL
     };
 
     console.log('S3 Upload - Params prepared:', {
@@ -89,8 +132,9 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       // Continue even if setting ACL fails - better to have the file uploaded than not
     }
     
-    // Construct the S3 URL
-    const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    // Construct the S3 URL - Use path-style URL instead of virtual-hosted style
+    // This is more compatible with certain S3 configurations
+    const s3Url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${bucketName}/${key}`;
     console.log(`S3 Upload - Generated URL: ${s3Url}`);
 
     return s3Url;

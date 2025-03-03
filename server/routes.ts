@@ -88,6 +88,98 @@ export function registerRoutes(app: Express): Server {
       { key: "about_title", value: "About Our Farm", type: "text" },
       { key: "mission_text", value: "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community.", type: "text" },
       // Animals Card
+
+  // Add S3 test route to check connectivity and permissions
+  app.get("/api/s3-test", async (req, res) => {
+    try {
+      // Import required AWS SDK modules
+      const { S3Client, ListObjectsCommand, GetObjectCommand } = await import('@aws-sdk/client-s3');
+      
+      // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
+      const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+      
+      if (!bucketName) {
+        return res.status(500).json({ 
+          error: true, 
+          message: "No bucket name configured" 
+        });
+      }
+      
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        },
+        forcePathStyle: true,
+      });
+      
+      console.log('Attempting to list objects in bucket:', bucketName);
+      
+      // Try to list objects in the bucket
+      const listCommand = new ListObjectsCommand({
+        Bucket: bucketName,
+        MaxKeys: 5 // Just get a few objects
+      });
+      
+      const listResponse = await s3Client.send(listCommand);
+      
+      // Check if we have any objects in the bucket
+      if (listResponse.Contents && listResponse.Contents.length > 0) {
+        // Try to get the first object to verify read access
+        const firstObject = listResponse.Contents[0];
+        
+        const getCommand = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: firstObject.Key
+        });
+        
+        try {
+          await s3Client.send(getCommand);
+          
+          // Generate both URL styles for comparison
+          const virtualHostUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${firstObject.Key}`;
+          const pathStyleUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${bucketName}/${firstObject.Key}`;
+          
+          return res.json({
+            success: true,
+            message: "S3 bucket access verified",
+            bucketName,
+            region: process.env.AWS_REGION,
+            objectCount: listResponse.Contents.length,
+            sampleObject: {
+              key: firstObject.Key,
+              size: firstObject.Size,
+              lastModified: firstObject.LastModified,
+              virtualHostUrl,
+              pathStyleUrl
+            }
+          });
+        } catch (getError) {
+          return res.status(403).json({
+            error: true,
+            message: "Could list objects but couldn't access object content",
+            details: getError.message
+          });
+        }
+      } else {
+        return res.json({
+          success: true,
+          message: "Successfully connected to S3 bucket but it's empty",
+          bucketName,
+          region: process.env.AWS_REGION
+        });
+      }
+    } catch (error) {
+      console.error("S3 test error:", error);
+      return res.status(500).json({ 
+        error: true, 
+        message: "Failed to test S3 connection", 
+        details: error.message 
+      });
+    }
+  });
+
       { key: "animals_title", value: "Our Animals", type: "text" },
       { key: "animals_text", value: "Our Colorado Mountain Dogs are exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals combine the best traits of various mountain dog breeds. Each puppy is raised with hands-on care and early socialization to ensure they develop into well-rounded guardians.", type: "text" },
       { key: "animals_image", value: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e", type: "image" },
