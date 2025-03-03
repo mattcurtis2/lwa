@@ -17,8 +17,10 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
   console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
 
-  // Use AWS_BUCKET_NAME or fall back to S3_BUCKET_NAME if present
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  // Use AWS_BUCKET_NAME for the new bucket
+  const bucketName = 'lwa-images';  // Hardcoded to ensure we use the correct bucket
+  
+  console.log(`S3 Upload - Using bucket: ${bucketName}`);
 
   if (!bucketName) {
     console.error('S3 Upload Error: No bucket name configured in environment variables');
@@ -73,8 +75,8 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
 
     console.log('S3 Upload - Success! Response:', response);
 
-    // Construct the S3 URL
-    const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    // Construct the S3 URL for the lwa-images bucket
+    const s3Url = `https://lwa-images.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     console.log(`S3 Upload - Generated URL: ${s3Url}`);
 
     return s3Url;
