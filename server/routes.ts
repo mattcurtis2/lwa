@@ -942,41 +942,27 @@ export function registerRoutes(app: Express): Server {
 
       console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file) => {
-        console.log('Processing file for S3:', {
+        console.log('Processing file:', {
           originalName: file.originalname,
           size: file.size,
           mimetype: file.mimetype
         });
 
         try {
-          // Upload file to S3
+          // Always attempt to upload to S3 first
           const s3Url = await uploadToS3(file);
-
           console.log(`File uploaded to S3: ${s3Url}`);
+          
           return {
             url: s3Url,
             type: file.mimetype.split('/')[0],
             originalName: file.originalname,
             mimeType: file.mimetype
           };
-        } catch (uploadError) {
-          console.error('Error uploading to S3:', uploadError);
-
-          // Fallback to local storage if S3 upload fails
-          console.log('Falling back to local storage');
-          const targetPath = path.join(uploadDir, file.filename);
-          await fs.ensureDir(uploadDir);
-
-          if (file.path !== targetPath) {
-            await fs.copy(file.path, targetPath);
-          }
-
-          return {
-            url: `/uploads/${file.filename}`,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          };
+        } catch (error) {
+          console.error('Error in S3 upload process:', error);
+          // No fallback to local storage - re-throw the error
+          throw error;
         }
       }));
 
@@ -987,7 +973,7 @@ export function registerRoutes(app: Express): Server {
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       return res.status(500).json({
-        message: "Failed to process uploaded files",
+        message: "Failed to upload files to S3",
         details: error instanceof Error ? error.message : String(error)
       });
     }
