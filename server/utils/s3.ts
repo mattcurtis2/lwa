@@ -13,7 +13,7 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
   console.log('AWS Credentials Check:');
   console.log('- AWS_REGION:', process.env.AWS_REGION ? 'Set' : 'Not set');
   console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set');
-  console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set');
+  console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + (process.env.AWS_SECRET_ACCESS_KEY?.length || 0) + ')' : 'Not set');
   console.log('- AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set');
   console.log('- S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME ? 'Set' : 'Not set');
 
@@ -75,6 +75,13 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
       ContentType: file.mimetype,
       ACL: 'public-read', // Make the file publicly accessible
     };
+    
+    console.log('S3 Upload - Params prepared:', {
+      Bucket: bucketName,
+      Key: key,
+      ContentType: file.mimetype,
+      ContentLength: fileData.length
+    });
 
     console.log('S3 Upload - Sending file to S3...');
 

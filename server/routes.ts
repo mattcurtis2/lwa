@@ -950,42 +950,52 @@ export function registerRoutes(app: Express): Server {
           path: file.path
         });
 
+        // Attempt to upload to S3 - no fallback to local storage
+        console.log('Uploading to S3...');
+        const s3Url = await uploadToS3(file);
+        
+        console.log(`S3 upload successful: ${s3Url}`);
+        
+        // Clean up the local temp file after successful S3 upload
         try {
-          // Attempt to upload to S3
-          console.log('Calling uploadToS3 function directly...');
-          const s3Url = await uploadToS3(file);
-          
-          console.log(`S3 upload successful: ${s3Url}`);
-          
-          return {
-            url: s3Url,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          };
-        } catch (error) {
-          console.error('Error in S3 upload process:', error);
-          
-          // Fall back to local storage
-          console.warn('FALLBACK: Using local storage due to S3 upload failure');
-          const localUrl = `/uploads/${path.basename(file.path)}`;
-          
-          return {
-            url: localUrl,
-            type: file.mimetype.split('/')[0],
-            originalName: file.originalname,
-            mimeType: file.mimetype
-          };
+          if (file.path && fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+            console.log(`Deleted local temp file: ${file.path}`);
+          }
+        } catch (cleanupError) {
+          console.warn(`Warning: Could not delete temp file ${file.path}:`, cleanupError);
         }
+        
+        return {
+          url: s3Url,
+          type: file.mimetype.split('/')[0],
+          originalName: file.originalname,
+          mimeType: file.mimetype
+        };
       }));
 
-      console.log('=== FILES PROCESSED SUCCESSFULLY ===');
+      console.log('=== S3 UPLOADS COMPLETED SUCCESSFULLY ===');
       console.log('Results:', uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error('\n=== UPLOAD ERROR ===');
+      console.error('\n=== S3 UPLOAD ERROR ===');
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      
+      // Clean up any temporary files that might have been created
+      if (req.files && Array.isArray(req.files)) {
+        req.files.forEach(file => {
+          try {
+            if (file.path && fs.existsSync(file.path)) {
+              fs.unlinkSync(file.path);
+              console.log(`Cleaned up temp file after error: ${file.path}`);
+            }
+          } catch (cleanupError) {
+            console.warn(`Warning: Could not delete temp file ${file.path}:`, cleanupError);
+          }
+        });
+      }
+      
       return res.status(500).json({
         message: "Failed to upload files to S3",
         details: error instanceof Error ? error.message : String(error)
