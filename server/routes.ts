@@ -939,6 +939,7 @@ export function registerRoutes(app: Express): Server {
 
       // Import the S3 upload utility dynamically
       const { uploadToS3 } = await import('./utils/s3.js');
+      const { retry } = await import('./helpers');
       
       console.log(`Processing ${req.files.length} files for S3 upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
@@ -950,9 +951,13 @@ export function registerRoutes(app: Express): Server {
           path: file.path
         });
 
-        // Attempt to upload to S3 - no fallback to local storage
+        // Attempt to upload to S3 with retry logic
         console.log('Uploading to S3...');
-        const s3Url = await uploadToS3(file);
+        const s3Url = await retry(
+          () => uploadToS3(file),
+          3,  // max 3 retries
+          2000 // start with 2 second delay
+        );
         
         console.log(`S3 upload successful: ${s3Url}`);
         

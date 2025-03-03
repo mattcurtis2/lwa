@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand, PutObjectAclCommand } from '@aws-sdk/client
 import path from 'path';
 import { randomUUID } from "crypto";
 import dotenv from 'dotenv';
+import { sleep } from '../helpers';
 
 dotenv.config();
 
@@ -74,13 +75,19 @@ export async function uploadToS3(file: Express.Multer.File): Promise<string> {
     console.log('S3 Upload - Success! Response:', response);
 
     // Set the object to be publicly readable
-    await s3Client.send(
-      new PutObjectAclCommand({
-        Bucket: bucketName,
-        Key: key,
-        ACL: 'public-read'
-      })
-    );
+    try {
+      await s3Client.send(
+        new PutObjectAclCommand({
+          Bucket: bucketName,
+          Key: key,
+          ACL: 'public-read'
+        })
+      );
+      console.log('S3 Upload - Set ACL to public-read');
+    } catch (error) {
+      console.warn('S3 Upload - Warning: Failed to set ACL, might not be publicly readable:', error);
+      // Continue even if setting ACL fails - better to have the file uploaded than not
+    }
     
     // Construct the S3 URL
     const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
