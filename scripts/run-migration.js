@@ -1,7 +1,5 @@
 
-#!/usr/bin/env node
-
-// This script executes TypeScript files using ts-node
+// This script executes TypeScript files using tsx
 const { spawn } = require('child_process');
 const path = require('path');
 

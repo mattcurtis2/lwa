@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 const scripts = [
   'migrate-media-to-s3.ts',
   'migrate-goats-to-s3.ts',
+  'migrate-dogs-to-s3.ts',
   'migrate-site-content-to-s3.ts'
 ];
 
@@ -13,7 +14,7 @@ async function runScript(scriptName: string): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`\n=== RUNNING ${scriptName} ===\n`);
     
-    const child = spawn('npx', ['ts-node', `scripts/${scriptName}`], {
+    const child = spawn('npx', ['tsx', `scripts/${scriptName}`], {
       stdio: 'inherit'
     });
     
