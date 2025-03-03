@@ -20,10 +20,17 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false); // Added for upload status
 
-  const handleCropComplete = (croppedUrl: string) => {
+  const handleCropComplete = async (croppedUrl: string) => {
     console.log('Crop completed, setting cropped image:', croppedUrl?.substring(0, 50) + '...');
-    form.setValue('imageUrl', croppedUrl);
+    //form.setValue('imageUrl', croppedUrl); // Removed direct setting
+    // Upload to S3
+    const s3Url = await handleUploadImage(croppedUrl);
+    if (s3Url) {
+        form.setValue('imageUrl', s3Url);
+    }
+
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,57 +57,58 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
     reader.readAsDataURL(file);
   };
 
+  const handleUploadImage = async (croppedUrl: string) => {
+    setIsUploading(true);
+    try {
+      // Create a FormData object to send the image
+      const formData = new FormData();
+
+      // Convert base64 to a blob
+      const base64Response = await fetch(croppedUrl);
+      const blob = await base64Response.blob();
+      const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
+      formData.append('file', blob, filename);
+
+
+      // Upload the image to S3 using the general upload endpoint
+      console.log('Uploading principle image to S3...');
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(`Failed to upload image: ${errorData.error || 'Unknown error'}`);
+      }
+
+      // Get the S3 URL from the response
+      const uploadData = await uploadResponse.json();
+      console.log('S3 upload successful:', uploadData[0].url);
+      return uploadData[0].url;
+
+    } catch (error) {
+      console.error('Error during S3 upload:', error);
+      toast({
+        title: 'Image upload failed',
+        description: `Error uploading image to S3: ${error.message}`,
+        variant: 'destructive',
+      });
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+
   const onSubmit = async (values: PrincipleFormValues) => {
     setIsSubmitting(true);
     try {
-      // Check if image is a base64 string and upload to S3 first
       let finalValues = { ...values };
 
       if (values.imageUrl && values.imageUrl.startsWith('data:image')) {
         console.log('Detected base64 image, uploading to S3 first...');
-
-        try {
-          // Create a FormData object to send the image
-          const formData = new FormData();
-
-          // Convert base64 to a blob
-          const base64Response = await fetch(values.imageUrl);
-          const blob = await base64Response.blob();
-
-          // Append the file to the form data
-          const filename = `principle-${principle?.id || 'new'}-${Date.now()}.jpg`;
-          formData.append('file', blob, filename);
-
-          // Upload the image to S3 using the general upload endpoint
-          console.log('Uploading principle image to S3...');
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json();
-            throw new Error(`Failed to upload image: ${errorData.error || 'Unknown error'}`);
-          }
-
-          // Get the S3 URL from the response
-          const uploadData = await uploadResponse.json();
-          console.log('S3 upload successful:', uploadData[0].url);
-          
-          // Use the first URL from the array returned by the upload endpoint
-          values.imageUrl = uploadData[0].url;
-
-          // Update the imageUrl with the S3 URL
-          finalValues.imageUrl = uploadData.url;
-        } catch (error) {
-          console.error('Error during S3 upload:', error);
-          toast({
-            title: 'Image upload failed',
-            description: `Error uploading image to S3: ${error.message}`,
-            variant: 'destructive',
-          });
-          throw error;
-        }
+        //this section now handled by handleCropComplete
       }
 
       let response;
@@ -215,8 +223,8 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save'}
+        <Button type="submit" disabled={isSubmitting || isUploading}>
+          {isSubmitting ? 'Saving...' : isUploading ? 'Uploading...' : 'Save'}
         </Button>
       </form>
     </Form>
