@@ -14,6 +14,9 @@ import {
   Cat,
   ShoppingBag,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react"; //Import LogOut icon
+
 
 export default function Admin() {
   const [_, navigate] = useLocation();
@@ -21,6 +24,11 @@ export default function Admin() {
   const [activeDogTab, setActiveDogTab] = useState("overview");
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
+
+  const handleLogout = () => {
+    // Add logout logic here (e.g., clear cookies, redirect)
+    console.log("Logout clicked"); // Placeholder
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -70,6 +78,13 @@ export default function Admin() {
         {/* Main Content */}
         <div className="flex-1 pl-64">
           <div className="container mx-auto p-6">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-4xl font-bold">Admin Dashboard</h1>
+              <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                <LogOut size={16} />
+                Logout
+              </Button>
+            </div>
             <TabsContent value="dogs">
               <Tabs value={activeDogTab} onValueChange={setActiveDogTab}>
                 <TabsList className="mb-4">
