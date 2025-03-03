@@ -21,25 +21,26 @@ export default function Login() {
 
     try {
       const success = await login(username, password);
-
       if (success) {
         toast({
           title: "Success",
           description: "You have been logged in successfully",
         });
-        // Redirect to admin page after successful login
-        setLocation("/admin");
+        // Add a small delay before redirecting to ensure state is updated
+        setTimeout(() => {
+          setLocation("/admin");
+        }, 100);
       } else {
         toast({
           title: "Error",
-          description: "Invalid credentials",
+          description: "Invalid username or password",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Something went wrong",
+        description: "An error occurred while logging in",
         variant: "destructive",
       });
     } finally {
