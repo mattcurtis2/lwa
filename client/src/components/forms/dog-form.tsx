@@ -148,6 +148,8 @@ export default function DogForm({
   const [editingMediaIndex, setEditingMediaIndex] = useState<number | null>(null);
   const [showMediaCropDialog, setShowMediaCropDialog] = useState(false);
   const [currentMediaUrl, setCurrentMediaUrl] = useState("");
+  const [completedCrop, setCompletedCrop] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -832,11 +834,12 @@ export default function DogForm({
     if (editingMediaIndex === null) return;
     console.log('[DogForm] Starting image crop process');
     console.log('[DogForm] Crop data received:', cropData);
+    setCompletedCrop(cropData); // Store crop data
 
     try {
       setIsUploading(true);
 
-      // Create a canvas to apply the crop
+      // Create an image to get dimensions
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
@@ -937,8 +940,7 @@ export default function DogForm({
       console.log('[DogForm] Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-    // Update the media inputs with the new cropped image
-    const updatedMediaInputs = [...mediaInputs];
+    // Update the media inputs with the new cropped image    const updatedMediaInputs = [...mediaInputs];
     updatedMediaInputs[editingMediaIndex] = {
       ...updatedMediaInputs[editingMediaIndex],
       url: uploadedUrl,

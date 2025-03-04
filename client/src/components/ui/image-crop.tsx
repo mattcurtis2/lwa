@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -34,7 +33,7 @@ interface ImageCropProps {
   circularCrop?: boolean;
 }
 
-export function ImageCrop({ 
+function ImageCrop({ 
   imageUrl, 
   onCropComplete, 
   onCancel, 
@@ -57,7 +56,7 @@ export function ImageCrop({
   const createCroppedImage = useCallback(async () => {
     try {
       setIsProcessing(true);
-      
+
       if (!completedCrop || !imgRef.current) {
         console.error("No crop data or image reference");
         setIsProcessing(false);
@@ -87,8 +86,9 @@ export function ImageCrop({
       };
 
       // Set canvas dimensions to the cropped size
-      canvas.width = pixelCrop.width;
-      canvas.height = pixelCrop.height;
+      // Ensure dimensions are at least 1px to avoid canvas errors
+      canvas.width = Math.max(1, Math.round(pixelCrop.width));
+      canvas.height = Math.max(1, Math.round(pixelCrop.height));
 
       // Draw the cropped image
       ctx.drawImage(
@@ -97,27 +97,28 @@ export function ImageCrop({
         pixelCrop.y,
         pixelCrop.width,
         pixelCrop.height,
-        0,
-        0,
-        pixelCrop.width,
-        pixelCrop.height
+        0, 0,
+        canvas.width,
+        canvas.height
       );
 
       // Convert canvas to blob
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          console.error("Failed to create blob");
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            console.error('No blob created');
+            setIsProcessing(false);
+            return;
+          }
+
+          const croppedImageUrl = URL.createObjectURL(blob);
+          console.log("Crop completed:", completedCrop);
+          onCropComplete(croppedImageUrl, blob);
           setIsProcessing(false);
-          return;
-        }
-
-        // Create a URL for the blob
-        const croppedUrl = URL.createObjectURL(blob);
-
-        // Call the crop complete callback
-        onCropComplete(croppedUrl, blob);
-        setIsProcessing(false);
-      }, 'image/jpeg', 0.95);
+        },
+        'image/jpeg',
+        0.95 // JPEG quality
+      );
     } catch (error) {
       console.error("Error completing crop:", error);
       setIsProcessing(false);
@@ -174,5 +175,4 @@ export function ImageCrop({
   );
 }
 
-// Add the default export that was missing
 export default ImageCrop;
