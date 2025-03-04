@@ -58,8 +58,8 @@ export function ImageCrop({
     try {
       setIsProcessing(true);
       
-      if (!completedCrop || !imgRef.current) {
-        console.error("No crop data or image reference");
+      if (!completedCrop || !imgRef.current || !completedCrop.width || !completedCrop.height) {
+        console.error("No valid crop data or image reference");
         setIsProcessing(false);
         return;
       }
@@ -87,8 +87,9 @@ export function ImageCrop({
       };
 
       // Set canvas dimensions to the cropped size
-      canvas.width = pixelCrop.width;
-      canvas.height = pixelCrop.height;
+      // Ensure dimensions are at least 1px to avoid canvas errors
+      canvas.width = Math.max(1, Math.round(pixelCrop.width));
+      canvas.height = Math.max(1, Math.round(pixelCrop.height));
 
       // Draw the cropped image
       ctx.drawImage(

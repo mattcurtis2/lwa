@@ -866,7 +866,7 @@ export default function DogForm({
 
       // Set output dimensions
       const targetWidth = 1280; // Fixed width for consistency
-      const targetHeight = (targetWidth * cropData.height) / cropData.width; // Maintain aspect ratio
+      const targetHeight = Math.max(1, (targetWidth * cropData.height) / cropData.width); // Maintain aspect ratio and prevent 0 height
 
       canvas.width = targetWidth;
       canvas.height = targetHeight;
@@ -906,7 +906,7 @@ export default function DogForm({
         sourceHeight: cropData.height / scaleY
       });
 
-      // Convert to blob
+      // Convert to blob using a promise for better error handling
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (blob) => {
@@ -941,35 +941,35 @@ export default function DogForm({
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
     // Update the media inputs with the new cropped image    const updatedMediaInputs = [...mediaInputs];
-    updatedMediaInputs[editingMediaIndex] = {
-      ...updatedMediaInputs[editingMediaIndex],
-      url: uploadedUrl,
-      isNew: true,
-    };
+      updatedMediaInputs[editingMediaIndex] = {
+        ...updatedMediaInputs[editingMediaIndex],
+        url: uploadedUrl,
+        isNew: true,
+      };
 
-    console.log('[DogForm] Updating media inputs with new URL:', uploadedUrl);
-    setMediaInputs(updatedMediaInputs);
-    form.setValue("media", updatedMediaInputs);
+      console.log('[DogForm] Updating media inputs with new URL:', uploadedUrl);
+      setMediaInputs(updatedMediaInputs);
+      form.setValue("media", updatedMediaInputs);
 
-    setShowMediaCropDialog(false);
-    setEditingMediaIndex(null);
-    setCurrentMediaUrl("");
+      setShowMediaCropDialog(false);
+      setEditingMediaIndex(null);
+      setCurrentMediaUrl("");
 
-    toast({
-      title: "Success",
-      description: "Image updated successfully",
-    });
-  } catch (error) {
-    console.error('[DogForm] Error updating image:', error);
-    toast({
-      title: "Error",
-      description: "Failed to update image: " + (error instanceof Error ? error.message : "Unknown error"),
-      variant: "destructive",
-    });
-  } finally {
-    setIsUploading(false);
-  }
-};
+      toast({
+        title: "Success",
+        description: "Image updated successfully",
+      });
+    } catch (error) {
+      console.error('[DogForm] Error updating image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update image: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <Form {...form}>
