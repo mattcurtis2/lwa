@@ -4,7 +4,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import useDebounceEffect from "@/lib/useDebounceEffect";
-import {Loader2} from "@/components/ui/loader";
+import {Loader} from "@/components/ui/loader";
 
 function canvasPreview(
   img: HTMLImageElement,
@@ -233,7 +233,7 @@ export function ImageCrop({
               <Button onClick={(e) => {e.preventDefault(); handleApplyCrop()}}>
                 {isProcessing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader size="sm" className="mr-2" />
                     Processing
                   </>
                 ) : (
