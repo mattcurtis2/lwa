@@ -147,17 +147,23 @@ export function ImageCrop({
 
         // Convert canvas to data URL
         const dataUrl = canvas.toDataURL("image/jpeg");
-        onCropComplete(dataUrl, completedCrop);
+        if (typeof onCropComplete === 'function') {
+          onCropComplete(dataUrl, completedCrop);
+        }
       } catch (securityError) {
         // If we get a security error, pass the crop data directly
         // instead of trying to generate a data URL
         console.log("Crop completed:", completedCrop);
-        onCropComplete(null, completedCrop);
+        if (typeof onCropComplete === 'function') {
+          onCropComplete(null, completedCrop);
+        }
       }
     } catch (error) {
       console.error("Error completing crop:", error);
       // Still pass the crop data even if there was an error
-      onCropComplete(null, completedCrop);
+      if (typeof onCropComplete === 'function') {
+          onCropComplete(null, completedCrop);
+      }
     }
   };
 
