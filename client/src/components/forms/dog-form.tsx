@@ -137,6 +137,8 @@ export default function DogForm({
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
   const [tempMediaData, setTempMediaData] = useState<MediaInput | null>(null); //New state for tracking media during crop
+  const [isCropping, setIsCropping] = useState(false);
+  const [activeImage, setActiveImage] = useState<MediaInput | null>(null);
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -221,6 +223,7 @@ export default function DogForm({
         weight: dog.weight?.toString() || "",
         price: dog.price?.toString() || "",
         media: dog.media?.map(m => ({
+          id: m.id,
           url: m.url,
           type: m.type as "image" | "video",
           fileName: m.fileName,
@@ -229,6 +232,7 @@ export default function DogForm({
       });
 
       const media = dog.media?.map(m => ({
+        id: m.id,
         url: m.url,
         type: m.type as "image" | "video",
         fileName: m.fileName,
@@ -715,10 +719,34 @@ export default function DogForm({
     }
   });
 
-  const handleMediaCrop = (index: number, imageUrl: string) => {
-    setTempMediaData(mediaInputs[index]);
-    setCropImageUrl(imageUrl);
-    setShowCropper(true);
+  const handleMediaCrop = (media: MediaInput) => {
+    console.log("Dog before crop:", dog);
+    setActiveImage(media);
+    setIsCropping(true);
+  };
+
+  const handleCropComplete = (croppedImageUrl: string) => {
+    if (activeImage) {
+      const newMedia = mediaInputs.map((m) => {
+        if (m.id === activeImage.id) {
+          return { ...m, url: croppedImageUrl };
+        }
+        return m;
+      });
+      setMediaInputs(newMedia);
+      form.setValue("media", newMedia);
+
+      // Force a reload of the form data to reflect the updated media
+      if (dog) {
+        setTimeout(() => {
+          // Trigger a refetch of the dog data
+          console.log('Reloading dog data to reflect updated media');
+          console.log("Dog after crop:", dog);
+        }, 1000);
+      }
+    }
+    setIsCropping(false);
+    setActiveImage(null);
   };
 
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
@@ -1369,12 +1397,12 @@ export default function DogForm({
                                 src={input.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaCrop(index, input.url)}
+                                onClick={() => handleMediaCrop(input)}
                               />
                               <div
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
                                 onClick={() => {
-                                  handleMediaCrop(index, input.url)
+                                  handleMediaCrop(input)
                                 }}
                               >
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
@@ -1542,6 +1570,7 @@ export default function DogForm({
 }
 
 interface MediaInput {
+  id?: number;
   url: string;
   type: "image" | "video";
   fileName?: string;

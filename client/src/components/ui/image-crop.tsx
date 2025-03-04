@@ -47,10 +47,11 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string | null) => void;
+  onCropComplete?: (croppedImageUrl: string) => void;
   onCancel: () => void;
   aspect?: number;
-  onSkip?: () => void;
+  mediaId?: number;
+  dogId?: number;
 }
 
 // Export as both default and named export
@@ -59,7 +60,8 @@ export function ImageCrop({
   onCropComplete,
   onCancel,
   aspect = 1,
-  onSkip
+  mediaId,
+  dogId,
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
@@ -109,8 +111,8 @@ export function ImageCrop({
     if (completedCrop && imgRef.current) {
       try {
         console.log('Applying crop with dimensions:', completedCrop);
+        console.log('Media ID:', mediaId, 'Dog ID:', dogId);
 
-        // Use server-side cropping to avoid CORS issues
         const response = await fetch('/api/crop-image', {
           method: 'POST',
           headers: {
@@ -118,12 +120,14 @@ export function ImageCrop({
           },
           body: JSON.stringify({
             imageUrl,
-            crop: completedCrop
+            crop: completedCrop,
+            mediaId,
+            dogId,
           }),
         });
 
         if (!response.ok) {
-          throw new Error(`Server responded with ${response.status}`);
+          throw new Error(`HTTP error ${response.status}`);
         }
 
         const data = await response.json();
@@ -144,7 +148,7 @@ export function ImageCrop({
         }
       }
     }
-  }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel]);
+  }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel, mediaId, dogId]);
 
 
   return (

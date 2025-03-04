@@ -1,31 +1,39 @@
-import { Request, Response } from 'express';
+import { Router } from 'express';
 import sharp from 'sharp';
 import fetch from 'node-fetch';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { v4 as uuidv4 } from 'uuid';
-import dotenv from 'dotenv';
+import { db } from '../../db/index.js';
+import { dogMedia } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 
-dotenv.config();
+const router = Router();
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
-  }
-});
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || '';
-
-export const cropImage = async (req: Request, res: Response) => {
+router.post('/', async (req, res) => {
   try {
-    const { imageUrl, crop } = req.body;
+    const { imageUrl, crop, mediaId, dogId } = req.body;
 
     if (!imageUrl || !crop) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     console.log(`Processing crop with dimensions:`, crop);
+    console.log(`Media ID: ${mediaId}, Dog ID: ${dogId}`);
+
+    if (mediaId && dogId) {
+      // Fetch the dog and media before the update for logging
+      const dogBefore = await db.query.dogs.findFirst({
+        where: eq(db.dogs.id, dogId),
+        with: {
+          media: true
+        }
+      });
+
+      console.log('Dog before crop:', JSON.stringify({
+        id: dogBefore?.id,
+        name: dogBefore?.name,
+        mediaCount: dogBefore?.media?.length,
+        targetMedia: dogBefore?.media?.find(m => m.id === mediaId)
+      }));
+    }
 
     // Import the S3 upload utility
     const { uploadToS3 } = await import('../utils/s3.js');
@@ -71,7 +79,7 @@ export const cropImage = async (req: Request, res: Response) => {
 
       // Create a unique filename for this cropped image
       const filename = `cropped-${uuidv4()}.jpg`;
-      
+
       // Create a mock file object for S3 upload
       const mockFile = {
         buffer: croppedBuffer,
@@ -81,22 +89,50 @@ export const cropImage = async (req: Request, res: Response) => {
 
       console.log('Uploading cropped image to S3...');
       const s3Url = await uploadToS3(mockFile);
-      
+
       if (!s3Url) {
         throw new Error('Failed to upload to S3 - No URL returned');
       }
-      
+
       console.log('Received cropped image URL:', s3Url.substring(0, 50) + '...');
+
+      // If we have a mediaId, update the dog media record with the new URL
+      if (mediaId) {
+        console.log(`Updating dog media record with ID ${mediaId} to use new S3 URL`);
+        await db.update(dogMedia)
+          .set({ url: s3Url })
+          .where(eq(dogMedia.id, mediaId));
+
+        console.log('Database update complete');
+
+        // Fetch the updated dog data
+        if (dogId) {
+          const dogAfter = await db.query.dogs.findFirst({
+            where: eq(db.dogs.id, dogId),
+            with: {
+              media: true
+            }
+          });
+
+          console.log('Dog after crop:', JSON.stringify({
+            id: dogAfter?.id,
+            name: dogAfter?.name,
+            mediaCount: dogAfter?.media?.length,
+            targetMedia: dogAfter?.media?.find(m => m.id === mediaId)
+          }));
+        }
+      }
+
       return res.json({ url: s3Url });
-      
+
     } catch (cropError) {
       console.error('Error completing crop:', cropError);
-      
+
       // As a fallback, if S3 upload fails, return base64 image
       const croppedBuffer = await sharp(imageBuffer)
         .extract({ left: x, top: y, width, height })
         .toBuffer();
-      
+
       const base64Image = `data:image/jpeg;base64,${croppedBuffer.toString('base64')}`;
       return res.json({ url: base64Image });
     }
@@ -104,4 +140,6 @@ export const cropImage = async (req: Request, res: Response) => {
     console.error('Error cropping image:', error);
     res.status(500).json({ error: 'Failed to crop image', details: error.message });
   }
-}
+});
+
+export default router;
