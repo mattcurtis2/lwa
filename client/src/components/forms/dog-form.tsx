@@ -53,6 +53,8 @@ import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { useNavigate } from "wouter";
 import { uploadFileToS3 } from "../../lib/upload-utils";
+import { useState, useCallback } from "react";
+import { useForm } from "react-hook-form";
 
 
 interface Document {
@@ -800,23 +802,6 @@ export default function DogForm({
     }
   };
 
-  const handleMediaUpload = async (file: File, index: number) => {
-    if (!file) return;
-
-    try {
-      const url = URL.createObjectURL(file);
-      setCropImageUrl(url);
-      setTempMediaData({ file, index, isProfileImage: false });
-      setShowCropper(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleEditMedia = (index: number) => {
     const media = mediaInputs[index];
     if (media && media.type === "image") {
@@ -830,15 +815,15 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedMediaImage = async (croppedImageUrl: string, cropData: any) => {
+  const handleCroppedMediaImage = async (croppedImageUrl: string, cropData: { x: number; y: number; width: number; height: number }) => {
     if (editingMediaIndex === null) return;
     console.log('[DogForm] Starting image crop process');
-    console.log('[DogForm] Received cropData:', typeof cropData, cropData);
+    console.log('[DogForm] Received crop coordinates:', cropData);
 
     try {
       setIsUploading(true);
 
-      // Load the image first
+      // Load the image
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
@@ -863,7 +848,7 @@ export default function DogForm({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set the canvas size to match the crop dimensions
+      // Set canvas size to match the crop dimensions
       canvas.width = cropData.width;
       canvas.height = cropData.height;
 
@@ -920,7 +905,7 @@ export default function DogForm({
       console.log('[DogForm] Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-      // Update the media inputs with the new cropped image
+      // Update the media inputs
       const updatedMediaInputs = [...mediaInputs];
       updatedMediaInputs[editingMediaIndex] = {
         ...updatedMediaInputs[editingMediaIndex],
@@ -949,36 +934,6 @@ export default function DogForm({
       });
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const handleMediaUpload = async (file: File, index: number) => {
-    if (!file) return;
-
-    try {
-      const url = URL.createObjectURL(file);
-      setCropImageUrl(url);
-      setTempMediaData({ file, index, isProfileImage: false });
-      setShowCropper(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleEditMedia = (index: number) => {
-    const media = mediaInputs[index];
-    if (media && media.type === "image") {
-      console.log('[DogForm] Editing media at index:', index, 'Media:', media);
-      // Create a proxy URL to handle CORS
-      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(media.url)}`;
-      console.log('[DogForm] Created proxy URL:', proxyUrl);
-      setEditingMediaIndex(index);
-      setCurrentMediaUrl(proxyUrl);
-      setShowMediaCropDialog(true);
     }
   };
 

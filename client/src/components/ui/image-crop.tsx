@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -27,7 +26,7 @@ function centerAspectCrop(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string, blob?: Blob) => void;
+  onCropComplete: (croppedImageUrl: string, cropData: { x: number; y: number; width: number; height: number }) => void;
   onCancel: () => void;
   onSkip?: () => void;
   aspect?: number;
@@ -57,7 +56,7 @@ export function ImageCrop({
   const createCroppedImage = useCallback(async () => {
     try {
       setIsProcessing(true);
-      
+
       if (!completedCrop || !imgRef.current || !completedCrop.width || !completedCrop.height) {
         console.error("No valid crop data or image reference");
         setIsProcessing(false);
@@ -74,34 +73,21 @@ export function ImageCrop({
         return;
       }
 
-      // Calculate scale factors
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-
-      // Calculate actual pixel values
-      const pixelCrop = {
-        x: completedCrop.x * scaleX,
-        y: completedCrop.y * scaleY,
-        width: completedCrop.width * scaleX,
-        height: completedCrop.height * scaleY,
-      };
-
       // Set canvas dimensions to the cropped size
-      // Ensure dimensions are at least 1px to avoid canvas errors
-      canvas.width = Math.max(1, Math.round(pixelCrop.width));
-      canvas.height = Math.max(1, Math.round(pixelCrop.height));
+      canvas.width = Math.round(completedCrop.width);
+      canvas.height = Math.round(completedCrop.height);
 
       // Draw the cropped image
       ctx.drawImage(
         image,
-        pixelCrop.x,
-        pixelCrop.y,
-        pixelCrop.width,
-        pixelCrop.height,
+        completedCrop.x,
+        completedCrop.y,
+        completedCrop.width,
+        completedCrop.height,
         0,
         0,
-        pixelCrop.width,
-        pixelCrop.height
+        canvas.width,
+        canvas.height
       );
 
       // Convert canvas to blob
@@ -112,13 +98,18 @@ export function ImageCrop({
             setIsProcessing(false);
             return;
           }
-          
+
           const croppedImageUrl = URL.createObjectURL(blob);
-          onCropComplete(croppedImageUrl, blob);
+          onCropComplete(croppedImageUrl, {
+            x: Math.round(completedCrop.x),
+            y: Math.round(completedCrop.y),
+            width: Math.round(completedCrop.width),
+            height: Math.round(completedCrop.height)
+          });
           setIsProcessing(false);
         },
         'image/jpeg',
-        0.85
+        0.95
       );
     } catch (error) {
       console.error("Error completing crop:", error);
@@ -176,5 +167,4 @@ export function ImageCrop({
   );
 }
 
-// Export both as named and default export
 export default ImageCrop;
