@@ -1,89 +1,105 @@
-import React, { useState, useEffect } from "react";
-import { Facebook, Mail, Phone, MapPin } from "lucide-react";
+
+import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { Button } from "../ui/button";
+import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter"; // Added from original code
 
 export default function Footer() {
-  const { data: contactData, isLoading } = useQuery({
-    queryKey: ['/api/site-content'],
-    queryFn: async () => {
-      const res = await fetch('/api/site-content');
-      if (!res.ok) throw new Error('Failed to fetch site content');
-      return res.json();
-    },
+  const { data: siteContent = [] } = useQuery({
+    queryKey: ["/api/site-content"],
   });
 
-  const getContactValue = (key: string) => {
-    if (!contactData) return "";
-    const item = contactData.find((item: any) => item.key === key);
-    return item ? item.value : "";
+  const getContentValue = (key: string) => {
+    return siteContent.find((item: any) => item.key === key)?.value || "";
   };
-
+  
   return (
-    <footer className="bg-gray-100 py-12 mt-auto">
+    <footer className="bg-gray-900 text-white pt-10 pb-6">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div>
-            <h3 className="font-bold text-lg mb-4">Little Way Acres</h3>
-            <p className="text-gray-600 mb-4">
-              Breeding quality livestock with love and care.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* About Column */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">About Us</h3>
+            <p className="text-gray-300">
+              {getContentValue("footer_about_text") || 
+                "Little Way Acres is committed to sustainable farming practices, high-quality animal husbandry, and connecting with our community through our farm stand and products."}
             </p>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-lg mb-4">Contact Us</h3>
-            <ul className="space-y-2">
-              {getContactValue("contact_email") && (
-                <li className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-600" />
-                  <a 
-                    href={`mailto:${getContactValue("contact_email")}`}
-                    className="text-gray-600 hover:text-primary transition-colors"
-                  >
-                    {getContactValue("contact_email")}
-                  </a>
-                </li>
-              )}
-
-              {getContactValue("contact_phone") && (
-                <li className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-600" />
-                  <a 
-                    href={`tel:${getContactValue("contact_phone")}`} 
-                    className="text-gray-600 hover:text-primary transition-colors"
-                  >
-                    {getContactValue("contact_phone")}
-                  </a>
-                </li>
-              )}
-
-              {getContactValue("contact_address") && (
-                <li className="flex gap-2">
-                  <MapPin className="h-4 w-4 text-gray-600 mt-1 flex-shrink-0" />
-                  <span className="text-gray-600">
-                    {getContactValue("contact_address")}
-                  </span>
-                </li>
-              )}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-lg mb-4">Connect With Us</h3>
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="bg-primary text-white p-2 rounded-full hover:bg-primary/80 transition-colors"
-                aria-label="Facebook"
+            <div className="flex space-x-4 mt-4">
+              <a 
+                href={getContentValue("facebook_url") || "https://facebook.com"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-400 transition-colors"
               >
-                <Facebook className="h-5 w-5" />
+                <Facebook size={20} />
               </a>
+              <a 
+                href={getContentValue("instagram_url") || "https://instagram.com"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-pink-400 transition-colors"
+              >
+                <Instagram size={20} />
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links Column */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+            <nav className="flex flex-col space-y-2">
+              <Link href="/">
+                <a className="text-gray-300 hover:text-white transition-colors">Home</a>
+              </Link>
+              <Link href="/about">
+                <a className="text-gray-300 hover:text-white transition-colors">About</a>
+              </Link>
+              <Link href="/animals">
+                <a className="text-gray-300 hover:text-white transition-colors">Animals</a>
+              </Link>
+              <Link href="/market">
+                <a className="text-gray-300 hover:text-white transition-colors">Market</a>
+              </Link>
+              <Link href="/contact">
+                <a className="text-gray-300 hover:text-white transition-colors">Contact</a>
+              </Link>
+            </nav>
+          </div>
+
+          {/* Contact Column */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <MapPin className="text-gray-400 mt-1" size={18} />
+                <span className="text-gray-300">
+                  {getContentValue("address") || "123 Farm Road, Countryside, CO 80123"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="text-gray-400" size={18} />
+                <a 
+                  href={`tel:${getContentValue("phone") || "555-123-4567"}`} 
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  {getContentValue("phone") || "555-123-4567"}
+                </a>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Mail className="text-gray-400" size={18} />
+                <a 
+                  href={`mailto:${getContentValue("email") || "info@littlewayacres.com"}`} 
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  {getContentValue("email") || "info@littlewayacres.com"}
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} Little Way Acres. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+          <p>© {new Date().getFullYear()} Little Way Acres. All rights reserved.</p>
         </div>
       </div>
     </footer>
