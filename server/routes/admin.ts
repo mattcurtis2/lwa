@@ -177,7 +177,23 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
     res.json({ url: s3Url });
   } catch (error) {
     console.error('Error saving cropped image:', error);
-    res.status(500).json({ error: 'Failed to save cropped image', details: error.message });
+    
+    // Enhanced error reporting for troubleshooting
+    const errorDetails = {
+      message: error.message,
+      code: error.code || 'unknown',
+      requestId: error.$metadata?.requestId || 'N/A',
+      awsRegion: process.env.AWS_REGION || 'Not set',
+      accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...' : 'Not set'
+    };
+    
+    console.error('Detailed S3 error information:', errorDetails);
+    
+    res.status(500).json({ 
+      error: 'Failed to save cropped image', 
+      details: error.message,
+      debug: errorDetails 
+    });
   }
 });
 

@@ -12,32 +12,19 @@ const configureCors = async (s3, bucketName) => {
 
 
 async function uploadToS3(file) {
+  console.log('==== S3 UPLOAD ATTEMPT ====');
+
   try {
-    console.log('==== S3 UPLOAD ATTEMPT ====');
-    // Check AWS credentials
     const AWS_REGION = process.env.AWS_REGION;
     const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
     const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
 
-    // Check if environment variables are properly set
-    const missingVars = [];
-    if (!AWS_REGION) missingVars.push('AWS_REGION');
-    if (!AWS_ACCESS_KEY_ID) missingVars.push('AWS_ACCESS_KEY_ID');
-    if (!AWS_SECRET_ACCESS_KEY) missingVars.push('AWS_SECRET_ACCESS_KEY');
-    if (!BUCKET_NAME) missingVars.push('AWS_BUCKET_NAME/S3_BUCKET_NAME');
-
-    if (missingVars.length > 0) {
-      console.error(`ERROR: Missing required environment variables: ${missingVars.join(', ')}`);
-      throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-    }
-
     console.log('AWS Credentials Check:');
-    console.log(`- AWS_REGION: ${AWS_REGION ? 'Set' : 'Not set'}`);
-    console.log(`- AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
-    console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-    console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
-    console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+    console.log(`- AWS_REGION: ${AWS_REGION ? AWS_REGION : 'Not set'}`);
+    console.log(`- AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set'}`);
+    console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (first 4 chars: ${AWS_SECRET_ACCESS_KEY.substring(0, 4)}..., length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+    console.log(`- BUCKET_NAME: ${BUCKET_NAME || 'Not set'}`);
     console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
 
     // Log full environment in development mode for debugging
@@ -75,6 +62,8 @@ async function uploadToS3(file) {
         secretAccessKey: AWS_SECRET_ACCESS_KEY
       }
     });
+
+    console.log(`S3 Client initialized with region: ${AWS_REGION}, accessKeyId prefix: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...`);
 
     // Check CORS configuration of the bucket
     try {
