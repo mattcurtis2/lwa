@@ -1,23 +1,86 @@
-import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
 import fs from 'fs-extra';
+import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
+import path from 'path';
+import { randomUUID as uuidv4 } from "crypto";
 import dotenv from 'dotenv';
+import { sleep } from '../helpers';
 
 dotenv.config();
 
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
-});
-
-const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-
-// Function to update S3 bucket CORS configuration
-async function updateBucketCors() {
+// Function to check and set S3 bucket CORS configuration
+async function ensureBucketCorsConfig(s3Client, bucketName) {
   try {
-    console.log('Updating S3 bucket CORS configuration...');
+    console.log('Checking S3 bucket CORS configuration...');
+
+    // Set a permissive CORS configuration for the bucket
+    const corsParams = {
+      Bucket: bucketName,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedHeaders: ["*"],
+            AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
+            AllowedOrigins: ["*"],
+            ExposeHeaders: ["ETag", "Content-Length", "Content-Type"],
+            MaxAgeSeconds: 3000
+          }
+        ]
+      }
+    };
+
+    // Import the PutBucketCorsCommand dynamically to avoid potential issues
+    const { PutBucketCorsCommand } = await import('@aws-sdk/client-s3');
+    await s3Client.send(new PutBucketCorsCommand(corsParams));
+    console.log('CORS configuration set successfully');
+
+    return true;
+  } catch (error) {
+    console.warn('Warning: Failed to set CORS configuration:', error);
+    // Continue even if CORS setting fails
+    return false;
+  }
+}
+
+// Initialize the S3 client with AWS credentials
+export async function uploadToS3(file: any): Promise<string | null> {
+  console.log('==== S3 UPLOAD ATTEMPT ====');
+  // Check if AWS credentials are set
+  console.log('AWS Credentials Check:');
+  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
+  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
+  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+  console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
+  console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+
+  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || 
+      (!process.env.AWS_BUCKET_NAME && !process.env.S3_BUCKET_NAME)) {
+    console.error('S3 Upload - Missing AWS credentials');
+    return null;
+  }
+
+  // Validate the file object
+  if (!file) {
+    console.error('S3 Upload - No file provided');
+    return null;
+  }
+
+  if (!file.originalname) {
+    console.error('S3 Upload - File missing originalname');
+    return null;
+  }
+
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+
+  // Set CORS for the bucket (this only needs to be done once per bucket)
+  try {
+    console.log('Checking S3 bucket CORS configuration...');
     await s3.send(
       new PutBucketCorsCommand({
         Bucket: bucketName,
@@ -27,62 +90,65 @@ async function updateBucketCors() {
               AllowedHeaders: ['*'],
               AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
               AllowedOrigins: ['*'],
-              ExposeHeaders: ['ETag', 'x-amz-meta-custom-header', 'x-amz-server-side-encryption'],
-              MaxAgeSeconds: 3600
+              ExposeHeaders: ['ETag']
             }
           ]
         }
       })
     );
-    console.log('CORS configuration updated successfully');
+    console.log('CORS configuration set successfully');
   } catch (error) {
-    console.error('Error updating CORS configuration:', error);
-  }
-}
-
-// Initialize S3 configuration when the module loads
-updateBucketCors().catch(console.error);
-
-export async function uploadToS3(file: any): Promise<string | null> {
-  if (!file) {
-    console.error('No file provided for upload');
-    return null;
+    console.error('Error setting CORS configuration', error);
+    // Continue anyway as this might just be a permissions issue
   }
 
   try {
     // Generate a unique key for the file
     const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`;
+    console.log(`S3 Upload - Processing file: ${file.originalname}`);
 
     let fileContent;
     if (file.buffer) {
+      // If the file is already in memory (from multer's memoryStorage or manual buffer)
+      console.log(`Using buffer content with size: ${file.buffer.length} bytes`);
       fileContent = file.buffer;
     } else if (file.path) {
+      // If the file is on disk (from multer's diskStorage)
+      console.log(`Reading file from path: ${file.path}`);
       fileContent = await fs.readFile(file.path);
     } else {
       throw new Error('File has neither buffer nor path');
     }
 
-    // Upload file to S3
+    if (!fileContent) {
+      throw new Error('Failed to get file content');
+    }
+
+    console.log(`File content obtained, size: ${fileContent.length} bytes`);
+    console.log(`Content type: ${file.mimetype || 'application/octet-stream'}`);
+
+    // Upload the file to S3
     await s3.send(
       new PutObjectCommand({
         Bucket: bucketName,
         Key: fileKey,
         Body: fileContent,
         ContentType: file.mimetype || 'application/octet-stream',
-        // Add cache control and CORS-related headers
-        Metadata: {
-          'Cache-Control': 'max-age=31536000',
-          'x-amz-meta-custom-header': 'custom-value'
-        }
+        // Remove ACL setting as it might cause issues with some bucket configurations
       })
     );
 
-    // Return the public URL
-    const url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
-    console.log('File uploaded successfully:', url);
+    // Return the URL to the uploaded file
+    const url = `https://${bucketName}.s3.amazonaws.com/${fileKey}`;
+    console.log(`S3 Upload - Success. URL: ${url}`);
     return url;
   } catch (error) {
-    console.error('Error uploading to S3:', error);
-    throw error;
+    console.error('S3 Upload - Error during upload:', error);
+    if (error instanceof Error) {
+      console.error(`Error name: ${error.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
+    }
+    throw error; // Re-throw to allow proper error handling at the caller
   }
 }
