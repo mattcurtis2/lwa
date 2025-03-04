@@ -19,3 +19,6 @@ export function StrictModeDroppable({ children, ...props }: DroppableProps) {
 
   return <Droppable {...props}>{children}</Droppable>;
 }
+
+// Add default export for backward compatibility
+export default StrictModeDroppable;
