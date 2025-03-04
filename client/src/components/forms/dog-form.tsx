@@ -348,23 +348,84 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
+  const handleCroppedImage = async (dataUrl: string | null, cropData: any) => {
     try {
       setIsUploadingProfile(true);
 
-      let fileToUpload: File;
+      // Create a temporary URL for the cropped image
+      const uploadedUrl = form.getValues("profileImageUrl");
 
-      if (croppedFile) {
-        fileToUpload = croppedFile;
+      // Extract the filename from the original URL
+      const filename = uploadedUrl.split("/").pop();
+
+      let file: File;
+
+      if (dataUrl) {
+        // If we have a dataUrl, use it to create a file
+        // Convert data URL to a Blob
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+
+        // Create a File object from the Blob
+        file = new File([blob], filename || "cropped-image.jpg", {
+          type: "image/jpeg",
+        });
+      } else if (cropData) {
+        // If we don't have a dataUrl but have crop data,
+        // we need to fetch the original image and crop it server-side
+        const formData = new FormData();
+        formData.append("imageUrl", uploadedUrl);
+        formData.append("cropData", JSON.stringify(cropData));
+        formData.append("filename", filename || "cropped-image.jpg");
+
+        // Send the crop data to a server endpoint that can handle cross-origin images
+        const cropRes = await fetch("/api/crop-image", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!cropRes.ok) {
+          throw new Error(`Failed to crop image server-side. Status: ${cropRes.status}`);
+        }
+
+        const cropResult = await cropRes.json();
+
+        if (!cropResult || !cropResult.url) {
+          throw new Error('Invalid response from crop endpoint');
+        }
+
+        // Set the new URL directly and exit early
+        const imageUrl = cropResult.url;
+
+        form.setValue("profileImageUrl", imageUrl, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+
+        form.trigger("profileImageUrl");
+
+        // Refresh image preview
+        const previewElements = document.querySelectorAll(`img[src="${uploadedUrl}"]`);
+        previewElements.forEach(el => {
+          (el as HTMLImageElement).src = imageUrl;
+        });
+
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
+
+        return;
       } else {
-        const res = await fetch(uploadedUrl);
-        const blob = await res.blob();
-        fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+        throw new Error("No crop data available");
       }
 
+      // Create a FormData object
       const formData = new FormData();
-      formData.append("file", fileToUpload);
+      formData.append("file", file);
 
+      // Send the FormData to your upload endpoint
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -921,7 +982,7 @@ export default function DogForm({
                   <FormLabel>Father</FormLabel>
                   <Select
                     value={field.value?.toString() || ""}
-                    onValueChange={(value) => {
+                    onValueChange={(value) =>{
                       const newValue = value === "none" ? null : parseInt(value);
                       field.onChange(newValue);
                     }}

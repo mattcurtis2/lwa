@@ -1281,32 +1281,32 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const { title, description, imageUrl } = req.body;
-      
+
       let finalImageUrl = imageUrl;
-      
+
       // Check if the image URL is a base64 data
       if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
         try {
           console.log(`=== PROCESSING PRINCIPLE IMAGE FOR S3 ===`);
           console.log(`Processing image for principle ID: ${id}`);
-          
+
           // Import S3 utility
           const { uploadToS3 } = await import('./utils/s3.js');
-          
+
           // Handle base64 image data
           const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-          
+
           if (!matches || matches.length !== 3) {
             throw new Error('Invalid base64 image format');
           }
-          
+
           const mimetype = matches[1];
           const base64Data = matches[2];
           console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
-          
+
           // Create a buffer from the base64 data
           const imageBuffer = Buffer.from(base64Data, 'base64');
-          
+
           // Create a mock file object that uploadToS3 can handle
           const filename = `principle-${id}-${Date.now()}.jpg`;
           const mockFile = {
@@ -1314,15 +1314,15 @@ export function registerRoutes(app: Express): Server {
             mimetype: mimetype || 'image/jpeg',
             originalname: filename
           };
-          
+
           // Upload to S3
           console.log(`Uploading principle image to S3...`);
           const s3Url = await uploadToS3(mockFile);
-          
+
           if (!s3Url) {
             throw new Error('Failed to upload to S3 - No URL returned');
           }
-          
+
           console.log(`Successfully uploaded principle image to S3: ${s3Url}`);
           finalImageUrl = s3Url;
         } catch (uploadError) {

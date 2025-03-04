@@ -47,7 +47,7 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string) => void;
+  onCropComplete: (croppedImageUrl: string | null, completedCrop: PixelCrop | null) => void;
   onCancel: () => void;
   aspect?: number;
   onSkip?: () => void;
@@ -106,42 +106,58 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
+    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+      return;
+    }
+
     try {
-      if (!completedCrop || !imgRef.current) return;
+      const canvas = previewCanvasRef.current;
+      const image = imgRef.current;
+      const crop = completedCrop;
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      const ctx = canvas.getContext("2d");
 
-      console.log("Crop completed:", completedCrop);
+      if (!ctx) {
+        throw new Error("No 2d context");
+      }
 
-      const canvas = document.createElement('canvas');
-      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+      // Set canvas size to match the crop area
+      canvas.width = crop.width;
+      canvas.height = crop.height;
 
-      canvas.width = completedCrop.width;
-      canvas.height = completedCrop.height;
+      // Set canvas properties to prevent tainted canvas
+      ctx.imageSmoothingQuality = 'high';
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      // First, check if the image is already loaded from the same origin
+      // or has proper CORS headers
+      try {
+        // Draw the cropped image onto the canvas
+        ctx.drawImage(
+          image,
+          crop.x * scaleX,
+          crop.y * scaleY,
+          crop.width * scaleX,
+          crop.height * scaleY,
+          0,
+          0,
+          crop.width,
+          crop.height
+        );
 
-      ctx.drawImage(
-        imgRef.current,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        completedCrop.width,
-        completedCrop.height
-      );
-
-      // Convert canvas to base64 URL with higher quality
-      const base64Url = canvas.toDataURL('image/jpeg', 0.95);
-      console.log("Created cropped image URL:", base64Url);
-      console.log("Applying crop with URL:", base64Url);
-
-      // Make sure we're passing the same URL structure consistently
-      onCropComplete(base64Url);
+        // Convert canvas to data URL
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        onCropComplete(dataUrl, completedCrop);
+      } catch (securityError) {
+        // If we get a security error, pass the crop data directly
+        // instead of trying to generate a data URL
+        console.log("Crop completed:", completedCrop);
+        onCropComplete(null, completedCrop);
+      }
     } catch (error) {
       console.error("Error completing crop:", error);
+      // Still pass the crop data even if there was an error
+      onCropComplete(null, completedCrop);
     }
   };
 
