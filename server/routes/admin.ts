@@ -184,7 +184,9 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
       code: error.code || 'unknown',
       requestId: error.$metadata?.requestId || 'N/A',
       awsRegion: process.env.AWS_REGION || 'Not set',
-      accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...' : 'Not set'
+      accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...' : 'Not set',
+      secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY ? process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...' : 'Not set',
+      s3CredentialsUsed: global.s3CredentialsDebug || 'Not available'
     };
     
     console.error('Detailed S3 error information:', errorDetails);

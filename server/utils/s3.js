@@ -131,9 +131,28 @@ async function uploadToS3(file) {
     return s3Url;
   } catch (error) {
     console.error('S3 Upload - Error during upload:', error);
-    console.error('Error details:', error.message);
-    if (error.stack) console.error('Stack trace:', error.stack);
-    throw error;
+    if (error instanceof Error) {
+      console.error(`Error name: ${error.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
+
+      // Add credentials to the error object for debugging
+      error.awsCredentials = {
+        region: AWS_REGION,
+        accessKeyIdPrefix: AWS_ACCESS_KEY_ID.substring(0, 4),
+        secretKeyPrefix: AWS_SECRET_ACCESS_KEY.substring(0, 4),
+        fullAccessKeyId: AWS_ACCESS_KEY_ID,  // Include full key in server logs only
+        bucketName: BUCKET_NAME
+      };
+
+      console.error('AWS Credentials used in failed request:', {
+        region: AWS_REGION,
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretKeyPrefix: AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...',
+        bucketName: BUCKET_NAME
+      });
+    }
+    throw error; // Re-throw to allow proper error handling at the caller
   }
 }
 
