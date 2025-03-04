@@ -818,8 +818,10 @@ export default function DogForm({
   const handleEditMedia = (index: number) => {
     const media = mediaInputs[index];
     if (media && media.type === "image") {
+      // Create a proxy URL to handle CORS
+      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(media.url)}`;
       setEditingMediaIndex(index);
-      setCurrentMediaUrl(media.url);
+      setCurrentMediaUrl(proxyUrl);
       setShowMediaCropDialog(true);
     }
   };
@@ -1005,7 +1007,7 @@ export default function DogForm({
               <DialogHeader>
                 <DialogTitle>Edit Image</DialogTitle>
                 <DialogDescription>
-                  Crop and adjust the image as needed
+                  Adjust the crop area by dragging the corners. Click and drag inside the crop area to reposition.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -1017,7 +1019,7 @@ export default function DogForm({
                     setEditingMediaIndex(null);
                     setCurrentMediaUrl("");
                   }}
-                  aspect={undefined}
+                  aspect={16/9}
                 />
               </div>
             </DialogContent>

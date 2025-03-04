@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import dotenv from "dotenv";
+import proxyRouter from "./routes/proxy";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -11,10 +12,10 @@ function validateEnvironment() {
   // Check S3 credentials exactly how DB credentials are checked
   const requiredAwsVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
   const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
-  
+
   if (missingAwsVars.length > 0) {
     console.error(`⚠️ CONFIGURATION ERROR: Missing required AWS variables: ${missingAwsVars.join(', ')}`);
-    
+
     if (process.env.NODE_ENV === 'production') {
       throw new Error(`Missing required environment variables: ${missingAwsVars.join(', ')}. Ensure these are set in your Replit Secrets for deployment.`);
     } else {
@@ -24,7 +25,7 @@ function validateEnvironment() {
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
   }
-  
+
   // Check database credentials
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.');
@@ -47,6 +48,9 @@ console.log('==========================================');
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// Add proxy router before other routes
+app.use('/api', proxyRouter);
 
 app.use((req, res, next) => {
   const start = Date.now();
