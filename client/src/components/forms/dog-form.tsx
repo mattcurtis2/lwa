@@ -1108,7 +1108,7 @@ export default function DogForm({
                     setEditingMediaIndex(null);
                     setCurrentMediaUrl("");
                   }}
-                  aspect={16 / 9}
+                  aspect={16/9}
                 />
               </div>
             </DialogContent>

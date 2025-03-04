@@ -1,79 +1,16 @@
-
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useState, useRef } from "react";
-import ReactCrop, { centerCrop, makeAspectCrop, Crop, PixelCrop } from "react-image-crop";
+import React, { useState, useRef } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './dialog';
+import { Button } from './button';
+import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-
-// This is to help TypeScript find the types
-import type { Crop as CropType } from 'react-image-crop';
-
-function useDebounceEffect(
-  fn: () => void,
-  deps: any[],
-  wait: number
-) {
-  const timeout = useRef<number | null>(null);
-  
-  const callback = useRef(fn);
-  callback.current = fn;
-
-  const debouncedFunc = () => {
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-    }
-    timeout.current = window.setTimeout(() => {
-      callback.current();
-    }, wait);
-  };
-
-  React.useEffect(() => {
-    debouncedFunc();
-    return () => {
-      if (timeout.current) {
-        clearTimeout(timeout.current);
-      }
-    };
-  }, deps);
-}
-
-function canvasPreview(
-  image: HTMLImageElement,
-  canvas: HTMLCanvasElement,
-  crop: PixelCrop,
-) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('No 2d context');
-  }
-
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
-  
-  canvas.width = crop.width;
-  canvas.height = crop.height;
-
-  ctx.imageSmoothingQuality = 'high';
-  
-  ctx.drawImage(
-    image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
-    0,
-    0,
-    crop.width,
-    crop.height,
-  );
-}
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string) => void;
+  onCropComplete: (croppedImageUrl: string, blob?: Blob) => void;
   onCancel: () => void;
   aspect?: number;
   onSkip?: () => void;
+  circularCrop?: boolean;
 }
 
 export function ImageCrop({
@@ -81,13 +18,13 @@ export function ImageCrop({
   onCropComplete,
   onCancel,
   aspect = 1,
-  onSkip
+  onSkip,
+  circularCrop = false
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [isProcessing, setIsProcessing] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
@@ -122,53 +59,46 @@ export function ImageCrop({
       const scaleX = image.naturalWidth / image.width;
       const scaleY = image.naturalHeight / image.height;
 
-      // Convert percent crop to pixel values
-      const validCrop = completedCrop as PixelCrop;
-
-      // Set canvas dimensions to match the cropped image
-      canvas.width = validCrop.width;
-      canvas.height = validCrop.height;
-
       const ctx = canvas.getContext('2d');
       if (!ctx) {
-        throw new Error('No 2d context');
+        console.error('No 2d context');
+        setIsProcessing(false);
+        return;
       }
 
-      // Draw the cropped image onto the canvas
+      // Set the canvas dimensions to the cropped size
+      canvas.width = completedCrop.width;
+      canvas.height = completedCrop.height;
+
       ctx.drawImage(
         image,
-        validCrop.x * scaleX,
-        validCrop.y * scaleY,
-        validCrop.width * scaleX,
-        validCrop.height * scaleY,
+        completedCrop.x * scaleX,
+        completedCrop.y * scaleY,
+        completedCrop.width * scaleX,
+        completedCrop.height * scaleY,
         0,
         0,
-        validCrop.width,
-        validCrop.height
+        completedCrop.width,
+        completedCrop.height
       );
 
-      try {
-        // Convert canvas to blob and create an object URL
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            console.error("Failed to create blob");
-            setIsProcessing(false);
-            return;
-          }
-
-          // Create a URL for the blob
-          const croppedUrl = URL.createObjectURL(blob);
-
-          // Call the crop complete callback
-          onCropComplete(croppedUrl);
+      // Convert canvas to blob
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Failed to create blob");
           setIsProcessing(false);
-        }, 'image/jpeg', 0.95);
-      } catch (error) {
-        console.error("Error completing crop:", error);
+          return;
+        }
+
+        // Create a URL for the blob
+        const croppedUrl = URL.createObjectURL(blob);
+
+        // Call the crop complete callback
+        onCropComplete(croppedUrl, blob);
         setIsProcessing(false);
-      }
+      }, 'image/jpeg', 0.95);
     } catch (error) {
-      console.error("Error in cropping process:", error);
+      console.error("Error completing crop:", error);
       setIsProcessing(false);
     }
   };
@@ -185,6 +115,7 @@ export function ImageCrop({
             onChange={(c) => setCrop(c)}
             onComplete={(c) => setCompletedCrop(c)}
             aspect={aspect}
+            circularCrop={circularCrop}
           >
             <img
               ref={imgRef}
@@ -222,5 +153,34 @@ export function ImageCrop({
   );
 }
 
-// Default export for backwards compatibility
-export default ImageCrop;
+// Helper function to create canvas preview
+export function canvasPreview(
+  image: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  crop: PixelCrop,
+) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('No 2d context');
+  }
+
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+
+  ctx.imageSmoothingQuality = 'high';
+
+  ctx.drawImage(
+    image,
+    crop.x * scaleX,
+    crop.y * scaleY,
+    crop.width * scaleX,
+    crop.height * scaleY,
+    0,
+    0,
+    crop.width,
+    crop.height,
+  );
+}
