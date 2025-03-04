@@ -4,6 +4,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import useDebounceEffect from "@/lib/useDebounceEffect";
+import {Loader} from "@/components/ui/loader";
 
 function canvasPreview(
   img: HTMLImageElement,
@@ -47,7 +48,7 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string | null, completedCrop: PixelCrop | null) => void;
+  onCropComplete: (croppedImageUrl: string) => void;
   onCancel: () => void;
   aspect?: number;
   onSkip?: () => void;
@@ -63,6 +64,7 @@ export function ImageCrop({
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [isProcessing, setIsProcessing] = useState(false); // Added state for processing
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -105,67 +107,88 @@ export function ImageCrop({
     100
   );
 
-  const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
-      return;
-    }
+  const handleApplyCrop = useCallback(() => {
+    if (!completedCrop || !imgRef.current) return;
 
     try {
-      const canvas = previewCanvasRef.current;
+      console.log("Crop completed:", completedCrop);
+
+      const validCrop = {
+        ...completedCrop,
+        width: completedCrop.width <= 0 ? imgRef.current.width / 4 : completedCrop.width,
+        height: completedCrop.height <= 0 ? imgRef.current.height / 4 : completedCrop.height,
+      };
+
+      setIsProcessing(true);
+
       const image = imgRef.current;
-      const crop = completedCrop;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
       if (!ctx) {
-        throw new Error("No 2d context");
+        throw new Error('No 2d context');
       }
 
-      // Set canvas size to match the crop area
-      canvas.width = crop.width;
-      canvas.height = crop.height;
+      canvas.width = validCrop.width;
+      canvas.height = validCrop.height;
 
-      // Set canvas properties to prevent tainted canvas
-      ctx.imageSmoothingQuality = 'high';
-
-      // First, check if the image is already loaded from the same origin
-      // or has proper CORS headers
       try {
         // Draw the cropped image onto the canvas
         ctx.drawImage(
           image,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
+          validCrop.x,
+          validCrop.y,
+          validCrop.width,
+          validCrop.height,
           0,
           0,
-          crop.width,
-          crop.height
+          validCrop.width,
+          validCrop.height
         );
 
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL("image/jpeg");
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(dataUrl, completedCrop);
+        // Directly try to get the data URL first
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+          onCropComplete(dataUrl);
+        } catch (corsError) {
+          console.warn("CORS error when accessing canvas directly, trying alternative approach:", corsError);
+
+          // Alternative approach: render to a blob and use FileReader
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              console.error("Failed to create blob from canvas");
+              setIsProcessing(false);
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              if (typeof reader.result === 'string') {
+                onCropComplete(reader.result);
+              } else {
+                console.error("FileReader result is not a string");
+              }
+              setIsProcessing(false);
+            };
+            reader.onerror = () => {
+              console.error("Error reading blob as data URL");
+              setIsProcessing(false);
+            };
+            reader.readAsDataURL(blob);
+          }, 'image/jpeg', 0.95);
         }
-      } catch (securityError) {
-        // If we get a security error, pass the crop data directly
-        // instead of trying to generate a data URL
-        console.log("Crop completed:", completedCrop);
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(null, completedCrop);
-        }
+      } catch (error) {
+        console.error("Error in cropping process:", error);
+        setIsProcessing(false);
       }
+
     } catch (error) {
       console.error("Error completing crop:", error);
-      // Still pass the crop data even if there was an error
-      if (typeof onCropComplete === 'function') {
-          onCropComplete(null, completedCrop);
-      }
+      setIsProcessing(false);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }, [completedCrop, imgRef, onCropComplete]);
 
   console.log("Crop completed:", completedCrop);
 
@@ -189,6 +212,7 @@ export function ImageCrop({
                 alt="Crop me"
                 src={imageUrl}
                 onLoad={onImageLoad}
+                crossOrigin="anonymous"
                 className="max-h-[500px] object-contain"
               />
             </ReactCrop>
@@ -198,16 +222,23 @@ export function ImageCrop({
             </div>
 
             <div className="flex justify-end space-x-2 w-full">
-              <Button variant="outline" onClick={onCancel}>
+              <Button variant="outline" onClick={(e) => {e.preventDefault(); onCancel()}}>
                 Cancel
               </Button>
               {onSkip && (
-                <Button variant="secondary" onClick={onSkip}>
+                <Button variant="secondary" onClick={(e) => {e.preventDefault(); onSkip()}}>
                   Skip Cropping
                 </Button>
               )}
-              <Button onClick={handleApplyCrop}>
-                Apply Crop
+              <Button onClick={(e) => {e.preventDefault(); handleApplyCrop()}}>
+                {isProcessing ? (
+                  <>
+                    <Loader size="sm" className="mr-2" />
+                    Processing
+                  </>
+                ) : (
+                  "Apply"
+                )}
               </Button>
             </div>
           </div>
