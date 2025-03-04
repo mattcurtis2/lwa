@@ -661,7 +661,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           <ImageCrop 
             imageUrl={processImageUrl(cropImageUrl)} // Apply proxy processing here
             aspect={1}
-            circularCrop={true}
+            circularCrop={false} // Modified: Set circularCrop to false
             onCropComplete={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
@@ -1000,7 +1000,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+                  className="grid gridcols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                 >
                   {mediaInputs.filter(input => input?.url).map((input, index) => (
                     <Draggable
