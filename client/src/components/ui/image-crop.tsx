@@ -203,8 +203,8 @@ export function ImageCrop({
                 alt="Crop me"
                 src={imageUrl}
                 onLoad={onImageLoad}
-                crossOrigin="anonymous"  {/* Added crossOrigin attribute */}
-                className="max-h-[500px] object-contain"
+                crossOrigin="anonymous" 
+                className="max-h-[500px] object-contain" /* Added crossOrigin attribute */
               />
             </ReactCrop>
 
