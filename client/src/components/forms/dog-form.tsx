@@ -136,6 +136,7 @@ export default function DogForm({
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
+  const [tempMediaData, setTempMediaData] = useState<MediaInput | null>(null); //New state for tracking media during crop
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -653,6 +654,54 @@ export default function DogForm({
     }
   });
 
+  const handleMediaCrop = (index: number, imageUrl: string) => {
+    setTempMediaData(mediaInputs[index]);
+    setCropImageUrl(imageUrl);
+    setShowCropper(true);
+  };
+
+  const applyCroppedMediaImage = async (croppedImageUrl: string) => {
+    if (tempMediaData) {
+      try {
+        const formData = new FormData();
+        const res = await fetch(croppedImageUrl);
+        const blob = await res.blob();
+        const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+        formData.append('file', croppedFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload image');
+        }
+
+        const data = await uploadRes.json();
+        const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+
+        const updatedMediaInputs = [...mediaInputs];
+        updatedMediaInputs[mediaInputs.indexOf(tempMediaData)] = {...tempMediaData, url: uploadedUrl};
+        setMediaInputs(updatedMediaInputs);
+        form.setValue("media", updatedMediaInputs);
+
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to upload cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+          variant: "destructive",
+        });
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
+      }
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -728,10 +777,11 @@ export default function DogForm({
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
-            onCropComplete={handleCroppedImage}
+            onCrop={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
+              setTempMediaData(null);
             }}
             onSkip={async () => {
               const formData = new FormData();
@@ -1258,12 +1308,12 @@ export default function DogForm({
                                 src={input.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                                onClick={() => handleMediaCrop(index, input.url)}
                               />
                               <div
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
                                 onClick={() => {
-                                  setCropImageUrl(input.url);
-                                  setShowCropper(true);
+                                  handleMediaCrop(index, input.url)
                                 }}
                               >
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">

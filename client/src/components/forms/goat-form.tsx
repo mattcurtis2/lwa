@@ -464,6 +464,54 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     setShowCropper(true);
   };
 
+  const applyCroppedMediaImage = async (croppedImageUrl: string) => {
+    setIsUploading(true);
+    try {
+      const { index, file } = tempMediaData!;
+      const updatedMedia = [...mediaInputs];
+      const formData = new FormData();
+      formData.append('file', await (await fetch(croppedImageUrl)).blob(), 'cropped-image.jpg');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+          throw new Error('Failed to upload image.');
+      }
+
+      const data = await res.json();
+      const imageUrl = data[0].url;
+      const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
+
+      updatedMedia[index] = {
+        ...updatedMedia[index],
+        url: imageUrl,
+        file,
+        tempUrl: timestampedUrl,
+        type: 'image',
+        isNew: true,
+      };
+
+      setMediaInputs(updatedMedia);
+      form.setValue("media", updatedMedia);
+      setTempMediaData(null);
+      toast({ title: "Success", description: "Image cropped and uploaded successfully" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setShowCropper(false);
+      setCropImageUrl("");
+      setTempMediaData(null);
+    }
+  }
+
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
       const processedValues = {
@@ -967,7 +1015,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                               <img
                                 src={input.tempUrl || input.url}
                                 alt={`Upload ${index + 1}`}
-                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                                className="w-full h-full object-cover cursorpointer transition-transform group-hover:scale-105"
+                                onClick={() => handleMediaImageSelect(input.file as File, index)}
                               />
                               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div 
@@ -1071,7 +1120,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             </FormItem>
           )}
         />
-    <FormField
+        <FormField
           control={form.control}
           name="outsideBreeder"
           render={({ field }) => (
@@ -1118,6 +1167,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             {mode === 'create' ? 'Create Goat' : 'Update Goat'}
           </Button>
         </div>
-      </form></Form>
+      </form>
+    </Form>
   );
 }
