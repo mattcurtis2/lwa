@@ -29,7 +29,6 @@ function canvasPreview(
   const cropX = crop.x * scaleX;
   const cropY = crop.y * scaleY;
 
-  // First draw the source image
   ctx.drawImage(
     img,
     cropX,
@@ -47,24 +46,26 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string | null, completedCrop: PixelCrop | null) => void;
+  onCropComplete: (croppedImageUrl: string) => Promise<void>;
   onCancel: () => void;
-  aspect?: number;
   onSkip?: () => void;
+  aspect?: number;
+  circularCrop?: boolean;
 }
 
-// Export as both default and named export
 export function ImageCrop({
   imageUrl,
   onCropComplete,
   onCancel,
+  onSkip,
   aspect = 1,
-  onSkip
+  circularCrop = false
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
@@ -86,14 +87,13 @@ export function ImageCrop({
   }
 
   useDebounceEffect(
-    function () {
+    async () => {
       if (
         completedCrop?.width &&
         completedCrop?.height &&
         imgRef.current &&
         previewCanvasRef.current
       ) {
-        // We use canvasPreview as it's much faster than createObjectURL
         canvasPreview(
           imgRef.current,
           previewCanvasRef.current,
@@ -106,62 +106,21 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+    if (!completedCrop || !previewCanvasRef.current) {
       return;
     }
 
+    setIsProcessing(true);
     try {
       const canvas = previewCanvasRef.current;
-      const image = imgRef.current;
-      const crop = completedCrop;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) {
-        throw new Error("No 2d context");
-      }
-
-      // Set canvas size to match the crop area
-      canvas.width = crop.width;
-      canvas.height = crop.height;
-
-      // Set canvas properties to prevent tainted canvas
-      ctx.imageSmoothingQuality = 'high';
-
-      // First, check if the image is already loaded from the same origin
-      // or has proper CORS headers
-      try {
-        // Draw the cropped image onto the canvas
-        ctx.drawImage(
-          image,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
-          0,
-          0,
-          crop.width,
-          crop.height
-        );
-
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL("image/jpeg");
-        onCropComplete(dataUrl, completedCrop);
-      } catch (securityError) {
-        // If we get a security error, pass the crop data directly
-        // instead of trying to generate a data URL
-        console.log("Crop completed:", completedCrop);
-        onCropComplete(null, completedCrop);
-      }
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      await onCropComplete(dataUrl);
     } catch (error) {
-      console.error("Error completing crop:", error);
-      // Still pass the crop data even if there was an error
-      onCropComplete(null, completedCrop);
+      console.error('Error applying crop:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
-
-  console.log("Crop completed:", completedCrop);
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
@@ -176,7 +135,7 @@ export function ImageCrop({
               onChange={(c) => setCrop(c)}
               onComplete={(c) => setCompletedCrop(c)}
               aspect={aspect}
-              circularCrop={false}
+              circularCrop={circularCrop}
             >
               <img
                 ref={imgRef}
@@ -200,8 +159,11 @@ export function ImageCrop({
                   Skip Cropping
                 </Button>
               )}
-              <Button onClick={handleApplyCrop}>
-                Apply Crop
+              <Button 
+                onClick={handleApplyCrop}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Apply Crop"}
               </Button>
             </div>
           </div>
@@ -211,5 +173,4 @@ export function ImageCrop({
   );
 }
 
-// Also maintain the default export for backward compatibility
 export default ImageCrop;
