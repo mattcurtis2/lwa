@@ -139,6 +139,7 @@ export function ImageCrop({
               alt="Crop preview"
               onLoad={onImageLoad}
               className="max-w-full h-auto"
+              crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
