@@ -195,7 +195,7 @@ async function uploadBase64ToS3(base64Data, fileName) {
   }
 }
 
-export {uploadToS3, uploadBase64ToS3, getFromS3};
+export {uploadBase64ToS3};
 
 //Example PUT route handler (needs to be integrated into your existing server code)
 //This is a placeholder and needs to be adapted to your specific framework (Express, Fastify etc.)
