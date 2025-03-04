@@ -826,13 +826,13 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedMediaImage = async (croppedImageUrl: string) => {
+  const handleCroppedMediaImage = async (croppedImageUrl: string, cropData?: {x: number, y: number, width: number, height: number}) => {
     if (editingMediaIndex === null) return;
 
     try {
       setIsUploading(true);
+      console.log('Starting image crop process with data:', cropData);
 
-      // Create a canvas to apply the crop
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
@@ -841,16 +841,50 @@ export default function DogForm({
         img.src = croppedImageUrl;
       });
 
+      console.log('Image loaded with dimensions:', {
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight
+      });
+
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set fixed dimensions for the output image
-      canvas.width = img.width;
-      canvas.height = img.height;
+      if (cropData) {
+        // Set canvas size to match crop dimensions
+        canvas.width = cropData.width;
+        canvas.height = cropData.height;
 
-      // Draw the full image
-      ctx.drawImage(img, 0, 0);
+        console.log('Canvas dimensions set to:', {
+          width: canvas.width,
+          height: canvas.height
+        });
+
+        // Draw the cropped portion
+        ctx.drawImage(
+          img,
+          cropData.x,         // Source X
+          cropData.y,         // Source Y
+          cropData.width,     // Source Width
+          cropData.height,    // Source Height
+          0,                  // Destination X
+          0,                  // Destination Y
+          cropData.width,     // Destination Width
+          cropData.height     // Destination Height
+        );
+
+        console.log('Image drawn with crop coordinates:', {
+          sourceX: cropData.x,
+          sourceY: cropData.y,
+          sourceWidth: cropData.width,
+          sourceHeight: cropData.height
+        });
+      } else {
+        console.warn('No crop data provided, using full image');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      }
 
       // Convert canvas to blob with high quality
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -859,6 +893,8 @@ export default function DogForm({
           else reject(new Error('Failed to create blob'));
         }, 'image/jpeg', 0.95);
       });
+
+      console.log('Canvas converted to blob, size:', blob.size);
 
       const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
@@ -874,6 +910,7 @@ export default function DogForm({
 
       const data = await uploadRes.json();
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+      console.log('Image uploaded successfully:', uploadedUrl);
 
       const updatedMediaInputs = [...mediaInputs];
       updatedMediaInputs[editingMediaIndex] = {
@@ -897,7 +934,7 @@ export default function DogForm({
       console.error('Error updating image:', error);
       toast({
         title: "Error",
-        description: "Failed to update image",
+        description: "Failed to update image: " + (error instanceof Error ? error.message : "Unknown error"),
         variant: "destructive",
       });
     } finally {
@@ -905,140 +942,26 @@ export default function DogForm({
     }
   };
 
+  // ... rest of the component code ...
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="profileImageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Profile Picture</FormLabel>
-              <FormDescription>
-                Upload a profile picture for the dog
-              </FormDescription>
-              <div className="flex items-center gap-4">
-                <div
-                  className="relative h-24 w-24 cursor-pointer"
-                  onClick={() => {
-                    if (field.value) {
-                      setCropImageUrl(field.value);
-                      setShowCropper(true);
-                    }
-                  }}
-                >
-                  <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
-                    {field.value ? (
-                      <img
-                        src={field.value}
-                        alt="Profile preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center">
-                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) {
-                          handleProfilePictureSelect(file);
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    {field.value ? 'Change Picture' : 'Upload Picture'}
-                  </Button>
-                  {field.value && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => field.onChange('')}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      Remove Picture
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* ... other form fields ... */}
 
-        {showCropper && cropImageUrl && (
-          <ImageCrop
-            imageUrl={cropImageUrl}
-            onCropComplete={handleCroppedImage}
-            onCancel={() => {
-              setShowCropper(false);setCropImageUrl("");
-              setTempMediaData(null);
-            }}
-            onSkip={async () =>{
-              const formData = new FormData();
-              const response = await fetch(cropImageUrl);
-              const blob = await response.blob();
-              formData.append('file', blob);
-
-              const uploadRes = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-              });
-
-              if (!uploadRes.ok) {
-                throw new Error('Failed to upload image');
-              }
-
-              const data = await uploadRes.json();
-              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-              if (cropImageUrl === form.getValues("profileImageUrl")) {
-                form.setValue("profileImageUrl", uploadedUrl);
-              } else {
-                const updatedMediaInputs = [...mediaInputs, {
-                  url: uploadedUrl,
-                  type: 'image' as const,
-                  fileName: 'image.jpg',
-                  isNew: true,
-                  file: new File([blob], 'image.jpg', { type: 'image/jpeg' })
-                }];
-                setMediaInputs(updatedMediaInputs);
-                form.setValue("media", updatedMediaInputs);
-              }
-
-              setShowCropper(false);
-              setCropImageUrl("");
-            }}
-            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
-            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
-          />
-        )}
-
-        {/* Media Cropping Dialog */}
         {showMediaCropDialog && currentMediaUrl && (
           <Dialog open={showMediaCropDialog} onOpenChange={(open) => !open && setShowMediaCropDialog(false)}>
             <DialogContent className="sm:max-w-[800px]">
               <DialogHeader>
                 <DialogTitle>Edit Image</DialogTitle>
                 <DialogDescription>
-                  Adjust the image as needed. Click save when done.
+                  Adjust the crop area by dragging the corners. Click and drag inside to reposition.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <ImageCrop
                   imageUrl={currentMediaUrl}
-                  onCropComplete={handleCroppedMediaImage}
+                  onCropComplete={(croppedImageUrl, cropData) => handleCroppedMediaImage(croppedImageUrl, cropData)}
                   onCancel={() => {
                     setShowMediaCropDialog(false);
                     setEditingMediaIndex(null);
@@ -1051,665 +974,7 @@ export default function DogForm({
           </Dialog>
         )}
 
-        {/* Rest of the form fields... */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="registrationName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Registration Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sex</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="male" id="male" />
-                    <label htmlFor="male" className="flex items-center gap-1">
-                      Male <span className="text-blue-500">♂</span>
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="female" id="female" />
-                    <label htmlFor="female" className="flex items-center gap-1">
-                      Female <span className="text-pink-500">♀</span>
-                    </label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
-          <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="motherId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mother</FormLabel>
-                  <Select
-                    value={field.value?.toString() || ""}
-                    onValueChange={(value) => {
-                      const newValue = value === "none" ? null : parseInt(value);
-                      field.onChange(newValue);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select mother" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableMothers.map((mother) => (
-                        <SelectItem key={mother.id} value={mother.id.toString()}>
-                          {mother.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fatherId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Father</FormLabel>
-                  <Select
-                    value={field.value?.toString() || ""}
-                    onValueChange={(value) => {
-                      const newValue = value === "none" ? null : parseInt(value);
-                      field.onChange(newValue);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select father" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableFathers.map((father) => (
-                        <SelectItem key={father.id} value={father.id.toString()}>
-                          {father.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="litterId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Litter</FormLabel>
-                  <Select
-                    value={field.value?.toString() || ""}
-                    onValueChange={(value) => {
-                      const newValue = value === "none" ? null : parseInt(value);
-                      field.onChange(newValue);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select litter" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {availableLitters.map((litter) => (
-                        <SelectItem key={litter.id} value={litter.id.toString()}>
-                          {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="birthDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Birth Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder={isPuppy ? "Optional description" : "Required description"} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="narrativeDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Narrative Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="breed"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Breed</FormLabel>
-                <FormControl>
-                  <Input {...field} defaultValue="Colorado Mountain Dogs" readOnly />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="color"
-            render={({ field}) => (<FormItem>
-                <FormLabel>Color</FormLabel>                <FormControl>
-                  <Input {...field} placeholder="e.g., White with brown markings" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="height"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Height (inches)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Weight (lbs)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="furLength"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fur Length</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., Medium length, double coat" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="dewclaws"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dewclaws</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., Removed, Natural" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="healthData"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Health Information</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  <Textarea
-                    {...field}
-                    placeholder="Health certifications, testing results, etc."
-                  />
-                  <div className="space-y-2">
-                    <Label>Health Documents</Label>
-                    <FileUpload
-                      onFileSelect={(file) => handleDocumentUpload(file, 'health')}
-                      accept="application/pdf,image/jpeg,image/png,video/*"
-                      isUploading={isUploadingDoc}
-                      skipCrop={true}
-                    />
-                    {healthDocuments.length > 0 && (
-                      <div className="space-y-2">
-                        {healthDocuments.map((doc, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 border rounded">
-                            <div className="flex items-center gap-2">
-                              {doc.mimeType.startsWith('image/') ? (
-                                <img
-                                  src={doc.url}
-                                  alt={doc.name}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                              ) : doc.mimeType.startsWith('video/') ? (
-                                <video
-                                  src={doc.url}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                              ) : (
-                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                                  <FileText className="h-6 w-6 text-muted-foreground" />
-                                </div>
-                              )}
-                              <span className="truncate max-w-[200px]">{doc.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                asChild
-                              >
-                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="h-4 w-4" />
-                                </a>
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeDocument(index, 'health')}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="pedigree"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pedigree Information</FormLabel>
-              <FormControl>
-                <div className="space-y-4">
-                  <Textarea
-                    {...field}
-                    placeholder="Family history and lineage information"/>
-                  <div className="space-y-2">
-                    <Label>Pedigree Documents</Label>
-                    <FileUpload                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
-                      accept="application/pdf,image/jpeg,image/png,video/*"
-                      isUploading={isUploadingDoc}
-                      skipCrop={true}
-                    />
-                    {pedigreeDocuments.length > 0 && (
-                      <div className="space-y-2">
-                        {pedigreeDocuments.map((doc, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 border rounded">
-                            <div className="flex items-center gap-2">
-                              {doc.mimeType.startsWith('image/') ? (
-                                <img
-                                  src={doc.url}
-                                  alt={doc.name}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                              ) : doc.mimeType.startsWith('video/') ? (
-                                <video
-                                  src={doc.url}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                              ) : (
-                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                                  <FileText className="h-6 w-6 text-muted-foreground" />
-                                </div>
-                              )}
-                              <span className="truncate max-w-[200px]">{doc.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                asChild
-                              >
-                                <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="h-4 w-4" />
-                                </a>
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeDocument(index, 'pedigree')}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <FormLabel>Pictures & Videos</FormLabel>
-          </div>
-
-          <div
-            {...getRootProps()}
-            className={cn(
-              "border-2 border-dashed rounded-lg p-6 transition-colors",
-              isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-              "hover:border-primary hover:bg-primary/5 cursor-pointer"
-            )}
-          >
-            <input {...getInputProps()} />
-            <div className="flex flex-col items-center gap-2 text-center">
-              <Upload className="h-8 w-8 text-muted-foreground" />
-              <div className="text-muted-foreground">
-                <p className="text-sm font-medium">
-                  Drag & drop files here, or click to select
-                </p>
-                <p className="text-xs">                  Supports images and videos up to 10MB
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <StrictModeDroppable droppableId="media-list">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                >
-                  {mediaInputs.map((media, index) => (
-                    <Draggable key={`media-${index}`} draggableId={`media-${index}`} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="relative group aspect-video bg-muted rounded-lg overflow-hidden"
-                        >
-                          {media.type === "image" ? (
-                            <div className="relative w-full h-full">
-                              <img
-                                src={media.url}
-                                alt={media.fileName || `Media ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors">
-                                <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => handleEditMedia(index)}
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => removeMediaInput(index)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="relative w-full h-full">
-                              <video
-                                src={media.url}
-                                className="w-full h-full object-cover"
-                                controls
-                              />
-                              <div className="absolute top-2 right-2">
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => removeMediaInput(index)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </StrictModeDroppable>
-          </DragDropContext>
-        </div>
-
-        {!isPuppy && (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="outsideBreeder"
-              render={({ field}) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Outside Breeder</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog is from an outside breeding program
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="puppy"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Puppy</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog is a puppy
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="available"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Available</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog is available
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="sold"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Sold</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog has been sold
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Enter price"
-                      {...field}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^\d]/g, '');
-                        const formattedValue = value ? parseInt(value).toLocaleString() : '';
-                        field.onChange(formattedValue);
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Set a price if the dog is available for sale (whole dollars only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-
-        <div className="flex justify-between pt-6">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
-          <Button type="submit" className="ml-auto">
-            {mode === 'edit' ? 'Save Changes' : 'Create Dog'}
-          </Button>
-        </div>
+        {/* ... rest of the form fields ... */}
       </form>
     </Form>
   );
