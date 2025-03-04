@@ -1,9 +1,8 @@
 import { S3Client, PutObjectCommand, PutBucketCorsCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { randomUUID, v4 as uuidv4 } from "crypto";
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import path from "path";
 
-// Placeholder for configureCors function -  Needs to be implemented based on your specific CORS requirements.
 const configureCors = async (s3, bucketName) => {
   // Implement your CORS configuration logic here.  Example using a pre-configured bucket policy:
   // ... (Your CORS configuration code) ...
@@ -20,14 +19,14 @@ async function uploadToS3(file) {
     const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
     const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
-    
+
     // Check if environment variables are properly set
     const missingVars = [];
     if (!AWS_REGION) missingVars.push('AWS_REGION');
     if (!AWS_ACCESS_KEY_ID) missingVars.push('AWS_ACCESS_KEY_ID');
     if (!AWS_SECRET_ACCESS_KEY) missingVars.push('AWS_SECRET_ACCESS_KEY');
     if (!BUCKET_NAME) missingVars.push('AWS_BUCKET_NAME/S3_BUCKET_NAME');
-    
+
     if (missingVars.length > 0) {
       console.error(`ERROR: Missing required environment variables: ${missingVars.join(', ')}`);
       throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
@@ -40,7 +39,7 @@ async function uploadToS3(file) {
     console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
     console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
     console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
-    
+
     // Log full environment in development mode for debugging
     if (process.env.NODE_ENV !== 'production') {
       console.log('Full environment for debugging:');
