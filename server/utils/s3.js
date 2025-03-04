@@ -1,60 +1,67 @@
-import { S3Client, PutObjectCommand, PutBucketCorsCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid";
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { v4 as uuidv4 } from 'uuid';
 import fs from "fs";
 import path from "path";
 
-const configureCors = async (s3, bucketName) => {
-  // Implement your CORS configuration logic here.  Example using a pre-configured bucket policy:
-  // ... (Your CORS configuration code) ...
+// Create a single S3 client instance (similar to database pattern)
+let s3Client = null;
 
-  console.log("CORS configuration attempted (Implementation needed).");
-};
+// Initialize S3 client with error handling like the DB implementation
+function getS3Client() {
+  if (s3Client) return s3Client;
 
+  const region = process.env.AWS_REGION;
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+  // Log credentials state for debugging
+  console.log('S3 Client Initialization:');
+  console.log(`- AWS_REGION: ${region ? 'Set' : 'Not set'}`);
+  console.log(`- AWS_ACCESS_KEY_ID: ${accessKeyId ? `Set (starts with: ${accessKeyId.substring(0, 4)}...)` : 'Not set'}`);
+  console.log(`- AWS_SECRET_ACCESS_KEY: ${secretAccessKey ? 'Set (length: ' + secretAccessKey.length + ')' : 'Not set'}`);
+
+  // Check required credentials (like DATABASE_URL check)
+  if (!region || !accessKeyId || !secretAccessKey) {
+    throw new Error('AWS credentials not properly configured. Check AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.');
+  }
+
+  // Create client once
+  s3Client = new S3Client({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey
+    }
+  });
+
+  return s3Client;
+}
+
+// Get bucket name with validation
+function getBucketName() {
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  if (!bucketName) {
+    throw new Error('S3 bucket name not configured. Check AWS_BUCKET_NAME environment variable.');
+  }
+  return bucketName;
+}
 
 export async function uploadToS3(file) {
   console.log('==== S3 UPLOAD ATTEMPT ====');
 
   try {
-    // Use fallback values to prevent "is not defined" errors
-    const AWS_REGION = process.env.AWS_REGION || 'us-east-2';
-    const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
-    const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
-    const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'lwacontent';
-    
-    // Save to global for debugging
+    // Get client and bucket using centralized functions
+    const s3 = getS3Client();
+    const BUCKET_NAME = getBucketName();
+
+    // Save credentials to global for debugging (can be removed later)
     global.s3CredentialsDebug = {
-      region: AWS_REGION,
-      keyIdPrefix: AWS_ACCESS_KEY_ID ? AWS_ACCESS_KEY_ID.substring(0, 4) : 'empty',
-      secretKeyPrefix: AWS_SECRET_ACCESS_KEY ? AWS_SECRET_ACCESS_KEY.substring(0, 4) : 'empty',
+      region: process.env.AWS_REGION,
+      keyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) : 'empty',
+      secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY ? process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) : 'empty',
       bucketName: BUCKET_NAME
     };
 
-    console.log('AWS Credentials Check:');
-    console.log(`- AWS_REGION: ${AWS_REGION ? AWS_REGION : 'Not set'} (using: ${AWS_REGION})`);
-    console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set'} (using key starting with: ${AWS_ACCESS_KEY_ID.substring(0, 4) || 'empty'})`);
-    console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (first 4 chars: ${AWS_SECRET_ACCESS_KEY.substring(0, 4)}..., length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'} (using key starting with: ${AWS_SECRET_ACCESS_KEY.substring(0, 4) || 'empty'})`);
-    console.log(`- BUCKET_NAME: ${process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'Not set'} (using: ${BUCKET_NAME})`);
-    console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
-
-    // Log full environment in development mode for debugging
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Full environment for debugging:');
-      Object.keys(process.env).forEach(key => {
-        if (key.includes('AWS') || key.includes('S3')) {
-          console.log(`${key}: ${key.includes('SECRET') ? '[REDACTED]' : process.env[key]}`);
-        }
-      });
-    }
-
-    if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !BUCKET_NAME) {
-      console.error('AWS credentials missing: ', {
-        AWS_REGION_MISSING: !AWS_REGION,
-        AWS_ACCESS_KEY_ID_MISSING: !AWS_ACCESS_KEY_ID,
-        AWS_SECRET_ACCESS_KEY_MISSING: !AWS_SECRET_ACCESS_KEY,
-        BUCKET_NAME_MISSING: !BUCKET_NAME
-      });
-      throw new Error('Missing AWS credentials or bucket name');
-    }
 
     // Create a unique filename to prevent overwriting
     const fileExtension = path.extname(file.originalname || 'unknown.jpg').toLowerCase();
@@ -62,42 +69,6 @@ export async function uploadToS3(file) {
     const filename = `${uuidv4()}-${sanitizedName}${fileExtension}`;
 
     console.log(`S3 Upload - Processing file: ${file.originalname || 'unnamed'}, size: ${file.size || 'unknown'} bytes`);
-
-    // Configure AWS SDK
-    const s3 = new S3Client({
-      region: AWS_REGION,
-      credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY
-      }
-    });
-
-    console.log(`S3 Client initialized with region: ${AWS_REGION}, accessKeyId prefix: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...`);
-
-    // Check CORS configuration of the bucket
-    try {
-      console.log('Checking S3 bucket CORS configuration...');
-
-      await s3.send(new PutBucketCorsCommand({
-        Bucket: BUCKET_NAME,
-        CORSConfiguration: {
-          CORSRules: [
-            {
-              AllowedHeaders: ['*'],
-              AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
-              AllowedOrigins: ['*'],
-              ExposeHeaders: ['ETag'],
-              MaxAgeSeconds: 3000
-            }
-          ]
-        }
-      }));
-
-      console.log('CORS configuration set successfully');
-    } catch (corsError) {
-      console.warn('Could not set CORS configuration:', corsError.message);
-      // Continue despite CORS error - not critical
-    }
 
     // Get the content type
     const contentType = file.mimetype || 'application/octet-stream';
@@ -133,9 +104,9 @@ export async function uploadToS3(file) {
     console.log('S3 Upload - Success! Response:', uploadResult);
 
     // Construct the URL
-    const s3Url = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${filename}`;
+    const s3Url = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
     console.log(`S3 upload successful: ${s3Url}`);
-    console.log(`Alternative URL (path-style): https://s3.${AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${filename}`);
+    console.log(`Alternative URL (path-style): https://s3.${process.env.AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${filename}`);
 
     return s3Url;
   } catch (error) {
@@ -147,23 +118,41 @@ export async function uploadToS3(file) {
 
       // Add credentials to the error object for debugging
       error.awsCredentials = {
-        region: AWS_REGION,
-        accessKeyIdPrefix: AWS_ACCESS_KEY_ID.substring(0, 4),
-        secretKeyPrefix: AWS_SECRET_ACCESS_KEY.substring(0, 4),
-        fullAccessKeyId: AWS_ACCESS_KEY_ID,  // Include full key in server logs only
-        bucketName: BUCKET_NAME
+        region: process.env.AWS_REGION,
+        accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID.substring(0, 4),
+        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4),
+        fullAccessKeyId: process.env.AWS_ACCESS_KEY_ID,  // Include full key in server logs only
+        bucketName: getBucketName()
       };
 
       console.error('AWS Credentials used in failed request:', {
-        region: AWS_REGION,
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretKeyPrefix: AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...',
-        bucketName: BUCKET_NAME
+        region: process.env.AWS_REGION,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...',
+        bucketName: getBucketName()
       });
     }
     throw error; // Re-throw to allow proper error handling at the caller
   }
-}
+};
+
+export async function getFromS3(key) {
+  try {
+    const s3 = getS3Client();
+    const BUCKET_NAME = getBucketName();
+
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+
+    const response = await s3.send(command);
+    return response;
+  } catch (error) {
+    console.error('Error getting file from S3:', error);
+    throw error;
+  }
+};
 
 // Upload a base64 encoded image to S3
 async function uploadBase64ToS3(base64Data, fileName) {
@@ -206,7 +195,7 @@ async function uploadBase64ToS3(base64Data, fileName) {
   }
 }
 
-export {uploadToS3, uploadBase64ToS3};
+export {uploadToS3, uploadBase64ToS3, getFromS3};
 
 //Example PUT route handler (needs to be integrated into your existing server code)
 //This is a placeholder and needs to be adapted to your specific framework (Express, Fastify etc.)

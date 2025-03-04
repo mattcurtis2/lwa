@@ -8,6 +8,7 @@ dotenv.config();
 
 // Validate environment variables at startup
 function validateEnvironment() {
+  // Check S3 credentials similar to how DB credentials are checked
   const requiredVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
   const missing = requiredVars.filter(varName => !process.env[varName]);
   
@@ -22,6 +23,14 @@ function validateEnvironment() {
     }
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
+  }
+  
+  // Check database credentials same way as in db/index.ts
+  if (!process.env.DATABASE_URL) {
+    console.error('⚠️ CONFIGURATION ERROR: DATABASE_URL is not set.');
+    console.error('Database operations will not work properly without this variable.');
+  } else {
+    console.log('✅ Environment validation: Database URL found.');
   }
 }
 
