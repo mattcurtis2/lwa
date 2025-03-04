@@ -1,49 +1,71 @@
-import { useState, useRef, useCallback } from 'react';
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import useDebounceEffect from "@/lib/useDebounceEffect";
-import {Loader} from "@/components/ui/loader";
+import { useState, useRef } from "react";
+import ReactCrop, { centerCrop, makeAspectCrop, Crop, PixelCrop } from "react-image-crop";
+import 'react-image-crop/dist/ReactCrop.css';
+
+// This is to help TypeScript find the types
+import type { Crop as CropType } from 'react-image-crop';
+
+function useDebounceEffect(
+  fn: () => void,
+  deps: any[],
+  wait: number
+) {
+  const timeout = useRef<number | null>(null);
+  
+  const callback = useRef(fn);
+  callback.current = fn;
+
+  const debouncedFunc = () => {
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
+    timeout.current = window.setTimeout(() => {
+      callback.current();
+    }, wait);
+  };
+
+  React.useEffect(() => {
+    debouncedFunc();
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
+  }, deps);
+}
 
 function canvasPreview(
-  img: HTMLImageElement,
+  image: HTMLImageElement,
   canvas: HTMLCanvasElement,
-  crop: PixelCrop
+  crop: PixelCrop,
 ) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('No 2d context');
   }
 
-  const pixelRatio = window.devicePixelRatio;
-  const scaleX = img.naturalWidth / img.width;
-  const scaleY = img.naturalHeight / img.height;
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+  
+  canvas.width = crop.width;
+  canvas.height = crop.height;
 
-  canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-  canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
-
-  ctx.scale(pixelRatio, pixelRatio);
   ctx.imageSmoothingQuality = 'high';
-  ctx.save();
-
-  const cropX = crop.x * scaleX;
-  const cropY = crop.y * scaleY;
-
-  // First draw the source image
+  
   ctx.drawImage(
-    img,
-    cropX,
-    cropY,
+    image,
+    crop.x * scaleX,
+    crop.y * scaleY,
     crop.width * scaleX,
     crop.height * scaleY,
     0,
     0,
-    crop.width * scaleX,
-    crop.height * scaleY
+    crop.width,
+    crop.height,
   );
-
-  ctx.restore();
 }
 
 interface ImageCropProps {
@@ -54,7 +76,6 @@ interface ImageCropProps {
   onSkip?: () => void;
 }
 
-// Export as both default and named export
 export function ImageCrop({
   imageUrl,
   onCropComplete,
@@ -64,7 +85,7 @@ export function ImageCrop({
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [isProcessing, setIsProcessing] = useState(false); // Added state for processing
+  const [isProcessing, setIsProcessing] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -87,69 +108,47 @@ export function ImageCrop({
     }
   }
 
-  useDebounceEffect(
-    function () {
-      if (
-        completedCrop?.width &&
-        completedCrop?.height &&
-        imgRef.current &&
-        previewCanvasRef.current
-      ) {
-        // We use canvasPreview as it's much faster than createObjectURL
-        canvasPreview(
-          imgRef.current,
-          previewCanvasRef.current,
-          completedCrop
-        );
-      }
-    },
-    [completedCrop],
-    100
-  );
-
-  const handleApplyCrop = useCallback(() => {
-    if (!completedCrop || !imgRef.current) {
-      console.error("Error: Crop data or image reference is missing.");
-      return;
-    }
-
-    setIsProcessing(true);
-
-    const image = imgRef.current;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      console.error("Error: Could not get 2D canvas context.");
-      setIsProcessing(false);
-      return;
-    }
-
-    const validCrop = {
-      ...completedCrop,
-      width: completedCrop.width <= 0 ? imgRef.current.width / 4 : completedCrop.width,
-      height: completedCrop.height <= 0 ? imgRef.current.height / 4 : completedCrop.height,
-    };
-
-
-    canvas.width = validCrop.width;
-    canvas.height = validCrop.height;
-
+  const createCroppedImage = async () => {
     try {
-        // Draw the cropped image onto the canvas
-        ctx.drawImage(
-          image,
-          validCrop.x,
-          validCrop.y,
-          validCrop.width,
-          validCrop.height,
-          0,
-          0,
-          validCrop.width,
-          validCrop.height
-        );
+      if (!completedCrop || !imgRef.current) {
+        console.error("Missing crop or image reference");
+        return;
+      }
 
-        // Convert canvas to blob
+      setIsProcessing(true);
+
+      const image = imgRef.current;
+      const canvas = document.createElement('canvas');
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+
+      // Convert percent crop to pixel values
+      const validCrop = completedCrop as PixelCrop;
+
+      // Set canvas dimensions to match the cropped image
+      canvas.width = validCrop.width;
+      canvas.height = validCrop.height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('No 2d context');
+      }
+
+      // Draw the cropped image onto the canvas
+      ctx.drawImage(
+        image,
+        validCrop.x * scaleX,
+        validCrop.y * scaleY,
+        validCrop.width * scaleX,
+        validCrop.height * scaleY,
+        0,
+        0,
+        validCrop.width,
+        validCrop.height
+      );
+
+      try {
+        // Convert canvas to blob and create an object URL
         canvas.toBlob((blob) => {
           if (!blob) {
             console.error("Failed to create blob");
@@ -161,76 +160,67 @@ export function ImageCrop({
           const croppedUrl = URL.createObjectURL(blob);
 
           // Call the crop complete callback
-          onCropComplete(croppedUrl, blob);
+          onCropComplete(croppedUrl);
           setIsProcessing(false);
         }, 'image/jpeg', 0.95);
-      } catch (err) {
-        console.error("Error in cropping process:", err);
+      } catch (error) {
+        console.error("Error completing crop:", error);
         setIsProcessing(false);
       }
     } catch (error) {
-      console.error("Error completing crop:", error);
-      setIsProcessing(false);
-    } finally {
+      console.error("Error in cropping process:", error);
       setIsProcessing(false);
     }
-  }, [completedCrop, imgRef, onCropComplete]);
+  };
 
   return (
-    <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="max-w-4xl">
+    <Dialog open={true} onOpenChange={() => onCancel()}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="flex flex-col items-center space-y-4">
-            <ReactCrop
-              crop={crop}
-              onChange={(c) => setCrop(c)}
-              onComplete={(c) => setCompletedCrop(c)}
-              aspect={aspect}
-              circularCrop={false}
-            >
-              <img
-                ref={imgRef}
-                alt="Crop me"
-                src={imageUrl}
-                onLoad={onImageLoad}
-                crossOrigin="anonymous"
-                className="max-h-[500px] object-contain"
-              />
-            </ReactCrop>
-
-            <div className="hidden">
-              <canvas ref={previewCanvasRef} />
-            </div>
-
-            <div className="flex justify-end space-x-2 w-full">
-              <Button variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-              {onSkip && (
-                <Button variant="secondary" onClick={onSkip}>
-                  Skip Cropping
-                </Button>
-              )}
-              <Button onClick={handleApplyCrop}>
-                {isProcessing ? (
-                  <>
-                    <Loader size="sm" className="mr-2" />
-                    Processing
-                  </>
-                ) : (
-                  "Apply"
-                )}
-              </Button>
-            </div>
-          </div>
+        <div className="my-4">
+          <ReactCrop
+            crop={crop}
+            onChange={(c) => setCrop(c)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+          >
+            <img
+              ref={imgRef}
+              src={imageUrl}
+              alt="Crop preview"
+              onLoad={onImageLoad}
+              className="max-w-full h-auto"
+            />
+          </ReactCrop>
         </div>
+        <DialogFooter className="flex justify-between">
+          <div>
+            <Button variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            {onSkip && (
+              <Button 
+                variant="outline" 
+                onClick={onSkip} 
+                className="ml-2"
+              >
+                Skip Cropping
+              </Button>
+            )}
+          </div>
+          <Button 
+            onClick={createCroppedImage} 
+            disabled={isProcessing}
+          >
+            {isProcessing ? 'Processing...' : 'Apply Crop'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-// Also maintain the default export for backward compatibility
+// Default export for backwards compatibility
 export default ImageCrop;
