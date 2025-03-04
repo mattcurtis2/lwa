@@ -1,0 +1,31 @@
+Crop completed: {x: 395.98828125, y: 100.16015625, width: 450.50390625, height: 450.50390625, unit: 'px'}height: 450.50390625unit: "px"width: 450.50390625x: 395.98828125y: 100.16015625[[Prototype]]: Object
+Console.js:61 handleApplyCrop called with completedCrop: {x: 395.98828125, y: 100.16015625, width: 450.50390625, height: 450.50390625, unit: 'px'}height: 450.50390625unit: "px"width: 450.50390625x: 395.98828125y: 100.16015625[[Prototype]]: Object
+Console.js:61 Error completing crop: SecurityError: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+    at handleApplyCrop (image-crop.tsx:146:30)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=62244291:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=62244291:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=62244291:3733:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-RPCDYKBN.js?v=62244291:3736:33)
+    at executeDispatch (chunk-RPCDYKBN.js?v=62244291:7014:11)
+    at processDispatchQueueItemsInOrder (chunk-RPCDYKBN.js?v=62244291:7034:15)
+    at processDispatchQueue (chunk-RPCDYKBN.js?v=62244291:7043:13)
+    at dispatchEventsForPlugins (chunk-RPCDYKBN.js?v=62244291:7051:11)
+    at chunk-RPCDYKBN.js?v=62244291:7174:20
+Mt.forEach.n.<computed> @ Console.js:61
+handleApplyCrop @ image-crop.tsx:156
+callCallback2 @ chunk-RPCDYKBN.js?v=62244291:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=62244291:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=62244291:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=62244291:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=62244291:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=62244291:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=62244291:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=62244291:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=62244291:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=62244291:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=62244291:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=62244291:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=62244291:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=62244291:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=62244291:5449Understand this errorAI
+Console.js:61 Error occurred during crop completion
