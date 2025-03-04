@@ -104,7 +104,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const [pedigreeDocuments, setPedigreeDocuments] = useState<Document[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined; isProfileImage: boolean } | null>(null);
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined } | null>(null);
 
 
   const goatSchema = createGoatSchema(Boolean(goat?.kid));
@@ -176,7 +176,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
-      setTempMediaData({ file, isProfileImage: true });
       setShowCropper(true);
     } catch (error) {
       toast({
@@ -191,83 +190,130 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     setIsUploading(true);
     try {
       // Check if this is a media upload or profile image upload
-      const isMediaUpload = tempMediaData !== null && !tempMediaData.isProfileImage;
+      const isMediaUpload = tempMediaData !== null;
 
       // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-        if (isMediaUpload && tempMediaData) {
-          // Update media at the specific index
+        if (isMediaUpload) {
+          // Handle media upload
+          const { index, file } = tempMediaData;
           const updatedMedia = [...mediaInputs];
-          updatedMedia[tempMediaData.index] = {
-            url: timestampedUrl,
+
+          updatedMedia[index] = {
+            ...updatedMedia[index],
+            url: uploadedUrl,
+            file,
+            tempUrl: timestampedUrl,
             type: 'image',
-            fileName: tempMediaData.file?.name || 'cropped-image.jpg',
-            isNew: true
+            isNew: true,
           };
+
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
+          // Clear temp data
+          setTempMediaData(null);
         } else {
-          // Update profile image
-          form.setValue("profileImageUrl", timestampedUrl);
+          // Handle profile image
+          form.setValue("profileImageUrl", uploadedUrl, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+
+          // Trigger form validation to update the UI
+          form.trigger("profileImageUrl");
+
+          // Force UI update by directly manipulating the DOM element
+          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+          if (profileImageUrlField) {
+            (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
+          }
+
+          // Also update any preview elements
+          const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
+          previewElements.forEach(el => {
+            (el as HTMLImageElement).src = timestampedUrl;
+          });
         }
-        setShowCropper(false);
-        setCropImageUrl("");
-        setTempMediaData(null);
-        setIsUploading(false);
+
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
         return;
       }
 
-      // For new cropped images from data URL
-      if (uploadedUrl.startsWith('data:image/')) {
-        // Create a Blob from the data URL
-        const response = await fetch(uploadedUrl);
-        const blob = await response.blob();
+      // Handle base64 image data
+      const response = await fetch(uploadedUrl);
+      const blob = await response.blob();
 
-        // Create a new File object from the Blob
-        const fileName = isMediaUpload && tempMediaData?.file 
-          ? tempMediaData.file.name 
-          : 'cropped-image.jpg';
+      const formData = new FormData();
+      formData.append('file', blob, 'cropped-image.jpg');
 
-        const newFile = new File([blob], fileName, { type: 'image/jpeg' });
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        // Create form data for upload
-        const formData = new FormData();
-        formData.append('file', newFile);
+      if (!res.ok) {
+        throw new Error('Failed to upload image.');
+      }
 
-        // Upload the file
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+      const data = await res.json();
 
-        if (!uploadResponse.ok) {
-          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
-        }
+      if (data && data.length > 0 && data[0].url) {
+        const imageUrl = data[0].url;
+        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
 
-        const data = await uploadResponse.json();
-
-        if (isMediaUpload && tempMediaData) {
-          // Update media at the specific index
+        if (isMediaUpload) {
+          // Handle media upload
+          const { index, file } = tempMediaData;
           const updatedMedia = [...mediaInputs];
-          updatedMedia[tempMediaData.index] = {
-            url: data.url,
+
+          updatedMedia[index] = {
+            ...updatedMedia[index],
+            url: imageUrl,
+            file,
+            tempUrl: timestampedUrl,
             type: 'image',
-            fileName: fileName,
-            isNew: true
+            isNew: true,
           };
+
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
+          // Clear temp data
+          setTempMediaData(null);
         } else {
-          // Update profile image
-          form.setValue("profileImageUrl", data.url);
+          // Handle profile image
+          form.setValue("profileImageUrl", imageUrl, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+
+          // Trigger form validation to update the UI
+          form.trigger("profileImageUrl");
+
+          // Force UI update by directly manipulating the DOM element
+          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
+          if (profileImageUrlField) {
+            (profileImageUrlField as HTMLInputElement).value = imageUrl;
+          }
+
+          // Also update any preview elements
+          const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
+          previewElements.forEach(el => {
+            (el as HTMLImageElement).src = timestampedUrl;
+          });
         }
 
-        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
-      } else {
-        throw new Error("Invalid image format received from cropper");
+        toast({
+          title: "Success",
+          description: "Image cropped and uploaded successfully",
+        });
       }
     } catch (error) {
       toast({
@@ -388,21 +434,18 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }, [form, toast]),
   });
 
-  const handleMediaFileSelect = async (file: File, index: number) => {
+  const handleMediaImageSelect = async (file: File, index: number) => {
     if (!file) return;
 
-    // Set the temporary media data for use after cropping
-    setTempMediaData({ file, index, isProfileImage: false });
-
     try {
-      // Create a local object URL to avoid CORS issues
-      const url = URL.createObjectURL(file);
-      setCropImageUrl(url);
+      const previewUrl = URL.createObjectURL(file);
+      setCropImageUrl(previewUrl);
       setShowCropper(true);
+      setTempMediaData({ index, file });
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        description: 'Failed to load image for cropping',
         variant: 'destructive',
       });
     }
@@ -416,7 +459,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   };
 
   const handleImageEdit = (index: number) => {
-    setTempMediaData({index, file: mediaInputs[index].file, isProfileImage: false});
+    setTempMediaData({index, file: mediaInputs[index].file});
     setCropImageUrl(mediaInputs[index].url);
     setShowCropper(true);
   };
@@ -424,7 +467,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
     setIsUploading(true);
     try {
-      const { index, file, isProfileImage } = tempMediaData!;
+      const { index, file } = tempMediaData!;
       const updatedMedia = [...mediaInputs];
       const formData = new FormData();
       formData.append('file', await (await fetch(croppedImageUrl)).blob(), 'cropped-image.jpg');
@@ -531,78 +574,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleMediaCrop = async (croppedImageUrl: string) => {
-    if (!tempMediaData) return;
-    setIsUploading(true);
-    try {
-      // Create a new image with crossOrigin attribute
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : croppedImageUrl;
-
-      // Wait for the image to load
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-
-      // Create a canvas to draw the image
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-
-      // Get blob from canvas
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], tempMediaData.file?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to upload image.');
-      }
-
-      const data = await res.json();
-      const imageUrl = data[0].url;
-      const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-
-      const updatedMedia = [...mediaInputs];
-      if (tempMediaData.isProfileImage) {
-        form.setValue("profileImageUrl", timestampedUrl);
-      } else {
-        updatedMedia[tempMediaData.index] = {
-          ...updatedMedia[tempMediaData.index],
-          url: timestampedUrl,
-          file,
-          tempUrl: timestampedUrl,
-          type: 'image',
-          isNew: true,
-        };
-        setMediaInputs(updatedMedia);
-        form.setValue("media", updatedMedia);
-      }
-      toast({ title: "Success", description: "Image cropped and uploaded successfully" });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-      setShowCropper(false);
-      setCropImageUrl("");
-      setTempMediaData(null);
-    }
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -621,7 +592,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
-                      setTempMediaData({ file: undefined, isProfileImage: true }); //Added for consistency
                       setShowCropper(true);
                     }
                   }}
@@ -1046,7 +1016,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                                 src={input.tempUrl || input.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursorpointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaFileSelect(input.file as File, index)}
+                                onClick={() => handleMediaImageSelect(input.file as File, index)}
                               />
                               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div 
@@ -1059,7 +1029,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                               <button 
                                 type="button"
                                 onClick={() => handleDeleteMedia(index)}
-                                className="absolute top-2 right-2 bg-red-5000 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 aria-label="Delete media"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
