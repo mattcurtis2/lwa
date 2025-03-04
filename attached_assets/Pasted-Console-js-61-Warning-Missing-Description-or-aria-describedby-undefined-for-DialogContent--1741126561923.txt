@@ -1,0 +1,33 @@
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=40fc779d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=40fc779d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=40fc779d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=40fc779d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=40fc779d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=40fc779d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=40fc779d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+proxy-image:1 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/api/proxy-image?url=%2Fapi%2Fproxy-image%3Furl%3Dhttps%253A%252F%252Flwacontent.s3.us-east-2.amazonaws.com%252Fa5052849-efe2-4c81-bdde-79b5f7a088a3-PXL-20240627-234958687--1--jpg.jpg 500 (Internal Server Error)
