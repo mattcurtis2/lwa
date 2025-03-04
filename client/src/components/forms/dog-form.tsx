@@ -753,6 +753,76 @@ export default function DogForm({
     }
   };
 
+  const handleMediaCrop = async (croppedImageUrl: string) => {
+    if (!tempMediaData) return;
+    setIsUploading(true);
+    try {
+      // Create a new image with crossOrigin attribute
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : cropImageUrl;
+
+      // Wait for the image to load
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // Create a canvas to draw the image
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+
+        // Get the data URL from the canvas
+        const dataUrl = canvas.toDataURL('image/jpeg');
+
+        // Create a Blob from the data URL
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], tempMediaData.file.name || 'cropped-image.jpg', { type: 'image/jpeg' });
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Upload the file
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+        }
+
+        const data = await uploadResponse.json();
+        const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+        const updatedMediaInputs = [...mediaInputs];
+        updatedMediaInputs[tempMediaData.index] = { ...updatedMediaInputs[tempMediaData.index], url: uploadedUrl };
+        setMediaInputs(updatedMediaInputs);
+        form.setValue("media", updatedMediaInputs);
+
+        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
+
+      } else {
+        throw new Error("Failed to get 2D context from canvas");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setShowCropper(false);
+      setCropImageUrl("");
+      setTempMediaData(null);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">

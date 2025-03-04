@@ -547,6 +547,75 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
+  const handleMediaCrop = async (croppedImageUrl: string) => {
+    if (!tempMediaData) return;
+    setIsUploading(true);
+    try {
+      // Create a new image with crossOrigin attribute
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : croppedImageUrl;
+
+      // Wait for the image to load
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // Create a canvas to draw the image
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+
+      // Get blob from canvas
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], tempMediaData.file?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to upload image.');
+      }
+
+      const data = await res.json();
+      const imageUrl = data[0].url;
+      const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
+
+      const updatedMedia = [...mediaInputs];
+      updatedMedia[tempMediaData.index] = {
+        ...updatedMedia[tempMediaData.index],
+        url: timestampedUrl,
+        file,
+        tempUrl: timestampedUrl,
+        type: 'image',
+        isNew: true,
+      };
+
+      setMediaInputs(updatedMedia);
+      form.setValue("media", updatedMedia);
+      toast({ title: "Success", description: "Image cropped and uploaded successfully" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setShowCropper(false);
+      setCropImageUrl("");
+      setTempMediaData(null);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

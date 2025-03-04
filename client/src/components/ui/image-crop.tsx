@@ -121,25 +121,61 @@ export function ImageCrop({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      ctx.drawImage(
-        imgRef.current,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        completedCrop.width,
-        completedCrop.height
-      );
+      // Apply these settings to prevent canvas taint (adapted for original code)
+      ctx.imageSmoothingQuality = 'high';
 
-      // Convert canvas to base64 URL with higher quality
-      const base64Url = canvas.toDataURL('image/jpeg', 0.95);
-      console.log("Created cropped image URL:", base64Url);
-      console.log("Applying crop with URL:", base64Url);
+      try {
+        // Create an intermediate canvas that we can safely manipulate
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
 
-      // Make sure we're passing the same URL structure consistently
-      onCropComplete(base64Url);
+        if (!tempCtx) return;
+
+        // Set crossOrigin property on a new Image instance
+        const tempImage = new Image();
+        tempImage.crossOrigin = "anonymous";
+        tempImage.src = imgRef.current.src;
+
+        // Function to complete drawing once image is loaded
+        const completeDrawing = () => {
+          tempCanvas.width = completedCrop.width * scaleX;
+          tempCanvas.height = completedCrop.height * scaleY;
+
+          // Draw the cropped image onto the canvas
+          tempCtx.drawImage(
+            tempImage,
+            completedCrop.x * scaleX,
+            completedCrop.y * scaleY,
+            completedCrop.width * scaleX,
+            completedCrop.height * scaleY,
+            0,
+            0,
+            completedCrop.width * scaleX,
+            completedCrop.height * scaleY
+          );
+
+          // Draw temp canvas to main canvas
+          ctx.drawImage(tempCanvas, 0, 0);
+
+          // Convert canvas to data URL
+          try {
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            onCropComplete(dataUrl);
+          } catch (error) {
+            console.error("Error completing crop:", error);
+          }
+        };
+
+        // If image is already loaded, draw it immediately; otherwise wait
+        if (tempImage.complete) {
+          completeDrawing();
+        } else {
+          tempImage.onload = completeDrawing;
+        }
+      } catch (error) {
+        console.error("Error in cropping process:", error);
+      }
+
     } catch (error) {
       console.error("Error completing crop:", error);
     }
@@ -167,6 +203,7 @@ export function ImageCrop({
                 alt="Crop me"
                 src={imageUrl}
                 onLoad={onImageLoad}
+                crossOrigin="anonymous"  {/* Added crossOrigin attribute */}
                 className="max-h-[500px] object-contain"
               />
             </ReactCrop>
