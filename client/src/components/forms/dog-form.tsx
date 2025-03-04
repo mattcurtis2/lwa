@@ -725,28 +725,41 @@ export default function DogForm({
     setIsCropping(true);
   };
 
-  const handleCropComplete = (croppedImageUrl: string) => {
-    if (activeImage) {
-      const newMedia = mediaInputs.map((m) => {
-        if (m.id === activeImage.id) {
-          return { ...m, url: croppedImageUrl };
-        }
-        return m;
-      });
-      setMediaInputs(newMedia);
-      form.setValue("media", newMedia);
+  const handleCropComplete = async (croppedImageUrl: string, mediaId?: number) => {
+    try {
+      console.log('Received cropped image URL:', croppedImageUrl.substring(0, 50) + '...');
 
-      // Force a reload of the form data to reflect the updated media
-      if (dog) {
-        setTimeout(() => {
-          // Trigger a refetch of the dog data
-          console.log('Reloading dog data to reflect updated media');
-          console.log("Dog after crop:", dog);
-        }, 1000);
+      // Log the dog data before crop
+      console.log('Dog before crop:', { ...form.getValues() });
+
+      // Find the media item or use profileImageUrl
+      if (mediaId !== undefined) {
+        // Update the specific media item
+        const updatedMedia = [...mediaInputs];
+        const index = updatedMedia.findIndex(m => m.id === mediaId);
+
+        if (index !== -1) {
+          updatedMedia[index] = { ...updatedMedia[index], url: croppedImageUrl };
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+        }
+      } else {
+        // Update profile image
+        form.setValue("profileImageUrl", croppedImageUrl);
       }
+
+      // Log the dog data after crop
+      console.log('Dog after crop:', { ...form.getValues() });
+
+      setShowCropper(false);
+    } catch (error) {
+      console.error('Error applying crop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to apply crop",
+        variant: "destructive"
+      });
     }
-    setIsCropping(false);
-    setActiveImage(null);
   };
 
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
@@ -966,8 +979,7 @@ export default function DogForm({
                 </RadioGroup>
               </FormControl>
               <FormMessage />
-            </FormItem>
-          )}
+            </FormItem)}
         />
 
         {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (

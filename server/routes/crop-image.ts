@@ -7,33 +7,15 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+export const cropImage = async (req, res) => {
   try {
-    const { imageUrl, crop, mediaId, dogId } = req.body;
+    const { imageUrl, crop } = req.body;
 
     if (!imageUrl || !crop) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     console.log(`Processing crop with dimensions:`, crop);
-    console.log(`Media ID: ${mediaId}, Dog ID: ${dogId}`);
-
-    if (mediaId && dogId) {
-      // Fetch the dog and media before the update for logging
-      const dogBefore = await db.query.dogs.findFirst({
-        where: eq(db.dogs.id, dogId),
-        with: {
-          media: true
-        }
-      });
-
-      console.log('Dog before crop:', JSON.stringify({
-        id: dogBefore?.id,
-        name: dogBefore?.name,
-        mediaCount: dogBefore?.media?.length,
-        targetMedia: dogBefore?.media?.find(m => m.id === mediaId)
-      }));
-    }
 
     // Import the S3 upload utility
     const { uploadToS3 } = await import('../utils/s3.js');
@@ -53,8 +35,8 @@ router.post('/', async (req, res) => {
       // Download the image from URL
       const response = await fetch(imageUrl);
       if (!response.ok) {
-        return res.status(response.status).json({ 
-          error: `Failed to download image: ${response.statusText}` 
+        return res.status(response.status).json({
+          error: `Failed to download image: ${response.statusText}`
         });
       }
       imageBuffer = Buffer.from(await response.arrayBuffer());
@@ -95,34 +77,6 @@ router.post('/', async (req, res) => {
       }
 
       console.log('Received cropped image URL:', s3Url.substring(0, 50) + '...');
-
-      // If we have a mediaId, update the dog media record with the new URL
-      if (mediaId) {
-        console.log(`Updating dog media record with ID ${mediaId} to use new S3 URL`);
-        await db.update(dogMedia)
-          .set({ url: s3Url })
-          .where(eq(dogMedia.id, mediaId));
-
-        console.log('Database update complete');
-
-        // Fetch the updated dog data
-        if (dogId) {
-          const dogAfter = await db.query.dogs.findFirst({
-            where: eq(db.dogs.id, dogId),
-            with: {
-              media: true
-            }
-          });
-
-          console.log('Dog after crop:', JSON.stringify({
-            id: dogAfter?.id,
-            name: dogAfter?.name,
-            mediaCount: dogAfter?.media?.length,
-            targetMedia: dogAfter?.media?.find(m => m.id === mediaId)
-          }));
-        }
-      }
-
       return res.json({ url: s3Url });
 
     } catch (cropError) {
@@ -140,6 +94,9 @@ router.post('/', async (req, res) => {
     console.error('Error cropping image:', error);
     res.status(500).json({ error: 'Failed to crop image', details: error.message });
   }
-});
+};
+
+// Also attach the handler to the router for compatibility
+router.post('/crop-image', cropImage);
 
 export default router;
