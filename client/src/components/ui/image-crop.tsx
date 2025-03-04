@@ -129,12 +129,16 @@ export function ImageCrop({
         const data = await response.json();
         console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
 
-        onCropComplete(data.url);
+        if (typeof onCropComplete === 'function') {
+          onCropComplete(data.url);
+        }
         onCancel();
-      } catch (e) {
-        console.error('Error applying crop:', e);
-        // Notify the user
-        alert('Failed to crop image. Please try again.');
+      } catch (error) {
+        console.error("Error completing crop:", error);
+        // Still pass the crop data even if there was an error
+        if (typeof onCropComplete === 'function') {
+          onCropComplete(null);
+        }
       }
     }
   }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel]);

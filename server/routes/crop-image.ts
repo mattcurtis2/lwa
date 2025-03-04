@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import sharp from 'sharp';
 import fetch from 'node-fetch';
@@ -23,73 +22,72 @@ export const cropImage = async (req: Request, res: Response) => {
     const { imageUrl, crop } = req.body;
 
     if (!imageUrl || !crop) {
-      return res.status(400).json({ error: 'Image URL and crop data are required' });
+      return res.status(400).json({ error: 'Missing required parameters' });
     }
 
-    console.log('Server-side cropping:', { imageUrl: imageUrl.substring(0, 50) + '...', crop });
+    // Handle base64 images directly
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        const base64Data = imageUrl.split(',')[1];
+        const imageBuffer = Buffer.from(base64Data, 'base64');
 
-    // Fetch the image
-    let imageBuffer;
-    if (imageUrl.startsWith('data:')) {
-      // It's a base64 image
-      const base64Data = imageUrl.split(',')[1];
-      imageBuffer = Buffer.from(base64Data, 'base64');
-    } else {
-      // It's a URL
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        return res.status(400).json({ error: 'Failed to fetch image' });
+        // Calculate crop coordinates
+        const x = Math.round(crop.x);
+        const y = Math.round(crop.y);
+        const width = Math.round(crop.width);
+        const height = Math.round(crop.height);
+
+        if (width <= 0 || height <= 0) {
+          return res.status(400).json({ error: 'Invalid crop dimensions' });
+        }
+
+        // Perform the crop
+        const croppedBuffer = await sharp(imageBuffer)
+          .extract({ left: x, top: y, width, height })
+          .toBuffer();
+
+        // Return as base64 data URL
+        const base64Image = `data:image/jpeg;base64,${croppedBuffer.toString('base64')}`;
+
+        return res.json({ url: base64Image });
+      } catch (err) {
+        console.error('Error processing base64 image:', err);
+        return res.status(500).json({ error: 'Failed to process base64 image', details: err.message });
       }
-      imageBuffer = await response.arrayBuffer();
     }
 
-    // Use sharp to crop the image
+    // Download the image from URL
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      return res.status(response.status).json({ 
+        error: `Failed to download image: ${response.statusText}` 
+      });
+    }
+
+    const imageBuffer = await response.arrayBuffer();
+
+    // Calculate crop coordinates
+    const x = Math.round(crop.x);
+    const y = Math.round(crop.y);
+    const width = Math.round(crop.width);
+    const height = Math.round(crop.height);
+
+    if (width <= 0 || height <= 0) {
+      return res.status(400).json({ error: 'Invalid crop dimensions' });
+    }
+
+    // Perform the crop
     const croppedBuffer = await sharp(Buffer.from(imageBuffer))
-      .extract({
-        left: Math.round(crop.x),
-        top: Math.round(crop.y),
-        width: Math.round(crop.width),
-        height: Math.round(crop.height)
-      })
-      .jpeg({ quality: 90 })
+      .extract({ left: x, top: y, width, height })
       .toBuffer();
 
-    // Upload to S3 if credentials are available
-    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && BUCKET_NAME) {
-      try {
-        console.log('S3 UPLOAD ATTEMPT: AWS Credentials Check', {
-          AWS_REGION: !!process.env.AWS_REGION,
-          AWS_ACCESS_KEY_ID: !!process.env.AWS_ACCESS_KEY_ID,
-          AWS_SECRET_ACCESS_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
-          BUCKET_NAME: !!BUCKET_NAME
-        });
-
-        const fileName = `cropped-${uuidv4()}.jpg`;
-        const key = `uploads/${fileName}`;
-
-        const uploadParams = {
-          Bucket: BUCKET_NAME,
-          Key: key,
-          Body: croppedBuffer,
-          ContentType: 'image/jpeg'
-        };
-
-        await s3Client.send(new PutObjectCommand(uploadParams));
-        const s3Url = `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
-        
-        console.log('S3 upload successful, URL:', s3Url);
-        return res.json({ url: s3Url });
-      } catch (s3Error) {
-        console.error('S3 Upload Error:', s3Error);
-        // Fall back to local storage if S3 fails
-      }
-    }
-
-    // If S3 upload fails or isn't configured, send back base64
+    // Return as base64 data URL
     const base64Image = `data:image/jpeg;base64,${croppedBuffer.toString('base64')}`;
-    return res.json({ url: base64Image });
+
+    res.json({ url: base64Image });
   } catch (error) {
-    console.error('Server-side crop error:', error);
-    return res.status(500).json({ error: 'Failed to crop image' });
+    console.error('Error cropping image:', error);
+    res.status(500).json({ error: 'Failed to crop image', details: error.message });
   }
-};
+}
