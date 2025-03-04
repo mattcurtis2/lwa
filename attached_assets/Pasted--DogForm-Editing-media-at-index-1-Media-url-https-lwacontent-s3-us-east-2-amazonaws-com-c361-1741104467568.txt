@@ -1,0 +1,41 @@
+[DogForm] Editing media at index: 1 Media: {url: 'https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg', type: 'image', fileName: undefined, isNew: false}
+Console.js:61 [DogForm] Created proxy URL: /api/proxy-image?url=https%3A%2F%2Flwacontent.s3.us-east-2.amazonaws.com%2Fc361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=40fc779d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=40fc779d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=40fc779d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=40fc779d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=40fc779d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=40fc779d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=40fc779d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+Console.js:61 [DogForm] Starting image crop process
+Console.js:61 [DogForm] Crop data received: undefined
+Console.js:61 [DogForm] Image loaded with dimensions: {width: 495, height: 278, naturalWidth: 495, naturalHeight: 278}
+Console.js:61 [DogForm] Error updating image: TypeError: Cannot read properties of undefined (reading 'height')
+    at handleCroppedMediaImage (dog-form.tsx:866:52)
+Mt.forEach.n.<computed> @ Console.js:61
+handleCroppedMediaImage @ dog-form.tsx:961
+await in handleCroppedMediaImage
+onCropComplete @ dog-form.tsx:1105
+(anonymous) @ image-crop.tsx:163Understand this errorAI
