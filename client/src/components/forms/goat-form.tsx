@@ -603,6 +603,24 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
+  const processImageUrl = (url: string): string => {
+    //This is a placeholder, replace with your actual proxy logic.
+    if (url.startsWith('https://s3')) {
+      return `/api/proxy?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  };
+
+  const handleCropImage = (index: number, file?: File, isProfileImage: boolean = false) => {
+    const mediaItem = mediaInputs[index];
+    if (mediaItem) {
+      setTempMediaData({ index, file, isProfileImage });
+      setCropImageUrl(mediaItem.url); // No change needed here based on provided context
+      setShowCropper(true);
+    }
+  };
+
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -684,7 +702,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
         {showCropper && cropImageUrl && (
           <ImageCrop 
-            imageUrl={cropImageUrl}
+            imageUrl={processImageUrl(cropImageUrl)} // Apply proxy processing here
             aspect={1}
             circularCrop={true}
             onCropComplete={handleCroppedImage}
