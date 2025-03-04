@@ -1,0 +1,156 @@
+2025-03-03 21:19:06.69
+664a83f9
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:484:18
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-retry/dist-cjs/index.js:321:38
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-flexible-checksums/dist-cjs/index.js:319:18
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:110:22
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:137:14 {
+2025-03-03 21:19:06.69
+664a83f9
+User
+'$fault': 'client',
+2025-03-03 21:19:06.69
+664a83f9
+User
+'$metadata': {
+2025-03-03 21:19:06.69
+664a83f9
+User
+httpStatusCode: 403,
+2025-03-03 21:19:06.69
+664a83f9
+User
+requestId: 'NNVM14V102H0MQ66',
+2025-03-03 21:19:06.69
+664a83f9
+User
+extendedRequestId: '+szGnoN7+rDFOyBf9J55X496xqSPZLgMCr9mFskqf6zdueCFJKF9WrgsYwozGj1pUDZGK3ikS0M=',
+2025-03-03 21:19:06.69
+664a83f9
+User
+cfId: undefined,
+2025-03-03 21:19:06.69
+664a83f9
+User
+attempts: 1,
+2025-03-03 21:19:06.69
+664a83f9
+User
+totalRetryDelay: 0
+2025-03-03 21:19:06.69
+664a83f9
+User
+},
+2025-03-03 21:19:06.69
+664a83f9
+User
+Code: 'InvalidAccessKeyId',
+2025-03-03 21:19:06.69
+664a83f9
+User
+AWSAccessKeyId: 'YOUR_FULL_ACCESS_KEY_HERE',
+2025-03-03 21:19:06.69
+664a83f9
+User
+RequestId: 'NNVM14V102H0MQ66',
+2025-03-03 21:19:06.69
+664a83f9
+User
+HostId: '+szGnoN7+rDFOyBf9J55X496xqSPZLgMCr9mFskqf6zdueCFJKF9WrgsYwozGj1pUDZGK3ikS0M=',
+2025-03-03 21:19:06.69
+664a83f9
+User
+awsCredentials: {
+2025-03-03 21:19:06.69
+664a83f9
+User
+region: 'us-east-2',
+2025-03-03 21:19:06.69
+664a83f9
+User
+accessKeyIdPrefix: 'YOUR',
+2025-03-03 21:19:06.69
+664a83f9
+User
+secretKeyPrefix: 'YOUR',
+2025-03-03 21:19:06.69
+664a83f9
+User
+fullAccessKeyId: 'YOUR_FULL_ACCESS_KEY_HERE',
+2025-03-03 21:19:06.69
+664a83f9
+User
+bucketName: 'lwacontent'
+2025-03-03 21:19:06.69
+664a83f9
+User
+}
+2025-03-03 21:19:06.69
+664a83f9
+User
+}
+2025-03-03 21:19:06.69
+664a83f9
+User
+Stack trace: InvalidAccessKeyId: The AWS Access Key Id you provided does not exist in our records.
+2025-03-03 21:19:06.69
+664a83f9
+User
+at throwDefaultError (/home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:867:20)
+2025-03-03 21:19:06.69
+664a83f9
+User
+at /home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:876:5
+2025-03-03 21:19:06.69
+664a83f9
+User
+at de_CommandError (/home/runner/workspace/node_modules/@aws-sdk/client-s3/dist-cjs/index.js:4971:14)
+2025-03-03 21:19:06.69
+664a83f9
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:484:18
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-retry/dist-cjs/index.js:321:38
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-flexible-checksums/dist-cjs/index.js:319:18
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:110:22
+2025-03-03 21:19:06.69
+664a83f9
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:137:14
