@@ -6,6 +6,27 @@ import dotenv from "dotenv";
 // Load environment variables from .env file
 dotenv.config();
 
+// Validate environment variables at startup
+function validateEnvironment() {
+  const requiredVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
+  const missing = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    console.error(`⚠️ CONFIGURATION ERROR: Missing required environment variables: ${missing.join(', ')}`);
+    console.error('S3 uploads will not work properly without these variables.');
+    
+    if (process.env.NODE_ENV === 'production') {
+      console.error('In production, make sure these are set in your deployment environment.');
+    } else {
+      console.error('In development, make sure these are set in your .env file.');
+    }
+  } else {
+    console.log('✅ Environment validation: All required S3 credentials found.');
+  }
+}
+
+validateEnvironment();
+
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));

@@ -20,6 +20,18 @@ async function uploadToS3(file) {
     const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
     const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
     const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+    
+    // Check if environment variables are properly set
+    const missingVars = [];
+    if (!AWS_REGION) missingVars.push('AWS_REGION');
+    if (!AWS_ACCESS_KEY_ID) missingVars.push('AWS_ACCESS_KEY_ID');
+    if (!AWS_SECRET_ACCESS_KEY) missingVars.push('AWS_SECRET_ACCESS_KEY');
+    if (!BUCKET_NAME) missingVars.push('AWS_BUCKET_NAME/S3_BUCKET_NAME');
+    
+    if (missingVars.length > 0) {
+      console.error(`ERROR: Missing required environment variables: ${missingVars.join(', ')}`);
+      throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    }
 
     console.log('AWS Credentials Check:');
     console.log(`- AWS_REGION: ${AWS_REGION ? 'Set' : 'Not set'}`);
@@ -27,6 +39,17 @@ async function uploadToS3(file) {
     console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
     console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
     console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+    console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
+    
+    // Log full environment in development mode for debugging
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Full environment for debugging:');
+      Object.keys(process.env).forEach(key => {
+        if (key.includes('AWS') || key.includes('S3')) {
+          console.log(`${key}: ${key.includes('SECRET') ? '[REDACTED]' : process.env[key]}`);
+        }
+      });
+    }
 
     if (!AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !BUCKET_NAME) {
       console.error('AWS credentials missing: ', {
