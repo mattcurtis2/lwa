@@ -187,11 +187,17 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleCroppedImage = async (uploadedUrl: string) => {
+  const handleCroppedImage = async (uploadedUrl: string, cropData?: any) => {
     setIsUploading(true);
     try {
       // Check if this is a media upload or profile image upload
       const isMediaUpload = tempMediaData !== null && !tempMediaData.isProfileImage;
+      
+      if (isMediaUpload) {
+        // If it's a media upload, use applyCroppedMediaImage
+        await applyCroppedMediaImage(uploadedUrl);
+        return;
+      }
 
       // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
@@ -604,9 +610,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   };
 
   const processImageUrl = (url: string): string => {
-    //This is a placeholder, replace with your actual proxy logic.
-    if (url.startsWith('https://s3')) {
-      return `/api/proxy?url=${encodeURIComponent(url)}`;
+    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3'))) {
+      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
     }
     return url;
   };

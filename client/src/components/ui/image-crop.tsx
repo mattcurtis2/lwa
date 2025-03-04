@@ -4,6 +4,11 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+// Add console logging for debugging
+const logDebug = (message: string, ...args: any[]) => {
+  console.log(`[ImageCrop] ${message}`, ...args);
+};
+
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
