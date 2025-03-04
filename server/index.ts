@@ -8,27 +8,26 @@ dotenv.config();
 
 // Validate environment variables at startup
 function validateEnvironment() {
-  // Check S3 credentials similar to how DB credentials are checked
-  const requiredVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
-  const missing = requiredVars.filter(varName => !process.env[varName]);
+  // Check S3 credentials exactly how DB credentials are checked
+  const requiredAwsVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
+  const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
   
-  if (missing.length > 0) {
-    console.error(`⚠️ CONFIGURATION ERROR: Missing required environment variables: ${missing.join(', ')}`);
-    console.error('S3 uploads will not work properly without these variables.');
+  if (missingAwsVars.length > 0) {
+    console.error(`⚠️ CONFIGURATION ERROR: Missing required AWS variables: ${missingAwsVars.join(', ')}`);
     
     if (process.env.NODE_ENV === 'production') {
-      console.error('In production, make sure these are set in your deployment environment.');
+      throw new Error(`Missing required environment variables: ${missingAwsVars.join(', ')}. Ensure these are set in your Replit Secrets for deployment.`);
     } else {
-      console.error('In development, make sure these are set in your .env file.');
+      console.error('S3 uploads will not work properly without these variables.');
+      console.error('In development, make sure these are set in your .env file or Replit Secrets.');
     }
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
   }
   
-  // Check database credentials same way as in db/index.ts
+  // Check database credentials
   if (!process.env.DATABASE_URL) {
-    console.error('⚠️ CONFIGURATION ERROR: DATABASE_URL is not set.');
-    console.error('Database operations will not work properly without this variable.');
+    throw new Error('DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.');
   } else {
     console.log('✅ Environment validation: Database URL found.');
   }
