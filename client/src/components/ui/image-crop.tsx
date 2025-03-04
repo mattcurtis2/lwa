@@ -121,11 +121,11 @@ export function ImageCrop({
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto flex flex-col">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
-        <div className="my-4">
+        <div className="my-4 overflow-y-auto max-h-[calc(70vh-8rem)]">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
