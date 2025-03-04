@@ -90,7 +90,7 @@ export function ImageCrop({
       // Calculate the proper scaling factors based on natural image dimensions
       const scaleX = image.naturalWidth / image.width;
       const scaleY = image.naturalHeight / image.height;
-      
+
       ctx.drawImage(
         image,
         completedCrop.x * scaleX, // source x (scaled)
@@ -128,14 +128,14 @@ export function ImageCrop({
   const processedImageUrl = imageUrl.includes('lwacontent.s3') ? 
     `/api/proxy-image?url=${encodeURIComponent(imageUrl)}` : 
     imageUrl;
-    
+
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto flex flex-col">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
           <DialogDescription>
-            Select an area of the image to crop
+            Adjust the crop area to select the portion of the image you want to use.
           </DialogDescription>
         </DialogHeader>
         <div className="my-4 overflow-y-auto max-h-[calc(70vh-8rem)]">

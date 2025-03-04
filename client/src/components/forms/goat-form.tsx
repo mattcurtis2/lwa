@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient } from "@/lib/queryClient";
-import { X, ImageIcon, FileText, Upload } from "lucide-react";
+import { X, ImageIcon, FileText, Upload, Crop } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
 import ImageCrop from "@/components/ui/image-crop";
@@ -192,7 +192,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       // Check if this is a media upload or profile image upload
       const isMediaUpload = tempMediaData !== null && !tempMediaData.isProfileImage;
-      
+
       if (isMediaUpload) {
         // If it's a media upload, use applyCroppedMediaImage
         await applyCroppedMediaImage(uploadedUrl);
@@ -537,94 +537,41 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleMediaCrop = async (croppedImageUrl: string) => {
-    if (!tempMediaData) return;
-    setIsUploading(true);
-    try {
-      // Create a new image with crossOrigin attribute
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : croppedImageUrl;
-
-      // Wait for the image to load
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-
-      // Create a canvas to draw the image
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-
-      // Get blob from canvas
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], tempMediaData.file?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to upload image.');
-      }
-
-      const data = await res.json();
-      const imageUrl = data[0].url;
-      const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-
-      const updatedMedia = [...mediaInputs];
-      if (tempMediaData.isProfileImage) {
-        form.setValue("profileImageUrl", timestampedUrl);
-      } else {
-        updatedMedia[tempMediaData.index] = {
-          ...updatedMedia[tempMediaData.index],
-          url: timestampedUrl,
-          file,
-          tempUrl: timestampedUrl,
-          type: 'image',
-          isNew: true,
-        };
-        setMediaInputs(updatedMedia);
-        form.setValue("media", updatedMedia);
-      }
-      toast({ title: "Success", description: "Image cropped and uploaded successfully" });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-      setShowCropper(false);
-      setCropImageUrl("");
-      setTempMediaData(null);
-    }
-  };
-
-  const processImageUrl = (url: string): string => {
-    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3'))) {
-      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
-    }
-    return url;
+  const handleMediaCrop = async (index: number) => {
+    handleCropImage(index);
   };
 
   const handleCropImage = (index: number, file?: File, isProfileImage: boolean = false) => {
     const mediaItem = mediaInputs[index];
     if (mediaItem) {
       setTempMediaData({ index, file, isProfileImage });
-      setCropImageUrl(mediaItem.url); // No change needed here based on provided context
+      setCropImageUrl(mediaItem.url);
       setShowCropper(true);
     }
   };
 
+
+  const processImageUrl = (url: string): string => {
+    //Only proxy if not already a proxy URL
+    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3')) && !url.includes('/api/proxy-image')) {
+      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    const updatedMedia = [...mediaInputs];
+    updatedMedia.splice(index, 1);
+    setMediaInputs(updatedMedia);
+    form.setValue("media", updatedMedia);
+  };
+
+  const handleMediaRemove = (index: number) => {
+    const updatedMedia = [...mediaInputs];
+    updatedMedia.splice(index, 1);
+    setMediaInputs(updatedMedia);
+    form.setValue('media', updatedMedia);
+  };
 
   return (
     <Form {...form}>
