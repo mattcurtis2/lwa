@@ -833,13 +833,12 @@ export default function DogForm({
   const handleCroppedMediaImage = async (croppedImageUrl: string, cropData: any) => {
     if (editingMediaIndex === null) return;
     console.log('[DogForm] Starting image crop process');
-    console.log('[DogForm] Crop data received:', cropData);
-    setCompletedCrop(cropData); // Store crop data
+    console.log('[DogForm] Received cropData:', typeof cropData, cropData);
 
     try {
       setIsUploading(true);
 
-      // Create an image to get dimensions
+      // Load the image first
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
@@ -859,54 +858,35 @@ export default function DogForm({
         img.src = croppedImageUrl;
       });
 
-      // Create canvas with target dimensions
+      // Create canvas and set dimensions
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set output dimensions
-      const targetWidth = 1280; // Fixed width for consistency
-      const targetHeight = Math.max(1, (targetWidth * cropData.height) / cropData.width); // Maintain aspect ratio and prevent 0 height
+      // Set the canvas size to match the crop dimensions
+      canvas.width = cropData.width;
+      canvas.height = cropData.height;
 
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-
-      console.log('[DogForm] Canvas created with dimensions:', {
+      console.log('[DogForm] Canvas dimensions set:', {
         width: canvas.width,
         height: canvas.height,
         cropData
       });
 
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Calculate scale factors
-      const scaleX = img.width / img.naturalWidth;
-      const scaleY = img.height / img.naturalHeight;
-
-      // Draw the cropped portion scaled to target size
+      // Draw the cropped portion of the image
       ctx.drawImage(
         img,
-        cropData.x / scaleX,
-        cropData.y / scaleY,
-        cropData.width / scaleX,
-        cropData.height / scaleY,
+        cropData.x,
+        cropData.y,
+        cropData.width,
+        cropData.height,
         0,
         0,
         canvas.width,
         canvas.height
       );
 
-      console.log('[DogForm] Image drawn with scaling:', {
-        scaleX,
-        scaleY,
-        sourceX: cropData.x / scaleX,
-        sourceY: cropData.y / scaleY,
-        sourceWidth: cropData.width / scaleX,
-        sourceHeight: cropData.height / scaleY
-      });
-
-      // Convert to blob using a promise for better error handling
+      // Convert to blob
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (blob) => {
@@ -940,7 +920,8 @@ export default function DogForm({
       console.log('[DogForm] Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-    // Update the media inputs with the new cropped image    const updatedMediaInputs = [...mediaInputs];
+      // Update the media inputs with the new cropped image
+      const updatedMediaInputs = [...mediaInputs];
       updatedMediaInputs[editingMediaIndex] = {
         ...updatedMediaInputs[editingMediaIndex],
         url: uploadedUrl,
@@ -968,6 +949,36 @@ export default function DogForm({
       });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleMediaUpload = async (file: File, index: number) => {
+    if (!file) return;
+
+    try {
+      const url = URL.createObjectURL(file);
+      setCropImageUrl(url);
+      setTempMediaData({ file, index, isProfileImage: false });
+      setShowCropper(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEditMedia = (index: number) => {
+    const media = mediaInputs[index];
+    if (media && media.type === "image") {
+      console.log('[DogForm] Editing media at index:', index, 'Media:', media);
+      // Create a proxy URL to handle CORS
+      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(media.url)}`;
+      console.log('[DogForm] Created proxy URL:', proxyUrl);
+      setEditingMediaIndex(index);
+      setCurrentMediaUrl(proxyUrl);
+      setShowMediaCropDialog(true);
     }
   };
 
