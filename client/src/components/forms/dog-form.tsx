@@ -832,8 +832,33 @@ export default function DogForm({
     try {
       setIsUploading(true);
 
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
+      // Create a canvas to apply the crop
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = croppedImageUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+
+      // Set canvas size to maintain aspect ratio
+      canvas.width = 1280;  // Fixed width for consistency
+      canvas.height = 720;  // 16:9 aspect ratio
+
+      // Draw the cropped portion of the image
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Failed to create blob'));
+        }, 'image/jpeg', 0.95);
+      });
 
       const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
