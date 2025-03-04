@@ -835,6 +835,55 @@ export default function DogForm({
     }
   };
 
+  const handleMediaCrop = async (croppedImageUrl: string) => {
+    if (!tempMediaData) return;
+    setIsUploading(true);
+    try {
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append('file', blob, 'cropped-image.jpg');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload cropped image');
+      }
+
+      const data = await uploadRes.json();
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+      if (tempMediaData.isProfileImage) {
+        form.setValue("profileImageUrl", uploadedUrl);
+      } else if (tempMediaData.index >= 0) {
+        const newMediaInputs = [...mediaInputs];
+        newMediaInputs[tempMediaData.index].url = uploadedUrl;
+        setMediaInputs(newMediaInputs);
+      }
+
+      setShowCropper(false);
+      setCropImageUrl("");
+      setTempMediaData(null);
+
+      toast({
+        title: 'Success',
+        description: 'Image cropped and saved successfully',
+      });
+    } catch (error) {
+      console.error('Error uploading cropped image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload cropped image',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -901,7 +950,7 @@ export default function DogForm({
                     </Button>
                   )}
                 </div>
-              </div>
+              </</div>
               <FormMessage />
             </FormItem>
           )}
