@@ -5,6 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import useDebounceEffect from "@/lib/useDebounceEffect";
 
+// Log the component props to help with debugging
+console.log("ImageCrop component rendering");
+
 function canvasPreview(
   img: HTMLImageElement,
   canvas: HTMLCanvasElement,

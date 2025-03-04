@@ -804,6 +804,14 @@ export default function DogForm({
     }
   };
 
+  const handleEditClick = (dogMedia: DogMedia) => {
+    console.log("Edit button clicked for media:", dogMedia);
+    setCropImageUrl(dogMedia.url);
+    setTempMediaData(dogMedia);
+    setShowCropper(true);
+    console.log("showCropper set to:", true);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -967,7 +975,7 @@ export default function DogForm({
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="male" id="male" />
                     <label htmlFor="male" className="flex items-center gap-1">
-                      Male <span className="text-blue-500">♂</span>
+                      Male <span className="text-blue500">♂</span>
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
