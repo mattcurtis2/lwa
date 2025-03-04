@@ -10,8 +10,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useState, useCallback, useRef } from "react";
+import { X, ImageIcon, FileText, ExternalLink, Edit, Upload } from "lucide-react";
+import { useLocation } from "wouter";
+import { uploadFileToS3 } from "../../lib/upload-utils";
+
+// UI Components
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -36,25 +42,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dog, DogMedia } from "@db/schema";
-import { useState, useEffect, useCallback } from "react";
-import { X, ImageIcon, FileText, ExternalLink, Edit } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { formatInputDate, parseApiDate } from "@/lib/date-utils";
-import { cn } from "@/lib/utils";
-import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
+// Other imports
+import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { useDropzone } from 'react-dropzone';
-import { Upload } from 'lucide-react';
-import { useNavigate } from "wouter";
-import { uploadFileToS3 } from "../../lib/upload-utils";
-import { useState, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { formatInputDate, parseApiDate } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
+import { Dog, DogMedia } from "@db/schema";
 
 
 interface Document {
@@ -151,6 +152,7 @@ export default function DogForm({
   const [showMediaCropDialog, setShowMediaCropDialog] = useState(false);
   const [currentMediaUrl, setCurrentMediaUrl] = useState("");
   const [completedCrop, setCompletedCrop] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
 
 
   const dogSchema = createDogSchema(isPuppy);
@@ -947,8 +949,7 @@ export default function DogForm({
             <FormItem>
               <FormLabel>Profile Picture</FormLabel>
               <FormDescription>
-                Upload a profile picture for the dog
-              </FormDescription>
+                Upload a profile picture for the dog              </FormDescription>
               <div className="flex items-center gap-4">
                 <div
                   className="relative h-24 w-24 cursor-pointer"
@@ -1008,7 +1009,6 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
@@ -1057,7 +1057,6 @@ export default function DogForm({
             circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
           />
         )}
-
         {showMediaCropDialog && currentMediaUrl && (
           <Dialog open={showMediaCropDialog} onOpenChange={(open) => !open && setShowMediaCropDialog(false)}>
             <DialogContent className="sm:max-w-[800px]">
@@ -1082,7 +1081,6 @@ export default function DogForm({
             </DialogContent>
           </Dialog>
         )}
-
         <FormField
           control={form.control}
           name="name"
@@ -1096,7 +1094,6 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="registrationName"
@@ -1110,7 +1107,6 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="gender"
@@ -1141,7 +1137,6 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
           <div className="space-y-6">
             <FormField
@@ -1173,7 +1168,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="fatherId"
@@ -1203,7 +1197,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="litterId"
@@ -1235,7 +1228,6 @@ export default function DogForm({
             />
           </div>
         )}
-
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -1251,7 +1243,6 @@ export default function DogForm({
             )}
           />
         </div>
-
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -1266,7 +1257,6 @@ export default function DogForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="narrativeDescription"
@@ -1281,7 +1271,6 @@ export default function DogForm({
             )}
           />
         </div>
-
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -1296,7 +1285,6 @@ export default function DogForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="color"
@@ -1310,7 +1298,6 @@ export default function DogForm({
               </FormItem>
             )}
           />
-
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -1325,7 +1312,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="weight"
@@ -1340,7 +1326,6 @@ export default function DogForm({
               )}
             />
           </div>
-
           <FormField
             control={form.control}
             name="furLength"
@@ -1354,7 +1339,6 @@ export default function DogForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="dewclaws"
@@ -1369,7 +1353,6 @@ export default function DogForm({
             )}
           />
         </div>
-
         <FormField
           control={form.control}
           name="healthData"
@@ -1444,7 +1427,6 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="pedigree"
@@ -1518,12 +1500,10 @@ export default function DogForm({
             </FormItem>
           )}
         />
-
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel>Pictures & Videos</FormLabel>
           </div>
-
           <div
             {...getRootProps()}
             className={cn(
@@ -1545,7 +1525,6 @@ export default function DogForm({
               </div>
             </div>
           </div>
-
           <DragDropContext onDragEnd={handleDragEnd}>
             <StrictModeDroppable droppableId="media-list">
               {(provided) => (
@@ -1620,7 +1599,6 @@ export default function DogForm({
             </StrictModeDroppable>
           </DragDropContext>
         </div>
-
         {!isPuppy && (
           <div className="space-y-4">
             <FormField
@@ -1643,7 +1621,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="puppy"
@@ -1664,7 +1641,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="available"
@@ -1685,7 +1661,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="sold"
@@ -1706,7 +1681,6 @@ export default function DogForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="price"
@@ -1734,7 +1708,6 @@ export default function DogForm({
             />
           </div>
         )}
-
         <div className="flex justify-between pt-6">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
