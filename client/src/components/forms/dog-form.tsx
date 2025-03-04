@@ -969,12 +969,12 @@ export default function DogForm({
   }
 };
 
-const onSubmitWrapper = async (values: any) => {
-  try {
-    const processedValues = {
-      ...values,
-      height: values.height ? parseFloat(values.height) : null,
-      weight: values.weight ? parseFloat(values.weight) : null,
+// Implementation of onSubmitWrapper function
+try {
+  const processedValues = {
+    ...values,
+    height: values.height ? parseFloat(values.height) : null,
+    weight: values.weight ? parseFloat(values.weight) : null,
       price: values.price && values.price !== "" ? parseInt(values.price.replace(/,/g, '')) : null,
       motherId: values.motherId || null,
       fatherId: values.fatherId || null,
