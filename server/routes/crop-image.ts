@@ -1,33 +1,50 @@
 
 import { Request, Response } from 'express';
-import fetch from 'node-fetch';
 import sharp from 'sharp';
-import path from 'path';
-import fs from 'fs';
+import fetch from 'node-fetch';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
-import { uploadToS3, getS3Url } from '../utils/s3';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
+  }
+});
+
+const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || '';
 
 export const cropImage = async (req: Request, res: Response) => {
   try {
-    const { imageUrl, cropData, filename } = req.body;
-    
-    if (!imageUrl || !cropData) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    const { imageUrl, crop } = req.body;
+
+    if (!imageUrl || !crop) {
+      return res.status(400).json({ error: 'Image URL and crop data are required' });
     }
-    
-    // Parse crop data
-    const crop = JSON.parse(cropData);
-    
-    // Download the image
-    const imageResponse = await fetch(imageUrl);
-    if (!imageResponse.ok) {
-      return res.status(500).json({ error: 'Failed to fetch source image' });
+
+    console.log('Server-side cropping:', { imageUrl: imageUrl.substring(0, 50) + '...', crop });
+
+    // Fetch the image
+    let imageBuffer;
+    if (imageUrl.startsWith('data:')) {
+      // It's a base64 image
+      const base64Data = imageUrl.split(',')[1];
+      imageBuffer = Buffer.from(base64Data, 'base64');
+    } else {
+      // It's a URL
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        return res.status(400).json({ error: 'Failed to fetch image' });
+      }
+      imageBuffer = await response.arrayBuffer();
     }
-    
-    const imageBuffer = await imageResponse.buffer();
-    
+
     // Use sharp to crop the image
-    const croppedBuffer = await sharp(imageBuffer)
+    const croppedBuffer = await sharp(Buffer.from(imageBuffer))
       .extract({
         left: Math.round(crop.x),
         top: Math.round(crop.y),
@@ -36,53 +53,43 @@ export const cropImage = async (req: Request, res: Response) => {
       })
       .jpeg({ quality: 90 })
       .toBuffer();
-    
-    // Generate a unique filename
-    const uniqueFilename = `${uuidv4()}-${filename || 'cropped-image.jpg'}`;
-    
-    // Temporary save the file locally
-    const localFilePath = path.join(process.cwd(), 'uploads', uniqueFilename);
-    
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    
-    // Write file to disk
-    fs.writeFileSync(localFilePath, croppedBuffer);
-    
-    // Check if S3 is configured
-    const useS3 = process.env.USE_S3 === 'true';
-    
-    let fileUrl;
-    
-    if (useS3) {
+
+    // Upload to S3 if credentials are available
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && BUCKET_NAME) {
       try {
-        // Upload to S3 using your existing S3 utility
-        await uploadToS3(localFilePath, uniqueFilename, 'image/jpeg');
-        fileUrl = getS3Url(uniqueFilename);
+        console.log('S3 UPLOAD ATTEMPT: AWS Credentials Check', {
+          AWS_REGION: !!process.env.AWS_REGION,
+          AWS_ACCESS_KEY_ID: !!process.env.AWS_ACCESS_KEY_ID,
+          AWS_SECRET_ACCESS_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
+          BUCKET_NAME: !!BUCKET_NAME
+        });
+
+        const fileName = `cropped-${uuidv4()}.jpg`;
+        const key = `uploads/${fileName}`;
+
+        const uploadParams = {
+          Bucket: BUCKET_NAME,
+          Key: key,
+          Body: croppedBuffer,
+          ContentType: 'image/jpeg'
+        };
+
+        await s3Client.send(new PutObjectCommand(uploadParams));
+        const s3Url = `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`;
         
-        // Remove local file after S3 upload
-        fs.unlinkSync(localFilePath);
+        console.log('S3 upload successful, URL:', s3Url);
+        return res.json({ url: s3Url });
       } catch (s3Error) {
-        console.error('S3 upload failed, using local file:', s3Error);
-        // Fallback to local URL if S3 upload fails
-        fileUrl = `/uploads/${uniqueFilename}`;
+        console.error('S3 Upload Error:', s3Error);
+        // Fall back to local storage if S3 fails
       }
-    } else {
-      // Use local file URL
-      fileUrl = `/uploads/${uniqueFilename}`;
     }
-    
-    // Return the URL of the cropped image
-    return res.status(200).json({ url: fileUrl });
-    
+
+    // If S3 upload fails or isn't configured, send back base64
+    const base64Image = `data:image/jpeg;base64,${croppedBuffer.toString('base64')}`;
+    return res.json({ url: base64Image });
   } catch (error) {
-    console.error('Error in image cropping:', error);
-    return res.status(500).json({ 
-      error: 'Error processing image crop',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    console.error('Server-side crop error:', error);
+    return res.status(500).json({ error: 'Failed to crop image' });
   }
 };

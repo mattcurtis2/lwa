@@ -47,7 +47,7 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete: (croppedImageUrl: string | null, completedCrop: PixelCrop | null) => void;
+  onCropComplete: (croppedImageUrl: string | null) => void;
   onCancel: () => void;
   aspect?: number;
   onSkip?: () => void;
@@ -105,66 +105,43 @@ export function ImageCrop({
     100
   );
 
-  const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
-      return;
-    }
-
-    try {
-      const canvas = previewCanvasRef.current;
-      const image = imgRef.current;
-      const crop = completedCrop;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) {
-        throw new Error("No 2d context");
-      }
-
-      // Set canvas size to match the crop area
-      canvas.width = crop.width;
-      canvas.height = crop.height;
-
-      // Set canvas properties to prevent tainted canvas
-      ctx.imageSmoothingQuality = 'high';
-
-      // First, check if the image is already loaded from the same origin
-      // or has proper CORS headers
+  const handleApplyCrop = useCallback(async () => {
+    if (completedCrop && imgRef.current) {
       try {
-        // Draw the cropped image onto the canvas
-        ctx.drawImage(
-          image,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
-          0,
-          0,
-          crop.width,
-          crop.height
-        );
+        console.log('Applying crop with dimensions:', completedCrop);
 
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL("image/jpeg");
-        onCropComplete(dataUrl, completedCrop);
-      } catch (securityError) {
-        // If we get a security error, pass the crop data directly
-        // instead of trying to generate a data URL
-        console.log("Crop completed:", completedCrop);
-        onCropComplete(null, completedCrop);
+        // Use server-side cropping to avoid CORS issues
+        const response = await fetch('/api/crop-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageUrl,
+            crop: completedCrop
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
+
+        onCropComplete(data.url);
+        onCancel();
+      } catch (e) {
+        console.error('Error applying crop:', e);
+        // Notify the user
+        alert('Failed to crop image. Please try again.');
       }
-    } catch (error) {
-      console.error("Error completing crop:", error);
-      // Still pass the crop data even if there was an error
-      onCropComplete(null, completedCrop);
     }
-  };
+  }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel]);
 
-  console.log("Crop completed:", completedCrop);
 
   return (
-    <Dialog open={true} onOpenChange={() => onCancel()}>
+    <Dialog open={true} onOpenChange={onCancel}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
