@@ -107,8 +107,11 @@ export function ImageCrop({
 
   const handleApplyCrop = async () => {
     if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+      console.error("Missing completedCrop, previewCanvasRef, or imgRef");
       return;
     }
+    
+    console.log("handleApplyCrop called with completedCrop:", completedCrop);
 
     try {
       const canvas = previewCanvasRef.current;
@@ -162,7 +165,10 @@ export function ImageCrop({
       console.error("Error completing crop:", error);
       // Still pass the crop data even if there was an error
       if (typeof onCropComplete === 'function') {
+          console.log("Calling onCropComplete with null and completedCrop:", completedCrop);
           onCropComplete(null, completedCrop);
+      } else {
+          console.error("onCropComplete is not a function or is undefined");
       }
     }
   };
