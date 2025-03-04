@@ -30,13 +30,13 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect, useCallback } from "react";
-import { X, ImageIcon, FileText, ExternalLink } from "lucide-react";
+import { X, ImageIcon, FileText, ExternalLink, PencilIcon, XIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import StrictModeDroppable from "@/components/ui/StrictModeDroppable";
+import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ImageCrop } from "@/components/ui/image-crop";
@@ -884,6 +884,21 @@ export default function DogForm({
     }
   };
 
+  const handleEditMedia = (index: number) => {
+    const media = mediaInputs[index];
+    if (media.type === 'image') {
+      handleMediaFileSelect(media.file as File, index); //Call the handleMediaFileSelect function to open the cropper.
+    }
+  };
+
+
+  const handleRemoveMedia = (index: number) => {
+      const newInputs = [...mediaInputs];
+      newInputs.splice(index, 1);
+      setMediaInputs(newInputs);
+      form.setValue("media", newInputs);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
@@ -1471,10 +1486,10 @@ export default function DogForm({
                   ref={provided.innerRef}
                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                 >
-                  {mediaInputs.filter(input => input?.url).map((input, index) => (
+                  {mediaInputs.filter(input => input?.url).map((media, index) => (
                     <Draggable
-                      key={input.url || `media-${index}`}
-                      draggableId={input.url || `media-${index}`}
+                      key={media.url || `media-${index}`}
+                      draggableId={media.url || `media-${index}`}
                       index={index}
                     >
                       {(provided) => (
@@ -1484,18 +1499,18 @@ export default function DogForm({
                           {...provided.dragHandleProps}
                           className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
                         >
-                          {input.type === 'image' ? (
+                          {media.type === 'image' ? (
                             <>
                               <img
-                                src={input.url}
+                                src={media.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaFileSelect(input.file as File, index)}
+                                onClick={() => handleMediaFileSelect(media.file as File, index)}
                               />
                               <div
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
                                 onClick={() => {
-                                  handleMediaFileSelect(input.file as File, index)
+                                  handleMediaFileSelect(media.file as File, index)
                                 }}
                               >
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
@@ -1505,21 +1520,30 @@ export default function DogForm({
                             </>
                           ) : (
                             <video
-                              src={input.url}
+                              src={media.url}
                               className="w-full h-full object-cover"
                               controls
                             />
                           )}
                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => removeMediaInput(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
+                            <div className="flex gap-1">
+                              {media.type === 'image' && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditMedia(index)}
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeMediaInput(index)}
+                              >
+                                <XIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                         </div>
@@ -1658,6 +1682,28 @@ export default function DogForm({
           </Button>
         </div>
       </form>
+      {mode === 'edit' && (
+        <Button
+          variant="destructive"
+          className="mb-8"
+          onClick={handleDogDelete}
+          type="button"
+        >
+          <Trash className="mr-2 h-4 w-4" /> Delete Dog
+        </Button>
+      )}
+
+      {showCropper && cropImageUrl && (
+        <ImageCrop
+          imageUrl={cropImageUrl}
+          onCropComplete={handleMediaCrop}
+          onCancel={() => {
+            setShowCropper(false);
+            setCropImageUrl("");
+            setTempMediaData(null);
+          }}
+        />
+      )}
     </Form>
   );
 }
