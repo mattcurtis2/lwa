@@ -724,8 +724,8 @@ export default function DogForm({
   const applyCroppedMediaImage = async (croppedImageUrl: string | null, completedCrop?: any) => {
     console.log("Applying cropped media image with URL:", croppedImageUrl?.substring(0, 50) + "...");
 
-    if (!croppedImageUrl || !tempMediaData) {
-      console.error("Missing cropped image URL or temp media data");
+    if (!croppedImageUrl && !completedCrop) {
+      console.error("Missing cropped image URL and completed crop data");
       toast({
         title: "Error",
         description: "Failed to process the cropped image. Please try again.",
@@ -742,14 +742,37 @@ export default function DogForm({
       const formData = new FormData();
       let blob;
 
-      if (croppedImageUrl.startsWith('data:')) {
+      if (croppedImageUrl && croppedImageUrl.startsWith('data:')) {
         // It's a base64 data URL, convert directly to blob
         const base64Response = await fetch(croppedImageUrl);
         blob = await base64Response.blob();
-      } else {
+      } else if (croppedImageUrl) {
         // It's a URL to fetch
         const res = await fetch(croppedImageUrl);
         blob = await res.blob();
+      } else if (completedCrop){
+        const formData = new FormData();
+        formData.append("imageUrl", tempMediaData?.url);
+        formData.append("cropData", JSON.stringify(completedCrop));
+        formData.append("filename", "cropped-image.jpg");
+
+        const cropRes = await fetch("/api/crop-image", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!cropRes.ok) {
+          throw new Error(`Failed to crop image server-side. Status: ${cropRes.status}`);
+        }
+        const cropResult = await cropRes.json();
+        if (!cropResult || !cropResult.url) {
+          throw new Error("Invalid response from crop endpoint");
+        }
+        croppedImageUrl = cropResult.url;
+        const res = await fetch(croppedImageUrl);
+        blob = await res.blob();
+      } else {
+        throw new Error("No crop data available");
       }
 
       const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
@@ -867,7 +890,7 @@ export default function DogForm({
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
-            onCropComplete={applyCroppedMediaImage}
+            onCropComplete={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");

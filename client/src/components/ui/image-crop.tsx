@@ -186,6 +186,7 @@ export function ImageCrop({
                 src={imageUrl}
                 onLoad={onImageLoad}
                 className="max-h-[500px] object-contain"
+                crossOrigin="anonymous"
               />
             </ReactCrop>
 
