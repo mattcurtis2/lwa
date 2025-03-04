@@ -130,6 +130,9 @@ export function ImageCrop({
         console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
 
         if (typeof onCropComplete === 'function') {
+          // Check if it's an S3 URL or base64
+          const isS3Url = typeof data.url === 'string' && data.url.includes('amazonaws.com');
+          console.log(`Crop completed successfully. Using ${isS3Url ? 'S3 URL' : 'base64 image'}`);
           onCropComplete(data.url);
         }
         onCancel();
