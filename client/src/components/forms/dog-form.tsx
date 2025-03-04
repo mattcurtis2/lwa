@@ -136,7 +136,7 @@ export default function DogForm({
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File } | null>(null); //New state for tracking media during crop
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File; isProfileImage: boolean } | null>(null); //New state for tracking media during crop
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -338,6 +338,7 @@ export default function DogForm({
     try {
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
+      setTempMediaData({ file, isProfileImage: true });
       setShowCropper(true);
     } catch (error) {
       toast({
@@ -388,10 +389,9 @@ export default function DogForm({
         const blob = await response.blob();
 
         // Create a new File object from the Blob
-        const fileName = isMediaUpload && tempMediaData?.file 
-          ? tempMediaData.file.name 
-          : 'cropped-image.jpg';
-
+        const fileName = tempMediaData?.isProfileImage
+          ? 'cropped-profile.jpg'
+          : (tempMediaData?.file?.name || 'cropped-image.jpg');
         const newFile = new File([blob], fileName, { type: 'image/jpeg' });
 
         // Create form data for upload
@@ -410,7 +410,9 @@ export default function DogForm({
 
         const data = await uploadResponse.json();
 
-        if (isMediaUpload && tempMediaData) {
+        if (tempMediaData?.isProfileImage) {
+          form.setValue("profileImageUrl", data.url);
+        } else if (tempMediaData) {
           // Update media at the specific index
           const updatedMedia = [...mediaInputs];
           updatedMedia[tempMediaData.index] = {
@@ -421,10 +423,8 @@ export default function DogForm({
           };
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
-        } else {
-          // Update profile image
-          form.setValue("profileImageUrl", data.url);
         }
+
 
         toast({ title: "Success", description: "Image cropped and uploaded successfully" });
       } else {
@@ -685,17 +685,11 @@ export default function DogForm({
     }
   });
 
-  const handleMediaCrop = (index: number, imageUrl: string) => {
-    setTempMediaData({index, file: mediaInputs[index].file as File}); // Assign the file from mediaInputs
-    setCropImageUrl(imageUrl);
-    setShowCropper(true);
-  };
-
   const handleMediaFileSelect = async (file: File, index: number) => {
     if (!file) return;
 
     // Set the temporary media data for use after cropping
-    setTempMediaData({ index, file });
+    setTempMediaData({ file, index, isProfileImage: false });
 
     try {
       // Create a local object URL to avoid CORS issues
@@ -753,14 +747,14 @@ export default function DogForm({
     }
   };
 
-  const handleMediaCrop = async (croppedImageUrl: string) => {
+  const processMediaCrop = async (croppedImageUrl: string) => {
     if (!tempMediaData) return;
     setIsUploading(true);
     try {
       // Create a new image with crossOrigin attribute
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : cropImageUrl;
+      img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : croppedImageUrl;
 
       // Wait for the image to load
       await new Promise((resolve, reject) => {
@@ -820,6 +814,24 @@ export default function DogForm({
       setShowCropper(false);
       setCropImageUrl("");
       setTempMediaData(null);
+    }
+  };
+
+  const handleMediaUpload = async (file: File, index: number) => {
+    if (!file) return;
+
+    try {
+      // Create a local object URL to avoid CORS issues
+      const url = URL.createObjectURL(file);
+      setCropImageUrl(url);
+      setTempMediaData({ file, index, isProfileImage: false });
+      setShowCropper(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -1429,12 +1441,12 @@ export default function DogForm({
                                 src={input.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaCrop(index, input.url)}
+                                onClick={() => handleMediaFileSelect(input.file as File, index)}
                               />
                               <div
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
                                 onClick={() => {
-                                  handleMediaCrop(index, input.url)
+                                  handleMediaFileSelect(input.file as File, index)
                                 }}
                               >
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">

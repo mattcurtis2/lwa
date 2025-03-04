@@ -104,7 +104,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const [pedigreeDocuments, setPedigreeDocuments] = useState<Document[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined } | null>(null);
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined; isProfileImage: boolean } | null>(null);
 
 
   const goatSchema = createGoatSchema(Boolean(goat?.kid));
@@ -176,6 +176,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
+      setTempMediaData({ file, isProfileImage: true });
       setShowCropper(true);
     } catch (error) {
       toast({
@@ -190,7 +191,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     setIsUploading(true);
     try {
       // Check if this is a media upload or profile image upload
-      const isMediaUpload = tempMediaData !== null;
+      const isMediaUpload = tempMediaData !== null && !tempMediaData.isProfileImage;
 
       // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
@@ -387,18 +388,21 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }, [form, toast]),
   });
 
-  const handleMediaImageSelect = async (file: File, index: number) => {
+  const handleMediaFileSelect = async (file: File, index: number) => {
     if (!file) return;
 
+    // Set the temporary media data for use after cropping
+    setTempMediaData({ file, index, isProfileImage: false });
+
     try {
-      const previewUrl = URL.createObjectURL(file);
-      setCropImageUrl(previewUrl);
+      // Create a local object URL to avoid CORS issues
+      const url = URL.createObjectURL(file);
+      setCropImageUrl(url);
       setShowCropper(true);
-      setTempMediaData({ index, file });
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load image for cropping',
+        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
         variant: 'destructive',
       });
     }
@@ -412,7 +416,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   };
 
   const handleImageEdit = (index: number) => {
-    setTempMediaData({index, file: mediaInputs[index].file});
+    setTempMediaData({index, file: mediaInputs[index].file, isProfileImage: false});
     setCropImageUrl(mediaInputs[index].url);
     setShowCropper(true);
   };
@@ -420,7 +424,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
     setIsUploading(true);
     try {
-      const { index, file } = tempMediaData!;
+      const { index, file, isProfileImage } = tempMediaData!;
       const updatedMedia = [...mediaInputs];
       const formData = new FormData();
       formData.append('file', await (await fetch(croppedImageUrl)).blob(), 'cropped-image.jpg');
@@ -527,26 +531,6 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     }
   };
 
-  const handleMediaFileSelect = async (file: File, index: number) => {
-    if (!file) return;
-
-    // Set the temporary media data for use after cropping
-    setTempMediaData({ index, file });
-
-    try {
-      // Create a local object URL to avoid CORS issues
-      const url = URL.createObjectURL(file);
-      setCropImageUrl(url);
-      setShowCropper(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleMediaCrop = async (croppedImageUrl: string) => {
     if (!tempMediaData) return;
     setIsUploading(true);
@@ -590,17 +574,20 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
 
       const updatedMedia = [...mediaInputs];
-      updatedMedia[tempMediaData.index] = {
-        ...updatedMedia[tempMediaData.index],
-        url: timestampedUrl,
-        file,
-        tempUrl: timestampedUrl,
-        type: 'image',
-        isNew: true,
-      };
-
-      setMediaInputs(updatedMedia);
-      form.setValue("media", updatedMedia);
+      if (tempMediaData.isProfileImage) {
+        form.setValue("profileImageUrl", timestampedUrl);
+      } else {
+        updatedMedia[tempMediaData.index] = {
+          ...updatedMedia[tempMediaData.index],
+          url: timestampedUrl,
+          file,
+          tempUrl: timestampedUrl,
+          type: 'image',
+          isNew: true,
+        };
+        setMediaInputs(updatedMedia);
+        form.setValue("media", updatedMedia);
+      }
       toast({ title: "Success", description: "Image cropped and uploaded successfully" });
     } catch (error) {
       toast({
@@ -634,6 +621,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
+                      setTempMediaData({ file: undefined, isProfileImage: true }); //Added for consistency
                       setShowCropper(true);
                     }
                   }}
