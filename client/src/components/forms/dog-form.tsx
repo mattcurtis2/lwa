@@ -979,7 +979,8 @@ export default function DogForm({
                 </RadioGroup>
               </FormControl>
               <FormMessage />
-            </FormItem)}
+            </FormItem>
+          )}
         />
 
         {!fromLitter && !defaultValues?.motherId && !defaultValues?.fatherId && (
