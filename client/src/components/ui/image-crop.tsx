@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 function centerAspectCrop(
@@ -119,11 +119,19 @@ export function ImageCrop({
     }
   }, [completedCrop, imgRef, onCropComplete]);
 
+  // Convert image URL to use proxy if it's from S3
+  const processedImageUrl = imageUrl.includes('lwacontent.s3') ? 
+    `/api/proxy-image?url=${encodeURIComponent(imageUrl)}` : 
+    imageUrl;
+    
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto flex flex-col">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
+          <DialogDescription>
+            Select an area of the image to crop
+          </DialogDescription>
         </DialogHeader>
         <div className="my-4 overflow-y-auto max-h-[calc(70vh-8rem)]">
           <ReactCrop
@@ -135,7 +143,7 @@ export function ImageCrop({
           >
             <img
               ref={imgRef}
-              src={imageUrl}
+              src={processedImageUrl}
               alt="Crop preview"
               onLoad={onImageLoad}
               className="max-w-full h-auto"
