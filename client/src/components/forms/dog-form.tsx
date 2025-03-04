@@ -721,97 +721,45 @@ export default function DogForm({
     setShowCropper(true);
   };
 
-  const applyCroppedMediaImage = async (croppedImageUrl: string | null, completedCrop?: any) => {
-    console.log("Applying cropped media image with URL:", croppedImageUrl?.substring(0, 50) + "...");
-
-    if (!croppedImageUrl && !completedCrop) {
-      console.error("Missing cropped image URL and completed crop data");
-      toast({
-        title: "Error",
-        description: "Failed to process the cropped image. Please try again.",
-        variant: "destructive",
-      });
-      setShowCropper(false);
-      setCropImageUrl("");
-      setTempMediaData(null);
-      return;
-    }
-
-    try {
-      // Handle data URL (base64) from cropper
-      const formData = new FormData();
-      let blob;
-
-      if (croppedImageUrl && croppedImageUrl.startsWith('data:')) {
-        // It's a base64 data URL, convert directly to blob
-        const base64Response = await fetch(croppedImageUrl);
-        blob = await base64Response.blob();
-      } else if (croppedImageUrl) {
-        // It's a URL to fetch
-        const res = await fetch(croppedImageUrl);
-        blob = await res.blob();
-      } else if (completedCrop){
+  const applyCroppedMediaImage = async (croppedImageUrl: string) => {
+    if (tempMediaData) {
+      try {
         const formData = new FormData();
-        formData.append("imageUrl", tempMediaData?.url);
-        formData.append("cropData", JSON.stringify(completedCrop));
-        formData.append("filename", "cropped-image.jpg");
-
-        const cropRes = await fetch("/api/crop-image", {
-          method: "POST",
+        const res = await fetch(croppedImageUrl);
+        const blob = await res.blob();
+        const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+        formData.append('file', croppedFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
           body: formData,
         });
 
-        if (!cropRes.ok) {
-          throw new Error(`Failed to crop image server-side. Status: ${cropRes.status}`);
+        if (!uploadRes.ok) {
+          throw new Error('Failed to upload image');
         }
-        const cropResult = await cropRes.json();
-        if (!cropResult || !cropResult.url) {
-          throw new Error("Invalid response from crop endpoint");
-        }
-        croppedImageUrl = cropResult.url;
-        const res = await fetch(croppedImageUrl);
-        blob = await res.blob();
-      } else {
-        throw new Error("No crop data available");
+
+        const data = await uploadRes.json();
+        const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+
+        const updatedMediaInputs = [...mediaInputs];
+        updatedMediaInputs[mediaInputs.indexOf(tempMediaData)] = {...tempMediaData, url: uploadedUrl};
+        setMediaInputs(updatedMediaInputs);
+        form.setValue("media", updatedMediaInputs);
+
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to upload cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+          variant: "destructive",
+        });
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
       }
-
-      const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-      formData.append('file', croppedFile);
-
-      console.log("Uploading cropped file to server...");
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Failed to upload image: ' + await uploadRes.text());
-      }
-
-      const data = await uploadRes.json();
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-      console.log("Received uploaded URL:", uploadedUrl);
-
-      const updatedMediaInputs = [...mediaInputs];
-      updatedMediaInputs[mediaInputs.indexOf(tempMediaData)] = {...tempMediaData, url: uploadedUrl};
-      setMediaInputs(updatedMediaInputs);
-      form.setValue("media", updatedMediaInputs);
-
-      toast({
-        title: "Success",
-        description: "Image cropped and uploaded successfully",
-      });
-    } catch (error) {
-      console.error("Error applying cropped image:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
-        variant: "destructive",
-      });
-    } finally {
-      setShowCropper(false);
-      setCropImageUrl("");
-      setTempMediaData(null);
     }
   };
 
@@ -890,13 +838,48 @@ export default function DogForm({
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
-            onCropComplete={handleCroppedImage}
+            onCrop={handleCroppedImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
               setTempMediaData(null);
             }}
-            aspect={1} // Setting a square aspect ratio for consistent cropping
+            onSkip={async () => {
+              const formData = new FormData();
+              const response = await fetch(cropImageUrl);
+              const blob = await response.blob();
+              formData.append('file', blob);
+
+              const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!uploadRes.ok) {
+                throw new Error('Failed to upload image');
+              }
+
+              const data = await uploadRes.json();
+              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+              if (cropImageUrl === form.getValues("profileImageUrl")) {
+                form.setValue("profileImageUrl", uploadedUrl);
+              } else {
+                const updatedMediaInputs = [...mediaInputs, {
+                  url: uploadedUrl,
+                  type: 'image',
+                  fileName: 'image.jpg',
+                  isNew: true,
+                }];
+                setMediaInputs(updatedMediaInputs);
+                form.setValue("media", updatedMediaInputs);
+              }
+
+              setShowCropper(false);
+              setCropImageUrl("");
+            }}
+            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
+            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
           />
         )}
 

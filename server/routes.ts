@@ -95,7 +95,7 @@ export function registerRoutes(app: Express): Server {
       { key: "animals_redirect", value: "/dogs", type: "text" },
       // Goats Card
       { key: "bakery_title", value: "Our Goats", type: "text" },
-      { key: "bakery_text", value: "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production. Perfect for small homesteads, they're easy to handle and maintain. Our goats are registered, health-tested and raised with love to ensure they make wonderful additions to your family or farming operation.", type: "text" },
+      { key: "bakery_text", value: "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production. Perfect for small homesteads, they're easy to handle and maintain. Our goats are registered, health-tested, and raised with love to ensure they make wonderful additions to your family or farming operation.", type: "text" },
       { key: "bakery_image", value: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041", type: "image" },
       { key: "bakery_button_text", value: "Learn About Our Goats", type: "text" },
       { key: "bakery_redirect", value: "/goats", type: "text" },
@@ -130,7 +130,7 @@ export function registerRoutes(app: Express): Server {
         },
         {
           title: "Nigerian Dwarf Goats",
-          description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested and raised with love.",
+          description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
           imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
           order: 2,
         },
@@ -1766,7 +1766,7 @@ export function registerRoutes(app: Express): Server {
         kids,
       });
     } catch (error) {
-      console.error("Error fetchinggoat litter:", error);
+      console.error("Error fetching goat litter:", error);
       res.status(500).json({ message: "Failed to fetch goat litter" });
     }
   });
@@ -1982,20 +1982,6 @@ export function registerRoutes(app: Express): Server {
       res.json({ isLoggedIn: false });
     }
   });
-
-  // Added crop-image route
-  app.post('/api/crop-image', async (req, res) => {
-    try {
-      // Placeholder for image cropping logic.  Replace with actual implementation.
-      const { image, x, y, width, height } = req.body;
-      // ... (Image cropping logic using a library like Jimp or Sharp) ...
-      res.json({ message: 'Image cropped successfully (placeholder)' });
-    } catch (error) {
-      console.error("Error cropping image:", error);
-      res.status(500).json({ message: "Failed to crop image" });
-    }
-  });
-
 
   const httpServer = createServer(app);
   return httpServer;
