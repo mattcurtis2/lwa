@@ -111,47 +111,61 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = useCallback(async () => {
-    if (completedCrop && imgRef.current) {
-      try {
-        console.log('Applying crop with dimensions:', completedCrop);
-        console.log('Media ID:', mediaId, 'Dog ID:', dogId);
+    console.log("Applying crop...");
+    if (!completedCrop || !previewCanvasRef.current) {
+      console.error("Missing completedCrop or canvas reference");
+      return;
+    }
 
-        const response = await fetch('/api/crop-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageUrl,
-            crop: completedCrop,
-            mediaId,
-            dogId,
-          }),
-        });
+    try {
+      // Get canvas as blob
+      const canvas = previewCanvasRef.current;
+      console.log("Canvas dimensions:", canvas.width, canvas.height);
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob(blob => {
+          console.log("Blob created:", blob?.size);
+          resolve(blob as Blob);
+        }, 'image/jpeg', 0.95);
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
+      console.log('Applying crop with dimensions:', completedCrop);
+      console.log('Media ID:', mediaId, 'Dog ID:', dogId);
 
-        const data = await response.json();
-        console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
+      const response = await fetch('/api/crop-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrl,
+          crop: completedCrop,
+          mediaId,
+          dogId,
+        }),
+      });
 
-        if (typeof onCropComplete === 'function') {
-          // Check if it's an S3 URL or base64
-          const isS3Url = typeof data.url === 'string' && data.url.includes('amazonaws.com');
-          console.log(`Crop completed successfully. Using ${isS3Url ? 'S3 URL' : 'base64 image'}`);
-          onCropComplete(data.url);
-        }
-        onCancel();
-      } catch (error) {
-        console.error("Error completing crop:", error);
-        // Still pass the crop data even if there was an error
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(null);
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
+
+      if (typeof onCropComplete === 'function') {
+        // Check if it's an S3 URL or base64
+        const isS3Url = typeof data.url === 'string' && data.url.includes('amazonaws.com');
+        console.log(`Crop completed successfully. Using ${isS3Url ? 'S3 URL' : 'base64 image'}`);
+        onCropComplete(data.url);
+      }
+      onCancel();
+    } catch (error) {
+      console.error("Error completing crop:", error);
+      // Still pass the crop data even if there was an error
+      if (typeof onCropComplete === 'function') {
+        onCropComplete(null);
       }
     }
-  }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel, mediaId, dogId]);
+  }, [completedCrop, imageUrl, onCropComplete, onCancel, mediaId, dogId]);
 
 
   return (
