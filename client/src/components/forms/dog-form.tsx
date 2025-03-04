@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect, useCallback } from "react";
-import { X, ImageIcon, FileText, ExternalLink, Pencil } from "lucide-react";
+import { X, ImageIcon, FileText, ExternalLink } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -139,7 +139,6 @@ export default function DogForm({
   const [tempMediaData, setTempMediaData] = useState<MediaInput | null>(null); //New state for tracking media during crop
   const [isCropping, setIsCropping] = useState(false);
   const [activeImage, setActiveImage] = useState<MediaInput | null>(null);
-  const [dogId, setDogId] = useState<number | undefined>(dog?.id); // Add dogId state
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -213,7 +212,6 @@ export default function DogForm({
 
   useEffect(() => {
     if (dog) {
-      setDogId(dog.id); // Set dogId when dog data is available
       const birthDate = parseApiDate(dog.birthDate);
       form.reset({
         ...dog,
@@ -727,54 +725,41 @@ export default function DogForm({
     setIsCropping(true);
   };
 
-  const handleCropComplete = async (croppedImageUrl: string) => {
-    console.log("Crop completed with URL:", croppedImageUrl.substring(0, 50) + "...");
-    console.log("Dog before crop:", dog);
-    console.log("Temp media data:", tempMediaData);
+  const handleCropComplete = async (croppedImageUrl: string, mediaId?: number) => {
+    try {
+      console.log('Received cropped image URL:', croppedImageUrl.substring(0, 50) + '...');
 
-    if (tempMediaData) {
-      try {
-        // Update the dog media with the cropped image
-        if (dogId) {
-          const endpoint = `/api/dogs/${dogId}/media/${tempMediaData.id}`;
-          console.log("Sending PUT request to:", endpoint);
+      // Log the dog data before crop
+      console.log('Dog before crop:', { ...form.getValues() });
 
-          const response = await fetch(endpoint, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              url: croppedImageUrl,
-            }),
-          });
+      // Find the media item or use profileImageUrl
+      if (mediaId !== undefined) {
+        // Update the specific media item
+        const updatedMedia = [...mediaInputs];
+        const index = updatedMedia.findIndex(m => m.id === mediaId);
 
-          const responseData = await response.json();
-          console.log("API response:", response.status, responseData);
-
-          if (response.ok) {
-            console.log("Media update successful, refreshing dog data");
-            // Refresh the media data
-            refreshDogData();
-            // Clear the temp media data
-            setTempMediaData(null);
-          } else {
-            console.error("Media update failed:", response.status, responseData);
-          }
-        } else {
-          console.error("No dogId available for updating media");
+        if (index !== -1) {
+          updatedMedia[index] = { ...updatedMedia[index], url: croppedImageUrl };
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
         }
-      } catch (error) {
-        console.error("Error applying crop:", error);
-        setTempMediaData(null);
+      } else {
+        // Update profile image
+        form.setValue("profileImageUrl", croppedImageUrl);
       }
-    } else {
-      console.warn("No tempMediaData available for updating");
-    }
 
-    // Reset crop state
-    setShowCropper(false);
-    setCropImageUrl("");
+      // Log the dog data after crop
+      console.log('Dog after crop:', { ...form.getValues() });
+
+      setShowCropper(false);
+    } catch (error) {
+      console.error('Error applying crop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to apply crop",
+        variant: "destructive"
+      });
+    }
   };
 
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
@@ -818,36 +803,6 @@ export default function DogForm({
       }
     }
   };
-
-  const handleEditClick = (dogMedia: MediaInput) => {
-    console.log("Edit button clicked for media:", dogMedia);
-    setCropImageUrl(dogMedia.url);
-    setTempMediaData(dogMedia);
-    setShowCropper(true);
-    console.log("showCropper set to:", true);
-  };
-
-  const refreshDogData = async () => {
-    if (dogId) {
-      try {
-        const response = await fetch(`/api/dogs/${dogId}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch dog data: ${response.status}`);
-        }
-        const updatedDog = await response.json();
-        form.reset(updatedDog);
-        setMediaInputs(updatedDog.media.map(m => ({...m, isNew: false})));
-      } catch (error) {
-        console.error("Error refreshing dog data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to refresh dog data",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
 
   return (
     <Form {...form}>
@@ -1012,7 +967,7 @@ export default function DogForm({
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="male" id="male" />
                     <label htmlFor="male" className="flex items-center gap-1">
-                      Male <span className="text-blue500">♂</span>
+                      Male <span className="text-blue-500">♂</span>
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -1467,26 +1422,6 @@ export default function DogForm({
                                   Edit Image
                                 </div>
                               </div>
-                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => removeMediaInput(index)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                >
-                                  <Pencil
-                                    className="h-4 w-4 cursor-pointer"
-                                    onClick={() => handleEditClick(input)}
-                                  />
-                                </Button>
-                              </div>
                             </>
                           ) : (
                             <video
@@ -1495,6 +1430,17 @@ export default function DogForm({
                               controls
                             />
                           )}
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => removeMediaInput(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                         </div>
                       )}
