@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,7 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { uploadFileToS3 } from "../../lib/upload-utils";
+import { uploadFileToS3 } from "../../lib/upload-utils"; //Import added here
 
 type SiteContent = {
   id: number;
@@ -46,12 +46,6 @@ type AboutCard = {
   order: number;
 };
 
-type AboutCardsData = {
-  sectionTitle: string;
-  sectionDescription: string;
-  cards: AboutCard[];
-};
-
 type PendingChanges = {
   siteContent: Record<string, string>;
   principles: Record<number, Partial<Principle>>;
@@ -59,10 +53,142 @@ type PendingChanges = {
   carouselItems: Record<number, Partial<CarouselItem>>;
 };
 
+type AboutCardsData = {
+  sectionTitle: string;
+  sectionDescription: string;
+  cards: {
+    title: string;
+    description: string;
+    icon: string;
+  }[];
+};
+
+const PrincipleDropzone = ({
+  onDrop,
+  currentImageUrl,
+}: {
+  onDrop: (files: File[]) => void;
+  currentImageUrl?: string;
+}) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+    multiple: false,
+  });
+  return (
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const AboutCardDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (files) => files[0] && onDrop(files[0]),
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+    multiple: false,
+  });
+  return (
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const CarouselItemDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (files) => files[0] && onDrop(files[0]),
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+    multiple: false,
+  });
+  return (
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (files) => files[0] && onDrop(files[0]),
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+    multiple: false,
+  });
+  return (
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-lg p-6 hover:bg-accent/50 transition-colors cursor-pointer",
+        isDragActive && "border-primary bg-accent",
+      )}
+    >
+      <input {...getInputProps()} />
+      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Upload className="h-10 w-10" />
+        <p className="text-sm text-center">
+          {isDragActive
+            ? "Drop your image here..."
+            : "Drag & drop an image here, or click to select"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [mainTab, setMainTab] = useState("content");
+  const [mainTab, setMainTab] = useState("hero");
   const [activeTab, setActiveTab] = useState("hero");
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
@@ -90,7 +216,7 @@ export default function ContentSection() {
   });
 
   const { data: aboutCards = [] } = useQuery<AboutCard[]>({
-    queryKey: ["/api/about-cards-old"],
+    queryKey: ["/api/about-cards-old"], //Use old endpoint for individual cards.
   });
 
   const {
@@ -113,29 +239,33 @@ export default function ContentSection() {
     }
   }, [aboutCardsData]);
 
-  useEffect(() => {
-    if (siteContent.length > 0) {
-      const initialPendingContent: Record<string, string> = {};
-      siteContent.forEach((item) => {
-        initialPendingContent[item.key] = item.value;
-      });
-      setPendingContent(initialPendingContent);
-    }
-  }, [siteContent]);
+  const handleFileUpload = async (file: File): Promise<string> => {
+    return uploadFileToS3(file); // Use the shared S3 upload function
+  };
 
   const updateSiteContent = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: string }) => {
+    mutationFn: async ({
+      key,
+      value,
+      file,
+    }: {
+      key: string;
+      value: string;
+      file?: File;
+    }) => {
+      const formData = new FormData();
+      if (file) {
+        formData.append("file", file);
+      }
+      formData.append("value", value);
+
       const res = await fetch(`/api/site-content/${key}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value }),
+        body: file ? formData : JSON.stringify({ value }),
+        headers: file ? undefined : { "Content-Type": "application/json" },
       });
-      if (!res.ok) throw new Error("Failed to update site content");
+      if (!res.ok) throw new Error("Failed to update content");
       return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
-      toast({ title: "Content updated successfully" });
     },
   });
 
@@ -204,22 +334,24 @@ export default function ContentSection() {
         }
       }
 
-      for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
-        const card = aboutCards.find((c) => c.id === parseInt(id));
-        if (card) {
-          await updateAboutCard.mutateAsync({ ...card, ...changes });
+      if (pendingAboutCards) {
+        await updateAboutCards.mutateAsync(pendingAboutCards);
+      } else {
+        for (const [id, changes] of Object.entries(pendingChanges.aboutCards)) {
+          const card = aboutCards.find((c) => c.id === parseInt(id));
+          if (card) {
+            await updateAboutCard.mutateAsync({ ...card, ...changes });
+          }
         }
       }
 
-      for (const [id, changes] of Object.entries(pendingChanges.carouselItems)) {
+      for (const [id, changes] of Object.entries(
+        pendingChanges.carouselItems,
+      )) {
         const item = carouselItems.find((i) => i.id === parseInt(id));
         if (item) {
           await updateCarouselItem.mutateAsync({ ...item, ...changes });
         }
-      }
-
-      if (pendingAboutCards) {
-        await updateAboutCards.mutateAsync(pendingAboutCards);
       }
 
       setPendingChanges({
@@ -228,108 +360,30 @@ export default function ContentSection() {
         aboutCards: {},
         carouselItems: {},
       });
+      setPendingAboutCards(null);
+
+      queryClient.invalidateQueries({ queryKey: ["/api/site-content"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/principles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/about-cards"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/carousel"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/market"] }); //Invalidate market queries
+
       toast({ title: "All changes saved successfully" });
     } catch (error) {
-      console.error("Save failed:", error);
-      toast({
-        title: "Save failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleContentChange = (key: string, value: string) => {
-    setPendingChanges((prev) => ({
-      ...prev,
-      siteContent: {
-        ...prev.siteContent,
-        [key]: value,
-      },
-    }));
-  };
-
-  const handlePrincipleChange = (id: number, field: string, value: string) => {
-    setPendingChanges((prev) => ({
-      ...prev,
-      principles: {
-        ...prev.principles,
-        [id]: {
-          ...prev.principles[id],
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const handleAboutCardChange = (id: number, field: string, value: string) => {
-    setPendingChanges((prev) => ({
-      ...prev,
-      aboutCards: {
-        ...prev.aboutCards,
-        [id]: {
-          ...prev.aboutCards[id],
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const handleNewAboutCardChange = (index: number, field: string, value: string) => {
-    if (!pendingAboutCards) return;
-
-    const updatedCards = [...pendingAboutCards.cards];
-    updatedCards[index] = {
-      ...updatedCards[index],
-      [field]: value,
-    };
-
-    setPendingAboutCards({
-      ...pendingAboutCards,
-      cards: updatedCards,
-    });
-  };
-
-  const handleAboutSectionChange = (field: string, value: string) => {
-    if (!pendingAboutCards) return;
-
-    setPendingAboutCards({
-      ...pendingAboutCards,
-      [field]: value,
-    });
-  };
-
-  const handleCarouselChange = (id: number, field: string, value: string) => {
-    setPendingChanges((prev) => ({
-      ...prev,
-      carouselItems: {
-        ...prev.carouselItems,
-        [id]: {
-          ...prev.carouselItems[id],
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const handleFileUpload = async (file: File): Promise<string> => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Upload direct to S3
-      const imageUrl = await uploadFileToS3(file);
-      return imageUrl;
-    } catch (error) {
-      console.error("Upload failed:", error);
-      throw error;
+      toast({ title: "Failed to save changes", variant: "destructive" });
     }
   };
 
   const handleHeroImageUpload = async (file: File) => {
     try {
       const imageUrl = await handleFileUpload(file);
-      handleContentChange("hero_background", imageUrl);
+      setPendingChanges((prev) => ({
+        ...prev,
+        siteContent: {
+          ...prev.siteContent,
+          hero_background: imageUrl,
+        },
+      }));
     } catch (error) {
       console.error("Upload failed:", error);
       toast({
@@ -340,37 +394,13 @@ export default function ContentSection() {
     }
   };
 
-  const handleOGImageUpload = async (file: File) => {
+  const handlePrincipleImageUpload = async (
+    files: File[],
+    principleId: number,
+  ) => {
+    if (!files.length) return;
     try {
-      const imageUrl = await handleFileUpload(file);
-      handleContentChange("og_image", imageUrl);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleLogoUpload = async (file: File) => {
-    try {
-      const imageUrl = await handleFileUpload(file);
-      handleContentChange("logo", imageUrl);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handlePrincipleImageUpload = async (file: File, principleId: number) => {
-    try {
-      const imageUrl = await handleFileUpload(file);
+      const imageUrl = await handleFileUpload(files[0]);
       setPendingChanges((prev) => ({
         ...prev,
         principles: {
@@ -445,800 +475,894 @@ export default function ContentSection() {
     );
   };
 
-  const handleCropComplete = (croppedImageUrl: string) => {
+  const handleContentChange = (key: string, value: string) => {
+    setPendingChanges((prev) => ({
+      ...prev,
+      siteContent: {
+        ...prev.siteContent,
+        [key]: value,
+      },
+    }));
+  };
+
+  const handlePrincipleChange = (
+    principleId: number,
+    key: string,
+    value: string | undefined,
+  ) => {
     setPendingChanges((prev) => ({
       ...prev,
       principles: {
         ...prev.principles,
-        [pendingPrincipleId!]: {
-          ...prev.principles[pendingPrincipleId!],
-          imageUrl: croppedImageUrl,
+        [principleId]: {
+          ...prev.principles[principleId],
+          [key]: value,
         },
       },
     }));
-    setShowCropper(false);
-    setCropImageUrl("");
-    setPendingPrincipleId(null);
   };
 
-  const getPrincipleValue = (id: number, field: keyof Principle) => {
-    const pendingValue = pendingChanges.principles[id]?.[field];
-    if (pendingValue !== undefined) return pendingValue;
+  const handleAboutCardChange = (
+    index: number,
+    field: string,
+    value: string,
+  ) => {
+    if (!pendingAboutCards) return;
 
-    const principle = principles.find((p) => p.id === id);
-    return principle?.[field] ?? "";
+    setPendingAboutCards((prev) => {
+      if (!prev) return prev;
+      const newCards = [...prev.cards];
+      newCards[index] = {
+        ...newCards[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        cards: newCards,
+      };
+    });
   };
 
-  const getAboutCardValue = (id: number, field: keyof AboutCard) => {
-    const pendingValue = pendingChanges.aboutCards[id]?.[field];
-    if (pendingValue !== undefined) return pendingValue;
-
-    const card = aboutCards.find((c) => c.id === id);
-    return card?.[field] ?? "";
-  };
-
-  const getCarouselValue = (id: number, field: keyof CarouselItem) => {
-    const pendingValue = pendingChanges.carouselItems[id]?.[field];
-    if (pendingValue !== undefined) return pendingValue;
-
-    const item = carouselItems.find((i) => i.id === id);
-    return item?.[field] ?? "";
-  };
-
-  const sortedPrinciples = [...principles].sort((a, b) => a.order - b.order);
-  const sortedCarouselItems = [...carouselItems].sort((a, b) => a.order - b.order);
+  const hasPendingChanges =
+    Object.keys(pendingChanges.siteContent).length > 0 ||
+    Object.keys(pendingChanges.principles).length > 0 ||
+    Object.keys(pendingChanges.aboutCards).length > 0 ||
+    Object.keys(pendingChanges.carouselItems).length > 0 ||
+    pendingAboutCards !== null;
 
   return (
     <>
-      <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="content">Site Content</TabsTrigger>
+      <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-6">
+        <TabsList className="w-full justify-start mb-4 border-b">
+          <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="principles">Principles</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+          <TabsTrigger value="carousel">Carousel</TabsTrigger>
+          <TabsTrigger value="dogs">Dogs</TabsTrigger>
+          <TabsTrigger value="goats">Goats</TabsTrigger>
+          <TabsTrigger value="market">Market</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="content" className="pt-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full flex flex-wrap justify-start gap-2 h-auto pb-2">
-              <TabsTrigger value="hero">Hero</TabsTrigger>
-              <TabsTrigger value="mission">Mission</TabsTrigger>
-              <TabsTrigger value="about">About Cards</TabsTrigger>
-              <TabsTrigger value="animals">Animal Cards</TabsTrigger>
-              <TabsTrigger value="market">Market</TabsTrigger>
-              <TabsTrigger value="logo">Logo & Meta</TabsTrigger>
-              <TabsTrigger value="carousel">Carousel</TabsTrigger>
-            </TabsList>
+        <TabsContent value="global">
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Global Settings</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Configure global website settings here.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-            <TabsContent value="hero" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Hero Section</CardTitle>
-                  <CardDescription>
-                    Update the main hero section of the site
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
+        <TabsContent value="home">
+          <div className="space-y-6">
+            {/* Home content here */}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="hero" className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Hero Title</Label>
+              <Input
+                value={getContentValue("hero_text")}
+                onChange={(e) =>
+                  handleContentChange("hero_text", e.target.value)
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hero Subtitle</Label>
+              <Textarea
+                value={getContentValue("hero_subtext")}
+                onChange={(e) =>
+                  handleContentChange("hero_subtext", e.target.value)
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hero Background Image</Label>
+              <HeroDropzone onDrop={handleHeroImageUpload} />
+              {getContentValue("hero_background") && (
+                <div className="relative group">
+                  <img
+                    src={getContentValue("hero_background")}
+                    alt="Hero background"
+                    className="mt-4 rounded-lg max-h-48 object-cover"
+                  />
+                  <div
+                    className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                    onClick={() => {
+                      setCropImageUrl(getContentValue("hero_background"));
+                      setShowCropper(true);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="principles" className="space-y-6">
+          {principles.map((principle) => (
+            <div key={principle.id} className="space-y-4 border rounded-lg p-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={
+                    pendingChanges.principles[principle.id]?.title ??
+                    principle.title
+                  }
+                  onChange={(e) =>
+                    handlePrincipleChange(principle.id, "title", e.target.value)
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={
+                    pendingChanges.principles[principle.id]?.description ??
+                    principle.description
+                  }
+                  onChange={(e) =>
+                    handlePrincipleChange(
+                      principle.id,
+                      "description",
+                      e.target.value,
+                    )
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <PrincipleDropzone
+                  onDrop={(files) =>
+                    handlePrincipleImageUpload(files, principle.id)
+                  }
+                />
+                {(pendingChanges.principles[principle.id]?.imageUrl ??
+                  principle.imageUrl) && (
+                  <div className="relative group">
+                    <img
+                      src={
+                        pendingChanges.principles[principle.id]?.imageUrl ??
+                        principle.imageUrl
+                      }
+                      alt="Principle Image Preview"
+                      className="mt-4 rounded-lg max-h-48 object-cover"
+                    />
+                    <div
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer flex items-center justify-center"
+                      onClick={() => {
+                        const imageUrl =
+                          pendingChanges.principles[principle.id]?.imageUrl ??
+                          principle.imageUrl;
+                        if (imageUrl) {
+                          // Check if it's a local URL and handle accordingly
+                          if (imageUrl.startsWith('/uploads/')) {
+                            console.warn('Found local image URL. This should be migrated to S3.');
+                          }
+                          setCropImageUrl(imageUrl);
+                          setPendingPrincipleId(principle.id);
+                          setShowCropper(true);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          {showCropper && cropImageUrl && (
+            <ImageCrop
+              imageUrl={cropImageUrl}
+              aspect={16 / 9}
+              onCropComplete={(croppedImageUrl) => {
+                if (pendingPrincipleId !== null) {
+                  setPendingChanges((prev) => ({
+                    ...prev,
+                    principles: {
+                      ...prev.principles,
+                      [pendingPrincipleId]: {
+                        ...prev.principles[pendingPrincipleId],
+                        imageUrl: croppedImageUrl,
+                      },
+                    },
+                  }));
+                }
+                setShowCropper(false);
+                setCropImageUrl("");
+                setPendingPrincipleId(null);
+              }}
+              onCancel={() => {
+                setShowCropper(false);
+                setCropImageUrl("");
+                setPendingPrincipleId(null);
+              }}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="about" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>About Title</Label>
+                  <Input
+                    value={getContentValue("about_title")}
+                    onChange={(e) => handleContentChange("about_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Mission Text</Label>
+                  <Textarea
+                    value={getContentValue("mission_text")}
+                    onChange={(e) => handleContentChange("mission_text", e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Animals Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Animals Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("animals_title")}
+                    onChange={(e) => handleContentChange("animals_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("animals_text")}
+                    onChange={(e) => handleContentChange("animals_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("animals_button_text")}
+                    onChange={(e) => handleContentChange("animals_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("animals_redirect")}
+                    onChange={(e) => handleContentChange("animals_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("animals_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("animals_image")}
+                  />
+                  {getContentValue("animals_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("animals_image")}
+                        alt="Animals Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Goats Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Goats Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("bakery_title")}
+                    onChange={(e) => handleContentChange("bakery_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("bakery_text")}
+                    onChange={(e) => handleContentChange("bakery_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("bakery_button_text")}
+                    onChange={(e) => handleContentChange("bakery_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("bakery_redirect")}
+                    onChange={(e) => handleContentChange("bakery_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("bakery_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("bakery_image")}
+                  />
+                  {getContentValue("bakery_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("bakery_image")}
+                        alt="Goats Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Market Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Market Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("products_title")}
+                    onChange={(e) => handleContentChange("products_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("products_text")}
+                    onChange={(e) => handleContentChange("products_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("products_button_text")}
+                    onChange={(e) => handleContentChange("products_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("products_redirect")}
+                    onChange={(e) => handleContentChange("products_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("products_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("products_image")}
+                  />
+                  {getContentValue("products_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("products_image")}
+                        alt="Products Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="carousel" className="space-y-6">
+          {carouselItems.map((item) => (
+            <div key={item.id} className="space-y-4 border rounded-lg p-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={
+                    pendingChanges.carouselItems[item.id]?.title ?? item.title
+                  }
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      carouselItems: {
+                        ...prev.carouselItems,
+                        [item.id]: {
+                          ...prev.carouselItems[item.id],
+                          title: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={
+                    pendingChanges.carouselItems[item.id]?.description ??
+                    item.description
+                  }
+                  onChange={(e) =>
+                    setPendingChanges((prev) => ({
+                      ...prev,
+                      carouselItems: {
+                        ...prev.carouselItems,
+                        [item.id]: {
+                          ...prev.carouselItems[item.id],
+                          description: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <CarouselItemDropzone
+                  onDrop={(file) => handleCarouselImageUpload(file, item.id)}
+                />
+                {(pendingChanges.carouselItems[item.id]?.imageUrl ??
+                  item.imageUrl) && (
+                  <img
+                    src={
+                      pendingChanges.carouselItems[item.id]?.imageUrl ??
+                      item.imageUrl
+                    }
+                    alt={item.title}
+                    className="mt-2 rounded-lg max-h-48 object-cover"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="dogs" className="space-y-6">
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Hero Title</Label>
                     <Input
-                      value={getContentValue("hero_text")}
-                      onChange={(e) => handleContentChange("hero_text", e.target.value)}
+                      value={getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
+                      onChange={(e) => handleContentChange("dog_hero_title", e.target.value)}
+                      placeholder="Enter hero title"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Hero Subtitle</Label>
-                    <Input
-                      value={getContentValue("hero_subtext")}
-                      onChange={(e) => handleContentChange("hero_subtext", e.target.value)}
+                    <Textarea
+                      value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
+                      onChange={(e) => handleContentChange("dog_hero_subtitle", e.target.value)}
+                      placeholder="Enter hero subtitle"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Hero Background Image</Label>
-                    <div className="flex items-center gap-4">
-                      <Input
-                        value={getContentValue("hero_background")}
-                        onChange={(e) =>
-                          handleContentChange("hero_background", e.target.value)
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("dog_hero_image", imageUrl);
+                          });
                         }
-                        className="flex-grow"
-                      />
-                      <div className="relative">
-                        <input
-                          type="file"
-                          id="hero-upload"
-                          className="sr-only"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              handleHeroImageUpload(e.target.files[0]);
-                            }
-                          }}
-                          accept="image/*"
-                        />
-                        <label
-                          htmlFor="hero-upload"
-                          className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          Upload
-                        </label>
-                      </div>
-                    </div>
-                    {getContentValue("hero_background") && (
-                      <div className="mt-2">
+                      }}
+                      currentImageUrl={getContentValue("dog_hero_image")}
+                    />
+                    {getContentValue("dog_hero_image") && (
+                      <div className="relative group">
                         <img
-                          src={getContentValue("hero_background")}
-                          alt="Hero background"
-                          className="max-h-40 rounded-md object-cover"
+                          src={getContentValue("dog_hero_image")}
+                          alt="Dogs Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("dog_hero_image"));
+                            setShowCropper(true);
+                          }}
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="mission" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Mission Section</CardTitle>
-                  <CardDescription>
-                    Update the mission statement section
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Mission Title</Label>
+                    <Label>Dogs Page Title</Label>
                     <Input
-                      value={getContentValue("mission_title")}
-                      onChange={(e) => handleContentChange("mission_title", e.target.value)}
+                      value={getContentValue("dogs_page_title")}
+                      onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Mission Text</Label>
+                    <Label>Dogs Page Description</Label>
                     <Textarea
-                      value={getContentValue("mission_text")}
-                      onChange={(e) => handleContentChange("mission_text", e.target.value)}
-                      rows={6}
+                      value={getContentValue("dogs_page_description")}
+                      onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
                     />
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="about" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>About Section</CardTitle>
-                  <CardDescription>Update the about section cards</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Section Title</Label>
+                    <Label>Breeding Program Description</Label>
+                    <Textarea
+                      value={getContentValue("dogs_breeding_program")}
+                      onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Available Dogs Message</Label>
+                    <Textarea
+                      value={getContentValue("dogs_available_message")}
+                      onChange={(e) => handleContentChange("dogs_available_message", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Breed Description Title</Label>
                     <Input
-                      value={pendingAboutCards?.sectionTitle ?? ""}
-                      onChange={(e) => handleAboutSectionChange("sectionTitle", e.target.value)}
+                      value={getContentValue("dogs_page_title")}
+                      onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
+                      placeholder="Colorado Mountain Dogs"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Section Description</Label>
+                    <Label>Breed Description</Label>
                     <Textarea
-                      value={pendingAboutCards?.sectionDescription ?? ""}
-                      onChange={(e) =>
-                        handleAboutSectionChange("sectionDescription", e.target.value)
-                      }
-                      rows={3}
+                      value={getContentValue("dogs_page_description")}
+                      onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
+                      placeholder="Enter a description of the breed..."
+                      className="min-h-[150px]"
                     />
                   </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-semibold">Cards</h3>
-                    {pendingAboutCards?.cards.map((card, index) => (
-                      <div key={index} className="space-y-4 border p-4 rounded-md">
-                        <h4 className="font-medium">Card {index + 1}</h4>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={card.title}
-                            onChange={(e) =>
-                              handleNewAboutCardChange(index, "title", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={card.description}
-                            onChange={(e) =>
-                              handleNewAboutCardChange(
-                                index,
-                                "description",
-                                e.target.value,
-                              )
-                            }
-                            rows={3}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Icon</Label>
-                          <Input
-                            value={card.imageUrl || ""}
-                            onChange={(e) =>
-                              handleNewAboutCardChange(index, "imageUrl", e.target.value)
-                            }
-                            placeholder="Icon class or URL"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="animals" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Animal Card Sections</CardTitle>
-                  <CardDescription>
-                    Update the animal cards on the homepage
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                  {/* Animals Card */}
-                  <div className="space-y-4 border p-4 rounded-md">
-                    <h3 className="text-lg font-semibold">Animals Card</h3>
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
-                        value={getContentValue("animals_title")}
-                        onChange={(e) => handleContentChange("animals_title", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Text</Label>
-                      <Textarea
-                        value={getContentValue("animals_text")}
-                        onChange={(e) => handleContentChange("animals_text", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <Input
-                        value={getContentValue("animals_image")}
-                        onChange={(e) => handleContentChange("animals_image", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Button Text</Label>
-                      <Input
-                        value={getContentValue("animals_button_text")}
-                        onChange={(e) =>
-                          handleContentChange("animals_button_text", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Redirect URL</Label>
-                      <Input
-                        value={getContentValue("animals_redirect")}
-                        onChange={(e) =>
-                          handleContentChange("animals_redirect", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bakery Card */}
-                  <div className="space-y-4 border p-4 rounded-md">
-                    <h3 className="text-lg font-semibold">Bakery Card</h3>
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
-                        value={getContentValue("bakery_title")}
-                        onChange={(e) => handleContentChange("bakery_title", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Text</Label>
-                      <Textarea
-                        value={getContentValue("bakery_text")}
-                        onChange={(e) => handleContentChange("bakery_text", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <Input
-                        value={getContentValue("bakery_image")}
-                        onChange={(e) => handleContentChange("bakery_image", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Button Text</Label>
-                      <Input
-                        value={getContentValue("bakery_button_text")}
-                        onChange={(e) =>
-                          handleContentChange("bakery_button_text", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Redirect URL</Label>
-                      <Input
-                        value={getContentValue("bakery_redirect")}
-                        onChange={(e) =>
-                          handleContentChange("bakery_redirect", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Products Card */}
-                  <div className="space-y-4 border p-4 rounded-md">
-                    <h3 className="text-lg font-semibold">Products Card</h3>
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
-                        value={getContentValue("products_title")}
-                        onChange={(e) => handleContentChange("products_title", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Text</Label>
-                      <Textarea
-                        value={getContentValue("products_text")}
-                        onChange={(e) => handleContentChange("products_text", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <Input
-                        value={getContentValue("products_image")}
-                        onChange={(e) => handleContentChange("products_image", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Button Text</Label>
-                      <Input
-                        value={getContentValue("products_button_text")}
-                        onChange={(e) =>
-                          handleContentChange("products_button_text", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Redirect URL</Label>
-                      <Input
-                        value={getContentValue("products_redirect")}
-                        onChange={(e) =>
-                          handleContentChange("products_redirect", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="market" className="pt-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-4 mb-6">
-                    <h3 className="text-lg font-semibold">Market Page Settings</h3>
-                    <div className="space-y-2">
-                      <Label>Hero Image</Label>
-                      <Input 
-                        value={getContentValue("market_hero_image")} 
-                        onChange={(e) => handleContentChange("market_hero_image", e.target.value)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Page Title</Label>
-                      <Input 
-                        value={getContentValue("market_page_title")} 
-                        onChange={(e) => handleContentChange("market_page_title", e.target.value)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Page Description</Label>
-                      <Textarea 
-                        value={getContentValue("market_description")} 
-                        onChange={(e) => handleContentChange("market_description", e.target.value)} 
-                      />
-                    </div>
-                  </div>
-
-                  {/* Market Sections */}
-                  <Card>
-                    <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold mb-4">Sections</h3>
-
-                      {/* Bakery Section */}
-                      <div className="space-y-4 mb-8">
-                        <h4 className="font-medium">Bakery Section</h4>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={getContentValue("market_bakery_title") || "Bakery"}
-                            onChange={(e) => handleContentChange("market_bakery_title", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={getContentValue("market_bakery_description") || "Discover our freshly baked goods and treats."}
-                            onChange={(e) => handleContentChange("market_bakery_description", e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Produce Section */}
-                      <div className="space-y-4 mb-8">
-                        <h4 className="font-medium">Produce Section</h4>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={getContentValue("market_produce_title") || "Produce"}
-                            onChange={(e) => handleContentChange("market_produce_title", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={getContentValue("market_produce_description") || "Fresh, seasonal produce from our garden."}
-                            onChange={(e) => handleContentChange("market_produce_description", e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Dairy Section */}
-                      <div className="space-y-4 mb-8">
-                        <h4 className="font-medium">Dairy Section</h4>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={getContentValue("market_dairy_title") || "Dairy"}
-                            onChange={(e) => handleContentChange("market_dairy_title", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={getContentValue("market_dairy_description") || "Farm-fresh milk, cheese, and other dairy products."}
-                            onChange={(e) => handleContentChange("market_dairy_description", e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Meats Section */}
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Meats Section</h4>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={getContentValue("market_meats_title") || "Meats"}
-                            onChange={(e) => handleContentChange("market_meats_title", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={getContentValue("market_meats_description") || "Ethically raised, grass-fed beef and other meats."}
-                            onChange={(e) => handleContentChange("market_meats_description", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="logo" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Logo & Meta Information</CardTitle>
-                  <CardDescription>Update site logo and meta tags</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>Logo Image URL</Label>
-                    <div className="flex items-center gap-4">
-                      <Input
-                        value={getContentValue("logo")}
-                        onChange={(e) => handleContentChange("logo", e.target.value)}
-                        className="flex-grow"
-                      />
-                      <div className="relative">
-                        <input
-                          type="file"
-                          id="logo-upload"
-                          className="sr-only"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              handleLogoUpload(e.target.files[0]);
-                            }
-                          }}
-                          accept="image/*"
-                        />
-                        <label
-                          htmlFor="logo-upload"
-                          className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          Upload
-                        </label>
-                      </div>
-                    </div>
-                    {getContentValue("logo") && (
-                      <div className="mt-2">
-                        <img
-                          src={getContentValue("logo")}
-                          alt="Logo"
-                          className="max-h-20 object-contain"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Open Graph Image URL</Label>
-                    <div className="flex items-center gap-4">
-                      <Input
-                        value={getContentValue("og_image")}
-                        onChange={(e) => handleContentChange("og_image", e.target.value)}
-                        className="flex-grow"
-                      />
-                      <div className="relative">
-                        <input
-                          type="file"
-                          id="og-upload"
-                          className="sr-only"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              handleOGImageUpload(e.target.files[0]);
-                            }
-                          }}
-                          accept="image/*"
-                        />
-                        <label
-                          htmlFor="og-upload"
-                          className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                        >
-                          <Upload className="h-4 w-4" />
-                          Upload
-                        </label>
-                      </div>
-                    </div>
-                    {getContentValue("og_image") && (
-                      <div className="mt-2">
-                        <img
-                          src={getContentValue("og_image")}
-                          alt="OG image"
-                          className="max-h-40 rounded-md object-cover"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Site Description (Meta)</Label>
-                    <Textarea
-                      value={getContentValue("site_description")}
-                      onChange={(e) => handleContentChange("site_description", e.target.value)}
-                      rows={3}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="carousel" className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Carousel Items</CardTitle>
-                  <CardDescription>Update the homepage carousel</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {sortedCarouselItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="space-y-4 border p-4 rounded-md"
-                      >
-                        <h3 className="text-lg font-semibold">
-                          Slide {item.order + 1}
-                        </h3>
-                        <div className="space-y-2">
-                          <Label>Title</Label>
-                          <Input
-                            value={getCarouselValue(item.id, "title")}
-                            onChange={(e) =>
-                              handleCarouselChange(item.id, "title", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={getCarouselValue(item.id, "description")}
-                            onChange={(e) =>
-                              handleCarouselChange(
-                                item.id,
-                                "description",
-                                e.target.value,
-                              )
-                            }
-                            rows={3}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Image URL</Label>
-                          <div className="flex items-center gap-4">
-                            <Input
-                              value={getCarouselValue(item.id, "imageUrl")}
-                              onChange={(e) =>
-                                handleCarouselChange(
-                                  item.id,
-                                  "imageUrl",
-                                  e.target.value,
-                                )
-                              }
-                              className="flex-grow"
-                            />
-                            <div className="relative">
-                              <input
-                                type="file"
-                                id={`carousel-upload-${item.id}`}
-                                className="sr-only"
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files[0]) {
-                                    handleCarouselImageUpload(
-                                      e.target.files[0],
-                                      item.id,
-                                    );
-                                  }
-                                }}
-                                accept="image/*"
-                              />
-                              <label
-                                htmlFor={`carousel-upload-${item.id}`}
-                                className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                              >
-                                <Upload className="h-4 w-4" />
-                                Upload
-                              </label>
-                            </div>
-                          </div>
-                          {getCarouselValue(item.id, "imageUrl") && (
-                            <div className="mt-2">
-                              <img
-                                src={getCarouselValue(item.id, "imageUrl")}
-                                alt={`Carousel item ${item.order}`}
-                                className="max-h-40 rounded-md object-cover"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="principles" className="pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Core Principles</CardTitle>
-              <CardDescription>
-                Update the core principles displayed on the site
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {sortedPrinciples.map((principle) => (
-                  <div
-                    key={principle.id}
-                    className="space-y-4 border p-4 rounded-md"
-                  >
-                    <h3 className="text-lg font-semibold">
-                      Principle {principle.order + 1}
-                    </h3>
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
-                        value={getPrincipleValue(principle.id, "title")}
-                        onChange={(e) =>
-                          handlePrincipleChange(
-                            principle.id,
-                            "title",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Description</Label>
-                      <Textarea
-                        value={getPrincipleValue(principle.id, "description")}
-                        onChange={(e) =>
-                          handlePrincipleChange(
-                            principle.id,
-                            "description",
-                            e.target.value,
-                          )
-                        }
-                        rows={3}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <div className="flex items-center gap-4">
-                        <Input
-                          value={getPrincipleValue(principle.id, "imageUrl") || ""}
-                          onChange={(e) =>
-                            handlePrincipleChange(
-                              principle.id,
-                              "imageUrl",
-                              e.target.value,
-                            )
-                          }
-                          className="flex-grow"
-                        />
-                        <div className="relative">
-                          <input
-                            type="file"
-                            id={`principle-upload-${principle.id}`}
-                            className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                handlePrincipleImageUpload(
-                                  e.target.files[0],
-                                  principle.id,
-                                );
-                              }
-                            }}
-                            accept="image/*"
-                          />
-                          <label
-                            htmlFor={`principle-upload-${principle.id}`}
-                            className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
-                          >
-                            <Upload className="h-4 w-4" />
-                            Upload
-                          </label>
-                        </div>
-                      </div>
-                      {getPrincipleValue(principle.id, "imageUrl") && (
-                        <div className="mt-2">
-                          <img
-                            src={getPrincipleValue(principle.id, "imageUrl") as string}
-                            alt={`Principle ${principle.order}`}
-                            className="max-h-40 rounded-md object-cover"
-                          />
-                        </div>
-                      )}
-                    </div>
+        <TabsContent value="goats" className="space-y-6">
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Hero Title</Label>
+                    <Input
+                      value={getContentValue("goat_hero_title") || "Nigerian Dwarf Goats"}
+                      onChange={(e) => handleContentChange("goat_hero_title", e.target.value)}
+                      placeholder="Enter hero title"
+                    />
                   </div>
-                ))}
+                  <div className="space-y-2">
+                    <Label>Hero Subtitle</Label>
+                    <Textarea
+                      value={getContentValue("goat_hero_subtitle") || "Discover our beloved Nigerian Dwarf goats, known for their friendly personalities and excellent milk production."}
+                      onChange={(e) => handleContentChange("goat_hero_subtitle", e.target.value)}
+                      placeholder="Enter hero subtitle"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("goat_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("goat_hero_image")}
+                    />
+                    {getContentValue("goat_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("goat_hero_image")}
+                          alt="Goats Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("goat_hero_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Page Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_description") || "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production."}
+                      onChange={(e) => handleContentChange("goat_description", e.target.value)}
+                      placeholder="Enter page description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Breeding Program Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_breeding_program") || "Our breeding program focuses on producing high-quality Nigerian Dwarf goats with excellent conformation, temperament, and milk production capabilities."}
+                      onChange={(e) => handleContentChange("goat_breeding_program", e.target.value)}
+                      placeholder="Enter breeding program description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Available Goats Message</Label>
+                    <Textarea
+                      value={getContentValue("goat_available_message") || "Check out our currently available Nigerian Dwarf goats. Contact us for more information about any of our available animals."}
+                      onChange={(e) => handleContentChange("goat_available_message", e.target.value)}
+                      placeholder="Enter available goats message"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Male Goats (Bucks) Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_bucks_description") || "Meet our Nigerian Dwarf bucks. These handsome boys are carefully selected for their excellent genetics and conformation."}
+                      onChange={(e) => handleContentChange("goat_bucks_description", e.target.value)}
+                      placeholder="Enter bucks description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Female Goats (Does) Description</Label>
+                    <Textarea
+                      value={getContentValue("goat_does_description") || "Meet our Nigerian Dwarf does. These lovely ladies are the foundation of our breeding program, known for their excellent milk production."}
+                      onChange={(e) => handleContentChange("goat_does_description", e.target.value)}
+                      placeholder="Enter does description"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="market" className="space-y-6">
+          <div className="space-y-6">
+            {/* Main Market Content */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Market Page Title</Label>
+                    <Input
+                      value={getContentValue("market_page_title") || "Market"}
+                      onChange={(e) => handleContentChange("market_page_title", e.target.value)}
+                      placeholder="Enter market page title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Market Description</Label>
+                    <Textarea
+                      value={getContentValue("market_description") || "Welcome to our market! Discover our fresh, locally sourced products."}
+                      onChange={(e) => handleContentChange("market_description", e.target.value)}
+                      placeholder="Enter market description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("market_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("market_hero_image")}
+                    />
+                    {getContentValue("market_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("market_hero_image")}
+                          alt="Market Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Sections */}
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-4">Sections</h3>
+
+                {/* Bakery Section */}
+                <div className="space-y-4 mb-8">
+                  <h4 className="font-medium">Bakery Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_bakery_title") || "Bakery"}
+                      onChange={(e) => handleContentChange("market_bakery_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={getContentValue("market_bakery_description") || "Discover our freshly baked goods and treats."}
+                      onChange={(e) => handleContentChange("market_bakery_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Market Garden Section */}
+                <div className="space-y-4 mb-8">
+                  <h4 className="font-medium">Market Garden Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_garden_title") || "Market Garden"}
+                      onChange={(e) => handleContentChange("market_garden_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={getContentValue("market_garden_description") || "Fresh vegetables and fruits from our garden."}
+                      onChange={(e) => handleContentChange("market_garden_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Animal Products Section */}
+                <div className="space-y-4">
+                  <h4 className="font-medium">Animal Products Section</h4>
+                  <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                      value={getContentValue("market_animal_title") || "Animal Products"}
+                      onChange={(e) => handleContentChange("market_animal_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={getContentValue("market_animal_description") || "Farm-fresh eggs and other animal products."}
+                      onChange={(e) => handleContentChange("market_animal_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Schedule Section */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold mb-4">Schedule Section</h3>
+                  <div className="space-y-2">
+                    <Label>Schedule Title</Label>
+                    <Input
+                      value={getContentValue("market_schedule_title") || "Market Times & Locations"}
+                      onChange={(e) => handleContentChange("market_schedule_title", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Schedule Description</Label>
+                    <Textarea
+                      value={getContentValue("market_schedule_description") || "Find us at these locations throughout the week."}
+                      onChange={(e) => handleContentChange("market_schedule_description", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+
+          </div>
+        </TabsContent>
+        <TabsContent value="welcome" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Welcome Message</Label>
+                  <Input
+                    value={getContentValue("home_welcome")}
+                    onChange={(e) =>
+                      handleContentChange("home_welcome", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Mission Statement</Label>
+                  <Textarea
+                    value={getContentValue("home_mission")}
+                    onChange={(e) =>
+                      handleContentChange("home_mission", e.target.value)
+                    }
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      <div className="mt-6 flex justify-end">
-        <Button onClick={saveAllChanges} className="flex items-center gap-2">
-          <Save className="h-4 w-4" />
-          Save All Changes
-        </Button>
-      </div>
+      {hasPendingChanges && (
+        <div className="fixed bottom-6 right-6">
+          <Button onClick={saveAllChanges} className="shadow-lg" size="lg">
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      )}
 
       {showCropper && cropImageUrl && (
         <ImageCrop
           imageUrl={cropImageUrl}
-          onComplete={handleCropComplete}
+          aspect={16 / 9}
+          onCropComplete={(croppedImageUrl) => {
+            if (pendingPrincipleId !== null) {
+              handlePrincipleChange(
+                pendingPrincipleId,
+                "imageUrl",
+                croppedImageUrl,
+              );
+            } else if (activeTab === "goats") {
+              handleContentChange("goat_hero_image", croppedImageUrl);
+            } else {
+              handleContentChange("hero_background", croppedImageUrl);
+            }
+            setShowCropper(false);
+            setCropImageUrl("");
+            setPendingPrincipleId(null);
+          }}
           onCancel={() => {
             setShowCropper(false);
             setCropImageUrl("");

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -1281,32 +1281,32 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const { title, description, imageUrl } = req.body;
-
+      
       let finalImageUrl = imageUrl;
-
+      
       // Check if the image URL is a base64 data
       if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
         try {
           console.log(`=== PROCESSING PRINCIPLE IMAGE FOR S3 ===`);
           console.log(`Processing image for principle ID: ${id}`);
-
+          
           // Import S3 utility
           const { uploadToS3 } = await import('./utils/s3.js');
-
+          
           // Handle base64 image data
           const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-
+          
           if (!matches || matches.length !== 3) {
             throw new Error('Invalid base64 image format');
           }
-
+          
           const mimetype = matches[1];
           const base64Data = matches[2];
           console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
-
+          
           // Create a buffer from the base64 data
           const imageBuffer = Buffer.from(base64Data, 'base64');
-
+          
           // Create a mock file object that uploadToS3 can handle
           const filename = `principle-${id}-${Date.now()}.jpg`;
           const mockFile = {
@@ -1314,15 +1314,15 @@ export function registerRoutes(app: Express): Server {
             mimetype: mimetype || 'image/jpeg',
             originalname: filename
           };
-
+          
           // Upload to S3
           console.log(`Uploading principle image to S3...`);
           const s3Url = await uploadToS3(mockFile);
-
+          
           if (!s3Url) {
             throw new Error('Failed to upload to S3 - No URL returned');
           }
-
+          
           console.log(`Successfully uploaded principle image to S3: ${s3Url}`);
           finalImageUrl = s3Url;
         } catch (uploadError) {
@@ -1397,6 +1397,55 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add contact info routes
+  app.get("/api/contact-info", async (_req, res) => {
+    try {
+      const info = await db.query.contactInfo.findFirst();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ message: "Failed to fetch contact info" });
+    }
+  });
+
+  app.post("/api/contact-info", async (req, res) => {
+    try {
+      // Delete existing contact info since we only want one record
+      await db.delete(contactInfo);
+
+      const info = await db.insert(contactInfo)
+        .values(req.body)
+        .returning();
+      res.json(info[0]);
+    } catch (error) {
+      console.error("Error creating contact info:", error);
+      res.status(500).json({ message: "Failed to create contact info" });
+    }
+  });
+
+  app.put("/api/contact-info", async (req, res) => {
+    try {
+      const existingInfo = await db.query.contactInfo.findFirst();
+
+      if (!existingInfo) {
+        // If no record exists, create one
+        const info = await db.insert(contactInfo)
+          .values(req.body)
+          .returning();
+        res.json(info[0]);
+      } else {
+        // Update existing record
+        const info = await db.update(contactInfo)
+          .set({ ...req.body, updatedAt: new Date() })
+          .where(eq(contactInfo.id, existingInfo.id))
+          .returning();
+        res.json(info[0]);
+      }
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+      res.status(500).json({ message: "Failed to update contact info" });
+    }
+  });
 
   // Add these routes after the litter routes
   // Goat routes
@@ -1764,7 +1813,8 @@ export function registerRoutes(app: Express): Server {
           name: "Home",
           fields: {
             hero_title: "Welcome to Little Way Acres",
-            hero_subtitle: "Experience sustainable farming and community",            hero_image: "/images/hero.jpg",
+            hero_subtitle: "Experience sustainable farming and community",
+            hero_image: "/images/hero.jpg",
             about_content: "Discover our commitment to sustainable farming...",
             contact_info: "Get in touch with us...",
           },
