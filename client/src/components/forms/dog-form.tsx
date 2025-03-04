@@ -826,7 +826,7 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedMediaImage = async (croppedImageUrl: string) => {
+  const handleCroppedMediaImage = async (croppedImageUrl: string, cropData: {x: number, y: number, width: number, height: number}) => {
     if (editingMediaIndex === null) return;
 
     try {
@@ -845,14 +845,28 @@ export default function DogForm({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set canvas size to maintain aspect ratio
-      canvas.width = 1280;  // Fixed width for consistency
-      canvas.height = 720;  // 16:9 aspect ratio
+      // Calculate dimensions while maintaining aspect ratio
+      const aspectRatio = 16/9;
+      canvas.width = 1280;  // Target width
+      canvas.height = canvas.width / aspectRatio;  // Height based on aspect ratio
 
-      // Draw the cropped portion of the image
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Convert canvas to blob
+      // Draw the cropped portion of the image onto the canvas
+      ctx.drawImage(
+        img,
+        img.width * (cropData.x / img.naturalWidth),    // sourceX
+        img.height * (cropData.y / img.naturalHeight),   // sourceY
+        img.width * (cropData.width / img.naturalWidth), // sourceWidth
+        img.height * (cropData.height / img.naturalHeight), // sourceHeight
+        0,                    // destinationX
+        0,                    // destinationY
+        canvas.width,         // destinationWidth
+        canvas.height         // destinationHeight
+      );
+
+      // Convert canvas to blob with high quality
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob) => {
           if (blob) resolve(blob);
@@ -919,7 +933,7 @@ export default function DogForm({
               </FormDescription>
               <div className="flex items-center gap-4">
                 <div
-                  className="relative h-24 w-24 cursor-pointer"
+                  className                  className="relative h-24 w-24 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
@@ -1038,7 +1052,10 @@ export default function DogForm({
               <div className="grid gap-4 py-4">
                 <ImageCrop
                   imageUrl={currentMediaUrl}
-                  onCropComplete={handleCroppedMediaImage}
+                  onCropComplete={(croppedImageUrl, cropData) => {
+                    const { x, y, width, height } = cropData;
+                    handleCroppedMediaImage(croppedImageUrl, { x, y, width, height });
+                  }}
                   onCancel={() => {
                     setShowMediaCropDialog(false);
                     setEditingMediaIndex(null);
