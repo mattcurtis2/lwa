@@ -1,0 +1,42 @@
+[DogForm] Editing media at index: 4 Media: {url: 'https://lwacontent.s3.us-east-2.amazonaws.com/6c933fb2-4eb0-432e-bf9d-1ec4dbf71544.jpg', type: 'image', fileName: undefined, isNew: false}
+Console.js:61 [DogForm] Created proxy URL: /api/proxy-image?url=https%3A%2F%2Flwacontent.s3.us-east-2.amazonaws.com%2F6c933fb2-4eb0-432e-bf9d-1ec4dbf71544.jpg
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=40fc779d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=40fc779d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=40fc779d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=40fc779d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+Console.js:61 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ chunk-CTJYZIHF.js?v=40fc779d:336
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=40fc779d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=40fc779d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=40fc779d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=40fc779d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=40fc779d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=40fc779d:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=40fc779d:19416
+commitRoot @ chunk-RPCDYKBN.js?v=40fc779d:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=40fc779d:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=40fc779d:18627Understand this warningAI
+Console.js:61 [ImageCrop] Starting cropping process. Image URL: /api/proxy-image?url=https%3A%2F%2Flwacontent.s3.us-east-2.amazonaws.com%2F6c933fb2-4eb0-432e-bf9d-1ec4dbf71544.jpg
+Console.js:61 [ImageCrop] Completed crop data: {x: 0, y: 135.2168127972147, width: 495.44999999999993, height: 279.2753747027853, unit: 'px'}height: 279.2753747027853unit: "px"width: 495.44999999999993x: 0y: 135.2168127972147[[Prototype]]: Object
+Console.js:61 [ImageCrop] Canvas dimensions set: 494.9999852478509 x 278.9999916851523
+Console.js:61 [ImageCrop] Image drawn on canvas with crop coordinates applied
+Console.js:61 [ImageCrop] Cropped image data URL generated: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAA...
+Console.js:61 [ImageCrop] Final crop data being sent: {x: 0, y: 135.2168127972147, width: 495.44999999999993, height: 279.2753747027853}height: 279.2753747027853width: 495.44999999999993x: 0y: 135.2168127972147[[Prototype]]: Object
+Console.js:61 [DogForm] Starting image crop process
+Console.js:61 [DogForm] Crop data received: {x: 0, y: 135.2168127972147, width: 495.44999999999993, height: 279.2753747027853}height: 279.2753747027853width: 495.44999999999993x: 0y: 135.2168127972147[[Prototype]]: Object
+Console.js:61 [DogForm] Creating form data for upload
+Console.js:61 [DogForm] Upload response: [{…}]
+Console.js:61 [DogForm] Updating media inputs with new URL: https://lwacontent.s3.amazonaws.com/uploads/1741112132019-cropped-image.jpg
