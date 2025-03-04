@@ -106,88 +106,51 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
-    if (!completedCrop || !imgRef.current) {
-      console.error("Missing completedCrop or imgRef");
+    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+      console.error("Missing completedCrop, previewCanvasRef, or imgRef");
       return;
     }
-    
+
     console.log("handleApplyCrop called with completedCrop:", completedCrop);
 
     try {
-      // Create a canvas element
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        throw new Error('No 2d context');
-      }
-      
-      // Calculate scale factors
-      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
-      
-      // Set canvas dimensions to match crop size
-      canvas.width = completedCrop.width;
-      canvas.height = completedCrop.height;
-      
-      // Draw the cropped portion of the image onto the canvas
-      ctx.drawImage(
-        imgRef.current,
-        completedCrop.x * scaleX,
-        completedCrop.y * scaleY,
-        completedCrop.width * scaleX,
-        completedCrop.height * scaleY,
-        0,
-        0,
-        completedCrop.width,
-        completedCrop.height
-      );
+      const canvas = previewCanvasRef.current;
       const image = imgRef.current;
       const crop = completedCrop;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
+      // Use different variable names to avoid redeclaration
+      const imgScaleX = image.naturalWidth / image.width;
+      const imgScaleY = image.naturalHeight / image.height;
       const ctx = canvas.getContext("2d");
 
       if (!ctx) {
-        throw new Error("No 2d context");
+        throw new Error('No 2D context');
       }
 
-      // Set canvas size to match the crop area
-      canvas.width = crop.width;
-      canvas.height = crop.height;
+      // Set canvas to same dimensions as crop
+      canvas.width = crop.width * imgScaleX;
+      canvas.height = crop.height * imgScaleY;
 
-      // Set canvas properties to prevent tainted canvas
-      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(
+        image,
+        crop.x * imgScaleX,
+        crop.y * imgScaleY,
+        crop.width * imgScaleX,
+        crop.height * imgScaleY,
+        0,
+        0,
+        crop.width * imgScaleX,
+        crop.height * imgScaleY
+      );
 
-      // First, check if the image is already loaded from the same origin
-      // or has proper CORS headers
-      try {
-        // Draw the cropped image onto the canvas
-        ctx.drawImage(
-          image,
-          crop.x * scaleX,
-          crop.y * scaleY,
-          crop.width * scaleX,
-          crop.height * scaleY,
-          0,
-          0,
-          crop.width,
-          crop.height
-        );
+      // Convert canvas to data URL with high quality
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+      console.log("Generated cropped image data URL successfully:", dataUrl.substring(0, 50) + "...");
 
-        // Convert canvas to data URL with high quality
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-        console.log("Generated cropped image data URL successfully:", dataUrl.substring(0, 50) + "...");
-        
-        // Call the callback with the data URL
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(dataUrl);
-        } else {
-          console.error("onCropComplete is not a function");
-        }
-      } catch (securityError) {
-        console.error("Security error during crop:", securityError);
-        // Don't proceed with invalid data
+      // Call the callback with the data URL
+      if (typeof onCropComplete === 'function') {
+        onCropComplete(dataUrl, completedCrop);
+      } else {
+        console.error("onCropComplete is not a function");
       }
     } catch (error) {
       console.error("Error completing crop:", error);
