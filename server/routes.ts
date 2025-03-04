@@ -10,8 +10,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
-import { Router } from 'express';
-import { cropImage } from './routes/crop-image'; // Added import
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -132,7 +130,7 @@ export function registerRoutes(app: Express): Server {
         },
         {
           title: "Nigerian Dwarf Goats",
-          description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested and raised with love.",
+          description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
           imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
           order: 2,
         },
@@ -1984,15 +1982,6 @@ export function registerRoutes(app: Express): Server {
       res.json({ isLoggedIn: false });
     }
   });
-
-  // Create the router
-  const router = Router();
-
-  // Image cropping endpoint
-  router.post('/crop-image', cropImage);
-
-  app.use('/api', router); // Register the routes
-
 
   const httpServer = createServer(app);
   return httpServer;

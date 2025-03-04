@@ -47,11 +47,10 @@ function canvasPreview(
 
 interface ImageCropProps {
   imageUrl: string;
-  onCropComplete?: (croppedImageUrl: string) => void;
+  onCropComplete: (croppedImageUrl: string | null, completedCrop: PixelCrop | null) => void;
   onCancel: () => void;
   aspect?: number;
-  mediaId?: number;
-  dogId?: number;
+  onSkip?: () => void;
 }
 
 // Export as both default and named export
@@ -60,8 +59,7 @@ export function ImageCrop({
   onCropComplete,
   onCancel,
   aspect = 1,
-  mediaId,
-  dogId,
+  onSkip
 }: ImageCropProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
@@ -107,52 +105,66 @@ export function ImageCrop({
     100
   );
 
-  const handleApplyCrop = useCallback(async () => {
-    if (completedCrop && imgRef.current) {
-      try {
-        console.log('Applying crop with dimensions:', completedCrop);
-        console.log('Media ID:', mediaId, 'Dog ID:', dogId);
-
-        const response = await fetch('/api/crop-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageUrl,
-            crop: completedCrop,
-            mediaId,
-            dogId,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Received cropped image URL:', data.url.substring(0, 50) + '...');
-
-        if (typeof onCropComplete === 'function') {
-          // Check if it's an S3 URL or base64
-          const isS3Url = typeof data.url === 'string' && data.url.includes('amazonaws.com');
-          console.log(`Crop completed successfully. Using ${isS3Url ? 'S3 URL' : 'base64 image'}`);
-          onCropComplete(data.url);
-        }
-        onCancel();
-      } catch (error) {
-        console.error("Error completing crop:", error);
-        // Still pass the crop data even if there was an error
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(null);
-        }
-      }
+  const handleApplyCrop = async () => {
+    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
+      return;
     }
-  }, [completedCrop, imgRef, imageUrl, onCropComplete, onCancel, mediaId, dogId]);
 
+    try {
+      const canvas = previewCanvasRef.current;
+      const image = imgRef.current;
+      const crop = completedCrop;
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        throw new Error("No 2d context");
+      }
+
+      // Set canvas size to match the crop area
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+
+      // Set canvas properties to prevent tainted canvas
+      ctx.imageSmoothingQuality = 'high';
+
+      // First, check if the image is already loaded from the same origin
+      // or has proper CORS headers
+      try {
+        // Draw the cropped image onto the canvas
+        ctx.drawImage(
+          image,
+          crop.x * scaleX,
+          crop.y * scaleY,
+          crop.width * scaleX,
+          crop.height * scaleY,
+          0,
+          0,
+          crop.width,
+          crop.height
+        );
+
+        // Convert canvas to data URL
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        onCropComplete(dataUrl, completedCrop);
+      } catch (securityError) {
+        // If we get a security error, pass the crop data directly
+        // instead of trying to generate a data URL
+        console.log("Crop completed:", completedCrop);
+        onCropComplete(null, completedCrop);
+      }
+    } catch (error) {
+      console.error("Error completing crop:", error);
+      // Still pass the crop data even if there was an error
+      onCropComplete(null, completedCrop);
+    }
+  };
+
+  console.log("Crop completed:", completedCrop);
 
   return (
-    <Dialog open={true} onOpenChange={onCancel}>
+    <Dialog open={true} onOpenChange={() => onCancel()}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
