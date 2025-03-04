@@ -1,48 +1,9 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import useDebounceEffect from "@/lib/useDebounceEffect";
-
-function canvasPreview(
-  img: HTMLImageElement,
-  canvas: HTMLCanvasElement,
-  crop: PixelCrop
-) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('No 2d context');
-  }
-
-  const pixelRatio = window.devicePixelRatio;
-  const scaleX = img.naturalWidth / img.width;
-  const scaleY = img.naturalHeight / img.height;
-
-  canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-  canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
-
-  ctx.scale(pixelRatio, pixelRatio);
-  ctx.imageSmoothingQuality = 'high';
-  ctx.save();
-
-  const cropX = crop.x * scaleX;
-  const cropY = crop.y * scaleY;
-
-  ctx.drawImage(
-    img,
-    cropX,
-    cropY,
-    crop.width * scaleX,
-    crop.height * scaleY,
-    0,
-    0,
-    crop.width * scaleX,
-    crop.height * scaleY
-  );
-
-  ctx.restore();
-}
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageCropProps {
   imageUrl: string;
@@ -64,8 +25,8 @@ export function ImageCrop({
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const imgRef = useRef<HTMLImageElement>(null);
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
@@ -86,37 +47,104 @@ export function ImageCrop({
     }
   }
 
-  useDebounceEffect(
-    async () => {
-      if (
-        completedCrop?.width &&
-        completedCrop?.height &&
-        imgRef.current &&
-        previewCanvasRef.current
-      ) {
-        canvasPreview(
-          imgRef.current,
-          previewCanvasRef.current,
-          completedCrop
-        );
-      }
-    },
-    [completedCrop],
-    100
-  );
-
   const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current) {
+    if (!completedCrop || !imgRef.current) {
+      console.error('Missing required data for crop:', { completedCrop, image: !!imgRef.current });
       return;
     }
 
     setIsProcessing(true);
     try {
-      const canvas = previewCanvasRef.current;
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      await onCropComplete(dataUrl);
+      // Get the image data directly from the source
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      // Create a temporary URL for the blob
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Create a new image and wait for it to load
+      const image = new Image();
+      image.crossOrigin = 'anonymous';
+
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+        image.src = blobUrl;
+      });
+
+      // Create a canvas to draw the cropped image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        throw new Error('Failed to get 2D context');
+      }
+
+      // Calculate scaling factors
+      const scaleX = image.naturalWidth / imgRef.current.width;
+      const scaleY = image.naturalHeight / imgRef.current.height;
+
+      // Set canvas dimensions to match crop size
+      canvas.width = completedCrop.width;
+      canvas.height = completedCrop.height;
+
+      // Draw the cropped portion
+      ctx.drawImage(
+        image,
+        completedCrop.x * scaleX,
+        completedCrop.y * scaleY,
+        completedCrop.width * scaleX,
+        completedCrop.height * scaleY,
+        0,
+        0,
+        completedCrop.width,
+        completedCrop.height
+      );
+
+      // Convert to blob
+      const croppedBlob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(
+          (blob) => resolve(blob),
+          'image/jpeg',
+          0.95
+        );
+      });
+
+      if (!croppedBlob) {
+        throw new Error('Failed to create blob from canvas');
+      }
+
+      // Clean up the temporary blob URL
+      URL.revokeObjectURL(blobUrl);
+
+      // Upload to S3
+      const formData = new FormData();
+      formData.append('file', croppedBlob, 'cropped-image.jpg');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error(`Upload failed: ${uploadRes.status} ${uploadRes.statusText}`);
+      }
+
+      const data = await uploadRes.json();
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+      await onCropComplete(uploadedUrl);
+
+      toast({
+        title: 'Success',
+        description: 'Image cropped and uploaded successfully',
+      });
     } catch (error) {
-      console.error('Error applying crop:', error);
+      console.error('Error in crop process:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to process image',
+        variant: 'destructive',
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -124,9 +152,12 @@ export function ImageCrop({
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
+          <DialogDescription>
+            Adjust the crop area to select the portion of the image you want to keep.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col items-center space-y-4">
@@ -141,14 +172,19 @@ export function ImageCrop({
                 ref={imgRef}
                 alt="Crop me"
                 src={imageUrl}
+                crossOrigin="anonymous"
                 onLoad={onImageLoad}
                 className="max-h-[500px] object-contain"
+                onError={(e) => {
+                  console.error('Error loading image:', e);
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to load image for cropping',
+                    variant: 'destructive',
+                  });
+                }}
               />
             </ReactCrop>
-
-            <div className="hidden">
-              <canvas ref={previewCanvasRef} />
-            </div>
 
             <div className="flex justify-end space-x-2 w-full">
               <Button variant="outline" onClick={onCancel}>
