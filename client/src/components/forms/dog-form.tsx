@@ -1,3 +1,40 @@
+import { useState, useCallback, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { z } from "zod";
+
+// UI imports
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FileUpload } from "@/components/ui/file-upload";
+import { ImageCrop } from "@/components/ui/image-crop";
+
+// Icons & Utils
+import { X, ImageIcon, FileText, ExternalLink, Edit, Upload } from "lucide-react";
+import { formatInputDate, parseApiDate } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
+import { uploadFileToS3 } from "../../lib/upload-utils";
+
+// Other components
+import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { useDropzone } from 'react-dropzone';
+import { useLocation } from "wouter";
+
+// Types
+import { Dog, DogMedia } from "@db/schema";
+
 interface MediaInput {
   url: string;
   type: "image" | "video";
@@ -5,58 +42,6 @@ interface MediaInput {
   isNew?: boolean;
   file?: File;
 }
-
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { useState, useCallback, useRef } from "react";
-import { X, ImageIcon, FileText, ExternalLink, Edit, Upload } from "lucide-react";
-import { useLocation } from "wouter";
-import { uploadFileToS3 } from "../../lib/upload-utils";
-
-// UI Components
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { FileUpload } from "@/components/ui/file-upload";
-import { ImageCrop } from "@/components/ui/image-crop";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
-// Other imports
-import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { useDropzone } from 'react-dropzone';
-import { formatInputDate, parseApiDate } from "@/lib/date-utils";
-import { cn } from "@/lib/utils";
-import { Dog, DogMedia } from "@db/schema";
-
 
 interface Document {
   id?: number;
@@ -152,7 +137,6 @@ export default function DogForm({
   const [showMediaCropDialog, setShowMediaCropDialog] = useState(false);
   const [currentMediaUrl, setCurrentMediaUrl] = useState("");
   const [completedCrop, setCompletedCrop] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
-
 
 
   const dogSchema = createDogSchema(isPuppy);
@@ -820,77 +804,17 @@ export default function DogForm({
   const handleCroppedMediaImage = async (croppedImageUrl: string, cropData: { x: number; y: number; width: number; height: number }) => {
     if (editingMediaIndex === null) return;
     console.log('[DogForm] Starting image crop process');
-    console.log('[DogForm] Received crop coordinates:', cropData);
+    console.log('[DogForm] Crop data received:', cropData);
 
     try {
       setIsUploading(true);
 
-      // Load the image
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      await new Promise((resolve, reject) => {
-        img.onload = () => {
-          console.log('[DogForm] Image loaded with dimensions:', {
-            width: img.width,
-            height: img.height,
-            naturalWidth: img.naturalWidth,
-            naturalHeight: img.naturalHeight
-          });
-          resolve(undefined);
-        };
-        img.onerror = (error) => {
-          console.error('[DogForm] Image load error:', error);
-          reject(error);
-        };
-        img.src = croppedImageUrl;
-      });
+      // Convert data URL to blob
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
 
-      // Create canvas and set dimensions
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Could not get canvas context');
-
-      // Set canvas size to match the crop dimensions
-      canvas.width = cropData.width;
-      canvas.height = cropData.height;
-
-      console.log('[DogForm] Canvas dimensions set:', {
-        width: canvas.width,
-        height: canvas.height,
-        cropData
-      });
-
-      // Draw the cropped portion of the image
-      ctx.drawImage(
-        img,
-        cropData.x,
-        cropData.y,
-        cropData.width,
-        cropData.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-      // Convert to blob
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              console.log('[DogForm] Created blob:', { size: blob.size, type: blob.type });
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to create blob'));
-            }
-          },
-          'image/jpeg',
-          0.95
-        );
-      });
-
-      // Upload cropped image
-      console.log('[DogForm] Preparing to upload cropped image');
+      // Create form data and upload
+      console.log('[DogForm] Creating form data for upload');
       const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
 
@@ -907,7 +831,7 @@ export default function DogForm({
       console.log('[DogForm] Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-      // Update the media inputs
+      // Update the media inputs with the new cropped image
       const updatedMediaInputs = [...mediaInputs];
       updatedMediaInputs[editingMediaIndex] = {
         ...updatedMediaInputs[editingMediaIndex],
@@ -945,14 +869,14 @@ export default function DogForm({
         <FormField
           control={form.control}
           name="profileImageUrl"
-          render={({ field }) => (
+          render={({ field}) => (
             <FormItem>
               <FormLabel>Profile Picture</FormLabel>
               <FormDescription>
                 Upload a profile picture for the dog              </FormDescription>
               <div className="flex items-center gap-4">
                 <div
-                  className="relative h-24 w-24 cursorpointer"
+                  className="relative h-24 w-24 cursor-pointer"
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
@@ -993,16 +917,14 @@ export default function DogForm({
                   >
                     {field.value ? 'Change Picture' : 'Upload Picture'}
                   </Button>
-                  {field.value && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => field.onChange('')}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      Remove Picture
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => field.onChange('')}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    Remove Picture
+                  </Button>
                 </div>
               </div>
               <FormMessage />

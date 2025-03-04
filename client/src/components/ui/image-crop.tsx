@@ -74,8 +74,8 @@ export function ImageCrop({
       }
 
       // Set canvas dimensions to the cropped size
-      canvas.width = Math.round(completedCrop.width);
-      canvas.height = Math.round(completedCrop.height);
+      canvas.width = completedCrop.width;
+      canvas.height = completedCrop.height;
 
       // Draw the cropped image
       ctx.drawImage(
@@ -90,27 +90,18 @@ export function ImageCrop({
         canvas.height
       );
 
-      // Convert canvas to blob
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            console.error("Failed to create blob");
-            setIsProcessing(false);
-            return;
-          }
+      // Convert canvas to data URL
+      const cropDataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
-          const croppedImageUrl = URL.createObjectURL(blob);
-          onCropComplete(croppedImageUrl, {
-            x: Math.round(completedCrop.x),
-            y: Math.round(completedCrop.y),
-            width: Math.round(completedCrop.width),
-            height: Math.round(completedCrop.height)
-          });
-          setIsProcessing(false);
-        },
-        'image/jpeg',
-        0.95
-      );
+      // Call the onCropComplete with both the data URL and crop coordinates
+      onCropComplete(cropDataUrl, {
+        x: completedCrop.x,
+        y: completedCrop.y,
+        width: completedCrop.width,
+        height: completedCrop.height
+      });
+
+      setIsProcessing(false);
     } catch (error) {
       console.error("Error completing crop:", error);
       setIsProcessing(false);
