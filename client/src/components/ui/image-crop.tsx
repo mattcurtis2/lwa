@@ -75,32 +75,39 @@ export function ImageCrop({
         return;
       }
 
-      canvas.width = completedCrop.width;
-      canvas.height = completedCrop.height;
-      console.log('[ImageCrop] Canvas dimensions set:', canvas.width, 'x', canvas.height);
+      const pixelRatio = window.devicePixelRatio;
+      canvas.width = completedCrop.width * pixelRatio;
+      canvas.height = completedCrop.height * pixelRatio;
+      console.log("[ImageCrop] Canvas dimensions set:", canvas.width / pixelRatio, "x", canvas.height / pixelRatio);
 
+      ctx.scale(pixelRatio, pixelRatio);
+      // Draw the cropped portion of the image
       ctx.drawImage(
         image,
-        completedCrop.x,
-        completedCrop.y,
-        completedCrop.width,
-        completedCrop.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height
+        completedCrop.x, // source x
+        completedCrop.y, // source y
+        completedCrop.width, // source width
+        completedCrop.height, // source height
+        0, // destination x
+        0, // destination y
+        completedCrop.width, // destination width
+        completedCrop.height, // destination height
       );
-      console.log('[ImageCrop] Image drawn on canvas');
+      console.log("[ImageCrop] Image drawn on canvas with crop coordinates applied");
 
-      const cropDataUrl = canvas.toDataURL('image/jpeg', 0.95);
-      console.log('[ImageCrop] Cropped image data URL generated:', cropDataUrl);
+      const croppedImageUrl = canvas.toDataURL('image/jpeg', 0.95);
+      console.log("[ImageCrop] Cropped image data URL generated:", croppedImageUrl.substring(0, 200) + "..." /* truncate for logs */);
 
-      onCropComplete(cropDataUrl, {
+      // Ensure we send the crop data for debugging
+      const cropData = {
         x: completedCrop.x,
         y: completedCrop.y,
         width: completedCrop.width,
         height: completedCrop.height
-      });
+      };
+
+      console.log("[ImageCrop] Final crop data being sent:", cropData);
+      onCropComplete(croppedImageUrl, cropData);
       setIsProcessing(false);
     } catch (error) {
       console.error("[ImageCrop] Error during cropping:", error);
