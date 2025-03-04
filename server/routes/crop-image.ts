@@ -1,145 +1,104 @@
-import { Router } from 'express';
-import sharp from 'sharp';
-import fetch from 'node-fetch';
-import { db } from '../../db/index.js';
-import { dogMedia } from '../../db/schema.js';
+import { Request, Response } from 'express';
+import { db } from '@db';
+import { dogMedia } from '@db/schema';
 import { eq } from 'drizzle-orm';
+import axios from 'axios';
+import sharp from 'sharp';
+import { uploadToS3 } from '../utils/s3.js';
 
-const router = Router();
-
-router.post('/', async (req, res) => {
+// Export the route handler as a named export
+export const cropImage = async (req: Request, res: Response) => {
   try {
+    console.log('Crop image request received:', req.body);
     const { imageUrl, crop, mediaId, dogId } = req.body;
 
-    if (!imageUrl || !crop) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    if (!imageUrl) {
+      return res.status(400).json({ error: 'Image URL is required' });
     }
 
-    console.log(`Processing crop with dimensions:`, crop);
-    console.log(`Media ID: ${mediaId}, Dog ID: ${dogId}`);
-
-    if (mediaId && dogId) {
-      // Fetch the dog and media before the update for logging
-      const dogBefore = await db.query.dogs.findFirst({
-        where: eq(db.dogs.id, dogId),
-        with: {
-          media: true
-        }
-      });
-
-      console.log('Dog before crop:', JSON.stringify({
-        id: dogBefore?.id,
-        name: dogBefore?.name,
-        mediaCount: dogBefore?.media?.length,
-        targetMedia: dogBefore?.media?.find(m => m.id === mediaId)
-      }));
+    if (!crop) {
+      return res.status(400).json({ error: 'Crop parameters are required' });
     }
 
-    // Import the S3 upload utility
-    const { uploadToS3 } = await import('../utils/s3.js');
-    const { v4: uuidv4 } = await import('uuid');
+    console.log('Fetching image from URL:', imageUrl);
 
-    let imageBuffer;
-    // Handle base64 images directly
+    // Download the image
+    let imageBuffer: Buffer;
+
     if (imageUrl.startsWith('data:image')) {
-      try {
-        const base64Data = imageUrl.split(',')[1];
-        imageBuffer = Buffer.from(base64Data, 'base64');
-      } catch (err) {
-        console.error('Error processing base64 image:', err);
-        return res.status(500).json({ error: 'Failed to process base64 image', details: err.message });
-      }
+      // Handle base64 image data
+      const base64Data = imageUrl.split(',')[1];
+      imageBuffer = Buffer.from(base64Data, 'base64');
     } else {
-      // Download the image from URL
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        return res.status(response.status).json({ 
-          error: `Failed to download image: ${response.statusText}` 
-        });
-      }
-      imageBuffer = Buffer.from(await response.arrayBuffer());
+      // Handle URL image
+      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      imageBuffer = Buffer.from(response.data);
     }
 
-    // Calculate crop coordinates
-    const x = Math.round(crop.x);
-    const y = Math.round(crop.y);
-    const width = Math.round(crop.width);
-    const height = Math.round(crop.height);
+    // Apply the crop using sharp
+    const { x, y, width, height, unit } = crop;
+    console.log('Applying crop with dimensions:', { x, y, width, height, unit });
 
-    if (width <= 0 || height <= 0) {
-      return res.status(400).json({ error: 'Invalid crop dimensions' });
-    }
+    let cropOptions: any = {};
 
-    try {
-      // Perform the crop
-      const croppedBuffer = await sharp(imageBuffer)
-        .extract({ left: x, top: y, width, height })
-        .jpeg({ quality: 90 })
-        .toBuffer();
-
-      // Create a unique filename for this cropped image
-      const filename = `cropped-${uuidv4()}.jpg`;
-
-      // Create a mock file object for S3 upload
-      const mockFile = {
-        buffer: croppedBuffer,
-        mimetype: 'image/jpeg',
-        originalname: filename
+    if (unit === 'px') {
+      // Use absolute pixel values
+      cropOptions = {
+        left: Math.round(x),
+        top: Math.round(y),
+        width: Math.round(width),
+        height: Math.round(height)
       };
+    } else {
+      // Convert percentage to pixels using sharp's metadata
+      const metadata = await sharp(imageBuffer).metadata();
+      const imgWidth = metadata.width || 0;
+      const imgHeight = metadata.height || 0;
 
-      console.log('Uploading cropped image to S3...');
-      const s3Url = await uploadToS3(mockFile);
-
-      if (!s3Url) {
-        throw new Error('Failed to upload to S3 - No URL returned');
-      }
-
-      console.log('Received cropped image URL:', s3Url.substring(0, 50) + '...');
-
-      // If we have a mediaId, update the dog media record with the new URL
-      if (mediaId) {
-        console.log(`Updating dog media record with ID ${mediaId} to use new S3 URL`);
-        await db.update(dogMedia)
-          .set({ url: s3Url })
-          .where(eq(dogMedia.id, mediaId));
-
-        console.log('Database update complete');
-
-        // Fetch the updated dog data
-        if (dogId) {
-          const dogAfter = await db.query.dogs.findFirst({
-            where: eq(db.dogs.id, dogId),
-            with: {
-              media: true
-            }
-          });
-
-          console.log('Dog after crop:', JSON.stringify({
-            id: dogAfter?.id,
-            name: dogAfter?.name,
-            mediaCount: dogAfter?.media?.length,
-            targetMedia: dogAfter?.media?.find(m => m.id === mediaId)
-          }));
-        }
-      }
-
-      return res.json({ url: s3Url });
-
-    } catch (cropError) {
-      console.error('Error completing crop:', cropError);
-
-      // As a fallback, if S3 upload fails, return base64 image
-      const croppedBuffer = await sharp(imageBuffer)
-        .extract({ left: x, top: y, width, height })
-        .toBuffer();
-
-      const base64Image = `data:image/jpeg;base64,${croppedBuffer.toString('base64')}`;
-      return res.json({ url: base64Image });
+      cropOptions = {
+        left: Math.round((x / 100) * imgWidth),
+        top: Math.round((y / 100) * imgHeight),
+        width: Math.round((width / 100) * imgWidth),
+        height: Math.round((height / 100) * imgHeight)
+      };
     }
-  } catch (error) {
-    console.error('Error cropping image:', error);
-    res.status(500).json({ error: 'Failed to crop image', details: error.message });
-  }
-});
 
-export default router;
+    console.log('Calculated crop dimensions:', cropOptions);
+
+    // Process the image with sharp
+    const processedImageBuffer = await sharp(imageBuffer)
+      .extract(cropOptions)
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    // Upload the cropped image to S3
+    console.log('Uploading cropped image to S3');
+    const s3Url = await uploadToS3({
+      buffer: processedImageBuffer,
+      mimetype: 'image/jpeg',
+      originalname: `cropped-${Date.now()}.jpg`
+    });
+
+    console.log('Cropped image uploaded to S3:', s3Url);
+
+    // If mediaId is provided, update the media object in the database
+    if (mediaId) {
+      console.log(`Updating media ${mediaId} with new URL`);
+      await db.update(dogMedia)
+        .set({ url: s3Url, updatedAt: new Date() })
+        .where(eq(dogMedia.id, mediaId));
+    }
+
+    // Return the S3 URL of the cropped image
+    return res.status(200).json({ url: s3Url, dogId });
+  } catch (error) {
+    console.error('Error in crop-image handler:', error);
+    return res.status(500).json({ 
+      error: 'Failed to crop image',
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+};
+
+// Also export as default for backward compatibility
+export default cropImage;
