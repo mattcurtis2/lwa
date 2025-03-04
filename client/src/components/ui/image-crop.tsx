@@ -106,15 +106,42 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
-      console.error("Missing completedCrop, previewCanvasRef, or imgRef");
+    if (!completedCrop || !imgRef.current) {
+      console.error("Missing completedCrop or imgRef");
       return;
     }
     
     console.log("handleApplyCrop called with completedCrop:", completedCrop);
 
     try {
-      const canvas = previewCanvasRef.current;
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('No 2d context');
+      }
+      
+      // Calculate scale factors
+      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+      
+      // Set canvas dimensions to match crop size
+      canvas.width = completedCrop.width;
+      canvas.height = completedCrop.height;
+      
+      // Draw the cropped portion of the image onto the canvas
+      ctx.drawImage(
+        imgRef.current,
+        completedCrop.x * scaleX,
+        completedCrop.y * scaleY,
+        completedCrop.width * scaleX,
+        completedCrop.height * scaleY,
+        0,
+        0,
+        completedCrop.width,
+        completedCrop.height
+      );
       const image = imgRef.current;
       const crop = completedCrop;
       const scaleX = image.naturalWidth / image.width;
@@ -148,25 +175,25 @@ export function ImageCrop({
           crop.height
         );
 
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL("image/jpeg");
+        // Convert canvas to data URL with high quality
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+        console.log("Generated cropped image data URL successfully:", dataUrl.substring(0, 50) + "...");
+        
+        // Call the callback with the data URL
         if (typeof onCropComplete === 'function') {
-          onCropComplete(dataUrl, completedCrop);
+          onCropComplete(dataUrl);
+        } else {
+          console.error("onCropComplete is not a function");
         }
       } catch (securityError) {
-        // If we get a security error, pass the crop data directly
-        // instead of trying to generate a data URL
-        console.log("Crop completed:", completedCrop);
-        if (typeof onCropComplete === 'function') {
-          onCropComplete(null, completedCrop);
-        }
+        console.error("Security error during crop:", securityError);
+        // Don't proceed with invalid data
       }
     } catch (error) {
       console.error("Error completing crop:", error);
-      // Still pass the crop data even if there was an error
+      // Don't pass incorrect data if there's an error - it only confuses the caller
       if (typeof onCropComplete === 'function') {
-          console.log("Calling onCropComplete with null and completedCrop:", completedCrop);
-          onCropComplete(null, completedCrop);
+          console.log("Error occurred during crop completion");
       } else {
           console.error("onCropComplete is not a function or is undefined");
       }

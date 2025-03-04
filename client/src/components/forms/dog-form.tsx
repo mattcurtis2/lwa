@@ -723,7 +723,7 @@ export default function DogForm({
 
   const applyCroppedMediaImage = async (croppedImageUrl: string | null, completedCrop?: any) => {
     console.log("Applying cropped media image with URL:", croppedImageUrl?.substring(0, 50) + "...");
-    
+
     if (!croppedImageUrl || !tempMediaData) {
       console.error("Missing cropped image URL or temp media data");
       toast({
@@ -736,12 +736,12 @@ export default function DogForm({
       setTempMediaData(null);
       return;
     }
-    
+
     try {
       // Handle data URL (base64) from cropper
       const formData = new FormData();
       let blob;
-      
+
       if (croppedImageUrl.startsWith('data:')) {
         // It's a base64 data URL, convert directly to blob
         const base64Response = await fetch(croppedImageUrl);
@@ -751,10 +751,10 @@ export default function DogForm({
         const res = await fetch(croppedImageUrl);
         blob = await res.blob();
       }
-      
+
       const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
       formData.append('file', croppedFile);
-      
+
       console.log("Uploading cropped file to server...");
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
@@ -867,48 +867,13 @@ export default function DogForm({
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
-            onCrop={handleCroppedImage}
+            onCropComplete={applyCroppedMediaImage}
             onCancel={() => {
               setShowCropper(false);
               setCropImageUrl("");
               setTempMediaData(null);
             }}
-            onSkip={async () => {
-              const formData = new FormData();
-              const response = await fetch(cropImageUrl);
-              const blob = await response.blob();
-              formData.append('file', blob);
-
-              const uploadRes = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-              });
-
-              if (!uploadRes.ok) {
-                throw new Error('Failed to upload image');
-              }
-
-              const data = await uploadRes.json();
-              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-              if (cropImageUrl === form.getValues("profileImageUrl")) {
-                form.setValue("profileImageUrl", uploadedUrl);
-              } else {
-                const updatedMediaInputs = [...mediaInputs, {
-                  url: uploadedUrl,
-                  type: 'image',
-                  fileName: 'image.jpg',
-                  isNew: true,
-                }];
-                setMediaInputs(updatedMediaInputs);
-                form.setValue("media", updatedMediaInputs);
-              }
-
-              setShowCropper(false);
-              setCropImageUrl("");
-            }}
-            aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
-            circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
+            aspect={1} // Setting a square aspect ratio for consistent cropping
           />
         )}
 
