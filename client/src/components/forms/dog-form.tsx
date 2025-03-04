@@ -950,7 +950,7 @@ export default function DogForm({
                     </Button>
                   )}
                 </div>
-              </</div>
+              </div>
               <FormMessage />
             </FormItem>
           )}
