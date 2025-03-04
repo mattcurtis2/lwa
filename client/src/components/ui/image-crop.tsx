@@ -56,9 +56,11 @@ export function ImageCrop({
   const createCroppedImage = useCallback(async () => {
     try {
       setIsProcessing(true);
+      console.log('[ImageCrop] Starting cropping process. Image URL:', imageUrl);
+      console.log('[ImageCrop] Completed crop data:', completedCrop);
 
       if (!completedCrop || !imgRef.current || !completedCrop.width || !completedCrop.height) {
-        console.error("No valid crop data or image reference");
+        console.error("[ImageCrop] Invalid crop data or image reference");
         setIsProcessing(false);
         return;
       }
@@ -68,16 +70,15 @@ export function ImageCrop({
       const ctx = canvas.getContext('2d');
 
       if (!ctx) {
-        console.error("No 2d context");
+        console.error("[ImageCrop] Failed to get 2D context");
         setIsProcessing(false);
         return;
       }
 
-      // Set canvas dimensions to the cropped size
       canvas.width = completedCrop.width;
       canvas.height = completedCrop.height;
+      console.log('[ImageCrop] Canvas dimensions set:', canvas.width, 'x', canvas.height);
 
-      // Draw the cropped image
       ctx.drawImage(
         image,
         completedCrop.x,
@@ -89,21 +90,20 @@ export function ImageCrop({
         canvas.width,
         canvas.height
       );
+      console.log('[ImageCrop] Image drawn on canvas');
 
-      // Convert canvas to data URL
       const cropDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      console.log('[ImageCrop] Cropped image data URL generated:', cropDataUrl);
 
-      // Call the onCropComplete with both the data URL and crop coordinates
       onCropComplete(cropDataUrl, {
         x: completedCrop.x,
         y: completedCrop.y,
         width: completedCrop.width,
         height: completedCrop.height
       });
-
       setIsProcessing(false);
     } catch (error) {
-      console.error("Error completing crop:", error);
+      console.error("[ImageCrop] Error during cropping:", error);
       setIsProcessing(false);
     }
   }, [completedCrop, imgRef, onCropComplete]);

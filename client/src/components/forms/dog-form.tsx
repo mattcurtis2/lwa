@@ -348,80 +348,66 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedImage = async (uploadedUrl: string) => {
-    setIsUploading(true);
+  const handleCroppedImage = async (croppedImageUrl: string, cropData: { x: number; y: number; width: number; height: number }) => {
     try {
-      if (uploadedUrl.startsWith('/uploads/')) {
-        const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
-        if (tempMediaData) {
-          const updatedMedia = [...mediaInputs];
-          updatedMedia[tempMediaData.index] = {
-            url: timestampedUrl,
-            type: 'image',
-            fileName: tempMediaData.file?.name || 'cropped-image.jpg',
-            isNew: true
-          };
-          setMediaInputs(updatedMedia);
-          form.setValue("media", updatedMedia);
-        } else {
-          form.setValue("profileImageUrl", timestampedUrl);
-        }
-        setShowCropper(false);
-        setCropImageUrl("");
-        setTempMediaData(null);
-        setIsUploading(false);
-        return;
+      console.log('[DogForm] Handle cropped image started');
+      console.log('[DogForm] Crop data:', cropData);
+      console.log('[DogForm] Cropped image URL length:', croppedImageUrl.length);
+
+      setIsUploadingProfile(true);
+
+      // Convert data URL to blob
+      const byteString = atob(croppedImageUrl.split(',')[1]);
+      const mimeType = croppedImageUrl.split(',')[0].split(':')[1].split(';')[0];
+
+      console.log('[DogForm] Converting data URL to blob with type:', mimeType);
+
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
       }
 
-      if (uploadedUrl.startsWith('data:image/')) {
-        const response = await fetch(uploadedUrl);
-        const blob = await response.blob();
-        const fileName = tempMediaData?.isProfileImage
-          ? 'cropped-profile.jpg'
-          : (tempMediaData?.file?.name || 'cropped-image.jpg');
-        const newFile = new File([blob], fileName, { type: 'image/jpeg' });
-        const formData = new FormData();
-        formData.append('file', newFile);
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+      const blob = new Blob([ab], { type: mimeType });
+      console.log('[DogForm] Blob created with size:', blob.size);
 
-        if (!uploadResponse.ok) {
-          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
-        }
+      // Create form data and upload
+      const formData = new FormData();
+      formData.append('file', blob, 'cropped-image.jpg');
 
-        const data = await uploadResponse.json();
+      console.log('[DogForm] Uploading cropped image...');
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        if (tempMediaData?.isProfileImage) {
-          form.setValue("profileImageUrl", data.url);
-        } else if (tempMediaData) {
-          const updatedMedia = [...mediaInputs];
-          updatedMedia[tempMediaData.index] = {
-            url: data.url,
-            type: 'image',
-            fileName: fileName,
-            isNew: true
-          };
-          setMediaInputs(updatedMedia);
-          form.setValue("media", updatedMedia);
-        }
-
-        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
-      } else {
-        throw new Error("Invalid image format received from cropper");
+      if (!uploadRes.ok) {
+        throw new Error(`Failed to upload image: ${uploadRes.status} ${uploadRes.statusText}`);
       }
+
+      const data = await uploadRes.json();
+      console.log('[DogForm] Upload response:', data);
+
+      const imageUrl = Array.isArray(data) ? data[0].url : data.url;
+      console.log('[DogForm] Setting profile image URL to:', imageUrl);
+
+      form.setValue("profileImageUrl", imageUrl);
+      toast({
+        title: "Image cropped and uploaded",
+        description: "Profile image has been updated.",
+      });
     } catch (error) {
+      console.error('[DogForm] Error cropping image:', error);
       toast({
         title: "Error",
-        description: "Failed to upload the cropped image: " + (error instanceof Error ? error.message : "Unknown error"),
+        description: "Failed to crop image: " + (error instanceof Error ? error.message : String(error)),
         variant: "destructive",
       });
     } finally {
-      setIsUploading(false);
+      setIsUploadingProfile(false);
       setShowCropper(false);
       setCropImageUrl("");
-      setTempMediaData(null);
     }
   };
 
@@ -942,7 +928,7 @@ export default function DogForm({
             }}
             onSkip={async () => {
               const formData = new FormData();
-              const response = await fetch(cropImageUrl);
+              const response = awaitfetch(cropImageUrl);
               const blob = await response.blob();
               formData.append('file', blob);
 
