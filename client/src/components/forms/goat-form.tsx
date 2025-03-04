@@ -199,8 +199,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         return;
       }
 
-      // If the URL is already a server URL (from direct upload), use it
-      if (uploadedUrl.startsWith('/uploads/')) {
+      // If the URL is already a server URL or an S3 URL, use it directly
+      if (uploadedUrl.startsWith('/uploads/') || uploadedUrl.includes('lwacontent.s3')) {
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
@@ -552,8 +552,13 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
 
   const processImageUrl = (url: string): string => {
-    //Only proxy if not already a proxy URL
-    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3')) && !url.includes('/api/proxy-image')) {
+    // Avoid double-proxying by checking if the URL already contains proxy-image
+    if (url && url.includes('proxy-image')) {
+      return url;
+    }
+
+    // Only proxy S3 URLs that are not already proxied
+    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3'))) {
       return `/api/proxy-image?url=${encodeURIComponent(url)}`;
     }
     return url;

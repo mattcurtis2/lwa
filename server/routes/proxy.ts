@@ -14,6 +14,12 @@ router.get('/proxy-image', async (req, res) => {
       return res.status(400).send('URL parameter is required');
     }
 
+    // Prevent recursive proxying
+    if (url.includes('/api/proxy-image')) {
+      console.error('[Image Proxy] Recursive proxy detected:', url);
+      return res.status(400).send('Recursive proxy requests are not allowed');
+    }
+
     console.log('[Image Proxy] Fetching image from:', url);
     const response = await fetch(url);
 

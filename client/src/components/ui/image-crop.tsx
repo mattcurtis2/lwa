@@ -124,8 +124,8 @@ export function ImageCrop({
     }
   }, [completedCrop, imgRef, onCropComplete]);
 
-  // Convert image URL to use proxy if it's from S3
-  const processedImageUrl = imageUrl.includes('lwacontent.s3') ? 
+  // Convert image URL to use proxy if it's from S3, but prevent recursion
+  const processedImageUrl = imageUrl.includes('lwacontent.s3') && !imageUrl.includes('/api/proxy-image') ? 
     `/api/proxy-image?url=${encodeURIComponent(imageUrl)}` : 
     imageUrl;
 
