@@ -1,0 +1,120 @@
+2025-03-03 21:12:32.26
+07604176
+User
+S3 Upload - Error during upload: InvalidAccessKeyId: The AWS Access Key Id you provided does not exist in our records.
+2025-03-03 21:12:32.26
+07604176
+User
+at throwDefaultError (/home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:867:20)
+2025-03-03 21:12:32.26
+07604176
+User
+at /home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:876:5
+2025-03-03 21:12:32.26
+07604176
+User
+at de_CommandError (/home/runner/workspace/node_modules/@aws-sdk/client-s3/dist-cjs/index.js:4971:14)
+2025-03-03 21:12:32.26
+07604176
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:484:18
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@smithy/middleware-retry/dist-cjs/index.js:321:38
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-flexible-checksums/dist-cjs/index.js:319:18
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:110:22
+2025-03-03 21:12:32.26
+07604176
+User
+at async /home/runner/workspace/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/index.js:137:14 {
+2025-03-03 21:12:32.26
+07604176
+User
+'$fault': 'client',
+2025-03-03 21:12:32.26
+07604176
+User
+'$metadata': {
+2025-03-03 21:12:32.26
+07604176
+User
+httpStatusCode: 403,
+2025-03-03 21:12:32.26
+07604176
+User
+requestId: '096G966HEQXFK9PF',
+2025-03-03 21:12:32.26
+07604176
+User
+extendedRequestId: 'bk6YYrdmTVrYlTlNLDBqly8l/LLX1Xp0WshCH0hJw6OvY/NWCjXqKkRAlqVesZAzKIu1yxSTwgruH2DUDbg/R175j7/OKEmpMRYCmI9DEUE=',
+2025-03-03 21:12:32.26
+07604176
+User
+cfId: undefined,
+2025-03-03 21:12:32.26
+07604176
+User
+attempts: 1,
+2025-03-03 21:12:32.26
+07604176
+User
+totalRetryDelay: 0
+2025-03-03 21:12:32.26
+07604176
+User
+},
+2025-03-03 21:12:32.26
+07604176
+User
+Code: 'InvalidAccessKeyId',
+2025-03-03 21:12:32.26
+07604176
+User
+AWSAccessKeyId: 'AKIAWRAX...',
+2025-03-03 21:12:32.26
+07604176
+User
+RequestId: '096G966HEQXFK9PF',
+2025-03-03 21:12:32.26
+07604176
+User
+HostId: 'bk6YYrdmTVrYlTlNLDBqly8l/LLX1Xp0WshCH0hJw6OvY/NWCjXqKkRAlqVesZAzKIu1yxSTwgruH2DUDbg/R175j7/OKEmpMRYCmI9DEUE='
+2025-03-03 21:12:32.26
+07604176
+User
+}
+2025-03-03 21:12:32.26
+07604176
+User
+Error name: InvalidAccessKeyId
+2025-03-03 21:12:32.26
+07604176
+User
+Error message: The AWS Access Key Id you provided does not exist in our records.
+2025-03-03 21:12:32.26
+07604176
+User
+Error stack: InvalidAccessKeyId: The AWS Access Key Id you provided does not exist in our records.
+2025-03-03 21:12:32.26
+07604176
+User
+at throwDefaultError (/home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:867:20)
+2025-03-03 21:12:32.26
+07604176
+User
+at /home/runner/workspace/node_modules/@smithy/smithy-client/dist-cjs/index.js:876:5
