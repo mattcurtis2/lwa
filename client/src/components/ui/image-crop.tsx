@@ -82,12 +82,16 @@ export function ImageCrop({
 
       ctx.scale(pixelRatio, pixelRatio);
       // Draw the cropped portion of the image
+      // Calculate the proper scaling factors based on natural image dimensions
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      
       ctx.drawImage(
         image,
-        completedCrop.x, // source x
-        completedCrop.y, // source y
-        completedCrop.width, // source width
-        completedCrop.height, // source height
+        completedCrop.x * scaleX, // source x (scaled)
+        completedCrop.y * scaleY, // source y (scaled)
+        completedCrop.width * scaleX, // source width (scaled)
+        completedCrop.height * scaleY, // source height (scaled)
         0, // destination x
         0, // destination y
         completedCrop.width, // destination width
