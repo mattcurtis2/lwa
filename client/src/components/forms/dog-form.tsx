@@ -136,7 +136,7 @@ export default function DogForm({
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [tempMediaData, setTempMediaData] = useState<MediaInput | null>(null); //New state for tracking media during crop
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File } | null>(null); //New state for tracking media during crop
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -348,58 +348,88 @@ export default function DogForm({
     }
   };
 
-  const handleCroppedImage = async (uploadedUrl: string, croppedFile?: File) => {
+  const handleCroppedImage = async (uploadedUrl: string) => {
+    setIsUploading(true);
     try {
-      setIsUploadingProfile(true);
+      // Check if this is a media upload or profile image upload
+      const isMediaUpload = tempMediaData !== null;
 
-      let fileToUpload: File;
+      // If the URL is already a server URL (from direct upload), use it
+      if (uploadedUrl.startsWith('/uploads/')) {
+        // Add a timestamp to prevent caching
+        const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-      if (croppedFile) {
-        fileToUpload = croppedFile;
+        if (isMediaUpload && tempMediaData) {
+          // Update media at the specific index
+          const updatedMedia = [...mediaInputs];
+          updatedMedia[tempMediaData.index] = {
+            url: timestampedUrl,
+            type: 'image',
+            fileName: tempMediaData.file?.name || 'cropped-image.jpg',
+            isNew: true
+          };
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+        } else {
+          // Update profile image
+          form.setValue("profileImageUrl", timestampedUrl);
+        }
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
+        setIsUploading(false);
+        return;
+      }
+
+      // For new cropped images from data URL
+      if (uploadedUrl.startsWith('data:image/')) {
+        // Create a Blob from the data URL
+        const response = await fetch(uploadedUrl);
+        const blob = await response.blob();
+
+        // Create a new File object from the Blob
+        const fileName = isMediaUpload && tempMediaData?.file 
+          ? tempMediaData.file.name 
+          : 'cropped-image.jpg';
+
+        const newFile = new File([blob], fileName, { type: 'image/jpeg' });
+
+        // Create form data for upload
+        const formData = new FormData();
+        formData.append('file', newFile);
+
+        // Upload the file
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+        }
+
+        const data = await uploadResponse.json();
+
+        if (isMediaUpload && tempMediaData) {
+          // Update media at the specific index
+          const updatedMedia = [...mediaInputs];
+          updatedMedia[tempMediaData.index] = {
+            url: data.url,
+            type: 'image',
+            fileName: fileName,
+            isNew: true
+          };
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+        } else {
+          // Update profile image
+          form.setValue("profileImageUrl", data.url);
+        }
+
+        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
       } else {
-        const res = await fetch(uploadedUrl);
-        const blob = await res.blob();
-        fileToUpload = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+        throw new Error("Invalid image format received from cropper");
       }
-
-      const formData = new FormData();
-      formData.append("file", fileToUpload);
-
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error(`Failed to upload cropped image. Status: ${uploadRes.status}`);
-      }
-
-      const data = await uploadRes.json();
-
-      if (!data || data.length === 0 || !data[0]?.url) {
-        throw new Error('Invalid response from upload endpoint');
-      }
-
-      const imageUrl = data[0].url;
-
-      form.setValue("profileImageUrl", imageUrl, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-
-      form.trigger("profileImageUrl");
-
-      // Refresh image preview
-      const previewElements = document.querySelectorAll(`img[src="${uploadedUrl}"]`);
-      previewElements.forEach(el => {
-        (el as HTMLImageElement).src = imageUrl;
-      });
-
-      toast({
-        title: "Success",
-        description: "Image cropped and uploaded successfully",
-      });
     } catch (error) {
       toast({
         title: "Error",
@@ -407,9 +437,10 @@ export default function DogForm({
         variant: "destructive",
       });
     } finally {
-      setIsUploadingProfile(false);
+      setIsUploading(false);
       setShowCropper(false);
       setCropImageUrl("");
+      setTempMediaData(null);
     }
   };
 
@@ -655,9 +686,29 @@ export default function DogForm({
   });
 
   const handleMediaCrop = (index: number, imageUrl: string) => {
-    setTempMediaData(mediaInputs[index]);
+    setTempMediaData({index, file: mediaInputs[index].file as File}); // Assign the file from mediaInputs
     setCropImageUrl(imageUrl);
     setShowCropper(true);
+  };
+
+  const handleMediaFileSelect = async (file: File, index: number) => {
+    if (!file) return;
+
+    // Set the temporary media data for use after cropping
+    setTempMediaData({ index, file });
+
+    try {
+      // Create a local object URL to avoid CORS issues
+      const url = URL.createObjectURL(file);
+      setCropImageUrl(url);
+      setShowCropper(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+    }
   };
 
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
@@ -1485,4 +1536,5 @@ interface MediaInput {
   type: "image" | "video";
   fileName?: string;
   isNew?: boolean;
+  file?: File; // Added file property
 }

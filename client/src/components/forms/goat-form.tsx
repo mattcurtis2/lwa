@@ -197,123 +197,76 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
 
-        if (isMediaUpload) {
-          // Handle media upload
-          const { index, file } = tempMediaData;
+        if (isMediaUpload && tempMediaData) {
+          // Update media at the specific index
           const updatedMedia = [...mediaInputs];
-
-          updatedMedia[index] = {
-            ...updatedMedia[index],
-            url: uploadedUrl,
-            file,
-            tempUrl: timestampedUrl,
+          updatedMedia[tempMediaData.index] = {
+            url: timestampedUrl,
             type: 'image',
-            isNew: true,
+            fileName: tempMediaData.file?.name || 'cropped-image.jpg',
+            isNew: true
           };
-
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
-          // Clear temp data
-          setTempMediaData(null);
         } else {
-          // Handle profile image
-          form.setValue("profileImageUrl", uploadedUrl, {
-            shouldValidate: true,
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-
-          // Trigger form validation to update the UI
-          form.trigger("profileImageUrl");
-
-          // Force UI update by directly manipulating the DOM element
-          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-          if (profileImageUrlField) {
-            (profileImageUrlField as HTMLInputElement).value = uploadedUrl;
-          }
-
-          // Also update any preview elements
-          const previewElements = document.querySelectorAll('img[src^="' + uploadedUrl.split('?')[0] + '"]');
-          previewElements.forEach(el => {
-            (el as HTMLImageElement).src = timestampedUrl;
-          });
+          // Update profile image
+          form.setValue("profileImageUrl", timestampedUrl);
         }
-
-        toast({
-          title: "Success",
-          description: "Image cropped and uploaded successfully",
-        });
+        setShowCropper(false);
+        setCropImageUrl("");
+        setTempMediaData(null);
+        setIsUploading(false);
         return;
       }
 
-      // Handle base64 image data
-      const response = await fetch(uploadedUrl);
-      const blob = await response.blob();
+      // For new cropped images from data URL
+      if (uploadedUrl.startsWith('data:image/')) {
+        // Create a Blob from the data URL
+        const response = await fetch(uploadedUrl);
+        const blob = await response.blob();
 
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
+        // Create a new File object from the Blob
+        const fileName = isMediaUpload && tempMediaData?.file 
+          ? tempMediaData.file.name 
+          : 'cropped-image.jpg';
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+        const newFile = new File([blob], fileName, { type: 'image/jpeg' });
 
-      if (!res.ok) {
-        throw new Error('Failed to upload image.');
-      }
+        // Create form data for upload
+        const formData = new FormData();
+        formData.append('file', newFile);
 
-      const data = await res.json();
+        // Upload the file
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (data && data.length > 0 && data[0].url) {
-        const imageUrl = data[0].url;
-        const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
-
-        if (isMediaUpload) {
-          // Handle media upload
-          const { index, file } = tempMediaData;
-          const updatedMedia = [...mediaInputs];
-
-          updatedMedia[index] = {
-            ...updatedMedia[index],
-            url: imageUrl,
-            file,
-            tempUrl: timestampedUrl,
-            type: 'image',
-            isNew: true,
-          };
-
-          setMediaInputs(updatedMedia);
-          form.setValue("media", updatedMedia);
-          // Clear temp data
-          setTempMediaData(null);
-        } else {
-          // Handle profile image
-          form.setValue("profileImageUrl", imageUrl, {
-            shouldValidate: true,
-            shouldDirty: true,
-            shouldTouch: true,
-          });
-
-          // Trigger form validation to update the UI
-          form.trigger("profileImageUrl");
-
-          // Force UI update by directly manipulating the DOM element
-          const profileImageUrlField = document.querySelector('input[name="profileImageUrl"]');
-          if (profileImageUrlField) {
-            (profileImageUrlField as HTMLInputElement).value = imageUrl;
-          }
-
-          // Also update any preview elements
-          const previewElements = document.querySelectorAll('img[src^="' + imageUrl.split('?')[0] + '"]');
-          previewElements.forEach(el => {
-            (el as HTMLImageElement).src = timestampedUrl;
-          });
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
         }
 
-        toast({
-          title: "Success",
-          description: "Image cropped and uploaded successfully",
-        });
+        const data = await uploadResponse.json();
+
+        if (isMediaUpload && tempMediaData) {
+          // Update media at the specific index
+          const updatedMedia = [...mediaInputs];
+          updatedMedia[tempMediaData.index] = {
+            url: data.url,
+            type: 'image',
+            fileName: fileName,
+            isNew: true
+          };
+          setMediaInputs(updatedMedia);
+          form.setValue("media", updatedMedia);
+        } else {
+          // Update profile image
+          form.setValue("profileImageUrl", data.url);
+        }
+
+        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
+      } else {
+        throw new Error("Invalid image format received from cropper");
       }
     } catch (error) {
       toast({
@@ -570,6 +523,26 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         title: "Error",
         description: error instanceof Error ? error.message : 'Failed to save goat',
         variant: "destructive",
+      });
+    }
+  };
+
+  const handleMediaFileSelect = async (file: File, index: number) => {
+    if (!file) return;
+
+    // Set the temporary media data for use after cropping
+    setTempMediaData({ index, file });
+
+    try {
+      // Create a local object URL to avoid CORS issues
+      const url = URL.createObjectURL(file);
+      setCropImageUrl(url);
+      setShowCropper(true);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
       });
     }
   };
@@ -1016,7 +989,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                                 src={input.tempUrl || input.url}
                                 alt={`Upload ${index + 1}`}
                                 className="w-full h-full object-cover cursorpointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaImageSelect(input.file as File, index)}
+                                onClick={() => handleMediaFileSelect(input.file as File, index)}
                               />
                               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div 
@@ -1029,7 +1002,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                               <button 
                                 type="button"
                                 onClick={() => handleDeleteMedia(index)}
-                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                className="absolute top-2 right-2 bg-red-5000 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 aria-label="Delete media"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
