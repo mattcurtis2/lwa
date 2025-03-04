@@ -1,3 +1,11 @@
+interface MediaInput {
+  url: string;
+  type: "image" | "video";
+  fileName?: string;
+  isNew?: boolean;
+  file?: File;
+}
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,7 +38,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect, useCallback } from "react";
-import { X, ImageIcon, FileText, ExternalLink } from "lucide-react";
+import { X, ImageIcon, FileText, ExternalLink, Edit } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -136,7 +144,10 @@ export default function DogForm({
   const [availableLitters, setAvailableLitters] = useState<any[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
-  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File; isProfileImage: boolean } | null>(null); //New state for tracking media during crop
+  const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File; isProfileImage: boolean } | null>(null);
+  const [editingMediaIndex, setEditingMediaIndex] = useState<number | null>(null);
+  const [showMediaCropDialog, setShowMediaCropDialog] = useState(false);
+  const [currentMediaUrl, setCurrentMediaUrl] = useState("");
 
   const dogSchema = createDogSchema(isPuppy);
 
@@ -171,7 +182,6 @@ export default function DogForm({
     }
   });
 
-  // Only fetch parents if not opening from litter
   useEffect(() => {
     if (!fromLitter) {
       const fetchParents = async () => {
@@ -188,7 +198,6 @@ export default function DogForm({
     }
   }, [fromLitter]);
 
-  // Only fetch litters if not opening from litter
   useEffect(() => {
     if (!fromLitter) {
       const fetchLitters = async () => {
@@ -237,7 +246,6 @@ export default function DogForm({
 
       setMediaInputs(media);
 
-      // Initialize document arrays with existing documents
       if (dog.documents) {
         const health = dog.documents.filter(doc => doc.type === 'health');
         const pedigree = dog.documents.filter(doc => doc.type === 'pedigree');
@@ -307,6 +315,7 @@ export default function DogForm({
         type: fileType,
         fileName: file.name,
         isNew: true,
+        file: file,
       };
 
       const newInputs = [newMedia, ...mediaInputs];
@@ -352,16 +361,9 @@ export default function DogForm({
   const handleCroppedImage = async (uploadedUrl: string) => {
     setIsUploading(true);
     try {
-      // Check if this is a media upload or profile image upload
-      const isMediaUpload = tempMediaData !== null;
-
-      // If the URL is already a server URL (from direct upload), use it
       if (uploadedUrl.startsWith('/uploads/')) {
-        // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
-
-        if (isMediaUpload && tempMediaData) {
-          // Update media at the specific index
+        if (tempMediaData) {
           const updatedMedia = [...mediaInputs];
           updatedMedia[tempMediaData.index] = {
             url: timestampedUrl,
@@ -372,7 +374,6 @@ export default function DogForm({
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
         } else {
-          // Update profile image
           form.setValue("profileImageUrl", timestampedUrl);
         }
         setShowCropper(false);
@@ -382,23 +383,15 @@ export default function DogForm({
         return;
       }
 
-      // For new cropped images from data URL
       if (uploadedUrl.startsWith('data:image/')) {
-        // Create a Blob from the data URL
         const response = await fetch(uploadedUrl);
         const blob = await response.blob();
-
-        // Create a new File object from the Blob
         const fileName = tempMediaData?.isProfileImage
           ? 'cropped-profile.jpg'
           : (tempMediaData?.file?.name || 'cropped-image.jpg');
         const newFile = new File([blob], fileName, { type: 'image/jpeg' });
-
-        // Create form data for upload
         const formData = new FormData();
         formData.append('file', newFile);
-
-        // Upload the file
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
@@ -413,7 +406,6 @@ export default function DogForm({
         if (tempMediaData?.isProfileImage) {
           form.setValue("profileImageUrl", data.url);
         } else if (tempMediaData) {
-          // Update media at the specific index
           const updatedMedia = [...mediaInputs];
           updatedMedia[tempMediaData.index] = {
             url: data.url,
@@ -424,7 +416,6 @@ export default function DogForm({
           setMediaInputs(updatedMedia);
           form.setValue("media", updatedMedia);
         }
-
 
         toast({ title: "Success", description: "Image cropped and uploaded successfully" });
       } else {
@@ -638,7 +629,7 @@ export default function DogForm({
       'image/*': [],
       'video/*': []
     },
-    maxSize: 10485760, // 10MB
+    maxSize: 10485760,
     onDrop: useCallback(async (acceptedFiles: File[]) => {
       try {
         for (const file of acceptedFiles) {
@@ -662,6 +653,7 @@ export default function DogForm({
               type: fileType,
               fileName: file.name,
               isNew: true,
+              file: file,
             };
 
             setMediaInputs(prev => [newMedia, ...prev]);
@@ -688,11 +680,9 @@ export default function DogForm({
   const handleMediaFileSelect = async (file: File, index: number) => {
     if (!file) return;
 
-    // Set the temporary media data for use after cropping
     setTempMediaData({ file, index, isProfileImage: false });
 
     try {
-      // Create a local object URL to avoid CORS issues
       const url = URL.createObjectURL(file);
       setCropImageUrl(url);
       setShowCropper(true);
@@ -725,7 +715,6 @@ export default function DogForm({
         const data = await uploadRes.json();
         const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
-
         const updatedMediaInputs = [...mediaInputs];
         updatedMediaInputs[mediaInputs.indexOf(tempMediaData)] = {...tempMediaData, url: uploadedUrl};
         setMediaInputs(updatedMediaInputs);
@@ -751,36 +740,28 @@ export default function DogForm({
     if (!tempMediaData) return;
     setIsUploading(true);
     try {
-      // Create a new image with crossOrigin attribute
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.src = tempMediaData.file ? URL.createObjectURL(tempMediaData.file) : croppedImageUrl;
 
-      // Wait for the image to load
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
       });
 
-      // Create a canvas to draw the image
       const canvas = document.createElement('canvas');
       canvas.width = img.width;
       canvas.height = img.height;
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(img, 0, 0);
-
-        // Get the data URL from the canvas
         const dataUrl = canvas.toDataURL('image/jpeg');
-
-        // Create a Blob from the data URL
         const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], tempMediaData.file.name || 'cropped-image.jpg', { type: 'image/jpeg' });
         const formData = new FormData();
         formData.append('file', file);
 
-        // Upload the file
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
@@ -821,7 +802,6 @@ export default function DogForm({
     if (!file) return;
 
     try {
-      // Create a local object URL to avoid CORS issues
       const url = URL.createObjectURL(file);
       setCropImageUrl(url);
       setTempMediaData({ file, index, isProfileImage: false });
@@ -832,6 +812,69 @@ export default function DogForm({
         description: 'Failed to load image for cropping: ' + (error instanceof Error ? error.message : 'Unknown error'),
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleEditMedia = (index: number) => {
+    const media = mediaInputs[index];
+    if (media && media.type === "image") {
+      setEditingMediaIndex(index);
+      setCurrentMediaUrl(media.url);
+      setShowMediaCropDialog(true);
+    }
+  };
+
+  const handleCroppedMediaImage = async (croppedImageUrl: string) => {
+    if (editingMediaIndex === null) return;
+
+    try {
+      setIsUploading(true);
+
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append('file', blob, 'cropped-image.jpg');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload cropped image');
+      }
+
+      const data = await uploadRes.json();
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+
+      const updatedMediaInputs = [...mediaInputs];
+      updatedMediaInputs[editingMediaIndex] = {
+        ...updatedMediaInputs[editingMediaIndex],
+        url: uploadedUrl,
+        isNew: true,
+      };
+
+      setMediaInputs(updatedMediaInputs);
+      form.setValue("media", updatedMediaInputs);
+
+      setShowMediaCropDialog(false);
+      setEditingMediaIndex(null);
+      setCurrentMediaUrl("");
+
+      toast({
+        title: "Success",
+        description: "Image updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -910,13 +953,12 @@ export default function DogForm({
         {showCropper && cropImageUrl && (
           <ImageCrop
             imageUrl={cropImageUrl}
-            onCrop={handleCroppedImage}
+            onCropComplete={handleCroppedImage}
             onCancel={() => {
-              setShowCropper(false);
-              setCropImageUrl("");
+              setShowCropper(false);setCropImageUrl("");
               setTempMediaData(null);
             }}
-            onSkip={async () => {
+            onSkip={async () =>{
               const formData = new FormData();
               const response = await fetch(cropImageUrl);
               const blob = await response.blob();
@@ -939,9 +981,10 @@ export default function DogForm({
               } else {
                 const updatedMediaInputs = [...mediaInputs, {
                   url: uploadedUrl,
-                  type: 'image',
+                  type: 'image' as const,
                   fileName: 'image.jpg',
                   isNew: true,
+                  file: new File([blob], 'image.jpg', { type: 'image/jpeg' })
                 }];
                 setMediaInputs(updatedMediaInputs);
                 form.setValue("media", updatedMediaInputs);
@@ -955,6 +998,33 @@ export default function DogForm({
           />
         )}
 
+        {/* Media Cropping Dialog */}
+        {showMediaCropDialog && currentMediaUrl && (
+          <Dialog open={showMediaCropDialog} onOpenChange={(open) => !open && setShowMediaCropDialog(false)}>
+            <DialogContent className="sm:max-w-[800px]">
+              <DialogHeader>
+                <DialogTitle>Edit Image</DialogTitle>
+                <DialogDescription>
+                  Crop and adjust the image as needed
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <ImageCrop
+                  imageUrl={currentMediaUrl}
+                  onCropComplete={handleCroppedMediaImage}
+                  onCancel={() => {
+                    setShowMediaCropDialog(false);
+                    setEditingMediaIndex(null);
+                    setCurrentMediaUrl("");
+                  }}
+                  aspect={undefined}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Rest of the form fields... */}
         <FormField
           control={form.control}
           name="name"
@@ -1415,64 +1485,69 @@ export default function DogForm({
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
-            <StrictModeDroppable droppableId="droppable-media-list">
+            <StrictModeDroppable droppableId="media-list">
               {(provided) => (
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                 >
-                  {mediaInputs.filter(input => input?.url).map((input, index) => (
-                    <Draggable
-                      key={input.url || `media-${index}`}
-                      draggableId={input.url || `media-${index}`}
-                      index={index}
-                    >
+                  {mediaInputs.map((media, index) => (
+                    <Draggable key={`media-${index}`} draggableId={`media-${index}`} index={index}>
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="relative group aspect-video rounded-lg overflow-hidden bg-muted"
+                          className="relative group aspect-video bg-muted rounded-lg overflow-hidden"
                         >
-                          {input.type === 'image' ? (
-                            <>
+                          {media.type === "image" ? (
+                            <div className="relative w-full h-full">
                               <img
-                                src={input.url}
-                                alt={`Upload ${index + 1}`}
-                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                                onClick={() => handleMediaFileSelect(input.file as File, index)}
+                                src={media.url}
+                                alt={media.fileName || `Media ${index + 1}`}
+                                className="w-full h-full object-cover"
                               />
-                              <div
-                                className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center"
-                                onClick={() => {
-                                  handleMediaFileSelect(input.file as File, index)
-                                }}
-                              >
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white py-1 px-2 rounded text-sm">
-                                  Edit Image
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors">
+                                <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleEditMedia(index)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeMediaInput(index)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
                                 </div>
                               </div>
-                            </>
+                            </div>
                           ) : (
-                            <video
-                              src={input.url}
-                              className="w-full h-full object-cover"
-                              controls
-                            />
+                            <div className="relative w-full h-full">
+                              <video
+                                src={media.url}
+                                className="w-full h-full object-cover"
+                                controls
+                              />
+                              <div className="absolute top-2 right-2">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => removeMediaInput(index)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
                           )}
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => removeMediaInput(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                         </div>
                       )}
                     </Draggable>
@@ -1618,5 +1693,5 @@ interface MediaInput {
   type: "image" | "video";
   fileName?: string;
   isNew?: boolean;
-  file?: File; // Added file property
+  file?: File;
 }
