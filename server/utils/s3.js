@@ -11,20 +11,29 @@ const configureCors = async (s3, bucketName) => {
 };
 
 
-async function uploadToS3(file) {
+export async function uploadToS3(file) {
   console.log('==== S3 UPLOAD ATTEMPT ====');
 
   try {
-    const AWS_REGION = process.env.AWS_REGION;
-    const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-    const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+    // Use fallback values to prevent "is not defined" errors
+    const AWS_REGION = process.env.AWS_REGION || 'us-east-2';
+    const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
+    const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
+    const BUCKET_NAME = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'lwacontent';
+    
+    // Save to global for debugging
+    global.s3CredentialsDebug = {
+      region: AWS_REGION,
+      keyIdPrefix: AWS_ACCESS_KEY_ID ? AWS_ACCESS_KEY_ID.substring(0, 4) : 'empty',
+      secretKeyPrefix: AWS_SECRET_ACCESS_KEY ? AWS_SECRET_ACCESS_KEY.substring(0, 4) : 'empty',
+      bucketName: BUCKET_NAME
+    };
 
     console.log('AWS Credentials Check:');
-    console.log(`- AWS_REGION: ${AWS_REGION ? AWS_REGION : 'Not set'}`);
-    console.log(`- AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set'}`);
-    console.log(`- AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY ? `Set (first 4 chars: ${AWS_SECRET_ACCESS_KEY.substring(0, 4)}..., length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-    console.log(`- BUCKET_NAME: ${BUCKET_NAME || 'Not set'}`);
+    console.log(`- AWS_REGION: ${AWS_REGION ? AWS_REGION : 'Not set'} (using: ${AWS_REGION})`);
+    console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set'} (using key starting with: ${AWS_ACCESS_KEY_ID.substring(0, 4) || 'empty'})`);
+    console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (first 4 chars: ${AWS_SECRET_ACCESS_KEY.substring(0, 4)}..., length: ${AWS_SECRET_ACCESS_KEY.length})` : 'Not set'} (using key starting with: ${AWS_SECRET_ACCESS_KEY.substring(0, 4) || 'empty'})`);
+    console.log(`- BUCKET_NAME: ${process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'Not set'} (using: ${BUCKET_NAME})`);
     console.log(`- NODE_ENV: ${process.env.NODE_ENV || 'Not set'}`);
 
     // Log full environment in development mode for debugging

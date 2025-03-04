@@ -27,6 +27,15 @@ function validateEnvironment() {
 
 validateEnvironment();
 
+// Additional check for deployment environment
+console.log('============ ENVIRONMENT CHECK ============');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('AWS_REGION:', process.env.AWS_REGION || 'Not set');
+console.log('AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set');
+console.log('AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + process.env.AWS_SECRET_ACCESS_KEY.length + ')' : 'Not set');
+console.log('AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'Not set');
+console.log('==========================================');
+
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
