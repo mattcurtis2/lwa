@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dog, DogMedia } from "@db/schema";
 import { useState, useEffect, useCallback } from "react";
-import { X, ImageIcon, FileText, ExternalLink, PencilIcon, XIcon } from "lucide-react";
+import { X, ImageIcon, FileText, ExternalLink, PencilIcon, XIcon, Trash } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
@@ -897,6 +897,42 @@ export default function DogForm({
       newInputs.splice(index, 1);
       setMediaInputs(newInputs);
       form.setValue("media", newInputs);
+  };
+
+  const handleDogDelete = async () => {
+    if (!dog?.id) return;
+
+    if (!confirm("Are you sure you want to delete this dog? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/dogs/${dog.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete dog");
+      }
+
+      // Assuming you are using react-query
+      // await queryClient.invalidateQueries({ queryKey: ["dogs"] });
+      // await queryClient.invalidateQueries({ queryKey: ["litters"] });
+
+      toast({
+        title: "Success",
+        description: "Dog deleted successfully",
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting dog:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete dog",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
