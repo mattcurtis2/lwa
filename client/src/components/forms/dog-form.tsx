@@ -835,16 +835,17 @@ export default function DogForm({
 
     try {
       setIsUploading(true);
-      console.log('[DogForm] Loading image for cropping:', croppedImageUrl);
 
       // Create a canvas to apply the crop
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
         img.onload = () => {
-          console.log('[DogForm] Image loaded. Natural dimensions:', {
-            width: img.naturalWidth,
-            height: img.naturalHeight
+          console.log('[DogForm] Image loaded. Dimensions:', {
+            width: img.width,
+            height: img.height,
+            naturalWidth: img.naturalWidth,
+            naturalHeight: img.naturalHeight
           });
           resolve(undefined);
         };
@@ -859,9 +860,9 @@ export default function DogForm({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set canvas size to match original image dimensions
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      // Set canvas size to match the crop dimensions
+      canvas.width = cropData.width;
+      canvas.height = cropData.height;
       console.log('[DogForm] Canvas dimensions set to:', {
         width: canvas.width,
         height: canvas.height
@@ -870,24 +871,25 @@ export default function DogForm({
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (cropData) {
-        console.log('[DogForm] Applying crop with dimensions:', cropData);
-        // Draw the cropped portion
-        ctx.drawImage(
-          img,
-          cropData.x,
-          cropData.y,
-          cropData.width,
-          cropData.height,
-          0,
-          0,
-          cropData.width,
-          cropData.height
-        );
-      } else {
-        console.log('[DogForm] No crop data provided, using full image');
-        ctx.drawImage(img, 0, 0);
-      }
+      console.log('[DogForm] Drawing cropped portion:', {
+        sourceX: cropData.x,
+        sourceY: cropData.y,
+        sourceWidth: cropData.width,
+        sourceHeight: cropData.height
+      });
+
+      // Draw only the cropped portion
+      ctx.drawImage(
+        img,
+        cropData.x,
+        cropData.y,
+        cropData.width,
+        cropData.height,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
       // Convert canvas to blob with high quality
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -1070,20 +1072,19 @@ export default function DogForm({
           />
         )}
 
-        {/* Media Cropping Dialog */}
         {showMediaCropDialog && currentMediaUrl && (
           <Dialog open={showMediaCropDialog} onOpenChange={(open) => !open && setShowMediaCropDialog(false)}>
             <DialogContent className="sm:max-w-[800px]">
               <DialogHeader>
                 <DialogTitle>Edit Image</DialogTitle>
                 <DialogDescription>
-                  Adjust the image as needed. Click save when done.
+                  Adjust the crop area by dragging the corners. Click and drag inside the crop area to reposition.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <ImageCrop
                   imageUrl={currentMediaUrl}
-                  onCropComplete={handleCroppedMediaImage}
+                  onCropComplete={(croppedImageUrl, cropData) => handleCroppedMediaImage(croppedImageUrl, cropData)}
                   onCancel={() => {
                     setShowMediaCropDialog(false);
                     setEditingMediaIndex(null);
@@ -1096,7 +1097,6 @@ export default function DogForm({
           </Dialog>
         )}
 
-        {/* Rest of the form fields... */}
         <FormField
           control={form.control}
           name="name"
@@ -1314,8 +1314,10 @@ export default function DogForm({
           <FormField
             control={form.control}
             name="color"
-            render={({ field }) => (<FormItem>
-                <FormLabel>Color</FormLabel>                <FormControl>
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
                   <Input {...field} placeholder="e.g., White with brown markings" />
                 </FormControl>
                 <FormMessage />
@@ -1551,7 +1553,8 @@ export default function DogForm({
                 <p className="text-sm font-medium">
                   Drag & drop files here, or click to select
                 </p>
-                <p className="text-xs">                  Supports images and videos up to 10MB
+                <p className="text-xs">
+                  Supports images and videos up to 10MB
                 </p>
               </div>
             </div>

@@ -1,0 +1,75 @@
+=== UPLOAD REQUEST RECEIVED ===
+Headers: {
+  host: 'c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+  'content-length': '5507',
+  accept: '*/*',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'en-US,en;q=0.9',
+  'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryiPkxb3qX6e8amrSA',
+  cookie: 'connect.sid=s%3AAG16qL0X7oSQVEC8hGc2BfSuEKvqgpj2.bfMFNZqEXkeBnYVr6XC6qlnkPKJo8ANJTAlt5K9q84o',
+  origin: 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev',
+  referer: 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/admin',
+  'sec-ch-ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-storage-access': 'active',
+  'x-forwarded-for': '154.27.61.71, 10.83.4.69',
+  'x-forwarded-proto': 'https',
+  'x-replit-user-bio': '',
+  'x-replit-user-id': '',
+  'x-replit-user-name': '',
+  'x-replit-user-profile-image': '',
+  'x-replit-user-roles': '',
+  'x-replit-user-teams': '',
+  'x-replit-user-url': ''
+}
+Files: [
+  {
+    originalName: 'cropped-image.jpg',
+    size: 5316,
+    mimetype: 'image/jpeg',
+    path: '/home/runner/workspace/uploads/file-1741101439047-127832473.jpg'
+  }
+]
+Request body: [Object: null prototype] {}
+Processing 1 files for S3 upload
+
+=== Processing file 1/1 ===
+File details: {
+  originalName: 'cropped-image.jpg',
+  size: 5316,
+  mimetype: 'image/jpeg',
+  path: '/home/runner/workspace/uploads/file-1741101439047-127832473.jpg'
+}
+Uploading to S3...
+==== S3 UPLOAD ATTEMPT ====
+AWS Credentials Check:
+- AWS_REGION: Set
+- AWS_ACCESS_KEY_ID: Set (starts with: AKIAWR...)
+- AWS_SECRET_ACCESS_KEY: Set (length: 40)
+- AWS_BUCKET_NAME: Set
+- S3_BUCKET_NAME: Not set
+Checking S3 bucket CORS configuration...
+CORS configuration set successfully
+S3 Upload - Processing file: cropped-image.jpg
+Reading file from path: /home/runner/workspace/uploads/file-1741101439047-127832473.jpg
+File content obtained, size: 5316 bytes
+Content type: image/jpeg
+S3 Upload - Success. URL: https://lwacontent.s3.amazonaws.com/uploads/1741101439716-cropped-image.jpg
+S3 upload successful: https://lwacontent.s3.amazonaws.com/uploads/1741101439716-cropped-image.jpg
+Deleted local temp file: /home/runner/workspace/uploads/file-1741101439047-127832473.jpg
+=== S3 UPLOADS COMPLETED SUCCESSFULLY ===
+Results: [
+  {
+    url: 'https://lwacontent.s3.amazonaws.com/uploads/1741101439716-cropped-image.jpg',
+    type: 'image',
+    originalName: 'cropped-image.jpg',
+    mimeType: 'image/jpeg'
+  }
+]
+3:17:19 PM [express] POST /api/upload 200 in 776ms :: [{"url":"https://lwacontent.s3.amazonaws.com/u…
+3:17:28 PM [express] GET /api/dogs 304 in 133ms :: [{"id":6,"name":"Max","registrationName":"NWF Max…
