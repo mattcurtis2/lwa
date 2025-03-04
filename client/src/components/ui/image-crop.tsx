@@ -56,7 +56,10 @@ export function ImageCrop({
     setIsProcessing(true);
     try {
       // Get the image data directly from the source
-      const response = await fetch(imageUrl);
+      const response = await fetch('/api/proxy-image?url=' + encodeURIComponent(imageUrl));
+      if (!response.ok) {
+        throw new Error('Failed to load image through proxy');
+      }
       const blob = await response.blob();
 
       // Create a temporary URL for the blob

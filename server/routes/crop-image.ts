@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
@@ -82,6 +81,40 @@ export const cropImage = async (req: Request, res: Response) => {
     console.error('Error in image cropping:', error);
     return res.status(500).json({ 
       error: 'Error processing image crop',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Proxy endpoint to fetch images while avoiding CORS issues
+export const proxyImage = async (req: Request, res: Response) => {
+  try {
+    const { url } = req.query;
+
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'Missing or invalid URL parameter' });
+    }
+
+    // Fetch the image
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch image' });
+    }
+
+    // Get the content type
+    const contentType = response.headers.get('content-type');
+
+    // Set appropriate headers
+    res.setHeader('Content-Type', contentType || 'image/jpeg');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+
+    // Pipe the response directly to the client
+    response.body.pipe(res);
+  } catch (error) {
+    console.error('Error proxying image:', error);
+    res.status(500).json({ 
+      error: 'Error processing image proxy request',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
