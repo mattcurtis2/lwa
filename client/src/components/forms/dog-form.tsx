@@ -969,8 +969,6 @@ export default function DogForm({
   }
 };
 
-const formatDisplayDate = (date: Date) => format(date, 'yyyy-MM-dd');
-
 const onSubmitWrapper = async (values: any) => {
   try {
     const processedValues = {
