@@ -149,39 +149,23 @@ export function ImageCrop({
           validCrop.height
         );
 
-        // Directly try to get the data URL first
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-          onCropComplete(dataUrl);
-        } catch (corsError) {
-          console.warn("CORS error when accessing canvas directly, trying alternative approach:", corsError);
+        // Convert canvas to blob
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error("Failed to create blob");
+            setIsProcessing(false);
+            return;
+          }
 
-          // Alternative approach: render to a blob and use FileReader
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              console.error("Failed to create blob from canvas");
-              setIsProcessing(false);
-              return;
-            }
+          // Create a URL for the blob
+          const croppedUrl = URL.createObjectURL(blob);
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              if (typeof reader.result === 'string') {
-                onCropComplete(reader.result);
-              } else {
-                console.error("FileReader result is not a string");
-              }
-              setIsProcessing(false);
-            };
-            reader.onerror = () => {
-              console.error("Error reading blob as data URL");
-              setIsProcessing(false);
-            };
-            reader.readAsDataURL(blob);
-          }, 'image/jpeg', 0.95);
-        }
-      } catch (error) {
-        console.error("Error in cropping process:", error);
+          // Call the crop complete callback
+          onCropComplete(croppedUrl, blob);
+          setIsProcessing(false);
+        }, 'image/jpeg', 0.95);
+      } catch (err) {
+        console.error("Error in cropping process:", err);
         setIsProcessing(false);
       }
     } catch (error) {
