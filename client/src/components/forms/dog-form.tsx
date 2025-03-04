@@ -935,7 +935,7 @@ export default function DogForm({
 
       const data = await uploadRes.json();
       console.log('[DogForm] Upload response:', data);
-      const uploadedUrl = ArrayisArray(data) ? data[0].url : data.url;
+      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
     // Update the media inputs with the new cropped image
     const updatedMediaInputs = [...mediaInputs];

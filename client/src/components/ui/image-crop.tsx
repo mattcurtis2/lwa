@@ -108,31 +108,34 @@ export function ImageCrop({
   );
 
   const handleApplyCrop = useCallback(() => {
-    if (!completedCrop || !imgRef.current) return;
+    if (!completedCrop || !imgRef.current) {
+      console.error("Error: Crop data or image reference is missing.");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const image = imgRef.current;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      console.error("Error: Could not get 2D canvas context.");
+      setIsProcessing(false);
+      return;
+    }
+
+    const validCrop = {
+      ...completedCrop,
+      width: completedCrop.width <= 0 ? imgRef.current.width / 4 : completedCrop.width,
+      height: completedCrop.height <= 0 ? imgRef.current.height / 4 : completedCrop.height,
+    };
+
+
+    canvas.width = validCrop.width;
+    canvas.height = validCrop.height;
 
     try {
-      console.log("Crop completed:", completedCrop);
-
-      const validCrop = {
-        ...completedCrop,
-        width: completedCrop.width <= 0 ? imgRef.current.width / 4 : completedCrop.width,
-        height: completedCrop.height <= 0 ? imgRef.current.height / 4 : completedCrop.height,
-      };
-
-      setIsProcessing(true);
-
-      const image = imgRef.current;
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        throw new Error('No 2d context');
-      }
-
-      canvas.width = validCrop.width;
-      canvas.height = validCrop.height;
-
-      try {
         // Draw the cropped image onto the canvas
         ctx.drawImage(
           image,
@@ -181,7 +184,6 @@ export function ImageCrop({
         console.error("Error in cropping process:", error);
         setIsProcessing(false);
       }
-
     } catch (error) {
       console.error("Error completing crop:", error);
       setIsProcessing(false);
@@ -190,10 +192,8 @@ export function ImageCrop({
     }
   }, [completedCrop, imgRef, onCropComplete]);
 
-  console.log("Crop completed:", completedCrop);
-
   return (
-    <Dialog open={true} onOpenChange={() => onCancel()}>
+    <Dialog open={true} onOpenChange={onCancel}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Crop Image</DialogTitle>
@@ -222,15 +222,15 @@ export function ImageCrop({
             </div>
 
             <div className="flex justify-end space-x-2 w-full">
-              <Button variant="outline" onClick={(e) => {e.preventDefault(); onCancel()}}>
+              <Button variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
               {onSkip && (
-                <Button variant="secondary" onClick={(e) => {e.preventDefault(); onSkip()}}>
+                <Button variant="secondary" onClick={onSkip}>
                   Skip Cropping
                 </Button>
               )}
-              <Button onClick={(e) => {e.preventDefault(); handleApplyCrop()}}>
+              <Button onClick={handleApplyCrop}>
                 {isProcessing ? (
                   <>
                     <Loader size="sm" className="mr-2" />
