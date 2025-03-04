@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,11 +62,19 @@ export function ImageCrop({
   aspect = 1,
   onSkip
 }: ImageCropProps) {
-  const [crop, setCrop] = useState<Crop>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [isProcessing, setIsProcessing] = useState(false); // Added state for processing
-  const imgRef = useRef<HTMLImageElement>(null);
+  console.log("ImageCrop component initialized with:", { imageUrl });
+  const [crop, setCrop] = useState<Crop>({ unit: '%', width: 90, height: 90, x: 5, y: 5 });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    console.log("ImageCrop mounted with imageUrl:", imageUrl);
+    return () => {
+      console.log("ImageCrop unmounting");
+    };
+  }, []);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
@@ -119,7 +127,7 @@ export function ImageCrop({
         height: completedCrop.height <= 0 ? imgRef.current.height / 4 : completedCrop.height,
       };
 
-      setIsProcessing(true);
+      setIsLoading(true);
 
       const image = imgRef.current;
       const canvas = document.createElement('canvas');
@@ -157,7 +165,7 @@ export function ImageCrop({
           canvas.toBlob((blob) => {
             if (!blob) {
               console.error("Failed to create blob from canvas");
-              setIsProcessing(false);
+              setIsLoading(false);
               return;
             }
 
@@ -168,25 +176,25 @@ export function ImageCrop({
               } else {
                 console.error("FileReader result is not a string");
               }
-              setIsProcessing(false);
+              setIsLoading(false);
             };
             reader.onerror = () => {
               console.error("Error reading blob as data URL");
-              setIsProcessing(false);
+              setIsLoading(false);
             };
             reader.readAsDataURL(blob);
           }, 'image/jpeg', 0.95);
         }
       } catch (error) {
         console.error("Error in cropping process:", error);
-        setIsProcessing(false);
+        setIsLoading(false);
       }
 
     } catch (error) {
       console.error("Error completing crop:", error);
-      setIsProcessing(false);
+      setIsLoading(false);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   }, [completedCrop, imgRef, onCropComplete]);
 
@@ -231,7 +239,7 @@ export function ImageCrop({
                 </Button>
               )}
               <Button onClick={(e) => {e.preventDefault(); handleApplyCrop()}}>
-                {isProcessing ? (
+                {isLoading ? (
                   <>
                     <Loader size="sm" className="mr-2" />
                     Processing

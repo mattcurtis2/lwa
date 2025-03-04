@@ -836,52 +836,44 @@ export default function DogForm({
   };
 
   const handleMediaCrop = async (croppedImageUrl: string) => {
-    if (!tempMediaData) return;
-    setIsUploading(true);
-    try {
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
+    console.log("handleMediaCrop called with cropped image", { 
+      imageLength: croppedImageUrl?.length, 
+      tempMediaData 
+    });
 
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Failed to upload cropped image');
-      }
-
-      const data = await uploadRes.json();
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-      if (tempMediaData.isProfileImage) {
-        form.setValue("profileImageUrl", uploadedUrl);
-      } else if (tempMediaData.index >= 0) {
-        const newMediaInputs = [...mediaInputs];
-        newMediaInputs[tempMediaData.index].url = uploadedUrl;
-        setMediaInputs(newMediaInputs);
-      }
-
-      setShowCropper(false);
-      setCropImageUrl("");
-      setTempMediaData(null);
-
-      toast({
-        title: 'Success',
-        description: 'Image cropped and saved successfully',
-      });
-    } catch (error) {
-      console.error('Error uploading cropped image:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to upload cropped image',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsUploading(false);
+    if (!tempMediaData) {
+      console.warn("No tempMediaData available, cannot proceed with crop");
+      return;
     }
+
+    const { index, isProfileImage } = tempMediaData;
+    console.log("Processing crop for", { index, isProfileImage });
+
+    if (isProfileImage) {
+      console.log("Setting profile image URL");
+      form.setValue("profileImageUrl", croppedImageUrl);
+    } else {
+      console.log("Updating media at index", index);
+      const newMediaInputs = [...mediaInputs];
+      newMediaInputs[index] = {
+        ...newMediaInputs[index],
+        url: croppedImageUrl,
+        isNew: true,
+      };
+      console.log("New media input at index", { 
+        index, 
+        updatedMedia: { ...newMediaInputs[index], urlLength: newMediaInputs[index].url.length } 
+      });
+      setMediaInputs(newMediaInputs);
+      form.setValue("media", newMediaInputs);
+    }
+
+    // Clear the cropper
+    console.log("Clearing cropper state");
+    setShowCropper(false);
+    setCropImageUrl("");
+    setTempMediaData(null);
+    console.log("Cropper state cleared", { showCropper: false, cropImageUrl: "", tempMediaData: null });
   };
 
   const handleEditMedia = (index: number) => {
@@ -958,8 +950,7 @@ export default function DogForm({
                   }}
                 >
                   <div className="absolute inset-0 rounded-full border-2 border-muted bg-muted overflow-hidden hover:border-primary/50 transition-colors">
-                    {field.value ? (
-                      <img
+                    {field.value ? (                      <img
                         src={field.value}
                         alt="Profile preview"
                         className="h-full w-full object-cover"
@@ -1553,6 +1544,28 @@ export default function DogForm({
                                   Edit Image
                                 </div>
                               </div>
+                              <button
+                    type="button"
+                    className="absolute top-2 right-10 bg-background/80 p-1 rounded-full hover:bg-background"
+                    onClick={() => {
+                      console.log("Media edit button clicked", { mediaType: media.type, mediaUrl: media.url, index });
+                      if (media.type === "image") {
+                        console.log("Setting up image cropper for media");
+                        setCropImageUrl(media.url);
+                        setTempMediaData({ index, file: null, isProfileImage: false });
+                        setShowCropper(true);
+                        console.log("Cropper state after setup:", {
+                          showCropper: true,
+                          cropImageUrl: media.url,
+                          tempMediaData: { index, isProfileImage: false }
+                        });
+                      } else {
+                        console.log("Cannot edit non-image media type:", media.type);
+                      }
+                    }}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
                             </>
                           ) : (
                             <video
