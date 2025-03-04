@@ -952,7 +952,7 @@ export default function DogForm({
                 Upload a profile picture for the dog              </FormDescription>
               <div className="flex items-center gap-4">
                 <div
-                  className="relative h-24 w-24 cursor-pointer"
+                  className="relative h-24 w-24 cursorpointer"
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
