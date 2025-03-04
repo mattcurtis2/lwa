@@ -860,9 +860,10 @@ export default function DogForm({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set canvas size to match the crop dimensions
-      canvas.width = cropData.width;
-      canvas.height = cropData.height;
+      // Set fixed dimensions for the output image
+      canvas.width = 1280; // Target width
+      canvas.height = 720; // 16:9 aspect ratio
+
       console.log('[DogForm] Canvas dimensions set to:', {
         width: canvas.width,
         height: canvas.height
@@ -871,25 +872,31 @@ export default function DogForm({
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      console.log('[DogForm] Drawing cropped portion:', {
-        sourceX: cropData.x,
-        sourceY: cropData.y,
-        sourceWidth: cropData.width,
-        sourceHeight: cropData.height
+      // Draw the image maintaining aspect ratio
+      const targetRatio = canvas.width / canvas.height;
+      let drawWidth = canvas.width;
+      let drawHeight = canvas.height;
+
+      // Adjust dimensions to maintain aspect ratio
+      if (img.width / img.height > targetRatio) {
+        drawWidth = canvas.height * (img.width / img.height);
+        drawHeight = canvas.height;
+      } else {
+        drawWidth = canvas.width;
+        drawHeight = canvas.width / (img.width / img.height);
+      }
+
+      const drawX = (canvas.width - drawWidth) / 2;
+      const drawY = (canvas.height - drawHeight) / 2;
+
+      console.log('[DogForm] Drawing image with dimensions:', {
+        drawX,
+        drawY,
+        drawWidth,
+        drawHeight
       });
 
-      // Draw only the cropped portion
-      ctx.drawImage(
-        img,
-        cropData.x,
-        cropData.y,
-        cropData.width,
-        cropData.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+      ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
       // Convert canvas to blob with high quality
       const blob = await new Promise<Blob>((resolve, reject) => {
