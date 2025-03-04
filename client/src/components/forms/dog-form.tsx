@@ -818,26 +818,40 @@ export default function DogForm({
   const handleEditMedia = (index: number) => {
     const media = mediaInputs[index];
     if (media && media.type === "image") {
+      console.log('[DogForm] Editing media at index:', index, 'Media:', media);
       // Create a proxy URL to handle CORS
       const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(media.url)}`;
+      console.log('[DogForm] Created proxy URL:', proxyUrl);
       setEditingMediaIndex(index);
       setCurrentMediaUrl(proxyUrl);
       setShowMediaCropDialog(true);
     }
   };
 
-  const handleCroppedMediaImage = async (croppedImageUrl: string) => {
+  const handleCroppedMediaImage = async (croppedImageUrl: string, cropData?: any) => {
     if (editingMediaIndex === null) return;
+    console.log('[DogForm] Starting image crop process');
+    console.log('[DogForm] Crop data received:', cropData);
 
     try {
       setIsUploading(true);
+      console.log('[DogForm] Loading image for cropping:', croppedImageUrl);
 
       // Create a canvas to apply the crop
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
+        img.onload = () => {
+          console.log('[DogForm] Image loaded. Natural dimensions:', {
+            width: img.naturalWidth,
+            height: img.naturalHeight
+          });
+          resolve(undefined);
+        };
+        img.onerror = (error) => {
+          console.error('[DogForm] Image load error:', error);
+          reject(error);
+        };
         img.src = croppedImageUrl;
       });
 
@@ -845,21 +859,49 @@ export default function DogForm({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set fixed dimensions for the output image
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Set canvas size to match original image dimensions
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      console.log('[DogForm] Canvas dimensions set to:', {
+        width: canvas.width,
+        height: canvas.height
+      });
 
-      // Draw the full image
-      ctx.drawImage(img, 0, 0);
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (cropData) {
+        console.log('[DogForm] Applying crop with dimensions:', cropData);
+        // Draw the cropped portion
+        ctx.drawImage(
+          img,
+          cropData.x,
+          cropData.y,
+          cropData.width,
+          cropData.height,
+          0,
+          0,
+          cropData.width,
+          cropData.height
+        );
+      } else {
+        console.log('[DogForm] No crop data provided, using full image');
+        ctx.drawImage(img, 0, 0);
+      }
 
       // Convert canvas to blob with high quality
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error('Failed to create blob'));
+          if (blob) {
+            console.log('[DogForm] Created blob:', { size: blob.size, type: blob.type });
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to create blob'));
+          }
         }, 'image/jpeg', 0.95);
       });
 
+      console.log('[DogForm] Preparing to upload cropped image');
       const formData = new FormData();
       formData.append('file', blob, 'cropped-image.jpg');
 
@@ -873,6 +915,7 @@ export default function DogForm({
       }
 
       const data = await uploadRes.json();
+      console.log('[DogForm] Upload response:', data);
       const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
 
       const updatedMediaInputs = [...mediaInputs];
@@ -882,6 +925,7 @@ export default function DogForm({
         isNew: true,
       };
 
+      console.log('[DogForm] Updating media inputs with new URL:', uploadedUrl);
       setMediaInputs(updatedMediaInputs);
       form.setValue("media", updatedMediaInputs);
 
@@ -894,10 +938,10 @@ export default function DogForm({
         description: "Image updated successfully",
       });
     } catch (error) {
-      console.error('Error updating image:', error);
+      console.error('[DogForm] Error updating image:', error);
       toast({
         title: "Error",
-        description: "Failed to update image",
+        description: "Failed to update image: " + (error instanceof Error ? error.message : "Unknown error"),
         variant: "destructive",
       });
     } finally {
@@ -982,10 +1026,11 @@ export default function DogForm({
             imageUrl={cropImageUrl}
             onCropComplete={handleCroppedImage}
             onCancel={() => {
-              setShowCropper(false);setCropImageUrl("");
+              setShowCropper(false);
+              setCropImageUrl("");
               setTempMediaData(null);
             }}
-            onSkip={async () =>{
+            onSkip={async () => {
               const formData = new FormData();
               const response = await fetch(cropImageUrl);
               const blob = await response.blob();
@@ -1044,7 +1089,7 @@ export default function DogForm({
                     setEditingMediaIndex(null);
                     setCurrentMediaUrl("");
                   }}
-                  aspect={16/9}
+                  aspect={16 / 9}
                 />
               </div>
             </DialogContent>
@@ -1269,7 +1314,7 @@ export default function DogForm({
           <FormField
             control={form.control}
             name="color"
-            render={({ field}) => (<FormItem>
+            render={({ field }) => (<FormItem>
                 <FormLabel>Color</FormLabel>                <FormControl>
                   <Input {...field} placeholder="e.g., White with brown markings" />
                 </FormControl>
@@ -1422,10 +1467,11 @@ export default function DogForm({
                 <div className="space-y-4">
                   <Textarea
                     {...field}
-                    placeholder="Family history and lineage information"/>
+                    placeholder="Family history and lineage information" />
                   <div className="space-y-2">
                     <Label>Pedigree Documents</Label>
-                    <FileUpload                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
                       accept="application/pdf,image/jpeg,image/png,video/*"
                       isUploading={isUploadingDoc}
                       skipCrop={true}
@@ -1591,7 +1637,7 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="outsideBreeder"
-              render={({ field}) => (
+              render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Outside Breeder</FormLabel>
