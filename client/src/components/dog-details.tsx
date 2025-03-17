@@ -201,7 +201,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </p>
           )}
           {dog.price && dog.available && (
-            <div className="mt-2 bg-amber-600 py-2 px-4 rounded-md inline-block">
+            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-block">
               <p className="text-lg font-semibold text-white">
                 Available: ${parseInt(dog.price).toLocaleString()}
               </p>
@@ -383,7 +383,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </p>
           )}
           {dog.price && dog.available && (
-            <div className="mt-2 bg-amber-600 py-2 px-4 rounded-md inline-block">
+            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-block">
               <p className="text-lg font-semibold text-white">
                 Available: ${parseInt(dog.price).toLocaleString()}
               </p>
