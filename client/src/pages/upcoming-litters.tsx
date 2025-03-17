@@ -15,21 +15,11 @@ export default function UpcomingLitters() {
 
   const { data: litters, isLoading } = useQuery<(Litter & {
     mother: Dog & { media?: DogMedia[] },
-    father: Dog & { media?: DogMedia[] }
+    father: Dog & { media?: DogMedia[] },
+    puppies?: Dog[]
   })[]>({
     queryKey: ["/api/litters"],
   });
-
-  const handleEditDog = (dog: Dog, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent litter navigation
-    setSelectedDog(dog);
-    setShowDogForm(true);
-  };
-
-  const handleDogFormClose = () => {
-    setShowDogForm(false);
-    setSelectedDog(null);
-  };
 
   // Show loading skeleton
   if (isLoading) {
@@ -65,18 +55,17 @@ export default function UpcomingLitters() {
     );
   }
 
-  const upcomingLitters = litters?.filter(litter => {
-    const dueDate = new Date(litter.dueDate);
-    const today = new Date();
-    return dueDate > today;
+  const currentLitters = litters?.filter(litter => {
+    // Show litter if it has any available puppies
+    return litter.puppies?.some(puppy => puppy.available) ?? false;
   }).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
-  if (!upcomingLitters?.length) {
+  if (!currentLitters?.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
         <p className="text-muted-foreground">
-          We currently don't have any current litters planned.
+          We currently don't have any available puppies.
           Please check back later or contact us for more information.
         </p>
       </div>
@@ -88,7 +77,7 @@ export default function UpcomingLitters() {
       <div className="container mx-auto px-4 py-16">
         <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
         <div className="grid gap-8">
-          {upcomingLitters.map((litter) => (
+          {currentLitters.map((litter) => (
             <Card
               key={litter.id}
               className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
@@ -97,19 +86,19 @@ export default function UpcomingLitters() {
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                   <div>
-                    <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
-                      Expected {formatDisplayDate(new Date(litter.dueDate))}
+                    <div className="bg-primary py-2 px-4 rounded-full text-white text-sm font-semibold mb-3 inline-block">
+                      {litter.puppies?.filter(p => p.available).length} Available {
+                        litter.puppies?.filter(p => p.available).length === 1 ? "Puppy" : "Puppies"
+                      }
                     </div>
 
                     <p className="text-muted-foreground text-sm mt-2">
-                      Click to view detailed information about this current litter
+                      Click to view detailed information about this litter
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div
-                      className="flex items-center gap-3 p-2 rounded-lg"
-                    >
+                    <div className="flex items-center gap-3 p-2 rounded-lg">
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                         {litter.mother.profileImageUrl ? (
                           <img
@@ -135,9 +124,7 @@ export default function UpcomingLitters() {
                       </div>
                     </div>
 
-                    <div
-                      className="flex items-center gap-3 p-2 rounded-lg"
-                    >
+                    <div className="flex items-center gap-3 p-2 rounded-lg">
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                         {litter.father.profileImageUrl ? (
                           <img
