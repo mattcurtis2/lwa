@@ -2,8 +2,12 @@ import React from 'react';
 
 function DogDetails({ dog }) {
   console.log('DogDetails component rendered with dog:', dog);
-  console.log('Dog price:', dog?.price);
-  console.log('Dog available:', dog?.available);
+  console.log('Dog full data:', {
+    price: dog.price,
+    available: dog.available,
+    registrationName: dog.registrationName,
+    name: dog.name
+  });
   const genderSymbol = dog.gender === 'male' ? '♂' : '♀';
 
   return (
