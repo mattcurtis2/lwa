@@ -59,7 +59,7 @@ const mediaSchema = z.object({
 
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
-    name: z.string().min(1, "Name is required"),
+    name: z.string().optional(),
     registrationName: z.string().optional(),
     birthDate: z.string().optional(),
     gender: z.enum(["male", "female"]).optional(),
@@ -77,11 +77,11 @@ const createDogSchema = (isPuppy: boolean = false) => {
     pedigree: z.string().optional().nullable(),
     narrativeDescription: z.string().optional(),
     media: z.array(mediaSchema).optional(),
-    outsideBreeder: z.boolean().default(false),
-    puppy: z.boolean().default(false),
-    available: z.boolean().default(false),
+    outsideBreeder: z.boolean().optional().default(false),
+    puppy: z.boolean().optional().default(false),
+    available: z.boolean().optional().default(false),
     price: z.string().optional(),
-    breed: z.string().default("Colorado Mountain Dogs"),
+    breed: z.string().optional().default("Colorado Mountain Dogs"),
     documents: z.array(z.object({
       type: z.string(),
       url: z.string(),
