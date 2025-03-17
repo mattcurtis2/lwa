@@ -2,15 +2,20 @@
 import React from 'react';
 
 function DogDetails({ dog }) {
+  const genderSymbol = dog.gender === 'male' ? '♂' : '♀';
+
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
       <div className="flex flex-col gap-4">
-        <h1 className="text-4xl font-bold text-stone-800">{dog.name}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-4xl font-bold text-stone-800">{dog.name}</h1>
+          <span className="text-3xl">{genderSymbol}</span>
+        </div>
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
         {dog.price && (
-          <p className="text-xl font-semibold text-amber-600">${parseInt(dog.price).toLocaleString()}</p>
+          <p className="text-2xl font-semibold text-amber-600">Price: ${dog.price}</p>
         )}
       </div>
       {dog.profileImageUrl && (
