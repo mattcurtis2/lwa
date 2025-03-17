@@ -1,6 +1,9 @@
 import React from 'react';
 
 function DogDetails({ dog }) {
+  console.log('DogDetails component rendered with dog:', dog);
+  console.log('Dog price:', dog?.price);
+  console.log('Dog available:', dog?.available);
   const genderSymbol = dog.gender === 'male' ? '♂' : '♀';
 
   return (
@@ -16,8 +19,12 @@ function DogDetails({ dog }) {
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
-        {dog.price > 0 && (
+        {console.log('Price condition check:', dog.price > 0)}
+        {console.log('Price rendering attempted:', dog.price)}
+        {dog.price > 0 ? (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
+        ) : (
+          console.log('Price not displayed because condition failed')
         )}
       </div>
       {dog.profileImageUrl && (
