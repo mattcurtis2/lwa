@@ -1,0 +1,570 @@
+MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fileSavedChanged listeners added. Use emitter.setMaxListeners() to increase limit
+    at f (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:79238)
+    at c.addListener (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:81772)
+    at h (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:44689)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49986)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137194
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137169
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:153605)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:182655)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:165471)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:114363)
+    at https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181101
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181107)
+    at uS (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:164474)
+    at C (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207254)
+    at MessagePort.z (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207784)
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this warningAI
+_app-5470e94f43172c03.js:16 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit
+    at f (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:79238)
+    at c.addListener (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:81772)
+    at h (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:45984)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49986)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137194
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137169
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:153605)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:182655)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:165471)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:114363)
+    at https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181101
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181107)
+    at uS (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:164474)
+    at C (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207254)
+    at MessagePort.z (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207784)
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this warningAI
+_app-5470e94f43172c03.js:16 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fsError listeners added. Use emitter.setMaxListeners() to increase limit
+    at f (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:79238)
+    at c.addListener (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:81772)
+    at h (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:46170)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49986)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137194
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137169
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:153605)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:182655)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:165471)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:114363)
+    at https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181101
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181107)
+    at uS (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:164474)
+    at C (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207254)
+    at MessagePort.z (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207784)
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this warningAI
+_app-5470e94f43172c03.js:16 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 transparentReconnect listeners added. Use emitter.setMaxListeners() to increase limit
+    at f (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:79238)
+    at c.addListener (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:81772)
+    at h (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:47041)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49986)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137194
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137169
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:153605)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:182655)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:165471)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:114363)
+    at https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181101
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181107)
+    at uS (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:164474)
+    at C (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207254)
+    at MessagePort.z (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207784)
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this warningAI
+_app-5470e94f43172c03.js:16 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 changes listeners added. Use emitter.setMaxListeners() to increase limit
+    at f (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:79238)
+    at c.addListener (https://cdn.replit.com/_next/static/chunks/8707-bfe34b9ec1051ae6.js:1:81772)
+    at h (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49025)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/424-a444fe19489d82fb.js:1:49986)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137194
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/1891-62fa3d0dc1f2e99b.js:1:2137169
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:153605)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:182655)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:165471)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:114363)
+    at https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181101
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:181107)
+    at uS (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:164474)
+    at C (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207254)
+    at MessagePort.z (https://cdn.replit.com/_next/static/chunks/framework-5dad59b963d9100d.js:1:207784)
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this warningAI
+18Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this errorAI
+5Unrecognized feature: 'ambient-light-sensor'.Understand this warningAI
+5Unrecognized feature: 'battery'.Understand this warningAI
+5Unrecognized feature: 'execution-while-not-rendered'.Understand this warningAI
+5Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warningAI
+5Unrecognized feature: 'layout-animations'.Understand this warningAI
+5Unrecognized feature: 'legacy-image-formats'.Understand this warningAI
+5Unrecognized feature: 'navigation-override'.Understand this warningAI
+5Unrecognized feature: 'oversized-images'.Understand this warningAI
+5Unrecognized feature: 'publickey-credentials'.Understand this warningAI
+5Unrecognized feature: 'speaker-selection'.Understand this warningAI
+5Unrecognized feature: 'unoptimized-images'.Understand this warningAI
+5Unrecognized feature: 'unsized-media'.Understand this warningAI
+framework-5dad59b963d9100d.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-5dad59b963d9100d.js:1Understand this warningAI
+5Allow attribute will take precedence over 'allowfullscreen'.Understand this warningAI
+5Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warningAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//login' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//login' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//d' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//login' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//goats' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//g' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//login' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//goats/females' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//a' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//ad' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//adm' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admi' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+eruda.js:2 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at div
+    at div
+    at div
+    at nav
+    at div
+    at header
+    at Header (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/header.tsx:24:53)
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?v=sUQcFdjUy44t2SWCVpxyc:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=sUQcFdjUy44t2SWCVpxyc:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ VM8 eruda.js:2Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16Understand this errorAI
+2
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+eruda.js:2 [vite] server connection lost. Polling for restart...
+upcoming-litters.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/forms/dog-form.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goats.tsx:22 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/goat-details.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+dogs.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/sections/dog-hero.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goats.tsx:19 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/sections/goat-hero.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-detail.tsx:20 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/cards/goat-card.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-detail.tsx:21 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/scroll-area.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+header.tsx:20 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/mobile-nav.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-detail.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/skeleton.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+dog-management.tsx:21 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/sheet.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+toast.tsx:21 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/lib/utils.ts net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+market.tsx:20 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/cards/product-card.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/admin/dog-management.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/cards/dog-card.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/admin/litter-management.tsx:36 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/alert-dialog.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/admin/litter-management.tsx:37 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/label.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+useMemo @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+eruda.js:2 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at div
+    at div
+    at div
+    at nav
+    at div
+    at header
+    at Header (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/header.tsx:24:53)
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?v=eypSJDqKxj-F9GdVsPYbL:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=eypSJDqKxj-F9GdVsPYbL:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ VM1092 eruda.js:2
+printWarning @ VM1120 chunk-RPCDYKBN.js:521
+error @ VM1120 chunk-RPCDYKBN.js:505
+validateDOMNesting @ VM1120 chunk-RPCDYKBN.js:8256
+createInstance @ VM1120 chunk-RPCDYKBN.js:8328
+completeWork @ VM1120 chunk-RPCDYKBN.js:16290
+completeUnitOfWork @ VM1120 chunk-RPCDYKBN.js:19224
+performUnitOfWork @ VM1120 chunk-RPCDYKBN.js:19206
+workLoopSync @ VM1120 chunk-RPCDYKBN.js:19137
+renderRootSync @ VM1120 chunk-RPCDYKBN.js:19116
+performConcurrentWorkOnRoot @ VM1120 chunk-RPCDYKBN.js:18678
+workLoop @ VM1120 chunk-RPCDYKBN.js:197
+flushWork @ VM1120 chunk-RPCDYKBN.js:176
+performWorkUntilDeadline @ VM1120 chunk-RPCDYKBN.js:384Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+eruda.js:2 [vite] server connection lost. Polling for restart...
+litter-management.tsx:41 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/hooks/use-litter-management.ts net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-management.tsx:22 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/forms/goat-form.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-litter-management.tsx:41 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/hooks/use-goat-litter-management.ts net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+market-items-manager.tsx:25 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/forms/product-form.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+content-section.tsx:29 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/image-crop.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+content-section.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/textarea.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+content-section.tsx:31 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/lib/upload-utils.ts net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+dog-details.tsx:33 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/dialog.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+useMemo @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+ Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at div
+    at div
+    at div
+    at nav
+    at div
+    at header
+    at Header (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/header.tsx:24:53)
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?v=Hdnqyq9kKFsuJrjjdnGMi:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=Hdnqyq9kKFsuJrjjdnGMi:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ eruda.js:2
+printWarning @ chunk-RPCDYKBN.js:521
+error @ chunk-RPCDYKBN.js:505
+validateDOMNesting @ chunk-RPCDYKBN.js:8256
+createInstance @ chunk-RPCDYKBN.js:8328
+completeWork @ chunk-RPCDYKBN.js:16290
+completeUnitOfWork @ chunk-RPCDYKBN.js:19224
+performUnitOfWork @ chunk-RPCDYKBN.js:19206
+workLoopSync @ chunk-RPCDYKBN.js:19137
+renderRootSync @ chunk-RPCDYKBN.js:19116
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js:18678
+workLoop @ chunk-RPCDYKBN.js:197
+flushWork @ chunk-RPCDYKBN.js:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js:384Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+Console.js:61 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at div
+    at div
+    at div
+    at nav
+    at div
+    at header
+    at Header (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/header.tsx:24:53)
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?v=I2juyIYN-yrMkVb74C1lj:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=I2juyIYN-yrMkVb74C1lj:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ Console.js:61
+printWarning @ chunk-RPCDYKBN.js?v=40fc779d:521
+error @ chunk-RPCDYKBN.js?v=40fc779d:505
+validateDOMNesting @ chunk-RPCDYKBN.js?v=40fc779d:8256
+createInstance @ chunk-RPCDYKBN.js?v=40fc779d:8328
+completeWork @ chunk-RPCDYKBN.js?v=40fc779d:16290
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=40fc779d:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=40fc779d:19206
+workLoopSync @ chunk-RPCDYKBN.js?v=40fc779d:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=40fc779d:19116
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18678
+workLoop @ chunk-RPCDYKBN.js?v=40fc779d:197
+flushWork @ chunk-RPCDYKBN.js?v=40fc779d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=40fc779d:384Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
