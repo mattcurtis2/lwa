@@ -19,6 +19,11 @@ export default function UpcomingLitters() {
     puppies?: Dog[]
   })[]>({
     queryKey: ["/api/litters"],
+    select: (data) => {
+      // Add debug logging
+      console.log('Fetched litters:', data);
+      return data;
+    }
   });
 
   // Show loading skeleton
@@ -56,9 +61,15 @@ export default function UpcomingLitters() {
   }
 
   const currentLitters = litters?.filter(litter => {
+    console.log('Checking litter:', litter.id, 'puppies:', litter.puppies);
     // Show litter if it has any available puppies
-    return litter.puppies?.some(puppy => puppy.available) ?? false;
+    return litter.puppies?.some(puppy => {
+      console.log('Checking puppy:', puppy.id, 'available:', puppy.available);
+      return puppy.available;
+    }) ?? false;
   }).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+  console.log('Filtered current litters:', currentLitters);
 
   if (!currentLitters?.length) {
     return (
@@ -161,7 +172,7 @@ export default function UpcomingLitters() {
       {showDogForm && (
         <DogForm
           open={showDogForm}
-          onOpenChange={handleDogFormClose}
+          onOpenChange={setShowDogForm}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
           fromLitter={true}
