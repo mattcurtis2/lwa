@@ -1,7 +1,12 @@
 import React from 'react';
 
 function DogDetails({ dog }) {
-  console.log('DogDetails component - Full dog object:', JSON.stringify(dog, null, 2));
+  if (!dog) {
+    console.warn('DogDetails: No dog data provided');
+    return null;
+  }
+  
+  console.log('DogDetails render - Full dog object:', JSON.stringify(dog, null, 2));
   console.log('DogDetails props check:', {
     id: dog?.id,
     name: dog?.name,

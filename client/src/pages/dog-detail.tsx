@@ -97,12 +97,17 @@ export default function DogDetail() {
   const [location] = useLocation();
   const dogId = parseInt(location.split("/").pop() || "0", 10);
 
-  const { data: dogs } = useQuery<(Dog & {
+  const { data: dogs, isLoading, error } = useQuery<(Dog & {
     media?: DogMedia[];
     documents?: Document[];
   })[]>({
     queryKey: ["/api/dogs"],
+    onSuccess: (data) => console.log('Dogs query successful:', data),
+    onError: (err) => console.error('Dogs query error:', err)
   });
+
+  console.log('Current dogId:', dogId);
+  console.log('Dogs data:', dogs);
 
   console.log('DogDetail page - All dogs:', dogs);
   console.log('Looking for dog with ID:', dogId);
