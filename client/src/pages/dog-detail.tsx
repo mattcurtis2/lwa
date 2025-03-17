@@ -104,9 +104,13 @@ export default function DogDetail() {
     queryKey: ["/api/dogs"],
   });
 
+  console.log('DogDetail page - All dogs:', dogs);
+  console.log('Looking for dog with ID:', dogId);
   const dog = dogs?.find((d) => d.id === dogId);
+  console.log('Found dog:', dog);
 
   if (!dog) {
+    console.log('No dog found with ID:', dogId);
     return (
       <div className="container mx-auto px-4 py-16">
         <h1 className="text-3xl font-bold mb-8">Dog not found</h1>
