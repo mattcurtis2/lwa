@@ -160,13 +160,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
     return (
       <div className="space-y-6">
         <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
-          {dog.price && dog.available && (
-            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-            </div>
-          )}
           <img
             src={
               imageMedia[activeMediaIndex]?.url ||
@@ -207,6 +200,13 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               {dog.registrationName}
             </p>
           )}
+          {dog.price && dog.available && (
+            <div className="mt-2 bg-amber-600 py-2 px-4 rounded-md inline-block">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -232,7 +232,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>Story</CardTitle>
@@ -243,7 +242,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>Physical Characteristics</CardTitle>
@@ -271,7 +269,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="break-words">Health Information</CardTitle>
@@ -301,7 +298,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="break-words">
@@ -342,13 +338,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
     <div className="grid md:grid-cols-3 gap-8">
       <div className="space-y-6">
         <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-          {dog.price && dog.available && (
-            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-            </div>
-          )}
           <img
             src={
               imageMedia[activeMediaIndex]?.url ||
@@ -392,6 +381,13 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             <p className="text-xl text-muted-foreground">
               {dog.registrationName}
             </p>
+          )}
+          {dog.price && dog.available && (
+            <div className="mt-2 bg-amber-600 py-2 px-4 rounded-md inline-block">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+            </div>
           )}
         </div>
 
