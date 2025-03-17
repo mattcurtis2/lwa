@@ -75,7 +75,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     height: z.string().optional().nullable(),
     weight: z.string().optional().nullable(),
     pedigree: z.string().optional().nullable(),
-    narrativeDescription: z.string().optional(),
+    narrativeDescription: z.string().optional().nullable(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().optional().default(false),
     puppy: z.boolean().optional().default(false),
@@ -1172,7 +1172,7 @@ export default function DogForm({
               <FormItem>
                 <FormLabel>Narrative Description</FormLabel>
                 <FormControl>
-                  <Textarea {...field} placeholder="Detailed description of personality, training, and characteristics" />
+                  <Textarea {...field} placeholder="Optional detailed description of personality, training, and characteristics" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
