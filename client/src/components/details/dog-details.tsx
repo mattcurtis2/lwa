@@ -10,7 +10,7 @@ function DogDetails({ dog }) {
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
         {dog.price && (
-          <p className="text-xl font-semibold text-amber-600">Price: ${parseInt(dog.price).toLocaleString()}</p>
+          <p className="text-xl font-semibold text-amber-600">${parseInt(dog.price).toLocaleString()}</p>
         )}
       </div>
       {dog.profileImageUrl && (
