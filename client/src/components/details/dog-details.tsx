@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 function DogDetails({ dog }) {
@@ -11,11 +10,12 @@ function DogDetails({ dog }) {
           <h1 className="text-4xl font-bold text-stone-800">{dog.name}</h1>
           <span className="text-3xl">{genderSymbol}</span>
         </div>
+        {console.log('Dog Details:', dog)}
+        {console.log('Price:', dog.price)}
+        {console.log('Available:', dog.available)}
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
-        {console.log('Dog price:', dog.price)}
-        {console.log('Price condition:', dog.price > 0)}
         {dog.price > 0 && (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
         )}
