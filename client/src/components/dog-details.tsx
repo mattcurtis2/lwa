@@ -201,11 +201,17 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </p>
           )}
           {dog.price && dog.available && (
-            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-block">
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
               <p className="text-lg font-semibold text-white">
                 Available: ${parseInt(dog.price).toLocaleString()}
               </p>
-            </div>
+              <ExternalLink className="h-4 w-4 text-white" />
+            </a>
           )}
         </div>
 
@@ -383,11 +389,17 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             </p>
           )}
           {dog.price && dog.available && (
-            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-block">
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
               <p className="text-lg font-semibold text-white">
                 Available: ${parseInt(dog.price).toLocaleString()}
               </p>
-            </div>
+              <ExternalLink className="h-4 w-4 text-white" />
+            </a>
           )}
         </div>
 
