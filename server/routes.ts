@@ -1252,6 +1252,39 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add the current litters endpoint right after the other litter routes
+  app.get("/api/litters/list/current", async (_req, res) => {
+    try {
+      const allLitters = await db.query.litters.findMany({
+        with: {
+          mother: {
+            with: {
+              media: true,
+            },
+          },
+          father: {
+            with: {
+              media: true,
+            },
+          },
+          puppies: {
+            orderBy: (dogs, { asc }) => [asc(dogs.birthDate)],
+          },
+        },
+      });
+
+      // Filter litters that have at least one available puppy
+      const currentLitters = allLitters.filter(
+        litter => litter.puppies && litter.puppies.some(puppy => puppy.available)
+      );
+
+      res.json(currentLitters);
+    } catch (error) {
+      console.error("Error fetching current litters:", error);
+      res.status(500).json({ message: "Failed to fetch current litters" });
+    }
+  });
+
   // Add principles routes
   app.get("/api/principles", async (_req, res) => {
     try {
