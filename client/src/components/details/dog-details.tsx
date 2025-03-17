@@ -14,8 +14,8 @@ function DogDetails({ dog }) {
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
-        {dog.price && (
-          <p className="text-2xl font-semibold text-amber-600">Price: ${dog.price.toLocaleString()}</p>
+        {dog.price > 0 && (
+          <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
         )}
       </div>
       {dog.profileImageUrl && (
