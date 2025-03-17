@@ -14,6 +14,8 @@ function DogDetails({ dog }) {
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
+        {console.log('Dog price:', dog.price)}
+        {console.log('Price condition:', dog.price > 0)}
         {dog.price > 0 && (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
         )}
