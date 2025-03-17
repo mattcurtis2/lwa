@@ -1,0 +1,114 @@
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+eruda.js:2 [vite] server connection lost. Polling for restart...
+market.tsx:20 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/cards/product-card.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+dog-management.tsx:21 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/sheet.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+header.tsx:20 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/mobile-nav.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+toast.tsx:21 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/lib/utils.ts net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+dog-management.tsx:23 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/cards/dog-card.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+goat-management.tsx:22 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/forms/goat-form.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+litter-management.tsx:36 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/alert-dialog.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+litter-management.tsx:37 
+            
+            
+           GET https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/ui/label.tsx net::ERR_ABORTED 502 (Bad Gateway)Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+useMemo @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+Console.js:61 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at div
+    at div
+    at div
+    at nav
+    at div
+    at header
+    at Header (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/components/layout/header.tsx:24:53)
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?v=K6zvjmwiDuccDazMUjntv:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=K6zvjmwiDuccDazMUjntv:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ Console.js:61
+printWarning @ chunk-RPCDYKBN.js?v=40fc779d:521
+error @ chunk-RPCDYKBN.js?v=40fc779d:505
+validateDOMNesting @ chunk-RPCDYKBN.js?v=40fc779d:8256
+createInstance @ chunk-RPCDYKBN.js?v=40fc779d:8328
+completeWork @ chunk-RPCDYKBN.js?v=40fc779d:16290
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=40fc779d:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=40fc779d:19206
+workLoopSync @ chunk-RPCDYKBN.js?v=40fc779d:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=40fc779d:19116
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=40fc779d:18678
+workLoop @ chunk-RPCDYKBN.js?v=40fc779d:197
+flushWork @ chunk-RPCDYKBN.js?v=40fc779d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=40fc779d:384Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-5470e94f43172c03.js:16
+d @ main-331ae711fd3175bb.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+lU @ framework-5dad59b963d9100d.js:1
+t.useMemo @ framework-5dad59b963d9100d.js:1
+(anonymous) @ _app-5470e94f43172c03.js:4
+ld @ framework-5dad59b963d9100d.js:1
+ou @ framework-5dad59b963d9100d.js:1
+i @ framework-5dad59b963d9100d.js:1
+uI @ framework-5dad59b963d9100d.js:1
+(anonymous) @ framework-5dad59b963d9100d.js:1
+uM @ framework-5dad59b963d9100d.js:1
+uS @ framework-5dad59b963d9100d.js:1
+C @ framework-5dad59b963d9100d.js:1
+z @ framework-5dad59b963d9100d.js:1Understand this errorAI
+_app-5470e94f43172c03.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//dogs/litters/9' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
