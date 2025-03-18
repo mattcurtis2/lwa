@@ -200,19 +200,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               {dog.registrationName}
             </p>
           )}
-          {dog.price && dog.available && (
-            <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
-          )}
         </div>
 
         <div className="space-y-6">
@@ -238,6 +225,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Story</CardTitle>
@@ -248,6 +236,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Physical Characteristics</CardTitle>
@@ -275,6 +264,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="break-words">Health Information</CardTitle>
@@ -304,6 +294,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="break-words">
@@ -343,7 +334,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
   return (
     <div className="grid md:grid-cols-3 gap-8">
       <div className="space-y-6">
-        <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
           <img
             src={
               imageMedia[activeMediaIndex]?.url ||
@@ -387,19 +378,6 @@ export default function DogDetails({ dog }: DogDetailsProps) {
             <p className="text-xl text-muted-foreground">
               {dog.registrationName}
             </p>
-          )}
-          {dog.price && dog.available && (
-            <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
           )}
         </div>
 
@@ -476,8 +454,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   <div>
                     <h3 className="font-semibold mb-2">Gender</h3>
                     <p className="flex items-center gap-1">
-                      {dog.gender.charAt(0).toUpperCase() +
-                        dog.gender.slice(1)}{" "}
+                      {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)}{" "}
                       {genderSymbol}
                     </p>
                   </div>

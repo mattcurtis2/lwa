@@ -6,21 +6,30 @@ import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogForm from "@/components/forms/dog-form";
-
-interface PastLitter extends Litter {
-  mother: Dog & { media?: DogMedia[] };
-  father: Dog & { media?: DogMedia[] };
-  puppies: (Dog & { media?: DogMedia[] })[];
-}
+import { Plus, Edit } from "lucide-react";
 
 export default function UpcomingLitters() {
   const [_, navigate] = useLocation();
   const [showDogForm, setShowDogForm] = useState(false);
   const [selectedDog, setSelectedDog] = useState<Partial<Dog> | null>(null);
 
-  const { data: litters, isLoading } = useQuery<PastLitter[]>({
-    queryKey: ["/api/litters/list/current"],
+  const { data: litters, isLoading } = useQuery<(Litter & {
+    mother: Dog & { media?: DogMedia[] },
+    father: Dog & { media?: DogMedia[] }
+  })[]>({
+    queryKey: ["/api/litters"],
   });
+
+  const handleEditDog = (dog: Dog, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent litter navigation
+    setSelectedDog(dog);
+    setShowDogForm(true);
+  };
+
+  const handleDogFormClose = () => {
+    setShowDogForm(false);
+    setSelectedDog(null);
+  };
 
   // Show loading skeleton
   if (isLoading) {
@@ -56,12 +65,18 @@ export default function UpcomingLitters() {
     );
   }
 
-  if (!litters?.length) {
+  const upcomingLitters = litters?.filter(litter => {
+    const dueDate = new Date(litter.dueDate);
+    const today = new Date();
+    return dueDate > today;
+  }).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+  if (!upcomingLitters?.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
         <p className="text-muted-foreground">
-          We currently don't have any available puppies.
+          We currently don't have any current litters planned.
           Please check back later or contact us for more information.
         </p>
       </div>
@@ -69,86 +84,102 @@ export default function UpcomingLitters() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
-      <div className="grid gap-8">
-        {litters.map((litter) => (
-          <Card
-            key={litter.id}
-            className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
-            onClick={() => navigate(`/dogs/litters/${litter.id}`)}
-          >
-            <CardContent className="p-6">
-              <div className="grid md:grid-cols-[1fr,2fr] gap-6">
-                <div>
-                  <div className="bg-primary py-2 px-4 rounded-full text-white text-sm font-semibold mb-3 inline-block">
-                    {litter.puppies?.filter(p => p.available).length} Available {
-                      litter.puppies?.filter(p => p.available).length === 1 ? "Puppy" : "Puppies"
-                    }
+    <>
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
+        <div className="grid gap-8">
+          {upcomingLitters.map((litter) => (
+            <Card
+              key={litter.id}
+              className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
+              onClick={() => navigate(`/dogs/litters/${litter.id}`)}
+            >
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-[1fr,2fr] gap-6">
+                  <div>
+                    <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
+                      Expected {formatDisplayDate(new Date(litter.dueDate))}
+                    </div>
+
+                    <p className="text-muted-foreground text-sm mt-2">
+                      Click to view detailed information about this current litter
+                    </p>
                   </div>
 
-                  <p className="text-muted-foreground text-sm mt-2">
-                    Click to view detailed information about this litter
-                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div
+                      className="flex items-center gap-3 p-2 rounded-lg"
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                        {litter.mother.profileImageUrl ? (
+                          <img
+                            src={litter.mother.profileImageUrl.startsWith('http') ? litter.mother.profileImageUrl : litter.mother.profileImageUrl.startsWith('/') ? litter.mother.profileImageUrl : `/${litter.mother.profileImageUrl}`}
+                            alt={litter.mother.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : litter.mother.media && litter.mother.media.length > 0 && litter.mother.media[0].type === 'image' ? (
+                          <img
+                            src={litter.mother.media[0].url.startsWith('http') ? litter.mother.media[0].url : litter.mother.media[0].url.startsWith('/') ? litter.mother.media[0].url : `/${litter.mother.media[0].url}`}
+                            alt={litter.mother.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                            <span className="text-3xl text-pink-500">♀</span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{litter.mother.name}</p>
+                        <p className="text-sm text-muted-foreground">Mother</p>
+                      </div>
+                    </div>
+
+                    <div
+                      className="flex items-center gap-3 p-2 rounded-lg"
+                    >
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                        {litter.father.profileImageUrl ? (
+                          <img
+                            src={litter.father.profileImageUrl.startsWith('http') ? litter.father.profileImageUrl : litter.father.profileImageUrl.startsWith('/') ? litter.father.profileImageUrl : `/${litter.father.profileImageUrl}`}
+                            alt={litter.father.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : litter.father.media && litter.father.media.length > 0 && litter.father.media[0].type === 'image' ? (
+                          <img
+                            src={litter.father.media[0].url.startsWith('http') ? litter.father.media[0].url : litter.father.media[0].url.startsWith('/') ? litter.father.media[0].url : `/${litter.father.media[0].url}`}
+                            alt={litter.father.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-3xl text-blue-500">♂</span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{litter.father.name}</p>
+                        <p className="text-sm text-muted-foreground">Father</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 p-2 rounded-lg">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                      {litter.mother.profileImageUrl ? (
-                        <img
-                          src={litter.mother.profileImageUrl}
-                          alt={litter.mother.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-pink-100 flex items-center justify-center">
-                          <span className="text-2xl text-pink-500">♀</span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">{litter.mother.name}</p>
-                      <p className="text-sm text-muted-foreground">Mother</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-2 rounded-lg">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                      {litter.father.profileImageUrl ? (
-                        <img
-                          src={litter.father.profileImageUrl}
-                          alt={litter.father.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-2xl text-blue-500">♂</span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">{litter.father.name}</p>
-                      <p className="text-sm text-muted-foreground">Father</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Dog Form Modal */}
       {showDogForm && (
         <DogForm
           open={showDogForm}
-          onOpenChange={setShowDogForm}
+          onOpenChange={handleDogFormClose}
           dog={selectedDog as Dog}
           mode={selectedDog?.id ? 'edit' : 'create'}
           fromLitter={true}
         />
       )}
-    </div>
+    </>
   );
 }

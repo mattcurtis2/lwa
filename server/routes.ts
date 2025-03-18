@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -788,11 +788,11 @@ export function registerRoutes(app: Express): Server {
       res.json(dog);
     } catch (error) {
       console.error("Error creating dog:", error);
-      res.status(500).json({ message: "Failed to create dog"});
+      res.status(500).json({ message: "Failed to create dog" });
     }
   });
 
-  // Update the PUT/api/dogs/:id route to handle parent and litter information
+  // Update the PUT /api/dogs/:id route to handle parent and litter information
   app.put("/api/dogs/:id", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
@@ -1252,112 +1252,622 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Add the current litters endpoint right after the other litter routes
-  app.get("/api/litters/list/current", async (_req, res) => {
+  // Add principles routes
+  app.get("/api/principles", async (_req, res) => {
     try {
-      // First get all dogs that are puppies and available
-      const availablePuppies = await db.query.dogs.findMany({
-        where: (dogs, { and, eq }) => and(
-          eq(dogs.puppy, true),
-          eq(dogs.available, true)
-        )
+      const allPrinciples = await db.query.principles.findMany({
+        orderBy: (principles, { asc }) => [asc(principles.order)],
       });
-
-      if (availablePuppies.length === 0) {
-        return res.json([]);
-      }
-
-      // Get unique litter IDs from the puppies
-      const litterIds = [...new Set(availablePuppies.map(p => p.litterId).filter(Boolean))];
-
-      // Then fetch those specific litters with all relations
-      const currentLitters = await db.query.litters.findMany({
-        where: (litters, { inArray }) => inArray(litters.id, litterIds),
-        with: {
-          mother: {
-            with: {
-              media: true
-            }
-          },
-          father: {
-            with: {
-              media: true
-            }
-          }
-        }
-      });
-
-      // Map puppies to their litters
-      const littersWithPuppies = currentLitters.map(litter => ({
-        ...litter,
-        puppies: availablePuppies.filter(puppy => puppy.litterId === litter.id)
-      }));
-
-      res.json(littersWithPuppies);
+      res.json(allPrinciples);
     } catch (error) {
-      console.error("Error fetching current litters:", error);
-      res.status(500).json({ message: "Failed to fetch current litters" });
+      console.error("Error fetching principles:", error);
+      res.status(500).json({ message: "Failed to fetch principles" });
     }
   });
 
-  app.get("/api/litters/list/past", async (_req, res) => {
+  app.post("/api/principles", async (req, res) => {
     try {
-      const allLitters = await db.query.litters.findMany({
+      const principles = await db.insert(principles)
+        .values(req.body)
+        .returning();
+      res.json(principles[0]);
+    } catch (error) {
+      console.error("Error creating principle:", error);
+      res.status(500).json({ message: "Failed to create principle" });
+    }
+  });
+
+  app.put("/api/principles/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, imageUrl } = req.body;
+      
+      let finalImageUrl = imageUrl;
+      
+      // Check if the image URL is a base64 data
+      if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
+        try {
+          console.log(`=== PROCESSING PRINCIPLE IMAGE FOR S3 ===`);
+          console.log(`Processing image for principle ID: ${id}`);
+          
+          // Import S3 utility
+          const { uploadToS3 } = await import('./utils/s3.js');
+          
+          // Handle base64 image data
+          const matches = finalImageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          
+          if (!matches || matches.length !== 3) {
+            throw new Error('Invalid base64 image format');
+          }
+          
+          const mimetype = matches[1];
+          const base64Data = matches[2];
+          console.log(`Processing base64 data (length: ${base64Data.length}) with mimetype: ${mimetype}`);
+          
+          // Create a buffer from the base64 data
+          const imageBuffer = Buffer.from(base64Data, 'base64');
+          
+          // Create a mock file object that uploadToS3 can handle
+          const filename = `principle-${id}-${Date.now()}.jpg`;
+          const mockFile = {
+            buffer: imageBuffer,
+            mimetype: mimetype || 'image/jpeg',
+            originalname: filename
+          };
+          
+          // Upload to S3
+          console.log(`Uploading principle image to S3...`);
+          const s3Url = await uploadToS3(mockFile);
+          
+          if (!s3Url) {
+            throw new Error('Failed to upload to S3 - No URL returned');
+          }
+          
+          console.log(`Successfully uploaded principle image to S3: ${s3Url}`);
+          finalImageUrl = s3Url;
+        } catch (uploadError) {
+          console.error(`Failed to upload principle image to S3:`, uploadError);
+          return res.status(500).json({ 
+            error: 'Failed to upload image to S3', 
+            details: uploadError.message,
+            code: uploadError.code || 'unknown'
+          });
+        }
+      } else if (finalImageUrl && finalImageUrl.startsWith('/uploads/')) {
+        // Don't allow local paths anymore - return error
+        return res.status(400).json({
+          error: 'Local file paths are no longer supported. Please upload images directly.',
+          details: 'Images must be uploaded to S3 for proper storage and delivery.'
+        });
+      }
+
+      // Continue with database update only if image upload was successful or no new image
+      const updateData = {
+        title,
+        description,
+        imageUrl: finalImageUrl,
+        updatedAt: new Date(),
+      };
+
+      const principle = await db.update(principles)
+        .set(updateData)
+        .where(eq(principles.id, parseInt(id)))
+        .returning();
+
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error updating principle:", error);
+      res.status(500).json({ 
+        message: "Failed to update principle",
+        error: error.message
+      });
+    }
+  });
+
+  app.delete("/api/principles/:id", async (req, res) => {
+    try {
+      const result = await db.delete(principles)
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Principle not found" });
+      }
+
+      res.json(result[0]);
+    } catch (error) {
+      console.error("Error deleting principle:", error);
+      res.status(500).json({ message: "Failed to delete principle" });
+    }
+  });
+
+  app.put("/api/principles/:id/reorder", async (req, res) => {
+    try {
+      const principle = await db.update(principles)
+        .set({
+          order: req.body.order,
+          updatedAt: new Date()
+        })
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error reordering principle:", error);
+      res.status(500).json({ message: "Failed to reorder principle" });
+    }
+  });
+
+  // Add contact info routes
+  app.get("/api/contact-info", async (_req, res) => {
+    try {
+      const info = await db.query.contactInfo.findFirst();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ message: "Failed to fetch contact info" });
+    }
+  });
+
+  app.post("/api/contact-info", async (req, res) => {
+    try {
+      // Delete existing contact info since we only want one record
+      await db.delete(contactInfo);
+
+      const info = await db.insert(contactInfo)
+        .values(req.body)
+        .returning();
+      res.json(info[0]);
+    } catch (error) {
+      console.error("Error creating contact info:", error);
+      res.status(500).json({ message: "Failed to create contact info" });
+    }
+  });
+
+  app.put("/api/contact-info", async (req, res) => {
+    try {
+      const existingInfo = await db.query.contactInfo.findFirst();
+
+      if (!existingInfo) {
+        // If no record exists, create one
+        const info = await db.insert(contactInfo)
+          .values(req.body)
+          .returning();
+        res.json(info[0]);
+      } else {
+        // Update existing record
+        const info = await db.update(contactInfo)
+          .set({ ...req.body, updatedAt: new Date() })
+          .where(eq(contactInfo.id, existingInfo.id))
+          .returning();
+        res.json(info[0]);
+      }
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+      res.status(500).json({ message: "Failed to update contact info" });
+    }
+  });
+
+  // Add these routes after the litter routes
+  // Goat routes
+  app.get("/api/goats", async (_req, res) => {
+    try {
+      const allGoats = await db.query.goats.findMany({
+        orderBy: (goats, { asc }) => [asc(goats.order)],
+        with: {
+          media: {
+            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+          },
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        }
+      });
+
+      // Set first media image as profile picture if none exists
+      const processedGoats = allGoats.map(goat => {
+        if (!goat.profileImageUrl && goat.media && goat.media.length > 0) {
+          const firstImage = goat.media.find(m => m.type === 'image');
+          if (firstImage) {
+            return {
+              ...goat,
+              profileImageUrl: firstImage.url
+            };
+          }
+        }
+        return goat;
+      });
+
+      res.json(processedGoats);
+    } catch (error) {
+      console.error("Error fetching goats:", error);
+      res.status(500).json({ message: "Failed to fetch goats" });
+    }
+  });
+
+  // Get specific goat
+  app.get("/api/goats/:id", async (req, res) => {
+    try {
+      const goatId = parseInt(req.params.id);
+      const goat = await db.query.goats.findFirst({
+        where: eq(goats.id, goatId),
+        with: {
+          media: {
+            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+          },
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        }
+      });
+
+      if (!goat) {
+        return res.status(404).json({ message: "Goat not found" });
+      }
+
+      res.json(goat);
+    } catch (error) {
+      console.error("Error fetching goat:", error);
+      res.status(500).json({ message: "Failed to fetch goat" });
+    }
+  });
+
+  // Create new goat
+  app.post("/api/goats", async (req, res) => {
+    try {
+      console.log('Creating goat with data:', req.body);
+      const goat = await db.insert(goats).values(req.body).returning();
+      console.log('Created goat:', goat[0]);
+      res.json(goat[0]);
+    } catch (error) {
+      console.error("Error creating goat:", error);
+      res.status(500).json({ message: "Failed to create goat" });
+    }
+  });
+
+  // Update goat
+  app.put("/api/goats/:id", async (req, res) => {
+    try {
+      const goatId = parseInt(req.params.id);
+      console.log('Updating goat with ID:', goatId);
+      console.log('Update data:', req.body);
+
+      // First verify the goat exists
+      const existingGoat = await db.query.goats.findFirst({
+        where: eq(goats.id, goatId),
+      });
+
+      if (!existingGoat) {
+        return res.status(404).json({ message: "Goat not found" });
+      }
+
+      const { media, documents, ...goatData } = req.body;
+
+      const updateData = {
+        ...goatData,
+        updatedAt: new Date(),
+      };
+
+      const dog = await db.transaction(async (tx) => {
+        // Update the goat
+        await tx.update(goats)
+          .set(updateData)
+          .where(eq(goats.id, goatId));
+
+        // Handle media
+        if (media) {
+          await tx.delete(goatMedia)
+            .where(eq(goatMedia.goatId, goatId));
+
+          if (media.length > 0) {
+            await tx.insert(goatMedia).values(
+              media.map((item: any, index: number) => ({
+                goatId: goatId,
+                url: item.url,
+                type: item.type,
+                order: index,
+              }))
+            );
+          }
+        }
+
+        // Handle documents
+        if (documents) {
+          await tx.delete(goatDocuments)
+            .where(eq(goatDocuments.goatId, goatId));
+
+          if (documents.length > 0) {
+            await tx.insert(goatDocuments).values(
+              documents.map((doc: any) => ({
+                goatId: goatId,
+                url: doc.url,
+                type: doc.type,
+                name: doc.name,
+                mimeType: doc.mimeType
+              }))
+            );
+          }
+        }
+
+        // Return updated goat with relations
+        const updatedGoat = await tx.query.goats.findFirst({
+          where: eq(goats.id, goatId),
+          with: {
+            media: true,
+            documents: true,
+            mother: true,
+            father: true,
+            litter: true,
+          },
+        });
+
+        return updatedGoat;
+      });
+
+      console.log('Updated goat result:', dog);
+
+      res.json(dog);
+    } catch (error) {
+      console.error("Error updating goat:", error);
+      res.status(500).json({
+        message: "Failed to update goat",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Delete goat
+  app.delete("/api/goats/:id", async (req, res) => {
+    try {
+      const goatId = parseInt(req.params.id);
+
+      await db.transaction(async (tx) => {
+        // Delete related media
+        await tx.delete(goatMedia)
+          .where(eq(goatMedia.goatId, goatId));
+
+        // Delete related documents
+        await tx.delete(goatDocuments)
+          .where(eq(goatDocuments.goatId, goatId));
+
+        // Update any goats that reference this goat as mother/father
+        await tx.update(goats)
+          .set({ motherId: null })
+          .where(eq(goats.motherId, goatId));
+
+        await tx.update(goats)
+          .set({ fatherId: null })
+          .where(eq(goats.fatherId, goatId));
+
+        // Finally delete the goat
+        await tx.delete(goats)
+          .where(eq(goats.id, goatId));
+      });
+
+      res.json({ message: "Goat deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting goat:", error);
+      res.status(500).json({ message: "Failed to delete goat" });
+    }
+  });
+
+  // Goat Litter routes
+  app.get("/api/goat-litters", async (_req, res) => {
+    try {
+      const allLitters = await db.query.goatLitters.findMany({
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+      res.json(allLitters);
+    } catch (error) {
+      console.error("Error fetching goat litters:", error);
+      res.status(500).json({ message: "Failed to fetch goat litters" });
+    }
+  });
+
+  app.post("/api/goat-litters", async (req, res) => {
+    try {
+      const litter = await db.insert(goatLitters)
+        .values(req.body)
+        .returning();
+
+      const litterWithRelations = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithRelations);
+    } catch (error) {
+      console.error("Error creating goat litter:", error);
+      res.status(500).json({ message: "Failed to create goat litter" });
+    }
+  });
+
+  app.put("/api/goat-litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+      const litter = await db.update(goatLitters)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(goatLitters.id, litterId))
+        .returning();
+
+      const litterWithRelations = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithRelations);
+    } catch (error) {
+      console.error("Error updating goat litter:", error);
+      res.status(500).json({ message: "Failed to update goat litter" });
+    }
+  });
+
+  app.get("/api/goat-litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+
+      if (isNaN(litterId)) {
+        return res.status(400).json({ message: "Invalid litter ID" });
+      }
+
+      const litter = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litterId),
         with: {
           mother: {
             with: {
               media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+                orderBy: (media, { asc }) => [asc(media.order)],
               },
+              documents: true,
             },
           },
           father: {
             with: {
               media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
+                orderBy: (media, { asc }) => [asc(media.order)],
               },
+              documents: true,
             },
           },
         },
       });
 
-      //      // For each litter, fetch its puppies
-      const littersWithPuppies = await Promise.all(
-        allLitters.map(async (litter) => {
-          const puppies = await db.query.dogs.findMany({
-            where: eq(dogs.litterId, litter.id),
-            with: {
-              media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-              },
-            },
-          });
+      if (!litter) {
+        return res.status(404).json({ message: "Litter not found" });
+      }
 
-          // Only include if thereare puppies and at least one puppy has a birth date
-          if (puppies.length > 0 && puppies.some(puppy => puppy.birthDate)) {
-            return {
-              ...litter,
-              puppies,
-            };
-          }
-          return null;
-        })
-      );
-
-      // Filter out null entries (litters without puppies or birth dates)
-      const validLitters = littersWithPuppies.filter(litter => litter !== null);
-
-      // Sort by the first puppy's birth date in descending order (most recent first)
-      const sortedLitters = validLitters.sort((a, b) => {
-        const aDate = new Date(a.puppies[0].birthDate);
-        const bDate = new Date(b.puppies[0].birthDate);
-        return bDate.getTime() - aDate.getTime();
+      // Fetch kids separately since they're not directly related in the schema
+      const kids = await db.query.goats.findMany({
+        where: eq(goats.litterId, litterId),
+        with: {
+          media: {
+            orderBy: (media, { asc }) => [asc(media.order)],
+          },
+          documents: true,
+        },
+        orderBy: (goats, { asc }) => [asc(goats.order)],
       });
 
-      res.json(sortedLitters);
+      res.json({
+        ...litter,
+        kids,
+      });
     } catch (error) {
-      console.error("Error fetching past litters:", error);
-      res.status(500).json({ message: "Failed to fetch past litters" });
+      console.error("Error fetching goat litter:", error);
+      res.status(500).json({ message: "Failed to fetch goat litter" });
+    }
+  });
+
+  app.delete("/api/goat-litters/:id", async (req, res) => {
+    try {
+      await db.delete(goatLitters)
+        .where(eq(goatLitters.id, parseInt(req.params.id)));
+      res.json({ message: "Goat litter deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting goat litter:", error);
+      res.status(500).json({ message: "Failed to delete goat litter" });
+    }
+  });
+
+  // Theme management routes
+  app.get("/api/theme", (_req, res) => {
+    try {
+      const themeFilePath = path.join(process.cwd(), "theme.json");
+      const themeConfig = fs.readJsonSync(themeFilePath);
+      res.json(themeConfig);
+    } catch (error) {
+      console.error("Error reading theme config:", error);
+      res.status(500).json({ message: "Failed to read theme configuration" });
+    }
+  });
+
+  app.put("/api/theme", async (req, res) => {
+    try {
+      const themeFilePath = path.join(process.cwd(), "theme.json");
+      await fs.writeJson(themeFilePath, req.body, { spaces: 2 });
+      res.json({ message: "Theme updated successfully" });
+    } catch (error) {
+      console.error("Error updating theme:", error);
+      res.status(500).json({ message: "Failed to update theme configuration" });
+    }
+  });
+  // Add the pages endpoint to the existing routes
+  app.get("/api/pages", async (_req, res) => {
+    try {
+      const pages = [
+        {
+          id: 1,
+          name: "Home",
+          fields: {
+            hero_title: "Welcome to Little Way Acres",
+            hero_subtitle: "Experience sustainable farming and community",
+            hero_image: "/images/hero.jpg",
+            about_content: "Discover our commitment to sustainable farming...",
+            contact_info: "Get in touch with us...",
+          },
+        },
+        {
+          id: 2,
+          name: "Dogs",
+          fields: {
+            title: "Our Colorado Mountain Dogs",
+            description: "Learn about our exceptional working dogs...",
+            hero_image: "/images/dogs-hero.jpg",
+            breeding_info: "Our breeding program focuses on...",
+          },
+        },
+        {
+          id: 3,
+          name: "Goats",
+          fields: {
+            title: "Nigerian Dwarf Goats",
+            description: "Explore our goat breeding program...",
+            hero_image: "/images/goats-hero.jpg",
+            care_info: "Our approach to goat care...",
+          },
+        },
+        {
+          id: 4,
+          name: "Market",
+          fields: {
+            title: "Farm Market",
+            description: "Fresh produce and products...",
+            hero_image: "/images/market-hero.jpg",
+            schedule_info: "Market hours and locations...",
+          },
+        },
+      ];
+
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Failed to fetch pages" });
+    }
+  });
+
+  app.put("/api/pages/:id/fields/:field", async (req, res) => {
+    try {
+      const { id, field } = req.params;
+      const { value } = req.body;
+
+      // Here you would typically update the database      // For now, we'll just return success
+      res.json({ id, field, value });
+    } catch (error) {
+      console.error("Error updating page field:", error);
+      res.status(500).json({ message: "Failed to update page field" });
     }
   });
 
