@@ -27,14 +27,7 @@ const staggerChildren = {
 
 export default function Principles() {
   const { data: principles, isLoading, error } = useQuery<Principle[]>({
-    queryKey: ["principles"],
-    queryFn: async () => {
-      const response = await fetch("/api/principles");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch principles: ${response.statusText}`);
-      }
-      return response.json();
-    },
+    queryKey: ["/api/principles"],
   });
 
   if (error) {
@@ -43,7 +36,7 @@ export default function Principles() {
       <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
         <div className="container mx-auto px-4">
           <div className="text-center text-stone-600">
-            <p>Unable to load principles at this time. Please try again later.</p>
+            <p>Unable to load principles at this time.</p>
           </div>
         </div>
       </section>
