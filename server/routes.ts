@@ -1367,9 +1367,12 @@ export function registerRoutes(app: Express): Server {
       const allPrinciples = await db.query.principles.findMany({
         orderBy: (principles, { asc }) => [asc(principles.order)],
       });
+      
+      res.setHeader('Content-Type', 'application/json');
       res.json(allPrinciples || []);
     } catch (error) {
       console.error("Error fetching principles:", error);
+      res.setHeader('Content-Type', 'application/json');
       res.status(500).json({ error: "Failed to fetch principles" });
     }
   });
