@@ -1,0 +1,57 @@
+_app-11e22a1ce17a5b68.js:16 Invalid href 'https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev//admin' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-11e22a1ce17a5b68.js:16
+d @ main-8595a35fd8845f64.js:1
+(anonymous) @ _app-11e22a1ce17a5b68.js:4
+lU @ framework-06dc93a672866497.js:1
+t.useMemo @ framework-06dc93a672866497.js:1
+(anonymous) @ _app-11e22a1ce17a5b68.js:4
+ld @ framework-06dc93a672866497.js:1
+ou @ framework-06dc93a672866497.js:1
+i @ framework-06dc93a672866497.js:1
+uI @ framework-06dc93a672866497.js:1
+(anonymous) @ framework-06dc93a672866497.js:1
+uM @ framework-06dc93a672866497.js:1
+u_ @ framework-06dc93a672866497.js:1
+r6 @ framework-06dc93a672866497.js:1
+uP @ framework-06dc93a672866497.js:1
+eM @ framework-06dc93a672866497.js:1
+ru @ framework-06dc93a672866497.js:1
+tB @ framework-06dc93a672866497.js:1
+tD @ framework-06dc93a672866497.js:1
+n @ _app-11e22a1ce17a5b68.js:16Understand this errorAI
+Console.js:61 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:337:18
+    at h2
+    at div
+    at div
+    at div
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=40fc779d:41:13
+    at Provider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-H267BXJE.js?v=40fc779d:48:15)
+    at https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=40fc779d:51:7
+    at div
+    at Admin (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/pages/admin.tsx:40:25)
+    at Route (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:323:16)
+    at Switch (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=40fc779d:379:17)
+    at main
+    at div
+    at Router (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/App.tsx?t=1742261863312&v=pH-a9K_wv6g-D4NltxRSW:56:22)
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+    at App
+    at AuthProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/src/providers/auth-provider.tsx?v=pH-a9K_wv6g-D4NltxRSW:27:32)
+    at QueryClientProvider (https://c589050d-9456-40bb-80e5-2f96d9f7d064-00-1tzwy9p8oim4s.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=40fc779d:2805:3)
+Mt.forEach.n.<computed> @ Console.js:61Understand this errorAI
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without 
