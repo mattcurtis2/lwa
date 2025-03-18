@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Principle } from "@db/schema";
@@ -67,7 +68,6 @@ export default function Principles() {
           viewport={{ once: true }}
         >
           {isLoading ? (
-            // Loading skeleton
             [...Array(3)].map((_, index) => (
               <motion.div 
                 key={index}
@@ -86,7 +86,6 @@ export default function Principles() {
               </motion.div>
             ))
           ) : principles?.length ? (
-            // Actual principles data
             principles.sort((a, b) => a.order - b.order).map((principle, index) => (
               <motion.div 
                 key={principle.id}
@@ -121,7 +120,6 @@ export default function Principles() {
               </motion.div>
             ))
           ) : (
-            // No principles found
             <div className="text-center text-stone-600">
               <p>No principles available at the moment.</p>
             </div>
