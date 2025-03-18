@@ -29,14 +29,24 @@ export default function Principles() {
   const { data: principles, isLoading, error } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
     onSuccess: (data) => {
-      console.log("Principles loaded:", data);
+      console.log("Principles loaded successfully:", data);
     },
     onError: (err) => {
       console.error("Error loading principles:", err);
+      console.error("Error details:", {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data
+      });
     }
   });
 
-  console.log("Current principles state:", { isLoading, principles, error });
+  console.log("Principles component state:", {
+    isLoading,
+    hasData: !!principles,
+    dataLength: principles?.length,
+    error: error?.message
+  });
 
   return (
     <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
