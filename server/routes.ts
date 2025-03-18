@@ -798,7 +798,7 @@ export function registerRoutes(app: Express): Server {
     const dogId = parseInt(req.params.id);
 
     try {
-      const dog = await db.transaction(async(tx) => {
+      const dog = await db.transaction(async(async(tx) => {
         const existingDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
         });
@@ -1358,6 +1358,19 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error fetching past litters:", error);
       res.status(500).json({ message: "Failed to fetch past litters" });
+    }
+  });
+
+  // Principles routes
+  app.get("/api/principles", async (_req, res) => {
+    try {
+      const allPrinciples = await db.query.principles.findMany({
+        orderBy: (principles, { asc }) => [asc(principles.order)],
+      });
+      res.json(allPrinciples);
+    } catch (error) {
+      console.error("Error fetching principles:", error);
+      res.status(500).json({ message: "Failed to fetch principles" });
     }
   });
 
