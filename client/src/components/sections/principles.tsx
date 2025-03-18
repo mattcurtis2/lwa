@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Principle } from "@db/schema";
@@ -27,7 +26,7 @@ const staggerChildren = {
 
 export default function Principles() {
   const { data: principles, isLoading, error } = useQuery<Principle[]>({
-    queryKey: ["principles"],
+    queryKey: ["/api/principles"],
     queryFn: async () => {
       const response = await fetch("/api/principles");
       if (!response.ok) {

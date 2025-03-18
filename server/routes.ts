@@ -613,7 +613,6 @@ export function registerRoutes(app: Express): Server {
     res.json({ isProduction: process.env.NODE_ENV === 'production' });
   });
 
-
   // Add carousel routes
   app.get("/api/carousel", async (_req, res) => {
     const items = await db.query.carouselItems.findMany({
@@ -798,13 +797,13 @@ export function registerRoutes(app: Express): Server {
     const dogId = parseInt(req.params.id);
 
     try {
-      const dog = await db.transaction(async(async(tx) => {
+      const dog = await db.transaction(async (tx) => {
         const existingDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
         });
 
         if (!existingDog) {
-          return res.status(404).json({ message: "Dog not found" }); // Return 404 if dog not found
+          return res.status(404).json({ message: "Dog not found" });
         }
 
         // Process the data before update
@@ -1361,13 +1360,65 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add this with the other route definitions
+  app.get("/api/principles", async (_req, res) => {
+    try {
+      const allPrinciples = await db.query.principles.findMany({
+        orderBy: (principles, { asc }) => [asc(principles.order)],
+      });
+      res.json(allPrinciples);
+    } catch (error) {
+      console.error("Error fetching principles:", error);
+      res.status(500).json({ message: "Failed to fetch principles" });
+    }
+  });
+
+  app.post("/api/principles", async (req, res) => {
+    try {
+      const principle = await db.insert(principles)
+        .values(req.body)
+        .returning();
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error creating principle:", error);
+      res.status(500).json({ message: "Failed to create principle" });
+    }
+  });
+
+  app.put("/api/principles/:id", async (req, res) => {
+    try {
+      const principle = await db.update(principles)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(principles.id, parseInt(req.params.id)))
+        .returning();
+      res.json(principle[0]);
+    } catch (error) {
+      console.error("Error updating principle:", error);
+      res.status(500).json({ message: "Failed to update principle" });
+    }
+  });
+
+  app.delete("/api/principles/:id", async (req, res) => {
+    try {
+      await db.delete(principles)
+        .where(eq(principles.id, parseInt(req.params.id)));
+      res.json({ message: "Principle deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting principle:", error);
+      res.status(500).json({ message: "Failed to delete principle" });
+    }
+  });
+
   // Principles routes
   app.get("/api/principles", async (_req, res) => {
     try {
       const allPrinciples = await db.query.principles.findMany({
         orderBy: (principles, { asc }) => [asc(principles.order)],
       });
-      
+
       res.setHeader('Content-Type', 'application/json');
       res.json(allPrinciples || []);
     } catch (error) {
