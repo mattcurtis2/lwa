@@ -29,46 +29,65 @@ export default function Principles() {
     queryKey: ["/api/principles"],
   });
 
-  // Don't show fallback content if we're loading or have actual data
-  if (isLoading || principles?.length) {
-    return (
-      <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden" style={{ height: '4rem' }}>
-          <svg
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-            className="absolute bottom-0 left-0 w-full h-full"
-            style={{ transform: 'rotate(180deg)' }}
-          >
-            <path
-              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-              style={{ fill: '#fff' }}
-            ></path>
-          </svg>
-        </div>
+  return (
+    <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden" style={{ height: '4rem' }}>
+        <svg
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          className="absolute bottom-0 left-0 w-full h-full"
+          style={{ transform: 'rotate(180deg)' }}
+        >
+          <path
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+            style={{ fill: '#fff' }}
+          ></path>
+        </svg>
+      </div>
 
-        <div className="container mx-auto px-4">
-          <motion.div 
-            className="text-center mb-12"
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <h2 className="text-4xl font-bold mb-4">Our Principles</h2>
-            <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-              These foundational principles guide our daily operations and long-term vision at Little Way Acres.
-            </p>
-          </motion.div>
+      <div className="container mx-auto px-4">
+        <motion.div 
+          className="text-center mb-12"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+        >
+          <h2 className="text-4xl font-bold mb-4">Our Principles</h2>
+          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+            These foundational principles guide our daily operations and long-term vision at Little Way Acres.
+          </p>
+        </motion.div>
 
-          <motion.div 
-            className="space-y-24"
-            variants={staggerChildren}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            {principles?.sort((a, b) => a.order - b.order).map((principle, index) => (
+        <motion.div 
+          className="space-y-24"
+          variants={staggerChildren}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+        >
+          {isLoading ? (
+            // Loading skeleton
+            [...Array(3)].map((_, index) => (
+              <motion.div 
+                key={index}
+                variants={fadeInUp}
+                className={`flex flex-col md:flex-row items-center gap-8 ${
+                  index % 2 === 0 ? '' : 'md:flex-row-reverse'
+                }`}
+              >
+                <div className="w-full md:w-1/2">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-stone-200 animate-pulse" />
+                </div>
+                <div className="w-full md:w-1/2 space-y-4">
+                  <div className="h-8 bg-stone-200 rounded animate-pulse w-3/4" />
+                  <div className="h-24 bg-stone-200 rounded animate-pulse" />
+                </div>
+              </motion.div>
+            ))
+          ) : principles?.length ? (
+            // Actual principles data
+            principles.sort((a, b) => a.order - b.order).map((principle, index) => (
               <motion.div 
                 key={principle.id}
                 variants={fadeInUp}
@@ -100,12 +119,15 @@ export default function Principles() {
                   </p>
                 </div>
               </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-    );
-  }
-
-  return null; // Return nothing while loading or if no principles
+            ))
+          ) : (
+            // No principles found
+            <div className="text-center text-stone-600">
+              <p>No principles available at the moment.</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
 }
