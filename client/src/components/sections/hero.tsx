@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 
 export default function Hero() {
-  const { data: siteContent } = useQuery<SiteContent[]>({
+  const { data: siteContent, isLoading } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
 
@@ -15,10 +15,18 @@ export default function Hero() {
     document.getElementById('about-farm')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  if (isLoading) {
+    return <div className="h-[600px] bg-muted" />; // Loading state
+  }
+
   return (
-    <div className="relative h-[600px] bg-cover bg-center" style={{
-      backgroundImage: `url('${heroBackground?.value || ""}')`
-    }}>
+    <div 
+      className="relative h-[600px] bg-cover bg-center" 
+      style={{
+        backgroundImage: heroBackground?.value ? `url('${heroBackground.value}')` : undefined,
+        backgroundColor: !heroBackground?.value ? '#f3f4f6' : undefined
+      }}
+    >
       <div className="absolute inset-0 bg-black bg-opacity-25" />
       <div className="relative container mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
