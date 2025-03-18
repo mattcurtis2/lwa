@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Principle } from "@db/schema";
@@ -25,9 +26,22 @@ const staggerChildren = {
 };
 
 export default function Principles() {
-  const { data: principles, isLoading } = useQuery<Principle[]>({
+  const { data: principles, isLoading, error } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
   });
+
+  if (error) {
+    console.error("Error loading principles:", error);
+    return (
+      <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
+        <div className="container mx-auto px-4">
+          <div className="text-center text-stone-600">
+            <p>Unable to load principles at this time.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
@@ -86,7 +100,6 @@ export default function Principles() {
               </motion.div>
             ))
           ) : principles?.length ? (
-            // Actual principles data
             principles.sort((a, b) => a.order - b.order).map((principle, index) => (
               <motion.div 
                 key={principle.id}
