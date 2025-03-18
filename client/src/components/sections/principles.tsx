@@ -28,17 +28,25 @@ const staggerChildren = {
 export default function Principles() {
   const { data: principles, isLoading, error } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
+    retry: 1,
     onSuccess: (data) => {
       console.log("Principles loaded successfully:", data);
     },
-    onError: (err) => {
-      console.error("Error loading principles:", err);
-      console.error("Error details:", {
+    onError: (err: any) => {
+      console.error("Error loading principles:", {
         message: err.message,
         status: err.response?.status,
-        data: err.response?.data
+        data: err.response?.data,
+        stack: err.stack
       });
     }
+  });
+
+  // Log query state for debugging
+  console.log("API Response:", {
+    principles,
+    error: error?.message,
+    raw: error
   });
 
   console.log("Principles component state:", {
