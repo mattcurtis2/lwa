@@ -26,9 +26,17 @@ const staggerChildren = {
 };
 
 export default function Principles() {
-  const { data: principles, isLoading } = useQuery<Principle[]>({
+  const { data: principles, isLoading, error } = useQuery<Principle[]>({
     queryKey: ["/api/principles"],
+    onSuccess: (data) => {
+      console.log("Principles loaded:", data);
+    },
+    onError: (err) => {
+      console.error("Error loading principles:", err);
+    }
   });
+
+  console.log("Current principles state:", { isLoading, principles, error });
 
   return (
     <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
