@@ -1,0 +1,44 @@
+1:19:50 AM [express] GET /api/about-cards 304 in 102ms :: {"sectionTitle":"What We Offer","sectionDe…
+1:19:50 AM [express] GET /api/carousel 304 in 267ms :: [{"id":1,"title":"Colorado Mountain Dogs","de…
+1:20:17 AM [vite] hmr update /src/pages/upcoming-litters.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:20:17 AM [vite] page reload src/components/details/dog-details.tsx
+1:20:19 AM [express] GET /api/auth/status 200 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:19 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:19 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:19 AM [express] GET /api/auth/status 304 in 0ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:19 AM [express] GET /api/dogs 304 in 138ms :: [{"id":5,"name":"Tecumseh","registrationName":"NM…
+1:20:24 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:24 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:24 AM [express] GET /api/auth/status 304 in 0ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:24 AM [express] GET /api/dogs 304 in 65ms :: [{"id":5,"name":"Tecumseh","registrationName":"NMS…
+1:20:24 AM [express] GET /api/auth/status 304 in 0ms :: {"isLoggedIn":true,"username":"LWA"}
+1:20:26 AM [express] GET /api/principles 200 in 4ms
+1:20:26 AM [express] GET /api/about-cards-old 200 in 6ms
+1:20:26 AM [express] GET /api/site-content 304 in 23ms :: [{"id":57,"key":"about_card_3_description"…
+1:20:26 AM [express] GET /api/about-cards 304 in 97ms :: {"sectionTitle":"What We Offer","sectionDes…
+1:20:26 AM [express] GET /api/carousel 304 in 288ms :: [{"id":1,"title":"Colorado Mountain Dogs","de…
+1:20:29 AM [express] GET /api/principles 200 in 4ms
+1:20:29 AM [express] GET /api/contact-info 200 in 3ms
+1:21:00 AM [express] GET /api/litters 304 in 100ms :: [{"id":9,"dueDate":"2025-03-15","motherId":1,"…
+1:21:47 AM [vite] hmr update /src/components/dog-details.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] hmr update /src/components/sections/hero.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] hmr update /src/components/sections/principles.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] hmr update /src/pages/dog-detail.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] hmr update /src/pages/home.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] hmr update /src/pages/upcoming-litters.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:21:47 AM [vite] page reload src/components/details/dog-details.tsx
+1:21:48 AM [express] GET /api/contact-info 200 in 5ms
+1:21:48 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:21:48 AM [express] GET /api/site-content 304 in 115ms :: [{"id":57,"key":"about_card_3_description…
+1:21:48 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:21:48 AM [express] GET /api/litters 304 in 103ms :: [{"id":9,"dueDate":"2025-03-15","motherId":1,"…
+1:21:48 AM [express] GET /api/dogs 304 in 137ms :: [{"id":5,"name":"Tecumseh","registrationName":"NM…
+1:21:48 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
+1:21:48 AM [express] GET /api/auth/status 304 in 0ms :: {"isLoggedIn":true,"username":"LWA"}
+1:21:54 AM [express] GET /api/principles 200 in 5ms
+1:21:54 AM [express] GET /api/litters/list/current 304 in 46ms :: [{"id":9,"dueDate":"2025-03-15","m…
+1:21:55 AM [express] GET /api/carousel 304 in 210ms :: [{"id":1,"title":"Colorado Mountain Dogs","de…
+1:23:24 AM [vite] hmr update /src/components/sections/principles.tsx, /src/index.css?v=VVJtHLGCcNpcPoWKSMgJo
+1:23:25 AM [express] GET /api/principles 200 in 12ms
+1:23:25 AM [express] GET /api/contact-info 200 in 28ms
+1:23:25 AM [express] GET /api/auth/status 304 in 1ms :: {"isLoggedIn":true,"username":"LWA"}
