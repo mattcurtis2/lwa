@@ -33,16 +33,12 @@ export default function Principles() {
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     },
     retry: 1,
     onError: (err: any) => {
-      console.error("Error loading principles:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-        stack: err.stack
-      });
+      console.error("Error loading principles:", err);
     }
   });
 
