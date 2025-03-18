@@ -1,0 +1,121 @@
+API Response: 
+{principles: undefined, error: undefined, raw: null}
+error
+: 
+undefined
+principles
+: 
+undefined
+raw
+: 
+null
+[[Prototype]]
+: 
+Object
+Console.js:61 Principles component state: 
+{isLoading: true, hasData: false, dataLength: undefined, error: undefined}
+dataLength
+: 
+undefined
+error
+: 
+undefined
+hasData
+: 
+false
+isLoading
+: 
+true
+[[Prototype]]
+: 
+Object
+Console.js:61 API Response: 
+{principles: undefined, error: undefined, raw: null}
+error
+: 
+undefined
+principles
+: 
+undefined
+raw
+: 
+null
+[[Prototype]]
+: 
+Object
+Console.js:61 Principles component state: 
+{isLoading: true, hasData: false, dataLength: undefined, error: undefined}
+dataLength
+: 
+undefined
+error
+: 
+undefined
+hasData
+: 
+false
+isLoading
+: 
+true
+[[Prototype]]
+: 
+Object
+Console.js:61 API Response: 
+{principles: undefined, error: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`, raw: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON}
+error
+: 
+"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+principles
+: 
+undefined
+raw
+: 
+SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+[[Prototype]]
+: 
+Object
+Console.js:61 Principles component state: 
+{isLoading: false, hasData: false, dataLength: undefined, error: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`}
+dataLength
+: 
+undefined
+error
+: 
+"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+hasData
+: 
+false
+isLoading
+: 
+false
+[[Prototype]]
+: 
+Object
+Console.js:61 API Response: 
+{principles: undefined, error: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`, raw: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON}
+error
+: 
+"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+principles
+: 
+undefined
+raw
+: 
+SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+[[Prototype]]
+: 
+Object
+Console.js:61 Principles component state: 
+{isLoading: false, hasData: false, dataLength: undefined, error: `Unexpected token '<', "<!DOCTYPE "... is not valid JSON`}
+dataLength
+: 
+undefined
+error
+: 
+"Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+hasData
+: 
+false
+isLoading
+: 
+false
