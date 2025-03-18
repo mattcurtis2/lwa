@@ -7,8 +7,8 @@ import LitterBanner from "@/components/sections/litter-banner";
 export default function Home() {
   return (
     <div className="w-full">
-      <Hero />
       <LitterBanner />
+      <Hero />
       <Principles />
       <FarmInfo />
       <FeatureCarousel />

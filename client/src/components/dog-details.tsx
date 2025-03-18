@@ -253,36 +253,26 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               <CardTitle>Physical Characteristics</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {dog.color && (
-                <div>
-                  <h3 className="font-semibold mb-1">Color</h3>
-                  <p>{dog.color}</p>
-                </div>
-              )}
-              {dog.furLength && (
-                <div>
-                  <h3 className="font-semibold mb-1">Fur Length</h3>
-                  <p>{dog.furLength}</p>
-                </div>
-              )}
-              {dog.height && !isNaN(parseFloat(dog.height)) && (
-                <div>
-                  <h3 className="font-semibold mb-1">Height</h3>
-                  <p>{dog.height} inches</p>
-                </div>
-              )}
-              {dog.weight && !isNaN(parseFloat(dog.weight)) && (
-                <div>
-                  <h3 className="font-semibold mb-1">Weight</h3>
-                  <p>{dog.weight} lbs</p>
-                </div>
-              )}
-              {dog.dewclaws && (
-                <div>
-                  <h3 className="font-semibold mb-1">Dewclaws</h3>
-                  <p>{dog.dewclaws}</p>
-                </div>
-              )}
+              <div>
+                <h3 className="font-semibold mb-1">Color</h3>
+                <p>{dog.color || "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Fur Length</h3>
+                <p>{dog.furLength || "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Height</h3>
+                <p>{dog.height ? `${dog.height} inches` : "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Weight</h3>
+                <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Dewclaws</h3>
+                <p>{dog.dewclaws || "Not specified"}</p>
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -528,36 +518,28 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {dog.color && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Color</h3>
-                      <p>{dog.color}</p>
-                    </div>
-                  )}
-                  {dog.furLength && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Fur Length</h3>
-                      <p>{dog.furLength}</p>
-                    </div>
-                  )}
-                  {dog.height && !isNaN(parseFloat(dog.height)) && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Height</h3>
-                      <p>{dog.height} inches</p>
-                    </div>
-                  )}
-                  {dog.weight && !isNaN(parseFloat(dog.weight)) && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Weight</h3>
-                      <p>{dog.weight} lbs</p>
-                    </div>
-                  )}
-                  {dog.dewclaws && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Dewclaws</h3>
-                      <p>{dog.dewclaws}</p>
-                    </div>
-                  )}
+                  <div>
+                    <h3 className="font-semibold mb-2">Color</h3>
+                    <p>{dog.color || "Not specified"}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Fur Length</h3>
+                    <p>{dog.furLength || "Not specified"}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Height</h3>
+                    <p>
+                      {dog.height ? `${dog.height} inches` : "Not specified"}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Weight</h3>
+                    <p>{dog.weight ? `${dog.weight} lbs` : "Not specified"}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Dewclaws</h3>
+                    <p>{dog.dewclaws || "Not specified"}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
