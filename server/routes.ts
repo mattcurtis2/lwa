@@ -150,58 +150,8 @@ export function registerRoutes(app: Express): Server {
     // Add default dogs hero content if none exists
     const existingHero = await db.query.dogsHero.findFirst();
 
-    // Principles endpoints
-app.get("/api/principles", async (_req, res) => {
-  try {
-    const allPrinciples = await db.query.principles.findMany({
-      orderBy: (principles, { asc }) => [asc(principles.order)],
-    });
-    res.json(allPrinciples);
-  } catch (error) {
-    console.error("Error fetching principles:", error);
-    res.status(500).json({ message: "Failed to fetch principles" });
-  }
-});
-
-app.post("/api/principles", async (req, res) => {
-  try {
-    const principle = await db.insert(principles).values(req.body).returning();
-    res.json(principle[0]);
-  } catch (error) {
-    console.error("Error creating principle:", error);
-    res.status(500).json({ message: "Failed to create principle" });
-  }
-});
-
-app.put("/api/principles/:id", async (req, res) => {
-  try {
-    const principle = await db.update(principles)
-      .set({
-        ...req.body,
-        updatedAt: new Date()
-      })
-      .where(eq(principles.id, parseInt(req.params.id)))
-      .returning();
-    res.json(principle[0]);
-  } catch (error) {
-    console.error("Error updating principle:", error);
-    res.status(500).json({ message: "Failed to update principle" });
-  }
-});
-
-app.delete("/api/principles/:id", async (req, res) => {
-  try {
-    await db.delete(principles)
-      .where(eq(principles.id, parseInt(req.params.id)));
-    res.json({ message: "Principle deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting principle:", error);
-    res.status(500).json({ message: "Failed to delete principle" });
-  }
-});
-
-// Add endpoint to serve content images for social media preview
-app.get("/api/site-content/:key", async (req, res) => {
+    // Add endpoint to serve content images for social media preview
+    app.get("/api/site-content/:key", async (req, res) => {
       try {
         const content = await db.query.siteContent.findFirst({
           where: (siteContent, { eq }) => eq(siteContent.key, req.params.key)
