@@ -1540,6 +1540,43 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add the GET /api/goats endpoint with proper relations
+  app.get("/api/goats", async (_req, res) => {
+    try {
+      const allGoats = await db.query.goats.findMany({
+        orderBy: (goats, { asc }) => [asc(goats.order)],
+        with: {
+          media: {
+            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+          },
+          documents: true,
+          mother: true,
+          father: true,
+          litter: true,
+        },
+      });
+
+      // Set first media image as profile picture if none exists
+      const processedGoats = allGoats.map(goat => {
+        if (!goat.profileImageUrl && goat.media && goat.media.length > 0) {
+          const firstImage = goat.media.find(m => m.type === 'image');
+          if (firstImage) {
+            return {
+              ...goat,
+              profileImageUrl: firstImage.url
+            };
+          }
+        }
+        return goat;
+      });
+
+      res.json(processedGoats);
+    } catch (error) {
+      console.error("Error fetching goats:", error);
+      res.status(500).json({ message: "Failed to fetch goats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
