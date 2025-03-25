@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import dotenv from "dotenv";
 import proxyRouter from "./routes/proxy";
+import goatsRouter from "./routes/goats";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -51,6 +52,9 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 // Add proxy router before other routes
 app.use('/api', proxyRouter);
+
+// Add goats router
+app.use(goatsRouter);
 
 app.use((req, res, next) => {
   const start = Date.now();
