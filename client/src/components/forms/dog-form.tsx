@@ -1587,6 +1587,12 @@ export default function DogForm({
                     />
                   </FormControl>
                 </FormItem>
+              )}itch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
             />
             <FormField
