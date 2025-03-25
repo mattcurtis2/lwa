@@ -5,6 +5,29 @@ import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
+// Get all goats
+router.get('/api/goats', async (req, res) => {
+  try {
+    const allGoats = await db.query.goats.findMany({
+      with: {
+        media: true,
+        documents: true,
+        mother: true,
+        father: true,
+        litter: true
+      }
+    });
+    res.json(allGoats);
+  } catch (error: any) {
+    console.error('Error fetching goats:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch goats',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
+
+// Update goat by ID
 router.put('/api/goats/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
