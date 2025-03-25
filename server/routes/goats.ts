@@ -37,8 +37,26 @@ router.put('/api/goats/:id', async (req, res) => {
     console.log('Updating goat with ID:', id);
     console.log('Request body:', JSON.stringify(data));
     
+    // Process null or empty values properly (to support removing fields like price)
+    const processedData: Record<string, any> = {};
+    
+    // Iterate through all fields in data and properly handle nulls/empty strings
+    for (const [key, value] of Object.entries(data)) {
+      if (key === 'price') {
+        // For price, explicitly allow null/empty values
+        if (value === '' || value === null || value === undefined) {
+          processedData[key] = null; // Set to null in database
+        } else {
+          processedData[key] = value;
+        }
+      } else {
+        processedData[key] = value;
+      }
+    }
+    
+    // Now update with the processed data
     await db.update(goats)
-      .set(data)
+      .set(processedData)
       .where(eq(goats.id, id));
     
     res.json({ success: true });
