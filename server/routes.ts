@@ -797,14 +797,21 @@ export function registerRoutes(app: Express): Server {
     const dogId = parseInt(req.params.id);
 
     try {
+      console.log('Updating dog with ID:', dogId);
+      console.log('Received dog data:', dogData);
+      console.log('Sold status in request:', dogData.sold);
+
       const dog = await db.transaction(async (tx) => {
         const existingDog = await tx.query.dogs.findFirst({
           where: eq(dogs.id, dogId),
         });
 
         if (!existingDog) {
+          console.log('Dog not found:', dogId);
           return res.status(404).json({ message: "Dog not found" });
         }
+
+        console.log('Existing dog data:', existingDog);
 
         // Process the data before update
         const updateData = {
@@ -892,6 +899,7 @@ export function registerRoutes(app: Express): Server {
           },
         });
 
+        console.log('Updated dog data:', updatedDog);
         return updatedDog;
       });
 
