@@ -81,6 +81,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     puppy: z.boolean().optional().default(false),
     available: z.boolean().optional().default(false),
     price: z.string().optional(),
+    sold: z.boolean().optional().default(false), // Added sold field
     breed: z.string().optional().default("Colorado Mountain Dogs"),
     documents: z.array(z.object({
       type: z.string(),
@@ -165,7 +166,7 @@ export default function DogForm({
       outsideBreeder: defaultValues?.outsideBreeder ?? false,
       puppy: defaultValues?.puppy ?? isPuppy,
       available: defaultValues?.available ?? false,
-      sold: Boolean(defaultValues?.sold),
+      sold: defaultValues?.sold ?? false, // Added sold field to default values
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
       documents: defaultValues?.documents || []
@@ -224,7 +225,8 @@ export default function DogForm({
           type: m.type as "image" | "video",
           fileName: m.fileName,
         })) || [],
-        documents: dog.documents || []
+        documents: dog.documents || [],
+        sold: dog.sold ?? false //Added sold
       });
 
       const media = dog.media?.map(m => ({
@@ -552,7 +554,8 @@ export default function DogForm({
         furLength: values.furLength || null,
         pedigree: values.pedigree || null,
         registrationName: values.registrationName || null,
-        media: values.media || []
+        media: values.media || [],
+        sold: values.sold // Added sold
       };
 
       Object.keys(processedValues).forEach(key => {
@@ -928,7 +931,7 @@ export default function DogForm({
             }}
             onSkip={async () => {
               const formData = new FormData();
-              const response = awaitfetch(cropImageUrl);
+              const response = await fetch(cropImageUrl);
               const blob = await response.blob();
               formData.append('file', blob);
 
