@@ -477,11 +477,21 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
+      // Handle price field correctly
+      let priceValue;
+      if (values.price === '' || values.price === null || values.price === undefined) {
+        priceValue = null; // Explicitly set null for empty values
+      } else if (values.price === '0' || values.price === 0) {
+        priceValue = 0; // Keep 0 as a valid price
+      } else {
+        priceValue = values.price; // Keep other values as they are
+      }
+      
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : undefined,
         weight: values.weight ? parseFloat(values.weight) : undefined,
-        price: values.price || undefined,
+        price: priceValue, // Use our processed price value
         sold: Boolean(values.sold),
         available: Boolean(values.available),
         kid: Boolean(values.kid),
@@ -1116,10 +1126,19 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
             <FormItem>
               <FormLabel>Price</FormLabel>
               <FormControl>
-                <Input placeholder="Enter price" {...field} />
+                <Input 
+                  placeholder="Enter price" 
+                  {...field} 
+                  value={field.value === null ? '' : field.value}
+                  onChange={(e) => {
+                    // Allow empty string to clear the field
+                    const value = e.target.value.trim() === '' ? null : e.target.value;
+                    field.onChange(value);
+                  }}
+                />
               </FormControl>
               <FormDescription>
-                Optional price for the goat (will be shown when marked as available)
+                Optional price for the goat (will be shown when marked as available). Leave empty to remove price.
               </FormDescription>
             </FormItem>
           )}
