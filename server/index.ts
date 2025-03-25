@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import dotenv from "dotenv";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
+import goatLittersRouter from "./routes/goat-litters";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -55,6 +56,9 @@ app.use('/api', proxyRouter);
 
 // Add goats router
 app.use(goatsRouter);
+
+// Add goat litters router
+app.use(goatLittersRouter);
 
 app.use((req, res, next) => {
   const start = Date.now();

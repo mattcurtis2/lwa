@@ -103,9 +103,10 @@ router.get('/api/goat-litters/:id', async (req, res) => {
 router.get('/api/goat-litters/list/past', async (req, res) => {
   try {
     const today = new Date();
+    const todayStr = today.toISOString().split('T')[0]; // Convert to YYYY-MM-DD string
     
     const pastLitters = await db.query.goatLitters.findMany({
-      where: (goatLitters, { lt }) => lt(goatLitters.dueDate, today),
+      where: (goatLitters, { lt }) => lt(goatLitters.dueDate, todayStr),
       orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
       with: {
         mother: {
