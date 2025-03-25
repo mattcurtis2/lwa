@@ -34,7 +34,7 @@ function DogDetails({ dog }) {
               Sold
             </p>
           </div>
-        ) : dog.price && dog.available ? (
+        ) : dog.price && dog.available && !dog.sold ? (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
         ) : null}
       </div>
