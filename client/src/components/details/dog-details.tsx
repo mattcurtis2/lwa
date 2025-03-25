@@ -31,18 +31,15 @@ function DogDetails({ dog }) {
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
-        {console.log('Price condition check:', dog.price > 0)}
-        {console.log('Price rendering attempted:', dog.price)}
         {dog.sold ? (
           <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
             <p className="text-lg font-semibold text-white">
               Sold
             </p>
           </div>
-        ) : dog.price > 0 && dog.available ? (
+        ) : dog.price && dog.available ? (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
-        ) : (
-          console.log('Price not displayed because condition failed')
+        ) : null
         )}
       </div>
       {dog.profileImageUrl && (
