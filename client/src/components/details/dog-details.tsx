@@ -25,6 +25,12 @@ function DogDetails({ dog }) {
           <h1 className="text-4xl font-bold text-stone-800">{dog.name}</h1>
           <span className="text-3xl">{genderSymbol}</span>
         </div>
+        {console.log('Dog Details:', {
+          name: dog.name,
+          sold: dog.sold,
+          price: dog.price,
+          available: dog.available
+        })}
         {dog.registrationName && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
