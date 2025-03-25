@@ -1594,26 +1594,6 @@ export default function DogForm({
             />
             <FormField
               control={form.control}
-              name="sold"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Sold</FormLabel>
-                    <FormDescription>
-                      Mark this if the dog has been sold
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="price"
               render={({ field }) => (
                 <FormItem>
