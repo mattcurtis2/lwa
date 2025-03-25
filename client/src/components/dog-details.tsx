@@ -200,7 +200,13 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               {dog.registrationName}
             </p>
           )}
-          {dog.price && dog.available && (
+          {dog.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : dog.price && dog.available && (
             <a 
               href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
               target="_blank"
@@ -398,7 +404,13 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               {dog.registrationName}
             </p>
           )}
-          {dog.price && dog.available && (
+          {dog.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : dog.price && dog.available && (
             <a 
               href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
               target="_blank"
