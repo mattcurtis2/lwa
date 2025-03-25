@@ -5,6 +5,14 @@ function DogDetails({ dog }) {
     console.warn('DogDetails: No dog data provided');
     return null;
   }
+  
+  console.log('DogDetails render:', {
+    name: dog.name,
+    sold: dog.sold,
+    available: dog.available,
+    price: dog.price,
+    fullDog: dog
+  });
 
   console.log('DogDetails render - Full dog object:', JSON.stringify(dog, null, 2));
   console.log('DogDetails props check:', {
