@@ -25,22 +25,15 @@ function DogDetails({ dog }) {
           <h1 className="text-4xl font-bold text-stone-800">{dog.name}</h1>
           <span className="text-3xl">{genderSymbol}</span>
         </div>
-        {console.log('Dog Details:', dog)}
-        {console.log('Price:', dog.price)}
-        {console.log('Available:', dog.available)}
-        {dog.registrationName && (
-          <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
-        )}
         {dog.sold ? (
           <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
             <p className="text-lg font-semibold text-white">
               Sold
             </p>
           </div>
-        ) : dog.price && dog.available ? (
+        ) : dog.price && !dog.sold ? (
           <p className="text-2xl font-semibold text-amber-600">${dog.price.toLocaleString()}</p>
-        ) : null
-        )}
+        ) : null}
       </div>
       {dog.profileImageUrl && (
         <div className="mt-4">
