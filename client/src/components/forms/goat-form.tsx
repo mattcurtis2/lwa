@@ -479,21 +479,20 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       const processedValues = {
         ...values,
-        height: values.height ? parseFloat(values.height) : null,
-        weight: values.weight ? parseFloat(values.weight) : null,
-        price: values.price || null,
+        height: values.height ? parseFloat(values.height) : undefined,
+        weight: values.weight ? parseFloat(values.weight) : undefined,
+        price: values.price || undefined,
         sold: Boolean(values.sold),
         available: Boolean(values.available),
         kid: Boolean(values.kid),
         outsideBreeder: Boolean(values.outsideBreeder),
-        media: (() => {
-          const processedMedia = mediaInputs.filter(media => media && media.url).map(media => ({
+        media: mediaInputs
+          .filter(media => media && media.url)
+          .map(media => ({
             url: media.url,
             type: media.type || 'image',
             fileName: media.fileName || ''
-          }));
-          return processedMedia;
-        })(),
+          })),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
