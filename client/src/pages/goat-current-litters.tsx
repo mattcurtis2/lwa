@@ -232,9 +232,11 @@ export default function GoatCurrentLitters() {
                                     {kid.gender === 'female' ? '♀' : '♂'}
                                   </span>
                                 </div>
-                                {kid.available && (
+                                {kid.available && !kid.sold ? (
                                   <div className="text-sm text-green-600 font-medium">Available</div>
-                                )}
+                                ) : kid.sold ? (
+                                  <div className="text-sm text-red-600 font-medium">Sold</div>
+                                ) : null}
                               </div>
                             </div>
                           ))}

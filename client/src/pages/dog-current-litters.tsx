@@ -232,9 +232,11 @@ export default function DogCurrentLitters() {
                                     {puppy.gender === 'female' ? '♀' : '♂'}
                                   </span>
                                 </div>
-                                {puppy.available && (
+                                {puppy.available && !puppy.sold ? (
                                   <div className="text-sm text-green-600 font-medium">Available</div>
-                                )}
+                                ) : puppy.sold ? (
+                                  <div className="text-sm text-red-600 font-medium">Sold</div>
+                                ) : null}
                               </div>
                             </div>
                           ))}
