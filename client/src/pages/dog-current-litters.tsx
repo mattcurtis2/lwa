@@ -124,76 +124,82 @@ export default function DogCurrentLitters() {
                 <div className="grid md:grid-cols-[1fr] gap-6">
                   
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Parents</h4>
-                        <div className="flex flex-col gap-2">
-                          {/* Mother row with image */}
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-pink-100 border-2 border-pink-200 flex-shrink-0">
-                              {litter.mother?.profileImageUrl ? (
-                                <img 
-                                  src={litter.mother.profileImageUrl} 
-                                  alt={litter.mother.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : litter.mother?.media?.find(m => m.type === 'image') ? (
-                                <img 
-                                  src={litter.mother.media.find(m => m.type === 'image')!.url} 
-                                  alt={litter.mother.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <span className="text-lg text-pink-500">♀</span>
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-muted-foreground text-base">
+                    {/* Parent section */}
+                    <div className="mb-6">
+                      <h4 className="font-medium mb-3">Parents</h4>
+                      <div className="flex flex-wrap justify-center gap-4 mb-2">
+                        {/* Mother card with larger image */}
+                        <div className="flex flex-col items-center">
+                          <div className="w-24 h-24 rounded-full overflow-hidden bg-pink-100 border-2 border-pink-300 flex-shrink-0 shadow-md hover:shadow-lg transition-all">
+                            {litter.mother?.profileImageUrl ? (
+                              <img 
+                                src={litter.mother.profileImageUrl} 
+                                alt={litter.mother.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : litter.mother?.media?.find(m => m.type === 'image') ? (
+                              <img 
+                                src={litter.mother.media.find(m => m.type === 'image')!.url} 
+                                alt={litter.mother.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <span className="text-3xl text-pink-500">♀</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <span className="font-medium">
                               {litter.mother?.name || "Unknown Dam"} <span className="text-pink-500">♀</span>
                             </span>
+                            <div className="text-xs text-muted-foreground">Dam</div>
                           </div>
-                          
-                          {/* Father row with image */}
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-100 border-2 border-blue-200 flex-shrink-0">
-                              {litter.father?.profileImageUrl ? (
-                                <img 
-                                  src={litter.father.profileImageUrl} 
-                                  alt={litter.father.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : litter.father?.media?.find(m => m.type === 'image') ? (
-                                <img 
-                                  src={litter.father.media.find(m => m.type === 'image')!.url} 
-                                  alt={litter.father.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <span className="text-lg text-blue-500">♂</span>
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-muted-foreground text-base">
+                        </div>
+                        
+                        {/* Father card with larger image */}
+                        <div className="flex flex-col items-center">
+                          <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 border-2 border-blue-300 flex-shrink-0 shadow-md hover:shadow-lg transition-all">
+                            {litter.father?.profileImageUrl ? (
+                              <img 
+                                src={litter.father.profileImageUrl} 
+                                alt={litter.father.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : litter.father?.media?.find(m => m.type === 'image') ? (
+                              <img 
+                                src={litter.father.media.find(m => m.type === 'image')!.url} 
+                                alt={litter.father.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <span className="text-3xl text-blue-500">♂</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <span className="font-medium">
                               {litter.father?.name || "Unknown Sire"} <span className="text-blue-500">♂</span>
                             </span>
+                            <div className="text-xs text-muted-foreground">Sire</div>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <Separator className="my-3" />
+                    <Separator className="my-4" />
                     
+                    {/* Puppies section */}
                     <div>
-                      <h4 className="font-medium mb-2">
+                      <h4 className="font-medium mb-3">
                         {litter.puppies.length > 0 ? 'Puppies' : 'Status'}
                       </h4>
                       {litter.puppies.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                           {litter.puppies.slice(0, 4).map((puppy) => (
-                            <div key={puppy.id} className="flex items-center gap-3">
-                              <div className={`w-9 h-9 rounded-full overflow-hidden ${puppy.gender === 'female' ? 'bg-pink-50 border-pink-100' : 'bg-blue-50 border-blue-100'} border-2 flex-shrink-0`}>
+                            <div key={puppy.id} className="flex flex-col items-center">
+                              <div className={`w-16 h-16 rounded-full overflow-hidden ${puppy.gender === 'female' ? 'bg-pink-50 border-pink-200' : 'bg-blue-50 border-blue-200'} border-2 flex-shrink-0 shadow hover:shadow-md transition-all`}>
                                 {puppy.profileImageUrl ? (
                                   <img 
                                     src={puppy.profileImageUrl} 
@@ -208,18 +214,20 @@ export default function DogCurrentLitters() {
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center">
-                                    <span className={`text-sm ${puppy.gender === 'female' ? 'text-pink-400' : 'text-blue-400'}`}>
+                                    <span className={`text-xl ${puppy.gender === 'female' ? 'text-pink-400' : 'text-blue-400'}`}>
                                       {puppy.gender === 'female' ? '♀' : '♂'}
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <div className="text-base">
-                                <span className={puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
-                                  {puppy.gender === 'female' ? '♀' : '♂'}
-                                </span>{' '}
-                                {puppy.name}
-                                {puppy.available && <span className="ml-1 text-green-600 font-medium">(Available)</span>}
+                              <div className="mt-2 text-center">
+                                <div className="font-medium">
+                                  <span className={puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
+                                    {puppy.gender === 'female' ? '♀' : '♂'}
+                                  </span>{' '}
+                                  {puppy.name}
+                                </div>
+                                {puppy.available && <div className="text-xs text-green-600 font-medium">Available</div>}
                               </div>
                             </div>
                           ))}
