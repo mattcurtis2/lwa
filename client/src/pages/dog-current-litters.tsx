@@ -1,31 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import type { GoatLitter, Goat, GoatMedia } from "@db/schema";
+import type { Litter, Dog, DogMedia } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
-interface LitterWithRelations extends GoatLitter {
-  mother: Goat & { media?: GoatMedia[] };
-  father: Goat & { media?: GoatMedia[] };
-  kids: (Goat & { media?: GoatMedia[] })[];
+interface LitterWithRelations extends Litter {
+  mother: Dog & { media?: DogMedia[] };
+  father: Dog & { media?: DogMedia[] };
+  puppies: (Dog & { media?: DogMedia[] })[];
 }
 
-export default function GoatCurrentLitters() {
+export default function DogCurrentLitters() {
   const [, navigate] = useLocation();
   const { data: litters, isLoading } = useQuery<LitterWithRelations[]>({
-    queryKey: ['/api/goat-litters/list/current'],
+    queryKey: ['/api/litters/list/current'],
   });
   
   // Function to get a suitable image for a litter
   const getLitterImage = (litter: LitterWithRelations): string | null => {
-    // First try to get an image from kids
-    if (litter.kids.length > 0) {
-      for (const kid of litter.kids) {
-        if (kid.profileImageUrl) return kid.profileImageUrl;
-        if (kid.media && kid.media.length > 0) {
-          const imgMedia = kid.media.find(m => m.type === 'image');
+    // First try to get an image from puppies
+    if (litter.puppies.length > 0) {
+      for (const puppy of litter.puppies) {
+        if (puppy.profileImageUrl) return puppy.profileImageUrl;
+        if (puppy.media && puppy.media.length > 0) {
+          const imgMedia = puppy.media.find(m => m.type === 'image');
           if (imgMedia) return imgMedia.url;
         }
       }
@@ -74,18 +74,18 @@ export default function GoatCurrentLitters() {
         <p className="text-muted-foreground mb-8">
           We don't have any current litters to display at this time.
         </p>
-        <Button onClick={() => navigate('/goats')}>
-          View Our Goats
+        <Button onClick={() => navigate('/dogs')}>
+          View Our Dogs
         </Button>
       </div>
     );
   }
   
-  // Sort litters - those with kids first, then by due date (most recent first)
+  // Sort litters - those with puppies first, then by due date (most recent first)
   const sortedLitters = [...litters].sort((a, b) => {
-    // Litters with kids come first
-    if (a.kids.length > 0 && b.kids.length === 0) return -1;
-    if (a.kids.length === 0 && b.kids.length > 0) return 1;
+    // Litters with puppies come first
+    if (a.puppies.length > 0 && b.puppies.length === 0) return -1;
+    if (a.puppies.length === 0 && b.puppies.length > 0) return 1;
     
     // Then sort by due date (most recent first)
     const dateA = new Date(a.dueDate);
@@ -102,7 +102,7 @@ export default function GoatCurrentLitters() {
             <Card
               key={litter.id}
               className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.01]"
-              onClick={() => navigate(`/goats/litters/${litter.id}`)}
+              onClick={() => navigate(`/dogs/litters/${litter.id}`)}
             >
               {/* Image section at the top of card */}
               <div className="h-48 overflow-hidden bg-stone-200">
@@ -125,12 +125,12 @@ export default function GoatCurrentLitters() {
                       Current Litter
                     </div>
                     <h3 className="text-xl font-semibold mb-2">
-                      {litter.kids.length > 0 
-                        ? `${litter.kids.length} ${litter.kids.length === 1 ? "Kid" : "Kids"}` 
+                      {litter.puppies.length > 0 
+                        ? `${litter.puppies.length} ${litter.puppies.length === 1 ? "Puppy" : "Puppies"}` 
                         : "Upcoming Litter"}
                     </h3>
                     <p className="text-muted-foreground">
-                      {litter.kids.length > 0 
+                      {litter.puppies.length > 0 
                         ? `Born: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}` 
                         : `Due: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}`}
                     </p>
@@ -152,28 +152,28 @@ export default function GoatCurrentLitters() {
                     
                     <div>
                       <h4 className="font-medium mb-2">
-                        {litter.kids.length > 0 ? 'Kids' : 'Status'}
+                        {litter.puppies.length > 0 ? 'Puppies' : 'Status'}
                       </h4>
-                      {litter.kids.length > 0 ? (
+                      {litter.puppies.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {litter.kids.slice(0, 3).map((kid) => (
-                            <div key={kid.id} className="text-sm">
-                              <span className={kid.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
-                                {kid.gender === 'female' ? '♀' : '♂'}
+                          {litter.puppies.slice(0, 3).map((puppy) => (
+                            <div key={puppy.id} className="text-sm">
+                              <span className={puppy.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
+                                {puppy.gender === 'female' ? '♀' : '♂'}
                               </span>{' '}
-                              {kid.name}
-                              {kid.available && <span className="ml-1 text-green-600 font-medium">(Available)</span>}
+                              {puppy.name}
+                              {puppy.available && <span className="ml-1 text-green-600 font-medium">(Available)</span>}
                             </div>
                           ))}
-                          {litter.kids.length > 3 && (
+                          {litter.puppies.length > 3 && (
                             <div className="text-sm text-muted-foreground">
-                              +{litter.kids.length - 3} more
+                              +{litter.puppies.length - 3} more
                             </div>
                           )}
                         </div>
                       ) : (
                         <p className="text-muted-foreground text-sm">
-                          Expecting new kids soon! Check back for updates.
+                          Expecting new puppies soon! Check back for updates.
                         </p>
                       )}
                     </div>
