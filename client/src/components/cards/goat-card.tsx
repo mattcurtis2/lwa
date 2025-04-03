@@ -51,6 +51,23 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                   </div>
                 )}
               </div>
+            ) : goat.profileImageUrl ? (
+              <div>
+                <div className="aspect-square relative overflow-hidden">
+                  <img 
+                    src={goat.profileImageUrl} 
+                    alt={goat.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {showPrice && goat.price && (
+                    <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
+                      <p className="text-lg font-semibold text-white">
+                        Available: ${parseInt(goat.price).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
               <div className="aspect-square bg-gray-100 flex items-center justify-center">
                 <p className="text-gray-500">No goat media available</p>
