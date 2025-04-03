@@ -141,12 +141,22 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   useEffect(() => {
     if (goat) {
-      const media = goat.media?.map((m: any) => ({
+      let media = goat.media?.map((m: any) => ({
         url: m.url,
         type: m.type as "image" | "video",
         fileName: m.fileName,
         isNew: false,
       })) || [];
+      
+      // If there's no media but there is a profileImageUrl, add it to the media array
+      if (media.length === 0 && goat.profileImageUrl) {
+        media = [{
+          url: goat.profileImageUrl,
+          type: "image",
+          fileName: "profile-image.jpg",
+          isNew: false,
+        }];
+      }
 
       setMediaInputs(media);
 
@@ -176,7 +186,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     try {
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
-      setTempMediaData({ file, isProfileImage: true });
+      setTempMediaData({ index: 0, file, isProfileImage: true });
       setShowCropper(true);
     } catch (error) {
       toast({
@@ -368,9 +378,10 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
           const data = await res.json();
           const fileUrl = Array.isArray(data) ? data[0].url : data.url;
-          const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+          // Ensure type is explicitly 'image' or 'video' to satisfy TypeScript
+          const fileType = file.type.startsWith('video/') ? 'video' as const : 'image' as const;
 
-          const newMedia = {
+          const newMedia: MediaInput = {
             url: fileUrl,
             type: fileType,
             fileName: file.name,
@@ -605,7 +616,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   onClick={() => {
                     if (field.value) {
                       setCropImageUrl(field.value);
-                      setTempMediaData({ file: undefined, isProfileImage: true }); //Added for consistency
+                      setTempMediaData({ index: 0, file: undefined, isProfileImage: true }); //Added for consistency
                       setShowCropper(true);
                     }
                   }}

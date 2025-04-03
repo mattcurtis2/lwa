@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DogMedia } from "@db/schema";
 import { cn } from "@/lib/utils";
 
+// More generic media interface that works for both dogs and goats
+interface MediaItem {
+  url: string;
+  type: string;
+}
+
 interface DogMediaCarouselProps {
-  media: DogMedia[];
+  media: MediaItem[];
   className?: string;
   onSlideChange?: (index: number) => void;
   activeIndex?: number;
