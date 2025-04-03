@@ -121,22 +121,7 @@ export default function DogCurrentLitters() {
                 </p>
               </div>
               <CardContent className="p-6">
-                <div className="grid md:grid-cols-[1fr,2fr] gap-6">
-                  <div>
-                    <div className="bg-amber-100 px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
-                      Current Litter
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {litter.puppies.length > 0 
-                        ? `${litter.puppies.length} ${litter.puppies.length === 1 ? "Puppy" : "Puppies"}` 
-                        : "Upcoming Litter"}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {litter.puppies.length > 0 
-                        ? `Born: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}` 
-                        : `Due: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}`}
-                    </p>
-                  </div>
+                <div className="grid md:grid-cols-[1fr] gap-6">
                   
                   <div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
