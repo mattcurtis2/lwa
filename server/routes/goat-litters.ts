@@ -282,7 +282,7 @@ router.delete('/api/goat-litters/:id', async (req, res) => {
   }
 });
 
-// Get current goat litters (litters with kids)
+// Get current goat litters (all litters, with or without kids)
 router.get('/api/goat-litters/list/current', async (req, res) => {
   try {
     // Get all litters
@@ -305,29 +305,19 @@ router.get('/api/goat-litters/list/current', async (req, res) => {
     // For each litter, find kids (kid goats with litterId matching the litter's id)
     const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
       const kids = await db.query.goats.findMany({
-        where: and(
-          eq(goats.litterId, litter.id),
-          eq(goats.kid, true)
-        ),
+        where: eq(goats.litterId, litter.id),
         with: {
           media: true
         }
       });
       
-      // Only include litters that have kids
-      if (kids.length > 0) {
-        return {
-          ...litter,
-          kids
-        };
-      }
-      return null;
+      return {
+        ...litter,
+        kids: kids || []
+      };
     }));
     
-    // Filter out litters with no kids
-    const currentLitters = littersWithKids.filter(litter => litter !== null);
-    
-    res.json(currentLitters);
+    res.json(littersWithKids);
   } catch (error: any) {
     console.error('Error fetching current goat litters:', error);
     res.status(500).json({ 

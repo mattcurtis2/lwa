@@ -65,10 +65,14 @@ export default function GoatCurrentLitters() {
                       Current Litter
                     </div>
                     <h3 className="text-xl font-semibold mb-2">
-                      {litter.kids.length} {litter.kids.length === 1 ? "Kid" : "Kids"}
+                      {litter.kids.length > 0 
+                        ? `${litter.kids.length} ${litter.kids.length === 1 ? "Kid" : "Kids"}` 
+                        : "Upcoming Litter"}
                     </h3>
                     <p className="text-muted-foreground">
-                      Born: {format(new Date(litter.dueDate), 'MMM d, yyyy')}
+                      {litter.kids.length > 0 
+                        ? `Born: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}` 
+                        : `Due: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}`}
                     </p>
                   </div>
                   
@@ -87,23 +91,31 @@ export default function GoatCurrentLitters() {
                     <Separator className="my-3" />
                     
                     <div>
-                      <h4 className="font-medium mb-2">Kids</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {litter.kids.slice(0, 3).map((kid) => (
-                          <div key={kid.id} className="text-sm">
-                            <span className={kid.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
-                              {kid.gender === 'female' ? '♀' : '♂'}
-                            </span>{' '}
-                            {kid.name}
-                            {kid.available && <span className="ml-1 text-green-600 font-medium">(Available)</span>}
-                          </div>
-                        ))}
-                        {litter.kids.length > 3 && (
-                          <div className="text-sm text-muted-foreground">
-                            +{litter.kids.length - 3} more
-                          </div>
-                        )}
-                      </div>
+                      <h4 className="font-medium mb-2">
+                        {litter.kids.length > 0 ? 'Kids' : 'Status'}
+                      </h4>
+                      {litter.kids.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {litter.kids.slice(0, 3).map((kid) => (
+                            <div key={kid.id} className="text-sm">
+                              <span className={kid.gender === 'female' ? 'text-pink-500' : 'text-blue-500'}>
+                                {kid.gender === 'female' ? '♀' : '♂'}
+                              </span>{' '}
+                              {kid.name}
+                              {kid.available && <span className="ml-1 text-green-600 font-medium">(Available)</span>}
+                            </div>
+                          ))}
+                          {litter.kids.length > 3 && (
+                            <div className="text-sm text-muted-foreground">
+                              +{litter.kids.length - 3} more
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">
+                          Expecting new kids soon! Check back for updates.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

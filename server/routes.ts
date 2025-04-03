@@ -1262,24 +1262,9 @@ export function registerRoutes(app: Express): Server {
   // Add the current litters endpoint right after the other litter routes
   app.get("/api/litters/list/current", async (_req, res) => {
     try {
-      // First get all dogs that are puppies and available
-      const availablePuppies = await db.query.dogs.findMany({
-        where: (dogs, { and, eq }) => and(
-          eq(dogs.puppy, true),
-          eq(dogs.available, true)
-        )
-      });
-
-      if (availablePuppies.length === 0) {
-        return res.json([]);
-      }
-
-      // Get unique litter IDs from the puppies
-      const litterIds = [...new Set(availablePuppies.map(p => p.litterId).filter(Boolean))];
-
-      // Then fetch those specific litters with all relations
-      const currentLitters = await db.query.litters.findMany({
-        where: (litters, { inArray }) => inArray(litters.id, litterIds),
+      // Get all litters
+      const allLitters = await db.query.litters.findMany({
+        orderBy: (litters, { desc }) => [desc(litters.dueDate)],
         with: {
           mother: {
             with: {
@@ -1293,13 +1278,22 @@ export function registerRoutes(app: Express): Server {
           }
         }
       });
-
-      // Map puppies to their litters
-      const littersWithPuppies = currentLitters.map(litter => ({
-        ...litter,
-        puppies: availablePuppies.filter(puppy => puppy.litterId === litter.id)
+      
+      // For each litter, find puppies (dogs with litterId matching the litter's id)
+      const littersWithPuppies = await Promise.all(allLitters.map(async (litter) => {
+        const puppies = await db.query.dogs.findMany({
+          where: eq(dogs.litterId, litter.id),
+          with: {
+            media: true
+          }
+        });
+        
+        return {
+          ...litter,
+          puppies: puppies || []
+        };
       }));
-
+      
       res.json(littersWithPuppies);
     } catch (error) {
       console.error("Error fetching current litters:", error);

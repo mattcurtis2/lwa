@@ -60,7 +60,7 @@ export default function Header() {
                     Females
                   </a>
                 </Link>
-                <Link href="/dogs/litters/upcoming">
+                <Link href="/dogs/litters/current">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Current Litters
                   </a>
