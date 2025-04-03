@@ -82,7 +82,7 @@ export default function MobileNav() {
                 Females
               </a>
             </Link>
-            <Link href="/goats/litters/upcoming">
+            <Link href="/goats/litters/current">
               <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
                 Current Litters
               </a>

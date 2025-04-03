@@ -17,6 +17,7 @@ import GoatDetail from "@/pages/goat-detail";
 import GoatLitterDetail from "@/pages/goat-litter-detail";
 import GoatUpcomingLitters from "@/pages/goat-upcoming-litters";
 import GoatPastLitters from "@/pages/goat-past-litters";
+import GoatCurrentLitters from "@/pages/goat-current-litters";
 import Market from "@/pages/market";
 import MarketSection from "@/pages/market-section";
 import Header from "@/components/layout/header";
@@ -75,6 +76,7 @@ function Router() {
             {() => <Goats showAvailable={true} />}
           </Route>
           <Route path="/goats/litters/upcoming" component={GoatUpcomingLitters} />
+          <Route path="/goats/litters/current" component={GoatCurrentLitters} />
           <Route path="/goats/litters/past" component={GoatPastLitters} />
           <Route path="/goats/litters/:id" component={GoatLitterDetail} />
           <Route path="/goats/:id" component={GoatDetail} />

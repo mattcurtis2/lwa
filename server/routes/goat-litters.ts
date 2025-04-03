@@ -282,4 +282,59 @@ router.delete('/api/goat-litters/:id', async (req, res) => {
   }
 });
 
+// Get current goat litters (litters with kids)
+router.get('/api/goat-litters/list/current', async (req, res) => {
+  try {
+    // Get all litters
+    const allLitters = await db.query.goatLitters.findMany({
+      orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
+      with: {
+        mother: {
+          with: {
+            media: true
+          }
+        },
+        father: {
+          with: {
+            media: true
+          }
+        }
+      }
+    });
+    
+    // For each litter, find kids (kid goats with litterId matching the litter's id)
+    const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
+      const kids = await db.query.goats.findMany({
+        where: and(
+          eq(goats.litterId, litter.id),
+          eq(goats.kid, true)
+        ),
+        with: {
+          media: true
+        }
+      });
+      
+      // Only include litters that have kids
+      if (kids.length > 0) {
+        return {
+          ...litter,
+          kids
+        };
+      }
+      return null;
+    }));
+    
+    // Filter out litters with no kids
+    const currentLitters = littersWithKids.filter(litter => litter !== null);
+    
+    res.json(currentLitters);
+  } catch (error: any) {
+    console.error('Error fetching current goat litters:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch current goat litters',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
+
 export default router;
