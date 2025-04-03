@@ -47,6 +47,7 @@ export default function GoatManagement() {
   // Separate goats into categories
   const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid && !goat.available);
   const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid && !goat.available);
+  const kids = goats.filter(goat => goat.kid);
   const availableGoats = goats.filter(goat => goat.available);
   const outsideBreeders = goats.filter(goat => goat.outsideBreeder);
 
@@ -79,6 +80,16 @@ export default function GoatManagement() {
           <h3 className="text-xl font-semibold mb-6">Bucks</h3>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {bucks.map(renderGoatCard)}
+          </div>
+        </div>
+      )}
+
+      {/* Kids Section */}
+      {kids.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-6">Kids</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {kids.map(renderGoatCard)}
           </div>
         </div>
       )}
