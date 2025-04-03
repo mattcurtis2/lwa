@@ -154,33 +154,45 @@ export default function GoatLitterManagement() {
                 {litterKids.map((kid) => (
                   <div
                     key={kid.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                      {kid.profileImageUrl ? (
-                        <img
-                          src={kid.profileImageUrl}
-                          alt={kid.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${
-                          kid.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
-                        }`}>
-                          <span className={`text-xl ${
-                            kid.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                        {kid.profileImageUrl ? (
+                          <img
+                            src={kid.profileImageUrl}
+                            alt={kid.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className={`w-full h-full flex items-center justify-center ${
+                            kid.gender === 'female' ? 'bg-pink-100' : 'bg-blue-100'
                           }`}>
-                            {kid.gender === 'female' ? '♀' : '♂'}
-                          </span>
-                        </div>
-                      )}
+                            <span className={`text-xl ${
+                              kid.gender === 'female' ? 'text-pink-500' : 'text-blue-500'
+                            }`}>
+                              {kid.gender === 'female' ? '♀' : '♂'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{kid.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {kid.gender} • {kid.color || 'No color set'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{kid.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {kid.gender} • {kid.color || 'No color set'}
-                      </p>
-                    </div>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedGoat(kid);
+                        setShowGoatForm(true);
+                      }}
+                    >
+                      Edit Kid
+                    </Button>
                   </div>
                 ))}
               </div>
