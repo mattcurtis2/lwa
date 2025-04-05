@@ -226,7 +226,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-1">Breed</h3>
-                <p>Colorado Mountain Goat</p>
+                <p>{goat.breed}</p>
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Gender</h3>
@@ -459,7 +459,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-semibold mb-2">Breed</h3>
-                    <p>Colorado Mountain Goat</p>
+                    <p>{goat.breed}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Gender</h3>
