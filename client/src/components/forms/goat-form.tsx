@@ -660,16 +660,14 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   >
                     {field.value ? 'Change Picture' : 'Upload Picture'}
                   </Button>
-                  {field.value && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => field.onChange('')}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      Remove Picture
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => field.onChange('')}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    Remove Picture
+                  </Button>
                 </div>
               </div>
               <FormMessage />
