@@ -200,22 +200,28 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const handleCroppedImage = async (uploadedUrl: string, cropData?: any) => {
     setIsUploading(true);
     try {
+      console.log(`Goat Form - handleCroppedImage received URL: ${uploadedUrl.substring(0, 50)}...`);
+      
       // Check if this is a media upload or profile image upload
       const isMediaUpload = tempMediaData !== null && !tempMediaData.isProfileImage;
+      console.log(`Goat Form - isMediaUpload: ${isMediaUpload}, tempMediaData:`, tempMediaData);
 
       if (isMediaUpload) {
         // If it's a media upload, use applyCroppedMediaImage
+        console.log('Goat Form - Using applyCroppedMediaImage for media upload');
         await applyCroppedMediaImage(uploadedUrl);
         return;
       }
 
       // If the URL is already a server URL or an S3 URL, use it directly
-      if (uploadedUrl.startsWith('/uploads/') || uploadedUrl.includes('lwacontent.s3')) {
+      if (uploadedUrl.startsWith('/uploads/') || uploadedUrl.includes('lwacontent') || uploadedUrl.includes('amazonaws.com')) {
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
+        console.log(`Goat Form - Using existing URL with timestamp: ${timestampedUrl.substring(0, 50)}...`);
 
         if (isMediaUpload && tempMediaData) {
           // Update media at the specific index
+          console.log(`Goat Form - Updating media at index ${tempMediaData.index}`);
           const updatedMedia = [...mediaInputs];
           updatedMedia[tempMediaData.index] = {
             url: timestampedUrl,
@@ -227,6 +233,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           form.setValue("media", updatedMedia);
         } else {
           // Update profile image
+          console.log('Goat Form - Updating profile image URL');
           form.setValue("profileImageUrl", timestampedUrl);
         }
         setShowCropper(false);
@@ -238,50 +245,71 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
       // For new cropped images from data URL
       if (uploadedUrl.startsWith('data:image/')) {
-        // Create a Blob from the data URL
-        const response = await fetch(uploadedUrl);
-        const blob = await response.blob();
+        console.log('Goat Form - Processing data URL image for upload');
+        try {
+          // Create a Blob from the data URL
+          const response = await fetch(uploadedUrl);
+          const blob = await response.blob();
+          console.log(`Goat Form - Created blob from data URL, size: ${blob.size} bytes`);
 
-        // Create a new File object from the Blob
-        const fileName = isMediaUpload && tempMediaData?.file 
-          ? tempMediaData.file.name 
-          : 'cropped-image.jpg';
+          // Create a new File object from the Blob
+          const fileName = isMediaUpload && tempMediaData?.file 
+            ? tempMediaData.file.name 
+            : 'goat-profile-image.jpg';  // More specific name
+          console.log(`Goat Form - Using filename: ${fileName}`);
 
-        const newFile = new File([blob], fileName, { type: 'image/jpeg' });
+          const newFile = new File([blob], fileName, { type: 'image/jpeg' });
+          console.log(`Goat Form - Created File object, size: ${newFile.size} bytes`);
 
-        // Create form data for upload
-        const formData = new FormData();
-        formData.append('file', newFile);
+          // Create form data for upload
+          const formData = new FormData();
+          formData.append('file', newFile);
+          console.log('Goat Form - FormData created with file');
 
-        // Upload the file
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+          // Upload the file
+          console.log('Goat Form - Starting upload to /api/upload');
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!uploadResponse.ok) {
-          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+          console.log(`Goat Form - Upload response status: ${uploadResponse.status}`);
+          if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error(`Goat Form - Upload failed with status: ${uploadResponse.status}, response: ${errorText}`);
+            throw new Error(`Upload failed with status: ${uploadResponse.status}. Server response: ${errorText}`);
+          }
+
+          const data = await uploadResponse.json();
+          console.log('Goat Form - Upload successful, received data:', data);
+
+          // Extract URL consistently whether it's an array or single object
+          const uploadUrl = Array.isArray(data) ? data[0]?.url : data.url;
+          console.log(`Goat Form - Extracted URL: ${uploadUrl}`);
+
+          if (isMediaUpload && tempMediaData) {
+            // Update media at the specific index
+            console.log(`Goat Form - Updating media at index ${tempMediaData.index}`);
+            const updatedMedia = [...mediaInputs];
+            updatedMedia[tempMediaData.index] = {
+              url: uploadUrl,
+              type: 'image',
+              fileName: fileName,
+              isNew: true
+            };
+            setMediaInputs(updatedMedia);
+            form.setValue("media", updatedMedia);
+          } else {
+            // Update profile image
+            console.log('Goat Form - Updating profile image URL');
+            form.setValue("profileImageUrl", uploadUrl);
+          }
+
+          toast({ title: "Success", description: "Image cropped and uploaded successfully" });
+        } catch (uploadError) {
+          console.error('Goat Form - Error during file upload:', uploadError);
+          throw uploadError; // Re-throw to be caught by the outer catch block
         }
-
-        const data = await uploadResponse.json();
-
-        if (isMediaUpload && tempMediaData) {
-          // Update media at the specific index
-          const updatedMedia = [...mediaInputs];
-          updatedMedia[tempMediaData.index] = {
-            url: data.url,
-            type: 'image',
-            fileName: fileName,
-            isNew: true
-          };
-          setMediaInputs(updatedMedia);
-          form.setValue("media", updatedMedia);
-        } else {
-          // Update profile image
-          form.setValue("profileImageUrl", data.url);
-        }
-
-        toast({ title: "Success", description: "Image cropped and uploaded successfully" });
       } else {
         throw new Error("Invalid image format received from cropper");
       }
@@ -663,7 +691,11 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => field.onChange('')}
+                    onClick={() => {
+                      console.log('Goat Form - Remove Picture button clicked');
+                      field.onChange('');
+                      console.log('Goat Form - Profile picture field cleared');
+                    }}
                     className="text-red-500 hover:text-red-600"
                   >
                     Remove Picture
