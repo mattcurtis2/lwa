@@ -4,7 +4,6 @@ import { GoatHero } from "@/components/sections/goat-hero";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import GoatDetails from "@/components/goat-details";
-import { GoatCard } from "@/components/cards/goat-card";
 import type { Goat } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 
@@ -23,12 +22,12 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     queryKey: ["/api/goats"],
   });
 
-  const { data: siteContent = [] } = useQuery<{ key: string, value: string }[]>({
+  const { data: siteContent = [] } = useQuery({
     queryKey: ["/api/site-content"],
   });
 
   const goatDescription = siteContent.find(
-    (content) => content.key === "goat_description"
+    (content: any) => content.key === "goat_description"
   )?.value;
 
   // Filter goats based on props - exclude outside breeders
@@ -126,11 +125,11 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                       <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Does</h2>
                       <div className="flex-grow border-t border-gray-200"></div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-8">
                       {filteredGoats
                         .filter(goat => goat.gender === 'female')
                         .map(goat => (
-                          <GoatCard key={goat.id} goat={goat} showPrice={true} />
+                          <GoatDetails key={goat.id} goat={goat} />
                         ))}
                     </div>
                   </div>
@@ -144,11 +143,11 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                       <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Males</h2>
                       <div className="flex-grow border-t border-gray-200"></div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-8">
                       {filteredGoats
                         .filter(goat => goat.gender === 'male')
                         .map(goat => (
-                          <GoatCard key={goat.id} goat={goat} showPrice={true} />
+                          <GoatDetails key={goat.id} goat={goat} />
                         ))}
                     </div>
                   </div>
@@ -176,9 +175,9 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                   <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Available Goats</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-8">
                   {availableGoats.map(goat => (
-                    <GoatCard key={goat.id} goat={goat} showPrice={true} />
+                    <GoatDetails key={goat.id} goat={goat} />
                   ))}
                 </div>
               </div>
@@ -192,9 +191,9 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                   <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Females</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-8">
                   {females.map(goat => (
-                    <GoatCard key={goat.id} goat={goat} showPrice={false} />
+                    <GoatDetails key={goat.id} goat={goat} />
                   ))}
                 </div>
               </div>
@@ -208,9 +207,9 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                   <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Males</h2>
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-8">
                   {males.map(goat => (
-                    <GoatCard key={goat.id} goat={goat} showPrice={false} />
+                    <GoatDetails key={goat.id} goat={goat} />
                   ))}
                 </div>
               </div>
