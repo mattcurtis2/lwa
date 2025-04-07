@@ -4,7 +4,7 @@ import { GoatHero } from "@/components/sections/goat-hero";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import GoatDetails from "@/components/goat-details";
-import type { Goat } from "@db/schema";
+import type { Goat, SiteContent } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 
 interface GoatsPageProps {
@@ -22,12 +22,12 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     queryKey: ["/api/goats"],
   });
 
-  const { data: siteContent = [] } = useQuery({
+  const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
 
   const goatDescription = siteContent.find(
-    (content: any) => content.key === "goat_description"
+    (content) => content.key === "goat_description"
   )?.value;
 
   // Filter goats based on props - exclude outside breeders

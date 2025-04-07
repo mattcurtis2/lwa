@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Goat, GoatMedia } from "@db/schema";
 import {
@@ -221,7 +220,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && goat.price && (
+          {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
             <a 
               href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
               target="_blank"
@@ -408,7 +407,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && goat.price && (
+          {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
             <a 
               href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
               target="_blank"
@@ -474,159 +473,110 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
         </Dialog>
 
         <Tabs defaultValue={getDefaultTab()} className="w-full">
-          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap">
+          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap overflow-x-auto">
             <TabsTrigger value="basic">Basic Information</TabsTrigger>
             {hasStory && <TabsTrigger value="story">Story</TabsTrigger>}
-            {hasPhysical && <TabsTrigger value="physical">Physical Characteristics</TabsTrigger>}
-            {hasHealth && <TabsTrigger value="health">Health Information</TabsTrigger>}
-            {hasPedigree && <TabsTrigger value="pedigree">Pedigree</TabsTrigger>}
+            {hasPhysical && (
+              <TabsTrigger value="physical">Physical</TabsTrigger>
+            )}
+            {hasHealth && <TabsTrigger value="health">Health</TabsTrigger>}
+            {hasPedigree && (
+              <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="basic">
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Breed</h3>
-                    <p>{goat.breed}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Gender</h3>
-                    <p className="flex items-center gap-1">
-                      {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)}{" "}
-                      {genderSymbol}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Birth Date</h3>
-                    <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="basic" className="space-y-6 pt-4">
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-lg">Breed</h3>
+                <p>{goat.breed}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)}{" "}
+                  {genderSymbol}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+              </div>
+            </div>
           </TabsContent>
 
           {hasStory && (
-            <TabsContent value="story">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Story</CardTitle>
-                  <CardDescription>
-                    Learn more about {goat.name}'s personality and background
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    <p className="text-lg leading-relaxed">
-                      {goat.narrativeDescription || goat.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+            <TabsContent value="story" className="space-y-6 pt-4">
+              <p className="text-base leading-relaxed">
+                {goat.narrativeDescription || goat.description}
+              </p>
             </TabsContent>
           )}
 
           {hasPhysical && (
-            <TabsContent value="physical">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Physical Characteristics</CardTitle>
-                  <CardDescription>
-                    Detailed physical attributes and measurements
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {goat.color && (
-                      <div>
-                        <h3 className="font-semibold mb-2">Color</h3>
-                        <p>{goat.color}</p>
-                      </div>
-                    )}
-                    {goat.weight && (
-                      <div>
-                        <h3 className="font-semibold mb-2">Weight</h3>
-                        <p>{goat.weight} lbs</p>
-                      </div>
-                    )}
+            <TabsContent value="physical" className="space-y-6 pt-4">
+              <div className="space-y-4">
+                {goat.color && (
+                  <div>
+                    <h3 className="font-medium text-lg">Color</h3>
+                    <p>{goat.color}</p>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {goat.weight && (
+                  <div>
+                    <h3 className="font-medium text-lg">Weight</h3>
+                    <p>{goat.weight} lbs</p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
 
           {hasHealth && (
-            <TabsContent value="health">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="break-words">
-                    Health Information
-                  </CardTitle>
-                  <CardDescription>
-                    Health records and certifications
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {goat.healthData && (
-                      <div className="prose max-w-none mb-6">
-                        <div
-                          dangerouslySetInnerHTML={{ __html: goat.healthData }}
-                        />
-                      </div>
-                    )}
-                    {healthDocuments.length > 0 && (
-                      <div className="space-y-4">
-                        <h3 className="font-semibold break-words">
-                          Health Documents
-                        </h3>
-                        <div className="grid gap-4">
-                          {healthDocuments.map((doc, index) => (
-                            <DocumentLink key={index} document={doc} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+            <TabsContent value="health" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {goat.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg break-words">
+                      Health Documents
+                    </h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
 
           {hasPedigree && (
-            <TabsContent value="pedigree">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="break-words">
-                    Pedigree Information
-                  </CardTitle>
-                  <CardDescription>Family history and lineage</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {goat.pedigree && (
-                      <div className="prose max-w-none mb-6">
-                        <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
-                      </div>
-                    )}
-                    {pedigreeDocuments.length > 0 && (
-                      <div className="space-y-4">
-                        <h3 className="font-semibold break-words">
-                          Pedigree Documents
-                        </h3>
-                        <div className="grid gap-4">
-                          {pedigreeDocuments.map((doc, index) => (
-                            <DocumentLink key={index} document={doc} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+            <TabsContent value="pedigree" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {goat.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg break-words">
+                      Pedigree Documents
+                    </h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
         </Tabs>

@@ -90,7 +90,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                     {goat.birthDate && (
                       <span className="text-stone-600">• {formatAge(new Date(goat.birthDate))}</span>
                     )}
-                    {showPrice && goat.available && goat.price && (
+                    {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
                       <div className="mt-2">
                         <a 
                           href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
@@ -161,7 +161,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                   {goat.birthDate && (
                     <span className="text-stone-600">• {formatAge(new Date(goat.birthDate))}</span>
                   )}
-                  {showPrice && goat.available && goat.price && (
+                  {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
                     <div className="mt-2">
                       <a 
                         href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
