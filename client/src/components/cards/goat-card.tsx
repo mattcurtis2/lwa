@@ -18,6 +18,14 @@ interface GoatCardProps {
 }
 
 export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderChange }: GoatCardProps) {
+  console.log('GoatCard rendered with:', { 
+    goatId: goat.id,
+    goatName: goat.name,
+    available: goat.available, 
+    price: goat.price, 
+    showPrice 
+  });
+  
   const genderSymbol = goat.gender === 'male' ? (
     <span className="text-blue-500">♂</span>
   ) : (
