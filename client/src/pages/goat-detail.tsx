@@ -40,13 +40,13 @@ export default function GoatDetail() {
         <div className="max-w-4xl mx-auto">
           <GoatCard goat={goat} showPrice={goat.available} />
 
-          <Tabs defaultValue="info" className="mt-8">
+          <Tabs defaultValue="basic" className="mt-8">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="info">Information</TabsTrigger>
+              <TabsTrigger value="basic">Information</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="info">
+            <TabsContent value="basic">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">About {goat.name}</h3>
                 <p className="text-muted-foreground">{goat.description}</p>
