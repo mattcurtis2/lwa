@@ -265,10 +265,28 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 <CardTitle>Story</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-base leading-relaxed">
-                  {(goat.narrativeDescription || goat.description || "").split("\n\n").map((paragraph, index) => (
-                    <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
-                  ))}
+                <div className="text-base leading-relaxed space-y-6">
+                  {goat.description && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Basic Information</h3>
+                      <div>
+                        {goat.description.split("\n\n").map((paragraph, index) => (
+                          <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {goat.narrativeDescription && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Story</h3>
+                      <div>
+                        {goat.narrativeDescription.split("\n\n").map((paragraph, index) => (
+                          <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -509,10 +527,28 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
 
           {hasStory && (
             <TabsContent value="story" className="space-y-6 pt-4">
-              <div className="text-base leading-relaxed">
-                {(goat.narrativeDescription || goat.description || "").split("\n\n").map((paragraph, index) => (
-                  <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
-                ))}
+              <div className="text-base leading-relaxed space-y-6">
+                {goat.description && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Basic Information</h3>
+                    <div>
+                      {goat.description.split("\n\n").map((paragraph, index) => (
+                        <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {goat.narrativeDescription && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Story</h3>
+                    <div>
+                      {goat.narrativeDescription.split("\n\n").map((paragraph, index) => (
+                        <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
           )}
