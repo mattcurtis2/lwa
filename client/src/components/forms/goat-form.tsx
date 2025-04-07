@@ -67,6 +67,8 @@ const createGoatSchema = (isKid: boolean = false) => {
     weight: z.string().optional().nullable(),
     milkStars: z.string().optional(),
     laArScores: z.string().optional(),
+    damName: z.string().optional().nullable(),
+    sireName: z.string().optional().nullable(),
     price: z.string().optional(),
     bucklingPrice: z.string().optional(),
     wetherPrice: z.string().optional(),
@@ -129,6 +131,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       weight: goat?.weight?.toString() || "",
       milkStars: goat?.milkStars || "",
       laArScores: goat?.laArScores || "",
+      damName: goat?.damName || "",
+      sireName: goat?.sireName || "",
       price: goat?.price || "",
       bucklingPrice: goat?.bucklingPrice || "",
       wetherPrice: goat?.wetherPrice || "",
@@ -1033,6 +1037,34 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                     )}
                   </div>
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sireName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sire Name</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter sire's registration or farm name" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="damName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Dam Name</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter dam's registration or farm name" />
               </FormControl>
               <FormMessage />
             </FormItem>

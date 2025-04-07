@@ -274,6 +274,18 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 <h3 className="font-semibold mb-1">Birth Date</h3>
                 <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
               </div>
+              {goat.sireName && (
+                <div>
+                  <h3 className="font-semibold mb-1">Sire</h3>
+                  <p>{goat.sireName}</p>
+                </div>
+              )}
+              {goat.damName && (
+                <div>
+                  <h3 className="font-semibold mb-1">Dam</h3>
+                  <p>{goat.damName}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -370,6 +382,23 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
+                  {(goat.sireName || goat.damName) && (
+                    <div className="space-y-4 mb-6">
+                      <h3 className="font-semibold mb-1">Lineage</h3>
+                      {goat.sireName && (
+                        <div className="ml-4">
+                          <h4 className="font-medium">Sire:</h4>
+                          <p>{goat.sireName}</p>
+                        </div>
+                      )}
+                      {goat.damName && (
+                        <div className="ml-4">
+                          <h4 className="font-medium">Dam:</h4>
+                          <p>{goat.damName}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {goat.pedigree && (
                     <div className="prose max-w-none mb-6">
                       <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
@@ -558,6 +587,18 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 <h3 className="font-medium text-lg">Birth Date</h3>
                 <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
               </div>
+              {goat.sireName && (
+                <div>
+                  <h3 className="font-medium text-lg">Sire</h3>
+                  <p>{goat.sireName}</p>
+                </div>
+              )}
+              {goat.damName && (
+                <div>
+                  <h3 className="font-medium text-lg">Dam</h3>
+                  <p>{goat.damName}</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -635,6 +676,23 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
           {hasPedigree && (
             <TabsContent value="pedigree" className="space-y-6 pt-4">
               <div className="space-y-6">
+                {(goat.sireName || goat.damName) && (
+                  <div className="space-y-4 mb-6">
+                    <h3 className="font-medium text-lg">Lineage</h3>
+                    {goat.sireName && (
+                      <div className="ml-4">
+                        <h4 className="font-medium">Sire:</h4>
+                        <p>{goat.sireName}</p>
+                      </div>
+                    )}
+                    {goat.damName && (
+                      <div className="ml-4">
+                        <h4 className="font-medium">Dam:</h4>
+                        <p>{goat.damName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {goat.pedigree && (
                   <div className="prose max-w-none mb-6">
                     <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />

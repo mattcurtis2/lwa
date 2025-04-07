@@ -281,6 +281,8 @@ export const goats = pgTable("goats", {
   description: text("description"),
   motherId: integer("mother_id").references(() => goats.id),
   fatherId: integer("father_id").references(() => goats.id),
+  damName: text("dam_name"),
+  sireName: text("sire_name"),
   litterId: integer("litter_id").references(() => goatLitters.id),
   kid: boolean("kid").default(false).notNull(),
   available: boolean("available").default(false).notNull(),
