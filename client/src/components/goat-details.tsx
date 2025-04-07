@@ -189,13 +189,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             alt={goat.name}
             className="w-full h-full object-cover"
           />
-          {showPrice && goat.available && goat.price && (
-            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(goat.price).toLocaleString()}
-              </p>
-            </div>
-          )}
+          {/* Removed price banner from image */}
           {imageMedia.length > 1 && (
             <>
               <Button
@@ -226,6 +220,19 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             <p className="text-xl text-muted-foreground">
               {goat.registrationName}
             </p>
+          )}
+          {showPrice && goat.available && goat.price && (
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(goat.price).toLocaleString()}
+              </p>
+              <ExternalLink className="h-4 w-4 text-white" />
+            </a>
           )}
         </div>
 
@@ -365,13 +372,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             alt={goat.name}
             className="w-full h-full object-cover"
           />
-          {showPrice && goat.available && goat.price && (
-            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(goat.price).toLocaleString()}
-              </p>
-            </div>
-          )}
+          {/* Removed price banner from image */}
         </div>
 
         {imageMedia.length > 0 && (
@@ -406,6 +407,19 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             <p className="text-xl text-muted-foreground">
               {goat.registrationName}
             </p>
+          )}
+          {showPrice && goat.available && goat.price && (
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(goat.price).toLocaleString()}
+              </p>
+              <ExternalLink className="h-4 w-4 text-white" />
+            </a>
           )}
         </div>
 

@@ -51,13 +51,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
             {goat.media && goat.media.length > 0 ? (
               <div>
                 <DogMediaCarousel media={goat.media} />
-                {showPrice && goat.price && (
-                  <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-                    <p className="text-lg font-semibold text-white">
-                      Available: ${parseInt(goat.price).toLocaleString()}
-                    </p>
-                  </div>
-                )}
+                {/* Removed price banner from image */}
               </div>
             ) : goat.profileImageUrl ? (
               <div>
@@ -67,13 +61,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                     alt={goat.name}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  {showPrice && goat.price && (
-                    <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
-                      <p className="text-lg font-semibold text-white">
-                        Available: ${parseInt(goat.price).toLocaleString()}
-                      </p>
-                    </div>
-                  )}
+                  {/* Removed price banner from image */}
                 </div>
               </div>
             ) : (
@@ -101,6 +89,21 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                     )}
                     {goat.birthDate && (
                       <span className="text-stone-600">• {formatAge(new Date(goat.birthDate))}</span>
+                    )}
+                    {showPrice && goat.available && goat.price && (
+                      <div className="mt-2">
+                        <a 
+                          href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-primary py-1 px-3 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <p className="text-sm font-semibold text-white">
+                            Available: ${parseInt(goat.price).toLocaleString()}
+                          </p>
+                        </a>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -157,6 +160,21 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                   )}
                   {goat.birthDate && (
                     <span className="text-stone-600">• {formatAge(new Date(goat.birthDate))}</span>
+                  )}
+                  {showPrice && goat.available && goat.price && (
+                    <div className="mt-2">
+                      <a 
+                        href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-primary py-1 px-3 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <p className="text-sm font-semibold text-white">
+                          Available: ${parseInt(goat.price).toLocaleString()}
+                        </p>
+                      </a>
+                    </div>
                   )}
                 </div>
               </div>
