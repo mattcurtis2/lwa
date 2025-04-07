@@ -3,16 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import DogDetails from "@/components/dog-details";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { formatDisplayDate } from "@/lib/date-utils";
+import { Button } from "@/components/ui/button";
+import { DogHero } from "@/components/sections/dog-hero";
+import { SiteContent } from "@/lib/types";
 
 interface DogsProps {
   genderFilter?: 'male' | 'female';
   showAvailable?: boolean;
 }
-
-import { DogHero } from "@/components/sections/dog-hero";
-import { SiteContent } from "@/lib/types";
 
 export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const [_, navigate] = useLocation();
@@ -78,6 +78,45 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   "Meet our Colorado Mountain Dogs, a breed dedicated to protecting livestock with unwavering loyalty and gentle temperament."}
               </p>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Navigation buttons - only show on main dogs page */}
+      {!genderFilter && !showAvailable && (
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link href="/dogs/males">
+              <Button
+                variant="outline"
+                className="w-full h-auto py-8 flex flex-col items-center gap-2"
+              >
+                <span className="text-xl">Males</span>
+                <span className="text-sm text-stone-500">View our male dogs</span>
+              </Button>
+            </Link>
+
+            <Link href="/dogs/females">
+              <Button
+                variant="outline"
+                className="w-full h-auto py-8 flex flex-col items-center gap-2"
+              >
+                <span className="text-xl">Females</span>
+                <span className="text-sm text-stone-500">View our female dogs</span>
+              </Button>
+            </Link>
+
+            <Link href="/dogs/available">
+              <Button
+                variant="outline"
+                className="w-full h-auto py-8 flex flex-col items-center gap-2"
+              >
+                <span className="text-xl">Available</span>
+                <span className="text-sm text-stone-500">
+                  View dogs available for adoption
+                </span>
+              </Button>
+            </Link>
           </div>
         </div>
       )}
