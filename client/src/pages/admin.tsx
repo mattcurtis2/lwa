@@ -70,38 +70,34 @@ export default function Admin() {
         </Link>
       </h2>
       <TabsList className="flex-col gap-1 bg-transparent p-0">
-        <TabsTrigger
-          value="dogs"
+        <button
           onClick={() => handleTabChange("dogs")}
-          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "dogs" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
         >
           <DogIcon className="h-4 w-4 mr-2" />
           Dogs
-        </TabsTrigger>
-        <TabsTrigger
-          value="goats"
+        </button>
+        <button
           onClick={() => handleTabChange("goats")}
-          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "goats" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
         >
           <Cat className="h-4 w-4 mr-2" />
           Goats
-        </TabsTrigger>
-        <TabsTrigger
-          value="market"
+        </button>
+        <button
           onClick={() => handleTabChange("market")}
-          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "market" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
         >
           <ShoppingBag className="h-4 w-4 mr-2" />
           Market
-        </TabsTrigger>
-        <TabsTrigger
-          value="content"
+        </button>
+        <button
           onClick={() => handleTabChange("content")}
-          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "content" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
         >
           <LayoutDashboard className="h-4 w-4 mr-2" />
           Content
-        </TabsTrigger>
+        </button>
       </TabsList>
     </div>
   );
