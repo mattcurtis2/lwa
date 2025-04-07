@@ -43,6 +43,7 @@ interface GoatDetailsProps {
     media?: GoatMedia[];
     documents?: Document[];
   };
+  showPrice?: boolean;
 }
 
 function DocumentLink({ document }: { document: Document }) {
@@ -109,7 +110,14 @@ function DocumentLink({ document }: { document: Document }) {
   );
 }
 
-export default function GoatDetails({ goat }: GoatDetailsProps) {
+export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProps) {
+  console.log('GoatDetails rendered with:', { 
+    goatId: goat.id,
+    goatName: goat.name,
+    available: goat.available, 
+    price: goat.price, 
+    showPrice 
+  });
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -181,6 +189,13 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
             alt={goat.name}
             className="w-full h-full object-cover"
           />
+          {showPrice && goat.available && goat.price && (
+            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(goat.price).toLocaleString()}
+              </p>
+            </div>
+          )}
           {imageMedia.length > 1 && (
             <>
               <Button
@@ -340,7 +355,7 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
   return (
     <div className="grid md:grid-cols-3 gap-8">
       <div className="space-y-6">
-        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+        <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
           <img
             src={
               imageMedia[activeMediaIndex]?.url ||
@@ -350,6 +365,13 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
             alt={goat.name}
             className="w-full h-full object-cover"
           />
+          {showPrice && goat.available && goat.price && (
+            <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(goat.price).toLocaleString()}
+              </p>
+            </div>
+          )}
         </div>
 
         {imageMedia.length > 0 && (

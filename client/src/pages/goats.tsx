@@ -129,7 +129,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                       {filteredGoats
                         .filter(goat => goat.gender === 'female')
                         .map(goat => (
-                          <GoatDetails key={goat.id} goat={goat} />
+                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
                         ))}
                     </div>
                   </div>
@@ -147,7 +147,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                       {filteredGoats
                         .filter(goat => goat.gender === 'male')
                         .map(goat => (
-                          <GoatDetails key={goat.id} goat={goat} />
+                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
                         ))}
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                 </div>
                 <div className="grid grid-cols-1 gap-8">
                   {availableGoats.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} />
+                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
                   ))}
                 </div>
               </div>
@@ -193,7 +193,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                 </div>
                 <div className="grid grid-cols-1 gap-8">
                   {females.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} />
+                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
                   ))}
                 </div>
               </div>
@@ -209,7 +209,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                 </div>
                 <div className="grid grid-cols-1 gap-8">
                   {males.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} />
+                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
                   ))}
                 </div>
               </div>
