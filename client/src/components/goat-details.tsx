@@ -221,7 +221,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             </p>
           )}
           {showPrice && goat.available && (
-            <div className="space-y-2 mt-2">
+            <div className="space-y-3 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
@@ -446,7 +446,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             </p>
           )}
           {showPrice && goat.available && (
-            <div className="space-y-2 mt-2">
+            <div className="space-y-3 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
