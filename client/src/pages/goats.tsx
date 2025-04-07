@@ -140,7 +140,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
                   <div>
                     <div className="relative flex py-5 items-center mb-8">
                       <div className="flex-grow border-t border-gray-200"></div>
-                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Available Males</h2>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Bucks</h2>
                       <div className="flex-grow border-t border-gray-200"></div>
                     </div>
                     <div className="grid grid-cols-1 gap-8">
