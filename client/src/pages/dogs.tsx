@@ -57,8 +57,11 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const availableDogs = dogs?.filter(dog => dog.available) || [];
 
-  const shouldShowFemales = !genderFilter || genderFilter === 'female';
-  const shouldShowMales = !genderFilter || genderFilter === 'male';
+  // Determine whether to show each gender section based on the filter
+  // If we're on the main page (no filter), show both
+  // If we're on a filtered page, only show that specific gender
+  const shouldShowFemales = genderFilter === 'female' || !genderFilter;
+  const shouldShowMales = genderFilter === 'male' || !genderFilter;
 
   const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
   const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
