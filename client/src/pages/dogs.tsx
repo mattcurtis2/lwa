@@ -43,6 +43,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
+  // Filter dogs based on gender and filter out puppies and outside breeders
   const females = dogs?.filter(dog =>
     dog.gender === 'female' &&
     !dog.outsideBreeder &&
@@ -55,7 +56,15 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     !dog.puppy
   ) || [];
 
-  const availableDogs = dogs?.filter(dog => dog.available) || [];
+  // Filter available dogs based on gender if we're on a gender-specific page
+  let availableDogs = dogs?.filter(dog => dog.available) || [];
+  
+  // If we're on a gender-specific page, only show available dogs of that gender
+  if (genderFilter === 'female') {
+    availableDogs = availableDogs.filter(dog => dog.gender === 'female');
+  } else if (genderFilter === 'male') {
+    availableDogs = availableDogs.filter(dog => dog.gender === 'male');
+  }
 
   // Determine whether to show each gender section based on the filter
   // If we're on the main page (no filter), show both
