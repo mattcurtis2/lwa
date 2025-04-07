@@ -38,7 +38,7 @@ export default function GoatDetail() {
     <div className="min-h-screen bg-background pt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <GoatCard goat={goat} />
+          <GoatCard goat={goat} showPrice={goat.available} />
 
           <Tabs defaultValue="info" className="mt-8">
             <TabsList className="grid w-full grid-cols-2">
