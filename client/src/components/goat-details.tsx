@@ -221,13 +221,13 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             </p>
           )}
           {showPrice && goat.available && (
-            <div className="space-y-3 mt-2">
+            <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors w-fit"
                 >
                   <p className="text-lg font-semibold text-white">
                     Available: ${parseInt(goat.price).toLocaleString()}
@@ -241,7 +241,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors w-fit"
                 >
                   <p className="text-lg font-semibold text-white">
                     As Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
@@ -446,13 +446,13 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             </p>
           )}
           {showPrice && goat.available && (
-            <div className="space-y-3 mt-2">
+            <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors w-fit"
                 >
                   <p className="text-lg font-semibold text-white">
                     Available: ${parseInt(goat.price).toLocaleString()}
@@ -466,7 +466,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors mt-4"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors w-fit"
                 >
                   <p className="text-lg font-semibold text-white">
                     As Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
