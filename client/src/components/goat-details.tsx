@@ -265,9 +265,11 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 <CardTitle>Story</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-base leading-relaxed">
-                  {goat.narrativeDescription || goat.description}
-                </p>
+                <div className="text-base leading-relaxed">
+                  {(goat.narrativeDescription || goat.description || "").split("\n\n").map((paragraph, index) => (
+                    <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -507,9 +509,11 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
 
           {hasStory && (
             <TabsContent value="story" className="space-y-6 pt-4">
-              <p className="text-base leading-relaxed">
-                {goat.narrativeDescription || goat.description}
-              </p>
+              <div className="text-base leading-relaxed">
+                {(goat.narrativeDescription || goat.description || "").split("\n\n").map((paragraph, index) => (
+                  <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
+                ))}
+              </div>
             </TabsContent>
           )}
 

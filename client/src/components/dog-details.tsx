@@ -249,9 +249,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               <CardTitle>Story</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-base leading-relaxed">
-                {dog.narrativeDescription || dog.description}
-              </p>
+              <div className="text-base leading-relaxed">
+                {(dog.narrativeDescription || dog.description || "").split("\n\n").map((paragraph, index) => (
+                  <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
+                ))}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -522,9 +524,11 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
-                  <p className="text-lg leading-relaxed">
-                    {dog.narrativeDescription || dog.description}
-                  </p>
+                  <div className="text-lg leading-relaxed">
+                    {(dog.narrativeDescription || dog.description || "").split("\n\n").map((paragraph, index) => (
+                      <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
