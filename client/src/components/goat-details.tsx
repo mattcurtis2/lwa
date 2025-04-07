@@ -144,12 +144,8 @@ export default function GoatDetails({ goat }: GoatDetailsProps) {
   const hasHealth = !!(goat.healthData || healthDocuments.length > 0);
   const hasPedigree = !!(goat.pedigree || pedigreeDocuments.length > 0);
 
-  // Determine default tab to show
+  // Always default to basic tab per client request
   const getDefaultTab = () => {
-    if (hasStory) return "story";
-    if (hasPhysical) return "physical";
-    if (hasHealth) return "health";
-    if (hasPedigree) return "pedigree";
     return "basic";
   };
 
