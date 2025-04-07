@@ -143,21 +143,21 @@ export function registerRoutes(app: Express): Server {
           description: "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals are raised with hands-on care and early socialization.",
           imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
           order: 1,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           title: "Nigerian Dwarf Goats",
           description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
           imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
           order: 2,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           title: "Farm Fresh Products",
           description: "Visit our Farmers Market for homemade and farm-fresh goods. From artisanal bread to seasonal produce, every product reflects our commitment to quality and sustainable farming.",
           imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9",
           order: 3,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
       ];
 
@@ -196,7 +196,7 @@ export function registerRoutes(app: Express): Server {
         title: "Colorado Mountain Dogs",
         subtitle: "Loyal guardians bred for livestock protection, combining strength with gentle temperament",
         image_url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
-        site_id: defaultSite.id,
+        siteId: defaultSite.id,
       });
     }
 
@@ -216,7 +216,7 @@ export function registerRoutes(app: Express): Server {
           image_url: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
           isAvailable: true,
           order: 1,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           name: "Atlas",
@@ -226,7 +226,7 @@ export function registerRoutes(app: Express): Server {
           image_url: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
           isAvailable: true,
           order: 2,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           name: "Sierra",
@@ -236,7 +236,7 @@ export function registerRoutes(app: Express): Server {
           image_url: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
           isAvailable: true,
           order: 3,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           name: "Rocky",
@@ -246,7 +246,7 @@ export function registerRoutes(app: Express): Server {
           image_url: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
           isAvailable: true,
           order: 4,
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
       ];
 
@@ -275,7 +275,7 @@ export function registerRoutes(app: Express): Server {
           outsideBreeder: false,
           order: 1,
           profile_image_url: "/images/goats/luna.jpg",
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           name: "Zeus",
@@ -289,7 +289,7 @@ export function registerRoutes(app: Express): Server {
           outsideBreeder: false,
           order: 2,
           profile_image_url: "/images/goats/zeus.jpg",
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         },
         {
           name: "Daisy",
@@ -303,7 +303,7 @@ export function registerRoutes(app: Express): Server {
           outsideBreeder: false,
           order: 3,
           profile_image_url: "/images/goats/daisy.jpg",
-          site_id: defaultSite.id,
+          siteId: defaultSite.id,
         }
       ];
 
@@ -316,6 +316,9 @@ export function registerRoutes(app: Express): Server {
     const existingGoatLitters = await db.query.goatLitters.findMany();
 
     if (existingGoatLitters.length === 0) {
+      // Get the default site for the goat litters
+      const defaultSite = await getDefaultSite();
+      
       const goatsList = await db.query.goats.findMany();
       const mothers = goatsList.filter(g => g.gender === 'female');
       const fathers = goatsList.filter(g => g.gender === 'male');
@@ -326,13 +329,15 @@ export function registerRoutes(app: Express): Server {
             motherId: mothers[0].id,
             fatherId: fathers[0].id,
             dueDate: "2024-04-15",
-            isVisible: true
+            isVisible: true,
+            siteId: defaultSite.id
           },
           {
             motherId: mothers[mothers.length - 1].id,
             fatherId: fathers[0].id,
             dueDate: "2024-05-20",
-            isVisible: true
+            isVisible: true,
+            siteId: defaultSite.id
           }
         ];
 
@@ -729,20 +734,20 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/dogs-hero/:id", upload.single('image'), async (req, res) => {
     try {
-      let imageUrl = req.body.imageUrl; // For direct URL updates
+      let image_url = req.body.image_url || req.body.imageUrl; // Accept both formats for compatibility
 
       // If a file was uploaded, use its path
       if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`;
+        image_url = `/uploads/${req.file.filename}`;
       }
 
-      if (!imageUrl) {
+      if (!image_url) {
         return res.status(400).json({ message: "No image URL or file provided" });
       }
 
       const hero = await db.update(dogsHero)
         .set({
-          imageUrl,
+          image_url,
           updatedAt: new Date()
         })
         .where(eq(dogsHero.id, parseInt(req.params.id)))
@@ -772,12 +777,12 @@ export function registerRoutes(app: Express): Server {
 
     // Set first media image as profile picture if none exists
     const processedDogs = allDogs.map(dog => {
-      if (!dog.profileImageUrl && dog.media && dog.media.length > 0) {
+      if (!dog.profile_image_url && dog.media && dog.media.length > 0) {
         const firstImage = dog.media.find(m => m.type === 'image');
         if (firstImage) {
           return {
             ...dog,
-            profileImageUrl: firstImage.url
+            profile_image_url: firstImage.url
           };
         }
       }
