@@ -252,9 +252,15 @@ function StyleCard({
 
   // Handle save
   const handleSave = () => {
+    // Ensure the color has the # prefix for hex colors
+    let finalValue = localValue;
+    if (/^[0-9A-F]{6}$/i.test(finalValue) && !finalValue.startsWith('#')) {
+      finalValue = '#' + finalValue;
+    }
+    
     onUpdate({
       ...style,
-      value: localValue
+      value: finalValue
     });
     setIsEditing(false);
   };
