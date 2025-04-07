@@ -126,31 +126,69 @@ export default function StylesEditor() {
 
   // Handle style value change
   const handleStyleChange = (key: string, value: string) => {
-    setLocalStyles(prev => 
-      prev.map(style => 
+    console.log('Style change:', key, value);
+    setLocalStyles(prev => {
+      const updated = prev.map(style => 
         style.key === key ? { ...style, value } : style
-      )
-    );
+      );
+      console.log('Updated styles:', updated);
+      return updated;
+    });
   };
 
   // Preview changes (apply without saving to database)
   const handlePreview = () => {
     setPreviewMode(true);
+    
+    // Format style values for preview
+    const formattedStyles = localStyles.map(style => {
+      let formattedValue = style.value;
+      
+      // For color values, ensure they have the # prefix
+      if (style.category === 'colors' && formattedValue && !formattedValue.startsWith('#')) {
+        formattedValue = `#${formattedValue}`;
+      }
+      
+      return {
+        ...style,
+        value: formattedValue
+      };
+    });
+    
     // Apply styles using the utility function
     const styleEl = document.getElementById('global-styles');
     if (styleEl) {
       let cssVars = `:root {\n`;
-      localStyles.forEach(style => {
+      formattedStyles.forEach(style => {
         cssVars += `  --${style.key}: ${style.value};\n`;
       });
       cssVars += `}\n`;
+      console.log('Preview CSS variables:', cssVars);
       styleEl.innerHTML = cssVars;
     }
   };
 
   // Save changes to database
   const handleSave = () => {
-    updateStylesMutation.mutate(localStyles);
+    // Format color values to ensure they have proper format
+    const formattedStyles = localStyles.map(style => {
+      let formattedValue = style.value;
+      
+      // For color values, ensure they have the # prefix
+      if (style.category === 'colors' && formattedValue && !formattedValue.startsWith('#')) {
+        formattedValue = `#${formattedValue}`;
+      }
+      
+      console.log('Saving style:', style.key, 'with value:', formattedValue);
+      
+      return {
+        ...style,
+        value: formattedValue
+      };
+    });
+    
+    console.log('Sending formatted styles to server:', formattedStyles);
+    updateStylesMutation.mutate(formattedStyles);
   };
 
   // Reset changes to original
@@ -173,28 +211,41 @@ export default function StylesEditor() {
 
   // Helper function to render a color picker
   const renderColorPicker = (style: StyleSettings) => {
+    // Find the actual local style value from localStyles array to ensure we're using the most up-to-date value
+    const localStyle = localStyles.find(s => s.key === style.key) || style;
+    
+    // Get the style value, ensuring it has a valid format for the color picker
+    const styleValue = localStyle.value?.startsWith('#') ? localStyle.value : `#${localStyle.value}`;
+    
     return (
       <div key={style.key} className="mb-4">
         <div className="flex items-center mb-2">
           <div 
-            className="w-6 h-6 rounded-full mr-2 border border-gray-300" 
-            style={{ backgroundColor: style.value }}
+            className="w-6 h-6 rounded-full mr-2 border border-gray-300 cursor-pointer" 
+            style={{ backgroundColor: styleValue }}
             onClick={() => setActiveColor(activeColor === style.key ? null : style.key)}
           ></div>
           <Label htmlFor={style.key} className="flex-1">{style.description || style.key}</Label>
           <Input
             id={style.key}
             type="text"
-            value={style.value}
-            onChange={(e) => handleStyleChange(style.key, e.target.value)}
+            value={localStyle.value}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              console.log('Input change:', style.key, newValue);
+              handleStyleChange(style.key, newValue);
+            }}
             className="w-28 ml-2"
           />
         </div>
         {activeColor === style.key && (
           <div className={`${isMobile ? 'w-full' : 'w-64'} mt-2`}>
             <HexColorPicker
-              color={style.value}
-              onChange={(color) => handleStyleChange(style.key, color)}
+              color={styleValue}
+              onChange={(color) => {
+                console.log('Color picker change:', style.key, color);
+                handleStyleChange(style.key, color);
+              }}
             />
           </div>
         )}
@@ -204,6 +255,9 @@ export default function StylesEditor() {
 
   // Helper function to render a text input
   const renderTextInput = (style: StyleSettings) => {
+    // Find the actual local style value from localStyles array to ensure we're using the most up-to-date value
+    const localStyle = localStyles.find(s => s.key === style.key) || style;
+    
     return (
       <div key={style.key} className="mb-4">
         <div className="flex flex-col md:flex-row md:items-center mb-2">
@@ -213,8 +267,12 @@ export default function StylesEditor() {
           <Input
             id={style.key}
             type="text"
-            value={style.value}
-            onChange={(e) => handleStyleChange(style.key, e.target.value)}
+            value={localStyle.value}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              console.log('Text input change:', style.key, newValue);
+              handleStyleChange(style.key, newValue);
+            }}
             className="md:w-64"
           />
         </div>

@@ -122,11 +122,14 @@ router.post('/bulk', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Unauthorized' });
     }
     
+    console.log('Bulk update request body:', req.body);
     const { styles: stylesData } = req.body;
     
     if (!Array.isArray(stylesData) || stylesData.length === 0) {
       return res.status(400).json({ error: 'Invalid styles data' });
     }
+    
+    console.log('Received styles data:', JSON.stringify(stylesData, null, 2));
     
     const results = [];
     
@@ -134,6 +137,8 @@ router.post('/bulk', async (req: Request, res: Response) => {
     await db.transaction(async (tx) => {
       for (const styleData of stylesData) {
         const { id, key, value, category, description } = styleData;
+        
+        console.log('Processing style:', { key, value, category, description });
         
         // Validate the style data
         if (!key || !value) {
@@ -145,8 +150,11 @@ router.post('/bulk', async (req: Request, res: Response) => {
           where: eq(styles.key, key)
         });
         
+        console.log('Existing style found:', existingStyle);
+        
         if (existingStyle) {
           // Update existing style
+          console.log('Updating style with value:', value);
           const updated = await tx.update(styles)
             .set({
               value,
@@ -157,9 +165,11 @@ router.post('/bulk', async (req: Request, res: Response) => {
             .where(eq(styles.key, key))
             .returning();
           
+          console.log('Updated style result:', updated[0]);
           results.push(updated[0]);
         } else {
           // Create new style
+          console.log('Creating new style');
           const created = await tx.insert(styles).values({
             key,
             value,
@@ -169,11 +179,13 @@ router.post('/bulk', async (req: Request, res: Response) => {
             updatedAt: new Date()
           }).returning();
           
+          console.log('Created style result:', created[0]);
           results.push(created[0]);
         }
       }
     });
     
+    console.log('Update completed, returning results:', results);
     return res.status(200).json(results);
   } catch (error) {
     console.error('Error in bulk update:', error);
