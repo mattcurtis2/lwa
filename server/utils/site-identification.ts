@@ -12,14 +12,11 @@ export interface Site {
   id: number;
   name: string;
   domain: string;
-  siteName?: string | null;
-  siteDescription?: string | null;
-  logoUrl?: string | null;
-  faviconUrl?: string | null;
-  primaryColor?: string | null;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  logo_url: string | null;
+  favicon_url: string | null;
+  primary_color: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
 }
 
 /**
@@ -53,12 +50,6 @@ export function siteIdentificationMiddleware() {
 
       if (siteResult.length > 0) {
         const site = siteResult[0];
-        
-        // If site is not active, don't add it to the request
-        if (!site.active) {
-          req.site = null;
-          return next();
-        }
         
         // Set the site in the request
         req.site = site;

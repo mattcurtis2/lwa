@@ -8,13 +8,11 @@ export const sites = pgTable("sites", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   domain: text("domain").unique().notNull(),
-  siteName: text("site_name").notNull(),
-  siteDescription: text("site_description"),
-  logoUrl: text("logo_url"),
-  primaryColor: text("primary_color").default("#3d8361"),
-  active: boolean("active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  logo_url: text("logo_url"),
+  favicon_url: text("favicon_url"),
+  primary_color: text("primary_color").default("#3d8361"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const fileStorage = pgTable("file_storage", {
@@ -257,6 +255,11 @@ export const insertLitterSchema = createInsertSchema(litters);
 export const selectLitterSchema = createSelectSchema(litters);
 export type DogDocument = typeof dogDocuments.$inferSelect;
 export type NewDogDocument = typeof dogDocuments.$inferInsert;
+
+export type Site = typeof sites.$inferSelect;
+export type NewSite = typeof sites.$inferInsert;
+export const insertSiteSchema = createInsertSchema(sites);
+export const selectSiteSchema = createSelectSchema(sites);
 
 export const principles = pgTable("principles", {
   id: serial("id").primaryKey(),
