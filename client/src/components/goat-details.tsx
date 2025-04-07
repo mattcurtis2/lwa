@@ -466,7 +466,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors mt-4"
                 >
                   <p className="text-lg font-semibold text-white">
                     As Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
