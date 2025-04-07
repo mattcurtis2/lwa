@@ -37,7 +37,7 @@ function StylePreview({ styles }: { styles: StyleSettings[] }) {
   };
 
   // Extract common colors
-  const primaryColor = getStyleValue('primaryColor', '#3f6f95');
+  const primaryColor = getStyleValue('primaryColor', '#3f6a52');
   const secondaryColor = getStyleValue('secondaryColor', '#a3c4bc');
   const accentColor = getStyleValue('accentColor', '#f2b880');
   const backgroundColor = getStyleValue('backgroundColor', '#ffffff');
@@ -511,7 +511,16 @@ export default function StylesEditor() {
 
   // Function to handle style creation
   const handleCreateStyle = () => {
-    createStyleMutation.mutate(newStyle);
+    // Make sure color values have # prefix for hex colors
+    let finalValue = newStyle.value;
+    if (/^[0-9A-F]{6}$/i.test(finalValue) && !finalValue.startsWith('#')) {
+      finalValue = '#' + finalValue;
+    }
+    
+    createStyleMutation.mutate({
+      ...newStyle,
+      value: finalValue
+    });
   };
 
   // Function to handle style update
@@ -526,9 +535,17 @@ export default function StylesEditor() {
     }
   };
 
-  // Determine if a style value is a color (hex code)
+  // Determine if a style value is a color (hex code) or could be a color without the # prefix
   const isColorValue = (value: string) => {
-    return /^#[0-9A-F]{6}$/i.test(value);
+    // Check if it's a valid hex color with # prefix
+    if (/^#[0-9A-F]{6}$/i.test(value)) {
+      return true;
+    }
+    // Check if it's a valid hex color without # prefix
+    if (/^[0-9A-F]{6}$/i.test(value)) {
+      return true;
+    }
+    return false;
   };
 
   return (
