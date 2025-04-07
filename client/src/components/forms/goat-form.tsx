@@ -62,6 +62,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     description: z.string().optional(),
     narrativeDescription: z.string().optional(),
     healthData: z.string().optional(),
+    pedigree: z.string().optional().nullable(),
     height: z.string().optional().nullable(),
     weight: z.string().optional().nullable(),
     milkStars: z.string().optional(),
@@ -121,6 +122,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       description: goat?.description || "",
       narrativeDescription: goat?.narrativeDescription || "",
       healthData: goat?.healthData || "",
+      pedigree: goat?.pedigree || "",
       height: goat?.height?.toString() || "",
       weight: goat?.weight?.toString() || "",
       milkStars: goat?.milkStars || "",
@@ -1000,6 +1002,65 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeDocument(index, 'health')}
+                                className="text-red-500 hover:text-red-600"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="pedigree"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pedigree Information</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Textarea
+                    {...field}
+                    placeholder="Family history and lineage information"
+                  />
+                  <div className="space-y-2">
+                    <Label>Pedigree Documents</Label>
+                    <FileUpload
+                      onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                      accept="application/pdf,image/jpeg,image/png"
+                      isUploading={isUploadingDoc}
+                      skipCrop={true}
+                    />
+                    {pedigreeDocuments.length > 0 && (
+                      <div className="space-y-2">
+                        {pedigreeDocuments.map((doc, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-6 w-6 text-muted-foreground" />
+                              <span className="truncate max-w-[200px]">{doc.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(doc.url, '_blank')}
+                              >
+                                View
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeDocument(index, 'pedigree')}
                                 className="text-red-500 hover:text-red-600"
                               >
                                 <X className="h-4 w-4" />

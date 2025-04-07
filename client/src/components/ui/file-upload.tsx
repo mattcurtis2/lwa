@@ -13,6 +13,7 @@ interface FileUploadProps {
   className?: string;
   accept?: string;
   isUploading?: boolean;
+  skipCrop?: boolean;
 }
 
 export function FileUpload({ 
@@ -23,6 +24,7 @@ export function FileUpload({
   className,
   accept = 'application/pdf,image/*,video/*,.doc,.docx',
   isUploading = false,
+  skipCrop = false,
 }: FileUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
