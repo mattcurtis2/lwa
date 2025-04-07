@@ -222,7 +222,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
           )}
           {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
             <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -409,7 +409,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
           )}
           {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
             <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
