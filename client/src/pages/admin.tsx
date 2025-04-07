@@ -47,9 +47,7 @@ export default function Admin() {
   // Close sidebar after selecting tab on mobile
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
+    setSidebarOpen(false);
   };
 
   if (isLoading) {
@@ -126,12 +124,7 @@ export default function Admin() {
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[250px] p-0">
-                  <div className="flex justify-end p-4">
-                    <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
-                      <X className="h-5 w-5" />
-                    </Button>
-                  </div>
+                <SheetContent side="left" className="w-[250px] pt-6 px-0 pb-0">
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
