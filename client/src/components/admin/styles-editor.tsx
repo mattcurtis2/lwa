@@ -433,13 +433,21 @@ export default function StylesEditor() {
   
   // Update a style
   const updateStyleMutation = useMutation({
-    mutationFn: async ({ id, ...data }: StyleSettings) => {
+    mutationFn: async ({ id, key, value, description, category }: StyleSettings) => {
+      // Only send the fields we want to update, not timestamps
+      const updateData = { 
+        key, 
+        value, 
+        description, 
+        category 
+      };
+      
       const response = await fetch(`/api/styles/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updateData),
       });
       
       if (!response.ok) {
@@ -525,6 +533,13 @@ export default function StylesEditor() {
 
   // Function to handle style update
   const handleUpdateStyle = (style: StyleSettings) => {
+    // Make sure color values have # prefix for hex colors before updating
+    let finalValue = style.value;
+    if (/^[0-9A-F]{6}$/i.test(finalValue) && !finalValue.startsWith('#')) {
+      finalValue = '#' + finalValue;
+      style = { ...style, value: finalValue };
+    }
+    
     updateStyleMutation.mutate(style);
   };
 
