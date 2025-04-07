@@ -7,7 +7,6 @@ import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
 import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import ContentSection from "@/components/admin/content-section";
-import StylesEditor from "@/components/admin/styles-editor";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
 import {
@@ -17,11 +16,11 @@ import {
   ShoppingBag,
   Loader2,
   Menu,
-  PaintBucket
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Admin() {
@@ -32,7 +31,7 @@ export default function Admin() {
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -98,13 +97,6 @@ export default function Admin() {
         >
           <LayoutDashboard className="h-4 w-4 mr-2" />
           Content
-        </button>
-        <button
-          onClick={() => handleTabChange("styles")}
-          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "styles" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
-        >
-          <PaintBucket className="h-4 w-4 mr-2" />
-          Styles
         </button>
       </TabsList>
     </div>
@@ -211,10 +203,6 @@ export default function Admin() {
 
             <TabsContent value="content">
               <ContentSection />
-            </TabsContent>
-
-            <TabsContent value="styles">
-              <StylesEditor />
             </TabsContent>
           </div>
         </div>

@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent, ContactInfo } from "@db/schema";
-import { useStyles } from "@/providers/styles-provider";
-import { getCssVar } from "@/lib/styles-util";
 
 export default function Footer() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -12,24 +10,15 @@ export default function Footer() {
     queryKey: ["/api/contact-info"],
   });
 
-  const { styles } = useStyles();
-
-  // Get style values with defaults using getCssVar
-  const footerBgColor = getCssVar('footerBgColor', '#1c1917'); // stone-900
-  const footerTextColor = getCssVar('footerTextColor', '#ffffff');
-  const footerLinkColor = getCssVar('footerLinkColor', '#d6d3d1'); // stone-300
-  const footerBorderColor = getCssVar('footerBorderColor', '#44403c'); // stone-700
-  const footerCopyrightColor = getCssVar('footerCopyrightColor', '#a8a29e'); // stone-400
-  
   const getContent = (key: string) => siteContent?.find(c => c.key === key)?.value;
 
   return (
-    <footer style={{ backgroundColor: footerBgColor, color: footerTextColor }}>
+    <footer className="bg-stone-900 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">{getContent("hero_text") || "Little Way Acres"}</h3>
-            <p style={{ color: footerLinkColor }}>
+            <p className="text-stone-300">
               {getContent("hero_subtext") || "A family farm dedicated to sustainable agriculture and animal husbandry."}
             </p>
           </div>
@@ -38,11 +27,11 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Contact</h3>
             {contactInfo ? (
               <>
-                <p style={{ color: footerLinkColor }}>Email: {contactInfo?.email || 'littlewayacresmi@gmail.com'}</p>
-                <p style={{ color: footerLinkColor }}>Phone: {contactInfo.phone}</p>
+                <p className="text-stone-300">Email: {contactInfo?.email || 'littlewayacresmi@gmail.com'}</p>
+                <p className="text-stone-300">Phone: {contactInfo.phone}</p>
               </>
             ) : (
-              <p style={{ color: footerLinkColor }}>Contact information coming soon</p>
+              <p className="text-stone-300">Contact information coming soon</p>
             )}
           </div>
 
@@ -54,8 +43,7 @@ export default function Footer() {
                   href={contactInfo.facebook}
                   target="_blank"
                   rel="noopener noreferrer" 
-                  style={{ color: footerLinkColor }}
-                  className="hover:text-white"
+                  className="text-stone-300 hover:text-white"
                 >
                   Facebook
                 </a>
@@ -65,8 +53,7 @@ export default function Footer() {
                   href={contactInfo.instagram}
                   target="_blank"
                   rel="noopener noreferrer" 
-                  style={{ color: footerLinkColor }}
-                  className="hover:text-white"
+                  className="text-stone-300 hover:text-white"
                 >
                   Instagram
                 </a>
@@ -75,7 +62,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 text-center" style={{ borderTop: `1px solid ${footerBorderColor}`, color: footerCopyrightColor }}>
+        <div className="mt-8 pt-8 border-t border-stone-700 text-center text-stone-400">
           <p>&copy; {new Date().getFullYear()} Little Way Acres. All rights reserved.</p>
         </div>
       </div>

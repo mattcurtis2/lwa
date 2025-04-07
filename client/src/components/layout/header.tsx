@@ -3,8 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 import MobileNav from "./mobile-nav";
 import { useState } from "react";
-import { useStyles } from "@/providers/styles-provider";
-import { getCssVar } from "@/lib/styles-util";
 
 export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
@@ -13,23 +11,15 @@ export default function Header() {
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
-  const { styles } = useStyles();
 
   const logo = siteContent?.find(content => content.key === "logo");
-  
-  // Get style values with defaults
-  const headerBgColor = getCssVar('headerBgColor', '#FDF7EB');
-  const headerTextColor = getCssVar('headerTextColor', '#3F6A52');
-  const primaryColor = getCssVar('primaryColor', '#3F6A52');
-  const navTextColor = getCssVar('navTextColor', '#57534e'); // stone-600
-  const navHoverColor = getCssVar('navHoverColor', '#292524'); // stone-900
 
   return (
-    <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: headerBgColor }}>
+    <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
-            <span className="text-xl font-semibold transition-colors" style={{ color: headerTextColor, fontFamily: `var(--headerFont, 'Montserrat')` }}>Little Way Acres</span>
+            <span className="text-xl font-semibold text-[#3F6A52] hover:text-stone-900 transition-colors">Little Way Acres</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">

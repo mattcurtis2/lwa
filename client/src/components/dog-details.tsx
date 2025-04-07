@@ -27,7 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Document {
   id?: number;
@@ -111,7 +111,7 @@ function DocumentLink({ document }: { document: Document }) {
 export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const healthDocuments =
     dog.documents?.filter((doc) => doc.type === "health") || [];
   const pedigreeDocuments =

@@ -459,24 +459,6 @@ export const selectMarketScheduleSchema = createSelectSchema(marketSchedules);
 export type MarketSchedule = typeof marketSchedules.$inferSelect;
 export type NewMarketSchedule = typeof marketSchedules.$inferInsert;
 
-// Styles for site customization
-export const styles = pgTable("styles", {
-  id: serial("id").primaryKey(),
-  key: text("key").notNull().unique(),
-  value: text("value").notNull(),
-  description: text("description"),
-  category: text("category").notNull().default("custom"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertStyleSchema = createInsertSchema(styles);
-export const selectStyleSchema = createSelectSchema(styles);
-
-export type Style = typeof styles.$inferSelect;
-export type NewStyle = typeof styles.$inferInsert;
-export type StyleSettings = typeof styles.$inferSelect;
-
 export const litter_interest_signups = pgTable("litter_interest_signups", {
   id: serial("id").primaryKey(),
   litterId: integer("litter_id").notNull(),
