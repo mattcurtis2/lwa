@@ -1,16 +1,13 @@
-import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { RefreshCw } from 'lucide-react';
 
-interface LoadingSpinnerProps {
-  className?: string;
-  size?: number;
-}
-
-export function LoadingSpinner({ className, size = 24 }: LoadingSpinnerProps) {
+export function LoadingSpinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const sizes = {
+    sm: "h-4 w-4",
+    md: "h-8 w-8",
+    lg: "h-12 w-12",
+  };
+  
   return (
-    <Loader2 
-      className={cn("animate-spin text-muted-foreground", className)} 
-      size={size}
-    />
+    <RefreshCw className={`${sizes[size]} animate-spin text-primary`} />
   );
 }
