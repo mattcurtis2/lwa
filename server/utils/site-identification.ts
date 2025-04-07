@@ -80,3 +80,42 @@ export function getSiteId(req: Request): number | null {
 export function getSite(req: Request): Site | null {
   return req.site || null;
 }
+
+/**
+ * Get the default site or create one if it doesn't exist
+ */
+export async function getDefaultSite(): Promise<Site> {
+  // Try to get the default site with domain 'littlewayacres.com'
+  const defaultSite = await db
+    .select()
+    .from(sites)
+    .where(eq(sites.domain, 'littlewayacres.com'))
+    .limit(1);
+
+  if (defaultSite.length > 0) {
+    return defaultSite[0];
+  }
+
+  // If no default site exists, get the site with the lowest ID
+  const firstSite = await db
+    .select()
+    .from(sites)
+    .orderBy(sites.id)
+    .limit(1);
+
+  if (firstSite.length > 0) {
+    return firstSite[0];
+  }
+
+  // If no sites exist at all, create a default site
+  const newSite = await db
+    .insert(sites)
+    .values({
+      name: 'Little Way Acres',
+      domain: 'littlewayacres.com',
+      primary_color: '#66764c',
+    })
+    .returning();
+
+  return newSite[0];
+}

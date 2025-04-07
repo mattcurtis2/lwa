@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
+import { sites, animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
+import { getDefaultSite } from "./utils/site-identification";
 import { eq, inArray } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -79,6 +80,11 @@ export function registerRoutes(app: Express): Server {
         password: hashedPassword,
       });
     }
+    
+    // Create default site if none exists
+    // This creates the default site if it doesn't exist via getDefaultSite
+    // and returns it so we can use it for the default content
+    const initialSite = await getDefaultSite();
 
     const defaultContent = [
       { key: "logo", value: "/images/logo.png", type: "image" },
@@ -107,13 +113,20 @@ export function registerRoutes(app: Express): Server {
       { key: "products_redirect", value: "/market", type: "text" },
     ];
 
+    // Get the default site for content initialization
+    const defaultSite = await getDefaultSite();
+    
     for (const content of defaultContent) {
       const exists = await db.query.siteContent.findFirst({
         where: eq(siteContent.key, content.key),
       });
 
       if (!exists) {
-        await db.insert(siteContent).values(content);
+        // Add the site_id from the default site
+        await db.insert(siteContent).values({
+          ...content,
+          siteId: defaultSite.id
+        });
       }
     }
 
@@ -121,24 +134,30 @@ export function registerRoutes(app: Express): Server {
     const existingCarouselItems = await db.query.carouselItems.findMany();
 
     if (existingCarouselItems.length === 0) {
+      // Get the default site to associate with content
+      const defaultSite = await getDefaultSite();
+      
       const defaultCarouselItems = [
         {
           title: "Colorado Mountain Dogs",
           description: "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals are raised with hands-on care and early socialization.",
           imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
           order: 1,
+          site_id: defaultSite.id,
         },
         {
           title: "Nigerian Dwarf Goats",
           description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
           imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
           order: 2,
+          site_id: defaultSite.id,
         },
         {
           title: "Farm Fresh Products",
           description: "Visit our Farmers Market for homemade and farm-fresh goods. From artisanal bread to seasonal produce, every product reflects our commitment to quality and sustainable farming.",
           imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9",
           order: 3,
+          site_id: defaultSite.id,
         },
       ];
 
@@ -170,10 +189,14 @@ export function registerRoutes(app: Express): Server {
     });
 
     if (!existingHero) {
+      // Get the default site for the hero content
+      const defaultSite = await getDefaultSite();
+      
       await db.insert(dogsHero).values({
         title: "Colorado Mountain Dogs",
         subtitle: "Loyal guardians bred for livestock protection, combining strength with gentle temperament",
-        imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
+        image_url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
+        site_id: defaultSite.id,
       });
     }
 
@@ -181,42 +204,49 @@ export function registerRoutes(app: Express): Server {
     const existingDogs = await db.query.dogs.findMany();
 
     if (existingDogs.length === 0) {
+      // Get the default site for the dogs
+      const defaultSite = await getDefaultSite();
+      
       const sampleDogs = [
         {
           name: "Luna",
           breed: "Colorado Mountain Dog",
           birthDate: "2022-01-15",
           description: "Luna is a gentle giant with exceptional guarding instincts. She's great with children and livestock alike.",
-          imageUrl: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
+          image_url: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
           isAvailable: true,
           order: 1,
+          site_id: defaultSite.id,
         },
         {
           name: "Atlas",
           breed: "Colorado Mountain Dog",
           birthDate: "2021-06-20",
           description: "Atlas is a proven guardian with a calm demeanor. He excels at protecting livestock and is well-socialized.",
-          imageUrl: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
+          image_url: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
           isAvailable: true,
           order: 2,
+          site_id: defaultSite.id,
         },
         {
           name: "Sierra",
           breed: "Colorado Mountain Dog",
           birthDate: "2023-03-10",
           description: "Sierra is a young, energetic guardian in training. She shows great promise in both protection and companionship.",
-          imageUrl: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
+          image_url: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
           isAvailable: true,
           order: 3,
+          site_id: defaultSite.id,
         },
         {
           name: "Rocky",
           breed: "Colorado Mountain Dog",
           birthDate: "2020-08-25",
           description: "Rocky is an experienced guardian with a perfect track record. He's calm, confident, and excellent with other dogs.",
-          imageUrl: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
+          image_url: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
           isAvailable: true,
           order: 4,
+          site_id: defaultSite.id,
         },
       ];
 
@@ -229,6 +259,9 @@ export function registerRoutes(app: Express): Server {
     const existingGoats = await db.query.goats.findMany();
 
     if (existingGoats.length === 0) {
+      // Get the default site for the goats
+      const defaultSite = await getDefaultSite();
+      
       const sampleGoats = [
         {
           name: "Luna",
@@ -241,7 +274,8 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 1,
-          profileImageUrl: "/images/goats/luna.jpg",
+          profile_image_url: "/images/goats/luna.jpg",
+          site_id: defaultSite.id,
         },
         {
           name: "Zeus",
@@ -254,7 +288,8 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 2,
-          profileImageUrl: "/images/goats/zeus.jpg",
+          profile_image_url: "/images/goats/zeus.jpg",
+          site_id: defaultSite.id,
         },
         {
           name: "Daisy",
@@ -267,7 +302,8 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 3,
-          profileImageUrl: "/images/goats/daisy.jpg",
+          profile_image_url: "/images/goats/daisy.jpg",
+          site_id: defaultSite.id,
         }
       ];
 
@@ -316,6 +352,9 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/site-content/:key", upload.single('file'), async (req, res) => {
     const key = req.params.key;
     try {
+      // Get the default site
+      const defaultSite = await getDefaultSite();
+      
       let value = req.body.value;
 
       // Handle base64 image data from cropper
@@ -343,6 +382,7 @@ export function registerRoutes(app: Express): Server {
             key,
             value,
             type: key.includes('image') ? 'image' : 'text',
+            siteId: defaultSite.id,  // Add the site_id from default site
           })
           .returning();
         res.json(content[0]);
@@ -363,6 +403,9 @@ export function registerRoutes(app: Express): Server {
   // CMD Description content routes
   app.get("/api/site-content/cmd-description", async (_req, res) => {
     try {
+      // Get the default site
+      const defaultSite = await getDefaultSite();
+      
       const content = await db.query.siteContent.findFirst({
         where: eq(siteContent.key, "cmd_description"),
       });
@@ -374,6 +417,7 @@ export function registerRoutes(app: Express): Server {
             key: "cmd_description",
             value: "Colorado Mountain Dogs are exceptional working dogs bred for livestock protection.",
             type: "text",
+            siteId: defaultSite.id,  // Add site_id to the content
           })
           .returning();
         res.json(newContent[0]);
@@ -388,6 +432,9 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/site-content/cmd-description", async (req, res) => {
     try {
+      // Get the default site
+      const defaultSite = await getDefaultSite();
+      
       const { value } = req.body;
 
       const existingContent = await db.query.siteContent.findFirst({
@@ -406,6 +453,7 @@ export function registerRoutes(app: Express): Server {
             key: "cmd_description",
             value,
             type: "text",
+            siteId: defaultSite.id,  // Add site_id to the content
           })
           .returning();
         res.json(content[0]);
@@ -1468,6 +1516,9 @@ export function registerRoutes(app: Express): Server {
     try {
       const { sectionTitle, sectionDescription, cards } = req.body;
 
+      // Get the default site
+      const defaultSite = await getDefaultSite();
+      
       const updates = [
         { key: 'about_section_title', value: sectionTitle, type: 'text' },
         { key: 'about_section_description', value: sectionDescription, type: 'text' },
@@ -1489,7 +1540,10 @@ export function registerRoutes(app: Express): Server {
             .set({ value: update.value, updatedAt: new Date() })
             .where(eq(siteContent.key, update.key));
         } else {
-          await db.insert(siteContent).values(update);
+          await db.insert(siteContent).values({
+            ...update,
+            siteId: defaultSite.id,  // Add site_id to the content
+          });
         }
       }
 
