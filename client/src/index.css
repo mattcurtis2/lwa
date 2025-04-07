@@ -3,54 +3,11 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --primaryColor: #3f6a52;
-    --secondaryColor: #a3c4bc;
-    --accentColor: #f2b880;
-    --backgroundColor: #ffffff;
-    --textColor: #333333;
-    
-    /* Map custom variables to the theme variables used by the system */
-    --primary: var(--primaryColor);
-    --primary-foreground: #ffffff;
-    --secondary: var(--secondaryColor);
-    --secondary-foreground: #333333;
-    --accent: var(--accentColor);
-    --accent-foreground: #333333;
-    --background: var(--backgroundColor);
-    --foreground: var(--textColor);
-  }
-
   * {
     @apply border-border;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-  }
-  
-  /* Elements that use the primary color */
-  .bg-primary {
-    background-color: var(--primaryColor);
-  }
-  
-  .text-primary {
-    color: var(--primaryColor);
-  }
-  
-  .border-primary {
-    border-color: var(--primaryColor);
-  }
-  
-  /* Headers and buttons often use the primary color */
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--primaryColor);
-  }
-  
-  /* Primary buttons */
-  .btn-primary, 
-  .button-primary {
-    background-color: var(--primaryColor);
-    color: white;
   }
 }
