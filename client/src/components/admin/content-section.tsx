@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { uploadFileToS3 } from "../../lib/upload-utils"; //Import added here
+import StylesEditor from "./styles-editor";
 
 type SiteContent = {
   id: number;
@@ -542,6 +543,7 @@ export default function ContentSection() {
             <TabsTrigger value="dogs">Dogs</TabsTrigger>
             <TabsTrigger value="goats">Goats</TabsTrigger>
             <TabsTrigger value="market">Market</TabsTrigger>
+            <TabsTrigger value="styles">Styles</TabsTrigger>
           </TabsList>
         </div>
 
@@ -1333,6 +1335,10 @@ export default function ContentSection() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="styles" className="space-y-6">
+          <StylesEditor />
         </TabsContent>
       </Tabs>
 

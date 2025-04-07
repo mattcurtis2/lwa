@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, styles } from "@db/schema";
 import { eq, inArray } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -10,6 +10,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
+import stylesRouter from './routes/styles';
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -1578,6 +1579,42 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to fetch goats" });
     }
   });
+
+  // Style routes - for site customization
+  app.use("/api/styles", stylesRouter);
+
+  // Add default styles if none exist
+  (async () => {
+    try {
+      const existingStyles = await db.query.styles.findMany();
+      
+      if (existingStyles.length === 0) {
+        // Default styles for website customization
+        const defaultStyles = [
+          { key: 'primaryColor', value: '#3f6f95', description: 'Primary brand color', category: 'colors' },
+          { key: 'secondaryColor', value: '#a3c4bc', description: 'Secondary brand color', category: 'colors' },
+          { key: 'accentColor', value: '#f2b880', description: 'Accent color for highlights', category: 'colors' },
+          { key: 'backgroundColor', value: '#ffffff', description: 'Background color', category: 'colors' },
+          { key: 'textColor', value: '#333333', description: 'Main text color', category: 'colors' },
+          { key: 'headerFont', value: 'Montserrat, sans-serif', description: 'Font for headings', category: 'typography' },
+          { key: 'bodyFont', value: 'Open Sans, sans-serif', description: 'Font for body text', category: 'typography' },
+          { key: 'borderRadius', value: '8px', description: 'Border radius for UI elements', category: 'layout' },
+          { key: 'contentWidth', value: '1200px', description: 'Maximum width for content', category: 'layout' },
+          { key: 'headerHeight', value: '80px', description: 'Height of the site header', category: 'layout' },
+          { key: 'footerBgColor', value: '#2c3e50', description: 'Background color for the footer', category: 'colors' },
+          { key: 'footerTextColor', value: '#ecf0f1', description: 'Text color for the footer', category: 'colors' },
+        ];
+        
+        for (const style of defaultStyles) {
+          await db.insert(styles).values(style);
+        }
+        
+        console.log('Default styles created successfully');
+      }
+    } catch (error) {
+      console.error('Error creating default styles:', error);
+    }
+  })();
 
   const httpServer = createServer(app);
   return httpServer;
