@@ -50,7 +50,7 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production.";
 
   if (genderFilter === 'male') {
-    pageTitle = "Our Bucks";
+    pageTitle = "Meet Our Bucks";
     pageDescription = "Meet our Nigerian Dwarf bucks. These handsome boys are carefully selected for their excellent genetics and conformation.";
   } else if (genderFilter === 'female') {
     pageTitle = "Our Does";
