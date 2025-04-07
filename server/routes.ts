@@ -1591,7 +1591,7 @@ export function registerRoutes(app: Express): Server {
       if (existingStyles.length === 0) {
         // Default styles for website customization
         const defaultStyles = [
-          { key: 'primaryColor', value: '#3f6f95', description: 'Primary brand color', category: 'colors' },
+          { key: 'primaryColor', value: '#3f6a52', description: 'Primary brand color', category: 'colors' },
           { key: 'secondaryColor', value: '#a3c4bc', description: 'Secondary brand color', category: 'colors' },
           { key: 'accentColor', value: '#f2b880', description: 'Accent color for highlights', category: 'colors' },
           { key: 'backgroundColor', value: '#ffffff', description: 'Background color', category: 'colors' },

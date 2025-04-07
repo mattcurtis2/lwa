@@ -475,6 +475,7 @@ export const selectStyleSchema = createSelectSchema(styles);
 
 export type Style = typeof styles.$inferSelect;
 export type NewStyle = typeof styles.$inferInsert;
+export type StyleSettings = typeof styles.$inferSelect;
 
 export const litter_interest_signups = pgTable("litter_interest_signups", {
   id: serial("id").primaryKey(),

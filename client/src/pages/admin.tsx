@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Admin() {
@@ -32,7 +32,7 @@ export default function Admin() {
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {

@@ -27,7 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { parseISO } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobile } from "@/hooks/use-mobile";
 
 interface Document {
   id?: number;
@@ -119,7 +119,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
   });
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   const healthDocuments =
     goat.documents?.filter((doc) => doc.type === "health") || [];
   const pedigreeDocuments =
