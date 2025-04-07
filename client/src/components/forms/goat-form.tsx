@@ -347,8 +347,16 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       }
 
       const data = await res.json();
+      console.log("Document upload response:", data);
+      
+      // The API returns an array of uploaded files
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        throw new Error("Invalid response from upload API");
+      }
+      
+      const fileData = data[0];
       const newDoc = {
-        url: data.url,
+        url: fileData.url,
         type,
         name: file.name,
         mimeType: file.type,
@@ -366,6 +374,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         description: "Document uploaded successfully",
       });
     } catch (error) {
+      console.error("Document upload error:", error);
       toast({
         title: "Error",
         description: "Failed to upload document",
