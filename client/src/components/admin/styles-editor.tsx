@@ -409,7 +409,9 @@ export default function StylesEditor() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate both styles queries - one for the admin panel and one for the global styles
       queryClient.invalidateQueries({ queryKey: ['styles'] });
+      queryClient.invalidateQueries({ queryKey: ['global-styles'] });
       setIsAddDialogOpen(false);
       setNewStyle({
         key: '',
@@ -458,7 +460,9 @@ export default function StylesEditor() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate both styles queries - one for the admin panel and one for the global styles
       queryClient.invalidateQueries({ queryKey: ['styles'] });
+      queryClient.invalidateQueries({ queryKey: ['global-styles'] });
       toast({
         title: 'Style updated successfully',
         variant: 'default',
@@ -487,7 +491,9 @@ export default function StylesEditor() {
       return id;
     },
     onSuccess: () => {
+      // Invalidate both styles queries - one for the admin panel and one for the global styles
       queryClient.invalidateQueries({ queryKey: ['styles'] });
+      queryClient.invalidateQueries({ queryKey: ['global-styles'] });
       toast({
         title: 'Style deleted successfully',
         variant: 'default',
