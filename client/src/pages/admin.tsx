@@ -9,6 +9,7 @@ import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
+import SiteManager from "@/components/admin/SiteManager";
 import {
   LayoutDashboard,
   Dog as DogIcon,
@@ -16,7 +17,8 @@ import {
   ShoppingBag,
   Loader2,
   Menu,
-  X
+  X,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -97,6 +99,13 @@ export default function Admin() {
         >
           <LayoutDashboard className="h-4 w-4 mr-2" />
           Content
+        </button>
+        <button
+          onClick={() => handleTabChange("sites")}
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "sites" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
+        >
+          <Globe className="h-4 w-4 mr-2" />
+          Sites
         </button>
       </TabsList>
     </div>
@@ -203,6 +212,10 @@ export default function Admin() {
 
             <TabsContent value="content">
               <ContentSection />
+            </TabsContent>
+
+            <TabsContent value="sites">
+              <SiteManager />
             </TabsContent>
           </div>
         </div>

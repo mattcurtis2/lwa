@@ -3,6 +3,20 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations, type InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
 
+// Farm/Site tenant table for multi-tenancy
+export const sites = pgTable("sites", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  domain: text("domain").unique().notNull(),
+  siteName: text("site_name").notNull(),
+  siteDescription: text("site_description"),
+  logoUrl: text("logo_url"),
+  primaryColor: text("primary_color").default("#3d8361"),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const fileStorage = pgTable("file_storage", {
   id: serial("id").primaryKey(),
   fileName: text("file_name").notNull(),
@@ -19,7 +33,8 @@ export const users = pgTable("users", {
 
 export const siteContent = pgTable("site_content", {
   id: serial("id").primaryKey(),
-  key: text("key").unique().notNull(),
+  siteId: integer("site_id").references(() => sites.id),
+  key: text("key").notNull(),
   value: text("value").notNull(),
   type: text("type").notNull(), // "image" or "text"
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -27,6 +42,7 @@ export const siteContent = pgTable("site_content", {
 
 export const carouselItems = pgTable("carousel_items", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -37,6 +53,7 @@ export const carouselItems = pgTable("carousel_items", {
 
 export const animals = pgTable("animals", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   name: text("name").notNull(),
   type: text("type").notNull(), // "dog" or "goat"
   breed: text("breed"),
@@ -50,6 +67,7 @@ export const animals = pgTable("animals", {
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   name: text("name").notNull(),
   section: text("section").notNull(), // "bakery", "market_garden", "animal_products"
   category: text("category").notNull(),
@@ -71,6 +89,7 @@ export const products = pgTable("products", {
 
 export const dogsHero = pgTable("dogs_hero", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   title: text("title").notNull(),
   subtitle: text("subtitle").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -88,6 +107,7 @@ export const dogMedia = pgTable("dog_media", {
 
 export const dogs = pgTable("dogs", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   name: text("name").notNull(),
   registrationName: text("registration_name"),
   breed: text("breed").notNull(),
@@ -168,6 +188,7 @@ export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
 
 export const litters = pgTable("litters", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   dueDate: date("due_date").notNull(),
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
@@ -239,6 +260,7 @@ export type NewDogDocument = typeof dogDocuments.$inferInsert;
 
 export const principles = pgTable("principles", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -258,6 +280,7 @@ export type NewPrinciple = typeof principles.$inferInsert;
 
 export const contactInfo = pgTable("contact_info", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   email: text("email"),
   phone: text("phone"),
   facebook: text("facebook"),
@@ -273,6 +296,7 @@ export type NewContactInfo = typeof contactInfo.$inferInsert;
 
 export const goats = pgTable("goats", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   name: text("name").notNull(),
   registrationName: text("registration_name"),
   breed: text("breed").notNull(),
@@ -326,6 +350,7 @@ export const goatDocuments = pgTable("goat_documents", {
 
 export const goatLitters = pgTable("goat_litters", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   dueDate: date("due_date").notNull(),
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
@@ -417,6 +442,7 @@ export type NewGoatLitter = typeof goatLitters.$inferInsert;
 
 export const marketSections = pgTable("market_sections", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   name: text("name").notNull(), // "about", "bakery", "market_garden", "animal_products"
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -438,12 +464,12 @@ export type NewMarketSection = typeof marketSections.$inferInsert;
 
 export const marketSchedules = pgTable("market_schedules", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id),
   location: text("location").notNull(),
   address: text("address").notNull(),
   dayOfWeek: text("day_of_week").notNull(),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
-
   description: text("description"),
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").default(true),
