@@ -68,8 +68,12 @@ export default function GoatManagement() {
       {does.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Does</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {does.map(renderGoatCard)}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {does.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -78,8 +82,12 @@ export default function GoatManagement() {
       {bucks.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Bucks</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {bucks.map(renderGoatCard)}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {bucks.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -88,8 +96,12 @@ export default function GoatManagement() {
       {kids.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Kids</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {kids.map(renderGoatCard)}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {kids.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -98,8 +110,12 @@ export default function GoatManagement() {
       {availableGoats.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Available Goats</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {availableGoats.map(renderGoatCard)}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {availableGoats.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -108,8 +124,12 @@ export default function GoatManagement() {
       {outsideBreeders.length > 0 && (
         <div>
           <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {outsideBreeders.map(renderGoatCard)}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {outsideBreeders.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
           </div>
         </div>
       )}

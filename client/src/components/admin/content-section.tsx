@@ -533,15 +533,17 @@ export default function ContentSection() {
   return (
     <>
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-6">
-        <TabsList className="w-full justify-start mb-4 border-b">
-          <TabsTrigger value="hero">Hero</TabsTrigger>
-          <TabsTrigger value="principles">Principles</TabsTrigger>
-          <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="carousel">Carousel</TabsTrigger>
-          <TabsTrigger value="dogs">Dogs</TabsTrigger>
-          <TabsTrigger value="goats">Goats</TabsTrigger>
-          <TabsTrigger value="market">Market</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="w-full justify-start mb-4 border-b flex-wrap md:flex-nowrap">
+            <TabsTrigger value="hero">Hero</TabsTrigger>
+            <TabsTrigger value="principles">Principles</TabsTrigger>
+            <TabsTrigger value="about">About</TabsTrigger>
+            <TabsTrigger value="carousel">Carousel</TabsTrigger>
+            <TabsTrigger value="dogs">Dogs</TabsTrigger>
+            <TabsTrigger value="goats">Goats</TabsTrigger>
+            <TabsTrigger value="market">Market</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="global">
           <div className="space-y-6">

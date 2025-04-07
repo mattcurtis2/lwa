@@ -14,10 +14,14 @@ import {
   Dog as DogIcon,
   Cat,
   ShoppingBag,
-  Loader2
+  Loader2,
+  Menu,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Admin() {
   const [_, navigate] = useLocation();
@@ -26,6 +30,8 @@ export default function Admin() {
   const [activeDogTab, setActiveDogTab] = useState("overview");
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -36,6 +42,14 @@ export default function Admin() {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  // Close sidebar after selecting tab on mobile
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -50,68 +64,107 @@ export default function Admin() {
     return null;
   }
 
+  const SidebarContent = () => (
+    <div className="p-4 md:p-6">
+      <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">
+        <Link href="/">
+          <a className="hover:text-primary transition-colors">Little Way Acres</a>
+        </Link>
+      </h2>
+      <TabsList className="flex-col gap-1 bg-transparent p-0">
+        <TabsTrigger
+          value="dogs"
+          onClick={() => handleTabChange("dogs")}
+          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+        >
+          <DogIcon className="h-4 w-4 mr-2" />
+          Dogs
+        </TabsTrigger>
+        <TabsTrigger
+          value="goats"
+          onClick={() => handleTabChange("goats")}
+          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+        >
+          <Cat className="h-4 w-4 mr-2" />
+          Goats
+        </TabsTrigger>
+        <TabsTrigger
+          value="market"
+          onClick={() => handleTabChange("market")}
+          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+        >
+          <ShoppingBag className="h-4 w-4 mr-2" />
+          Market
+        </TabsTrigger>
+        <TabsTrigger
+          value="content"
+          onClick={() => handleTabChange("content")}
+          className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
+        >
+          <LayoutDashboard className="h-4 w-4 mr-2" />
+          Content
+        </TabsTrigger>
+      </TabsList>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen">
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        orientation="vertical"
+        orientation={isMobile ? "horizontal" : "vertical"}
         className="w-full"
       >
-        {/* Sidebar */}
-        <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-8">
-              <Link href="/">
-                <a className="hover:text-primary transition-colors">Little Way Acres</a>
-              </Link>
-            </h2>
-            <TabsList className="flex-col gap-1 bg-transparent p-0">
-              <TabsTrigger
-                value="dogs"
-                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
-              >
-                <DogIcon className="h-4 w-4 mr-2" />
-                Dogs
-              </TabsTrigger>
-              <TabsTrigger
-                value="goats"
-                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
-              >
-                <Cat className="h-4 w-4 mr-2" />
-                Goats
-              </TabsTrigger>
-              <TabsTrigger
-                value="market"
-                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
-              >
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                Market
-              </TabsTrigger>
-              <TabsTrigger
-                value="content"
-                className="w-full justify-start px-4 py-2 data-[state=active]:bg-muted hover:bg-muted/50"
-              >
-                <LayoutDashboard className="h-4 w-4 mr-2" />
-                Content
-              </TabsTrigger>
-            </TabsList>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 pl-64">
-          <div className="container mx-auto p-6">
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-4xl font-bold">Admin Dashboard</h1>
-              <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
-                <LogOut size={16} />
-                Logout
+        {/* Mobile Sidebar */}
+        {isMobile ? (
+          <div className="sticky top-0 z-30 bg-background border-b">
+            <div className="flex items-center justify-between p-4">
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[250px] p-0">
+                  <div className="flex justify-end p-4">
+                    <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                  <SidebarContent />
+                </SheetContent>
+              </Sheet>
+              
+              <h1 className="text-xl font-bold">Admin Dashboard</h1>
+              
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="h-5 w-5" />
               </Button>
             </div>
+          </div>
+        ) : (
+          /* Desktop Sidebar */
+          <div className="w-64 border-r bg-card fixed h-screen overflow-y-auto hidden md:block">
+            <SidebarContent />
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className={`flex-1 ${isMobile ? 'pl-0' : 'md:pl-64'}`}>
+          <div className="container p-4 md:p-6">
+            {!isMobile && (
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
+                <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                  <LogOut size={16} />
+                  Logout
+                </Button>
+              </div>
+            )}
             <TabsContent value="dogs">
               <Tabs value={activeDogTab} onValueChange={setActiveDogTab}>
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 flex flex-wrap">
                   <TabsTrigger value="overview">Dogs</TabsTrigger>
                   <TabsTrigger value="litters">Litters</TabsTrigger>
                 </TabsList>
@@ -126,7 +179,7 @@ export default function Admin() {
 
             <TabsContent value="goats">
               <Tabs value={activeGoatTab} onValueChange={setActiveGoatTab}>
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 flex flex-wrap">
                   <TabsTrigger value="overview">Goats</TabsTrigger>
                   <TabsTrigger value="litters">Litters</TabsTrigger>
                 </TabsList>
@@ -145,7 +198,7 @@ export default function Admin() {
                   value={activeMarketTab}
                   onValueChange={setActiveMarketTab}
                 >
-                  <TabsList className="mb-4">
+                  <TabsList className="mb-4 flex flex-wrap">
                     <TabsTrigger value="schedule">Schedule</TabsTrigger>
                     <TabsTrigger value="items">Items</TabsTrigger>
                   </TabsList>

@@ -61,13 +61,12 @@ export default function DogManagement() {
       {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Females</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
               .map((dog, index) => (
-                <div key={dog.id}>
+                <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
                   {renderDogCard(dog)}
-                  {index < dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length -1 && <div className="h-px bg-gray-200 my-4" />}
                 </div>
               ))}
           </div>
@@ -78,13 +77,12 @@ export default function DogManagement() {
       {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Males</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
               .map((dog, index) => (
-                <div key={dog.id}>
+                <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
                   {renderDogCard(dog)}
-                  {index < dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length - 1 && <div className="h-px bg-gray-200 my-4" />}
                 </div>
               ))}
           </div>
@@ -95,13 +93,12 @@ export default function DogManagement() {
       {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
         <div>
           <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
               .filter(dog => dog.outsideBreeder)
               .map((dog, index) => (
-                <div key={dog.id}>
+                <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
                   {renderDogCard(dog)}
-                  {index < dogs.filter(dog => dog.outsideBreeder).length - 1 && <div className="h-px bg-gray-200 my-4" />}
                 </div>
               ))}
           </div>
