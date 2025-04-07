@@ -68,6 +68,8 @@ const createGoatSchema = (isKid: boolean = false) => {
     milkStars: z.string().optional(),
     laArScores: z.string().optional(),
     price: z.string().optional(),
+    bucklingPrice: z.string().optional(),
+    wetherPrice: z.string().optional(),
     profileImageUrl: z.string().optional(),
     media: z.array(mediaSchema).optional(),
     outsideBreeder: z.boolean().default(false),
@@ -128,6 +130,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       milkStars: goat?.milkStars || "",
       laArScores: goat?.laArScores || "",
       price: goat?.price || "",
+      bucklingPrice: goat?.bucklingPrice || "",
+      wetherPrice: goat?.wetherPrice || "",
       profileImageUrl: goat?.profileImageUrl || "",
       media: goat?.media || [],
       outsideBreeder: Boolean(goat?.outsideBreeder),
@@ -527,21 +531,28 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
-      // Handle price field correctly
-      let priceValue;
-      if (values.price === '' || values.price === null || values.price === undefined) {
-        priceValue = null; // Explicitly set null for empty values
-      } else if (values.price === '0' || values.price === 0) {
-        priceValue = 0; // Keep 0 as a valid price
-      } else {
-        priceValue = values.price; // Keep other values as they are
-      }
+      // Handle price fields correctly
+      const processEmptyPrice = (price: string | null | undefined) => {
+        if (price === '' || price === null || price === undefined) {
+          return null; // Explicitly set null for empty values
+        } else if (price === '0' || price === 0) {
+          return 0; // Keep 0 as a valid price
+        } else {
+          return price; // Keep other values as they are
+        }
+      };
+
+      const priceValue = processEmptyPrice(values.price);
+      const bucklingPriceValue = processEmptyPrice(values.bucklingPrice);
+      const wetherPriceValue = processEmptyPrice(values.wetherPrice);
       
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : undefined,
         weight: values.weight ? parseFloat(values.weight) : undefined,
         price: priceValue, // Use our processed price value
+        bucklingPrice: bucklingPriceValue, // Add processed buckling price
+        wetherPrice: wetherPriceValue, // Add processed wether price
         sold: Boolean(values.sold),
         available: Boolean(values.available),
         kid: Boolean(values.kid),
@@ -1249,11 +1260,67 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 />
               </FormControl>
               <FormDescription>
-                Optional price for the goat (will be shown when marked as available). Leave empty to remove price.
+                {form.getValues("gender") === "male" 
+                  ? "Optional general price for male goat (will be shown when marked as available)." 
+                  : "Optional price for the goat (will be shown when marked as available). Leave empty to remove price."}
               </FormDescription>
             </FormItem>
           )}
         />
+
+        {form.getValues("gender") === "male" && (
+          <>
+            <FormField
+              control={form.control}
+              name="bucklingPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Buckling Price</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter buckling price" 
+                      {...field} 
+                      value={field.value === null ? '' : field.value}
+                      onChange={(e) => {
+                        // Allow empty string to clear the field
+                        const value = e.target.value.trim() === '' ? null : e.target.value;
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Optional price when sold as a buckling. Leave empty to remove price.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="wetherPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Wether Price</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter wether price" 
+                      {...field} 
+                      value={field.value === null ? '' : field.value}
+                      onChange={(e) => {
+                        // Allow empty string to clear the field
+                        const value = e.target.value.trim() === '' ? null : e.target.value;
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Optional price when sold as a wether. Leave empty to remove price.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+          </>
+        )}
         <FormField
           control={form.control}
           name="outsideBreeder"

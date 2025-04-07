@@ -220,18 +220,50 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
-            <a 
-              href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(goat.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
+          {showPrice && goat.available && (
+            <div className="space-y-2 mt-2">
+              {goat.price && !isNaN(parseInt(goat.price)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    {goat.gender === "male" ? "Base Price" : "Available"}: ${parseInt(goat.price).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {goat.gender === "male" && goat.bucklingPrice && !isNaN(parseInt(goat.bucklingPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Buckling: ${parseInt(goat.bucklingPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {goat.gender === "male" && goat.wetherPrice && !isNaN(parseInt(goat.wetherPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+            </div>
           )}
         </div>
 
@@ -427,18 +459,50 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
-            <a 
-              href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(goat.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
+          {showPrice && goat.available && (
+            <div className="space-y-2 mt-2">
+              {goat.price && !isNaN(parseInt(goat.price)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    {goat.gender === "male" ? "Base Price" : "Available"}: ${parseInt(goat.price).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {goat.gender === "male" && goat.bucklingPrice && !isNaN(parseInt(goat.bucklingPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Buckling: ${parseInt(goat.bucklingPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {goat.gender === "male" && goat.wetherPrice && !isNaN(parseInt(goat.wetherPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+            </div>
           )}
         </div>
 

@@ -286,6 +286,8 @@ export const goats = pgTable("goats", {
   available: boolean("available").default(false).notNull(),
   sold: boolean("sold").default(false).notNull(),
   price: text("price"),
+  bucklingPrice: text("buckling_price"),
+  wetherPrice: text("wether_price"),
   profileImageUrl: text("profile_image_url"),
   healthData: text("health_data"),
   color: text("color"),
