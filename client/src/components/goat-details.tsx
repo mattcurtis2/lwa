@@ -220,7 +220,13 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && (
+          {goat.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : showPrice && goat.available && (
             <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
@@ -474,7 +480,13 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {showPrice && goat.available && (
+          {goat.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : showPrice && goat.available && (
             <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
@@ -545,10 +557,10 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                     key={index}
                     onClick={() => setActiveMediaIndex(index)}
                     className={cn(
-                      "w-2 h-2 rounded-full",
-                      index === activeMediaIndex
-                        ? "bg-primary"
-                        : "bg-muted hover:bg-muted-foreground/50",
+                      "w-2 h-2 rounded-full transition-all",
+                      activeMediaIndex === index
+                        ? "bg-primary scale-125"
+                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                     )}
                   />
                 ))}
@@ -557,16 +569,30 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
           </DialogContent>
         </Dialog>
 
-        <Tabs defaultValue={getDefaultTab()} className="w-full">
-          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap overflow-x-auto">
-            <TabsTrigger value="basic">Basic Information</TabsTrigger>
-            {hasStory && <TabsTrigger value="story">Story</TabsTrigger>}
-            {hasPhysical && (
-              <TabsTrigger value="physical">Physical</TabsTrigger>
+        <Tabs defaultValue={getDefaultTab()}>
+          <TabsList className="mb-4 w-full">
+            <TabsTrigger value="basic" className="flex-1">
+              Basic Information
+            </TabsTrigger>
+            {hasStory && (
+              <TabsTrigger value="story" className="flex-1">
+                Story
+              </TabsTrigger>
             )}
-            {hasHealth && <TabsTrigger value="health">Health</TabsTrigger>}
+            {hasPhysical && (
+              <TabsTrigger value="physical" className="flex-1">
+                Physical
+              </TabsTrigger>
+            )}
+            {hasHealth && (
+              <TabsTrigger value="health" className="flex-1">
+                Health
+              </TabsTrigger>
+            )}
             {hasPedigree && (
-              <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+              <TabsTrigger value="pedigree" className="flex-1">
+                Pedigree
+              </TabsTrigger>
             )}
           </TabsList>
 
@@ -607,7 +633,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               <div className="text-base leading-relaxed space-y-6">
                 {goat.description && (
                   <div>
-                    <h3 className="font-medium text-lg mb-3">Basic Information</h3>
+                    <h3 className="font-medium text-lg mb-2">Basic Information</h3>
                     <div>
                       {goat.description.split("\n\n").map((paragraph, index) => (
                         <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
@@ -618,7 +644,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 
                 {goat.narrativeDescription && (
                   <div>
-                    <h3 className="font-medium text-lg mb-3">Story</h3>
+                    <h3 className="font-medium text-lg mb-2">Story</h3>
                     <div>
                       {goat.narrativeDescription.split("\n\n").map((paragraph, index) => (
                         <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
@@ -645,6 +671,12 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                     <p>{goat.weight} lbs</p>
                   </div>
                 )}
+                {goat.height && !isNaN(parseFloat(goat.height as string)) && (
+                  <div>
+                    <h3 className="font-medium text-lg">Height</h3>
+                    <p>{goat.height} inches</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           )}
@@ -653,15 +685,13 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             <TabsContent value="health" className="space-y-6 pt-4">
               <div className="space-y-6">
                 {goat.healthData && (
-                  <div className="prose max-w-none mb-6">
+                  <div className="prose prose-stone max-w-none">
                     <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
                   </div>
                 )}
                 {healthDocuments.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="font-medium text-lg break-words">
-                      Health Documents
-                    </h3>
+                    <h3 className="font-medium text-lg mb-2">Health Documents</h3>
                     <div className="grid gap-4">
                       {healthDocuments.map((doc, index) => (
                         <DocumentLink key={index} document={doc} />
@@ -677,32 +707,30 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
             <TabsContent value="pedigree" className="space-y-6 pt-4">
               <div className="space-y-6">
                 {(goat.sireName || goat.damName) && (
-                  <div className="space-y-4 mb-6">
+                  <div className="space-y-4">
                     <h3 className="font-medium text-lg">Lineage</h3>
                     {goat.sireName && (
                       <div className="ml-4">
-                        <h4 className="font-medium">Sire:</h4>
+                        <h4 className="font-semibold">Sire:</h4>
                         <p>{goat.sireName}</p>
                       </div>
                     )}
                     {goat.damName && (
                       <div className="ml-4">
-                        <h4 className="font-medium">Dam:</h4>
+                        <h4 className="font-semibold">Dam:</h4>
                         <p>{goat.damName}</p>
                       </div>
                     )}
                   </div>
                 )}
                 {goat.pedigree && (
-                  <div className="prose max-w-none mb-6">
+                  <div className="prose prose-stone max-w-none">
                     <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
                   </div>
                 )}
                 {pedigreeDocuments.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="font-medium text-lg break-words">
-                      Pedigree Documents
-                    </h3>
+                    <h3 className="font-medium text-lg mb-2">Pedigree Documents</h3>
                     <div className="grid gap-4">
                       {pedigreeDocuments.map((doc, index) => (
                         <DocumentLink key={index} document={doc} />
