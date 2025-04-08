@@ -6,7 +6,6 @@ import { AuthProvider } from "@/providers/auth-provider";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
-import SitesPage from "@/pages/admin/SitesPage";
 import Login from "@/pages/login";
 import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
@@ -47,7 +46,6 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
           <Route path="/admin" component={Admin} />
-          <Route path="/admin/sites" component={SitesPage} />
           {/* Dog Routes */}
           <Route path="/dogs">
             {() => <Dogs />}

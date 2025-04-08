@@ -5,8 +5,6 @@ import dotenv from "dotenv";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
 import goatLittersRouter from "./routes/goat-litters";
-import sitesRouter from "./routes/sites";
-import { siteIdentificationMiddleware } from "./utils/site-identification";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -53,14 +51,8 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// Apply site identification middleware
-app.use(siteIdentificationMiddleware());
-
 // Add proxy router before other routes
 app.use('/api', proxyRouter);
-
-// Add admin routes
-app.use('/api/admin/sites', sitesRouter);
 
 // Add goats router
 app.use(goatsRouter);

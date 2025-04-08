@@ -1,39 +1,16 @@
 import fs from 'fs-extra';
 import { S3Client, PutObjectCommand, PutBucketCorsCommand } from '@aws-sdk/client-s3';
+import path from 'path';
 import { randomUUID as uuidv4 } from "crypto";
 import dotenv from 'dotenv';
+import { sleep } from '../helpers';
 
 dotenv.config();
 
-// Initialize the S3 client with AWS credentials
-export function getS3Client() {
-  // Check if AWS credentials are set
-  console.log('AWS Credentials Check:');
-  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
-  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
-  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-
-  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-    console.error('S3 Client - Missing AWS credentials');
-    return null;
-  }
-
-  return new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-  });
-}
-
 // Function to check and set S3 bucket CORS configuration
-export async function ensureBucketCorsConfig(bucketName: string): Promise<boolean> {
-  const s3 = getS3Client();
-  if (!s3) return false;
-
+async function ensureBucketCorsConfig(s3Client, bucketName) {
   try {
-    console.log(`Checking S3 bucket CORS configuration for ${bucketName}...`);
+    console.log('Checking S3 bucket CORS configuration...');
 
     // Set a permissive CORS configuration for the bucket
     const corsParams = {
@@ -51,7 +28,9 @@ export async function ensureBucketCorsConfig(bucketName: string): Promise<boolea
       }
     };
 
-    await s3.send(new PutBucketCorsCommand(corsParams));
+    // Import the PutBucketCorsCommand dynamically to avoid potential issues
+    const { PutBucketCorsCommand } = await import('@aws-sdk/client-s3');
+    await s3Client.send(new PutBucketCorsCommand(corsParams));
     console.log('CORS configuration set successfully');
 
     return true;
@@ -62,31 +41,20 @@ export async function ensureBucketCorsConfig(bucketName: string): Promise<boolea
   }
 }
 
-// Get the bucket name based on the current site or default
-export function getBucketName(req?: any): string {
-  // If a site is present on the request, generate site-specific bucket name
-  if (req?.site?.id) {
-    // Allow site-specific bucket override from environment (for testing)
-    const siteBucketName = process.env[`SITE_${req.site.id}_BUCKET_NAME`];
-    if (siteBucketName) {
-      return siteBucketName;
-    }
-    
-    // Use site domain as part of bucket name (remove dots for S3 naming rules)
-    const siteDomain = req.site.domain.replace(/\./g, '-');
-    return `${siteDomain}-content`;
-  }
-  
-  // Default bucket from environment variables
-  return process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'lwacontent';
-}
-
-// Upload file to S3 with support for site-specific buckets
-export async function uploadToS3(file: any, req?: any): Promise<string | null> {
+// Initialize the S3 client with AWS credentials
+export async function uploadToS3(file: any): Promise<string | null> {
   console.log('==== S3 UPLOAD ATTEMPT ====');
-  
-  const s3 = getS3Client();
-  if (!s3) {
+  // Check if AWS credentials are set
+  console.log('AWS Credentials Check:');
+  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
+  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
+  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
+  console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
+  console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+
+  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || 
+      (!process.env.AWS_BUCKET_NAME && !process.env.S3_BUCKET_NAME)) {
+    console.error('S3 Upload - Missing AWS credentials');
     return null;
   }
 
@@ -101,12 +69,38 @@ export async function uploadToS3(file: any, req?: any): Promise<string | null> {
     return null;
   }
 
-  // Get the appropriate bucket name
-  const bucketName = getBucketName(req);
-  console.log(`Using S3 bucket: ${bucketName}`);
+  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
 
   // Set CORS for the bucket (this only needs to be done once per bucket)
-  await ensureBucketCorsConfig(bucketName);
+  try {
+    console.log('Checking S3 bucket CORS configuration...');
+    await s3.send(
+      new PutBucketCorsCommand({
+        Bucket: bucketName,
+        CORSConfiguration: {
+          CORSRules: [
+            {
+              AllowedHeaders: ['*'],
+              AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+              AllowedOrigins: ['*'],
+              ExposeHeaders: ['ETag']
+            }
+          ]
+        }
+      })
+    );
+    console.log('CORS configuration set successfully');
+  } catch (error) {
+    console.error('Error setting CORS configuration', error);
+    // Continue anyway as this might just be a permissions issue
+  }
 
   try {
     // Generate a unique key for the file
@@ -140,6 +134,7 @@ export async function uploadToS3(file: any, req?: any): Promise<string | null> {
         Key: fileKey,
         Body: fileContent,
         ContentType: file.mimetype || 'application/octet-stream',
+        // Remove ACL setting as it might cause issues with some bucket configurations
       })
     );
 

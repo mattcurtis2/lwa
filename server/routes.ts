@@ -1,8 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { sites, animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
-import { getDefaultSite } from "./utils/site-identification";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
 import { eq, inArray } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -80,11 +79,6 @@ export function registerRoutes(app: Express): Server {
         password: hashedPassword,
       });
     }
-    
-    // Create default site if none exists
-    // This creates the default site if it doesn't exist via getDefaultSite
-    // and returns it so we can use it for the default content
-    const initialSite = await getDefaultSite();
 
     const defaultContent = [
       { key: "logo", value: "/images/logo.png", type: "image" },
@@ -113,20 +107,13 @@ export function registerRoutes(app: Express): Server {
       { key: "products_redirect", value: "/market", type: "text" },
     ];
 
-    // Get the default site for content initialization
-    const defaultSite = await getDefaultSite();
-    
     for (const content of defaultContent) {
       const exists = await db.query.siteContent.findFirst({
         where: eq(siteContent.key, content.key),
       });
 
       if (!exists) {
-        // Add the site_id from the default site
-        await db.insert(siteContent).values({
-          ...content,
-          siteId: defaultSite.id
-        });
+        await db.insert(siteContent).values(content);
       }
     }
 
@@ -134,30 +121,24 @@ export function registerRoutes(app: Express): Server {
     const existingCarouselItems = await db.query.carouselItems.findMany();
 
     if (existingCarouselItems.length === 0) {
-      // Get the default site to associate with content
-      const defaultSite = await getDefaultSite();
-      
       const defaultCarouselItems = [
         {
           title: "Colorado Mountain Dogs",
           description: "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals are raised with hands-on care and early socialization.",
           imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
           order: 1,
-          siteId: defaultSite.id,
         },
         {
           title: "Nigerian Dwarf Goats",
           description: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're registered, health-tested, and raised with love.",
           imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
           order: 2,
-          siteId: defaultSite.id,
         },
         {
           title: "Farm Fresh Products",
           description: "Visit our Farmers Market for homemade and farm-fresh goods. From artisanal bread to seasonal produce, every product reflects our commitment to quality and sustainable farming.",
           imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9",
           order: 3,
-          siteId: defaultSite.id,
         },
       ];
 
@@ -189,14 +170,10 @@ export function registerRoutes(app: Express): Server {
     });
 
     if (!existingHero) {
-      // Get the default site for the hero content
-      const defaultSite = await getDefaultSite();
-      
       await db.insert(dogsHero).values({
         title: "Colorado Mountain Dogs",
         subtitle: "Loyal guardians bred for livestock protection, combining strength with gentle temperament",
-        image_url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
-        siteId: defaultSite.id,
+        imageUrl: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
       });
     }
 
@@ -204,49 +181,42 @@ export function registerRoutes(app: Express): Server {
     const existingDogs = await db.query.dogs.findMany();
 
     if (existingDogs.length === 0) {
-      // Get the default site for the dogs
-      const defaultSite = await getDefaultSite();
-      
       const sampleDogs = [
         {
           name: "Luna",
           breed: "Colorado Mountain Dog",
           birthDate: "2022-01-15",
           description: "Luna is a gentle giant with exceptional guarding instincts. She's great with children and livestock alike.",
-          image_url: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
+          imageUrl: "https://images.unsplash.com/photo-1583511655826-05700442b31b",
           isAvailable: true,
           order: 1,
-          siteId: defaultSite.id,
         },
         {
           name: "Atlas",
           breed: "Colorado Mountain Dog",
           birthDate: "2021-06-20",
           description: "Atlas is a proven guardian with a calm demeanor. He excels at protecting livestock and is well-socialized.",
-          image_url: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
+          imageUrl: "https://images.unsplash.com/photo-1583511666407-5f06533f2113",
           isAvailable: true,
           order: 2,
-          siteId: defaultSite.id,
         },
         {
           name: "Sierra",
           breed: "Colorado Mountain Dog",
           birthDate: "2023-03-10",
           description: "Sierra is a young, energetic guardian in training. She shows great promise in both protection and companionship.",
-          image_url: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
+          imageUrl: "https://images.unsplash.com/photo-1583511666383-67ab5c547eb8",
           isAvailable: true,
           order: 3,
-          siteId: defaultSite.id,
         },
         {
           name: "Rocky",
           breed: "Colorado Mountain Dog",
           birthDate: "2020-08-25",
           description: "Rocky is an experienced guardian with a perfect track record. He's calm, confident, and excellent with other dogs.",
-          image_url: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
+          imageUrl: "https://images.unsplash.com/photo-1583511666450-662b12363a55",
           isAvailable: true,
           order: 4,
-          siteId: defaultSite.id,
         },
       ];
 
@@ -259,9 +229,6 @@ export function registerRoutes(app: Express): Server {
     const existingGoats = await db.query.goats.findMany();
 
     if (existingGoats.length === 0) {
-      // Get the default site for the goats
-      const defaultSite = await getDefaultSite();
-      
       const sampleGoats = [
         {
           name: "Luna",
@@ -274,8 +241,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 1,
-          profile_image_url: "/images/goats/luna.jpg",
-          siteId: defaultSite.id,
+          profileImageUrl: "/images/goats/luna.jpg",
         },
         {
           name: "Zeus",
@@ -288,8 +254,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 2,
-          profile_image_url: "/images/goats/zeus.jpg",
-          siteId: defaultSite.id,
+          profileImageUrl: "/images/goats/zeus.jpg",
         },
         {
           name: "Daisy",
@@ -302,8 +267,7 @@ export function registerRoutes(app: Express): Server {
           kid: false,
           outsideBreeder: false,
           order: 3,
-          profile_image_url: "/images/goats/daisy.jpg",
-          siteId: defaultSite.id,
+          profileImageUrl: "/images/goats/daisy.jpg",
         }
       ];
 
@@ -316,9 +280,6 @@ export function registerRoutes(app: Express): Server {
     const existingGoatLitters = await db.query.goatLitters.findMany();
 
     if (existingGoatLitters.length === 0) {
-      // Get the default site for the goat litters
-      const defaultSite = await getDefaultSite();
-      
       const goatsList = await db.query.goats.findMany();
       const mothers = goatsList.filter(g => g.gender === 'female');
       const fathers = goatsList.filter(g => g.gender === 'male');
@@ -329,15 +290,13 @@ export function registerRoutes(app: Express): Server {
             motherId: mothers[0].id,
             fatherId: fathers[0].id,
             dueDate: "2024-04-15",
-            isVisible: true,
-            siteId: defaultSite.id
+            isVisible: true
           },
           {
             motherId: mothers[mothers.length - 1].id,
             fatherId: fathers[0].id,
             dueDate: "2024-05-20",
-            isVisible: true,
-            siteId: defaultSite.id
+            isVisible: true
           }
         ];
 
@@ -357,9 +316,6 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/site-content/:key", upload.single('file'), async (req, res) => {
     const key = req.params.key;
     try {
-      // Get the default site
-      const defaultSite = await getDefaultSite();
-      
       let value = req.body.value;
 
       // Handle base64 image data from cropper
@@ -387,7 +343,6 @@ export function registerRoutes(app: Express): Server {
             key,
             value,
             type: key.includes('image') ? 'image' : 'text',
-            siteId: defaultSite.id,  // Add the site_id from default site
           })
           .returning();
         res.json(content[0]);
@@ -408,9 +363,6 @@ export function registerRoutes(app: Express): Server {
   // CMD Description content routes
   app.get("/api/site-content/cmd-description", async (_req, res) => {
     try {
-      // Get the default site
-      const defaultSite = await getDefaultSite();
-      
       const content = await db.query.siteContent.findFirst({
         where: eq(siteContent.key, "cmd_description"),
       });
@@ -422,7 +374,6 @@ export function registerRoutes(app: Express): Server {
             key: "cmd_description",
             value: "Colorado Mountain Dogs are exceptional working dogs bred for livestock protection.",
             type: "text",
-            siteId: defaultSite.id,  // Add site_id to the content
           })
           .returning();
         res.json(newContent[0]);
@@ -437,9 +388,6 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/site-content/cmd-description", async (req, res) => {
     try {
-      // Get the default site
-      const defaultSite = await getDefaultSite();
-      
       const { value } = req.body;
 
       const existingContent = await db.query.siteContent.findFirst({
@@ -458,7 +406,6 @@ export function registerRoutes(app: Express): Server {
             key: "cmd_description",
             value,
             type: "text",
-            siteId: defaultSite.id,  // Add site_id to the content
           })
           .returning();
         res.json(content[0]);
@@ -734,20 +681,20 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/dogs-hero/:id", upload.single('image'), async (req, res) => {
     try {
-      let image_url = req.body.image_url || req.body.imageUrl; // Accept both formats for compatibility
+      let imageUrl = req.body.imageUrl; // For direct URL updates
 
       // If a file was uploaded, use its path
       if (req.file) {
-        image_url = `/uploads/${req.file.filename}`;
+        imageUrl = `/uploads/${req.file.filename}`;
       }
 
-      if (!image_url) {
+      if (!imageUrl) {
         return res.status(400).json({ message: "No image URL or file provided" });
       }
 
       const hero = await db.update(dogsHero)
         .set({
-          image_url,
+          imageUrl,
           updatedAt: new Date()
         })
         .where(eq(dogsHero.id, parseInt(req.params.id)))
@@ -777,12 +724,12 @@ export function registerRoutes(app: Express): Server {
 
     // Set first media image as profile picture if none exists
     const processedDogs = allDogs.map(dog => {
-      if (!dog.profile_image_url && dog.media && dog.media.length > 0) {
+      if (!dog.profileImageUrl && dog.media && dog.media.length > 0) {
         const firstImage = dog.media.find(m => m.type === 'image');
         if (firstImage) {
           return {
             ...dog,
-            profile_image_url: firstImage.url
+            profileImageUrl: firstImage.url
           };
         }
       }
@@ -1521,9 +1468,6 @@ export function registerRoutes(app: Express): Server {
     try {
       const { sectionTitle, sectionDescription, cards } = req.body;
 
-      // Get the default site
-      const defaultSite = await getDefaultSite();
-      
       const updates = [
         { key: 'about_section_title', value: sectionTitle, type: 'text' },
         { key: 'about_section_description', value: sectionDescription, type: 'text' },
@@ -1545,10 +1489,7 @@ export function registerRoutes(app: Express): Server {
             .set({ value: update.value, updatedAt: new Date() })
             .where(eq(siteContent.key, update.key));
         } else {
-          await db.insert(siteContent).values({
-            ...update,
-            siteId: defaultSite.id,  // Add site_id to the content
-          });
+          await db.insert(siteContent).values(update);
         }
       }
 
