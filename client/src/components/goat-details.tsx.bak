@@ -114,8 +114,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
     goatId: goat.id,
     goatName: goat.name,
     available: goat.available, 
-    price: goat.price,
-    sold: goat.sold, // Log sold status
+    price: goat.price, 
     showPrice 
   });
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
@@ -221,13 +220,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {goat.sold ? (
-            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
-              <p className="text-lg font-semibold text-white">
-                SOLD
-              </p>
-            </div>
-          ) : (showPrice && goat.available && (
+          {showPrice && goat.available && (
             <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
@@ -257,7 +250,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 </a>
               )}
             </div>
-          ))}
+          )}
         </div>
 
         <div className="space-y-6">
@@ -481,13 +474,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               {goat.registrationName}
             </p>
           )}
-          {goat.sold ? (
-            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
-              <p className="text-lg font-semibold text-white">
-                SOLD
-              </p>
-            </div>
-          ) : (showPrice && goat.available && (
+          {showPrice && goat.available && (
             <div className="flex flex-col gap-4 mt-2">
               {goat.price && !isNaN(parseInt(goat.price)) && (
                 <a 
@@ -517,200 +504,213 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
                 </a>
               )}
             </div>
-          ))}
+          )}
         </div>
 
+        <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
+          <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
+            <DialogHeader className="mb-2">
+              <DialogTitle>{goat.name}'s Gallery</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex items-center justify-center h-[calc(100%-3rem)] w-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 z-10"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <img
+                  src={imageMedia[activeMediaIndex]?.url}
+                  alt={`${goat.name} - photo ${activeMediaIndex + 1}`}
+                  className="max-h-[50vh] max-w-[600px] w-auto h-auto object-contain rounded-lg"
+                />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 z-10"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {imageMedia.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveMediaIndex(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full",
+                      index === activeMediaIndex
+                        ? "bg-primary"
+                        : "bg-muted hover:bg-muted-foreground/50",
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <Tabs defaultValue={getDefaultTab()} className="w-full">
-          <TabsList className="w-full grid gap-2" style={{ gridTemplateColumns: `repeat(${hasStory + hasPhysical + hasHealth + hasPedigree + 1}, 1fr)` }}>
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
+          <TabsList className="w-full md:w-auto inline-flex whitespace-nowrap overflow-x-auto">
+            <TabsTrigger value="basic">Basic Information</TabsTrigger>
             {hasStory && <TabsTrigger value="story">Story</TabsTrigger>}
-            {hasPhysical && <TabsTrigger value="physical">Physical</TabsTrigger>}
+            {hasPhysical && (
+              <TabsTrigger value="physical">Physical</TabsTrigger>
+            )}
             {hasHealth && <TabsTrigger value="health">Health</TabsTrigger>}
-            {hasPedigree && <TabsTrigger value="pedigree">Pedigree</TabsTrigger>}
+            {hasPedigree && (
+              <TabsTrigger value="pedigree">Pedigree</TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="basic" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>Details about {goat.name}</CardDescription>
-              </CardHeader>
-              <CardContent className="grid md:grid-cols-2 gap-6">
+          <TabsContent value="basic" className="space-y-6 pt-4">
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-lg">Breed</h3>
+                <p>{goat.breed}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)}{" "}
+                  {genderSymbol}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+              </div>
+              {goat.sireName && (
                 <div>
-                  <h3 className="font-semibold mb-1">Breed</h3>
-                  <p>{goat.breed}</p>
+                  <h3 className="font-medium text-lg">Sire</h3>
+                  <p>{goat.sireName}</p>
                 </div>
+              )}
+              {goat.damName && (
                 <div>
-                  <h3 className="font-semibold mb-1">Gender</h3>
-                  <p className="flex items-center gap-1">
-                    {goat.gender.charAt(0).toUpperCase() + goat.gender.slice(1)}{" "}
-                    {genderSymbol}
-                  </p>
+                  <h3 className="font-medium text-lg">Dam</h3>
+                  <p>{goat.damName}</p>
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Birth Date</h3>
-                  <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
-                </div>
-                {goat.sireName && (
-                  <div>
-                    <h3 className="font-semibold mb-1">Sire</h3>
-                    <p>{goat.sireName}</p>
-                  </div>
-                )}
-                {goat.damName && (
-                  <div>
-                    <h3 className="font-semibold mb-1">Dam</h3>
-                    <p>{goat.damName}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              )}
+            </div>
           </TabsContent>
 
           {hasStory && (
-            <TabsContent value="story" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Story and Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    {goat.description && (
-                      <div className="mb-6">
-                        <h3 className="text-lg font-semibold mb-3">
-                          Basic Information
-                        </h3>
-                        <div className="leading-relaxed">
-                          {goat.description.split("\n\n").map((paragraph, index) => (
-                            <p key={`desc-${index}`} className="mb-4 last:mb-0">
-                              {paragraph}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {goat.narrativeDescription && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Story</h3>
-                        <div className="leading-relaxed">
-                          {goat.narrativeDescription
-                            .split("\n\n")
-                            .map((paragraph, index) => (
-                              <p key={`narr-${index}`} className="mb-4 last:mb-0">
-                                {paragraph}
-                              </p>
-                            ))}
-                        </div>
-                      </div>
-                    )}
+            <TabsContent value="story" className="space-y-6 pt-4">
+              <div className="text-base leading-relaxed space-y-6">
+                {goat.description && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Basic Information</h3>
+                    <div>
+                      {goat.description.split("\n\n").map((paragraph, index) => (
+                        <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                
+                {goat.narrativeDescription && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Story</h3>
+                    <div>
+                      {goat.narrativeDescription.split("\n\n").map((paragraph, index) => (
+                        <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
 
           {hasPhysical && (
-            <TabsContent value="physical" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Physical Characteristics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {goat.color && (
-                      <div>
-                        <h3 className="font-semibold mb-1">Color</h3>
-                        <p>{goat.color}</p>
-                      </div>
-                    )}
-                    {goat.weight && (
-                      <div>
-                        <h3 className="font-semibold mb-1">Weight</h3>
-                        <p>{goat.weight} lbs</p>
-                      </div>
-                    )}
+            <TabsContent value="physical" className="space-y-6 pt-4">
+              <div className="space-y-4">
+                {goat.color && (
+                  <div>
+                    <h3 className="font-medium text-lg">Color</h3>
+                    <p>{goat.color}</p>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {goat.weight && (
+                  <div>
+                    <h3 className="font-medium text-lg">Weight</h3>
+                    <p>{goat.weight} lbs</p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
 
           {hasHealth && (
-            <TabsContent value="health" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Health Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {goat.healthData && (
-                      <div className="prose max-w-none">
-                        <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
-                      </div>
-                    )}
-                    {healthDocuments.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-3">Health Documents</h3>
-                        <div className="grid gap-2">
-                          {healthDocuments.map((doc, index) => (
-                            <DocumentLink key={index} document={doc} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+            <TabsContent value="health" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {goat.healthData && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.healthData }} />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg break-words">
+                      Health Documents
+                    </h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
 
           {hasPedigree && (
-            <TabsContent value="pedigree" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pedigree Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {(goat.sireName || goat.damName) && (
-                      <div className="mb-6">
-                        <h3 className="text-lg font-semibold mb-3">Lineage</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {goat.sireName && (
-                            <div className="border rounded-md p-4">
-                              <h4 className="font-medium mb-1">Sire:</h4>
-                              <p>{goat.sireName}</p>
-                            </div>
-                          )}
-                          {goat.damName && (
-                            <div className="border rounded-md p-4">
-                              <h4 className="font-medium mb-1">Dam:</h4>
-                              <p>{goat.damName}</p>
-                            </div>
-                          )}
-                        </div>
+            <TabsContent value="pedigree" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {(goat.sireName || goat.damName) && (
+                  <div className="space-y-4 mb-6">
+                    <h3 className="font-medium text-lg">Lineage</h3>
+                    {goat.sireName && (
+                      <div className="ml-4">
+                        <h4 className="font-medium">Sire:</h4>
+                        <p>{goat.sireName}</p>
                       </div>
                     )}
-                    {goat.pedigree && (
-                      <div className="prose max-w-none">
-                        <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
-                      </div>
-                    )}
-                    {pedigreeDocuments.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-3">
-                          Pedigree Documents
-                        </h3>
-                        <div className="grid gap-2">
-                          {pedigreeDocuments.map((doc, index) => (
-                            <DocumentLink key={index} document={doc} />
-                          ))}
-                        </div>
+                    {goat.damName && (
+                      <div className="ml-4">
+                        <h4 className="font-medium">Dam:</h4>
+                        <p>{goat.damName}</p>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                {goat.pedigree && (
+                  <div className="prose max-w-none mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: goat.pedigree }} />
+                  </div>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg break-words">
+                      Pedigree Documents
+                    </h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
         </Tabs>
