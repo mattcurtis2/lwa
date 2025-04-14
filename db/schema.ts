@@ -3,6 +3,17 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations, type InferSelectModel } from "drizzle-orm";
 import { z } from "zod";
 
+export const sites = pgTable("sites", {
+  id: serial("id").primaryKey(),
+  domain: text("domain"),
+  name: text("name"),
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  primaryColor: text("primary_color"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const fileStorage = pgTable("file_storage", {
   id: serial("id").primaryKey(),
   fileName: text("file_name").notNull(),
@@ -187,6 +198,8 @@ export const litterRelations = relations(litters, ({ one }) => ({
   }),
 }));
 
+export const insertSiteSchema = createInsertSchema(sites);
+export const selectSiteSchema = createSelectSchema(sites);
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export const insertCarouselItemSchema = createInsertSchema(carouselItems);
