@@ -1,29 +1,36 @@
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-// This script executes TypeScript files using tsx
-import { spawn } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// Get the SQL file path
+const sqlFilePath = path.join(__dirname, 'add-site-id-columns.sql');
 
-const scriptName = process.argv[2];
+// Read the SQL file
+const sqlQuery = fs.readFileSync(sqlFilePath, 'utf8');
 
-if (!scriptName) {
-  console.error('Please provide a script name to run');
-  console.error('Example: node run-migration.js migrate-all-to-s3.ts');
+// Check if we have a DATABASE_URL environment variable
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is not set');
   process.exit(1);
 }
 
-// Get current file's directory in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+console.log('Running database migration...');
 
-const scriptPath = path.join(__dirname, scriptName);
-
-console.log(`Running script: ${scriptPath}`);
-
-const child = spawn('npx', ['tsx', scriptPath], {
-  stdio: 'inherit'
+// Execute the SQL using the psql command
+const result = spawnSync('psql', [process.env.DATABASE_URL, '-c', sqlQuery], {
+  stdio: 'inherit',
+  shell: true
 });
 
-child.on('close', (code) => {
-  process.exit(code);
-});
+// Check the result
+if (result.error) {
+  console.error('Error executing SQL:', result.error);
+  process.exit(1);
+}
+
+if (result.status !== 0) {
+  console.error(`Command failed with exit code ${result.status}`);
+  process.exit(result.status);
+}
+
+console.log('Migration completed successfully!');

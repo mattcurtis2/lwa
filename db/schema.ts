@@ -16,6 +16,7 @@ export const sites = pgTable("sites", {
 
 export const fileStorage = pgTable("file_storage", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   fileName: text("file_name").notNull(),
   mimeType: text("mime_type").notNull(),
   data: text("data").notNull(),
@@ -24,13 +25,15 @@ export const fileStorage = pgTable("file_storage", {
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   username: text("username").unique().notNull(),
   password: text("password").notNull(),
 });
 
 export const siteContent = pgTable("site_content", {
   id: serial("id").primaryKey(),
-  key: text("key").unique().notNull(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  key: text("key").notNull(),
   value: text("value").notNull(),
   type: text("type").notNull(), // "image" or "text"
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -38,6 +41,7 @@ export const siteContent = pgTable("site_content", {
 
 export const carouselItems = pgTable("carousel_items", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -48,6 +52,7 @@ export const carouselItems = pgTable("carousel_items", {
 
 export const animals = pgTable("animals", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   name: text("name").notNull(),
   type: text("type").notNull(), // "dog" or "goat"
   breed: text("breed"),
@@ -61,6 +66,7 @@ export const animals = pgTable("animals", {
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   name: text("name").notNull(),
   section: text("section").notNull(), // "bakery", "market_garden", "animal_products"
   category: text("category").notNull(),
@@ -82,6 +88,7 @@ export const products = pgTable("products", {
 
 export const dogsHero = pgTable("dogs_hero", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   title: text("title").notNull(),
   subtitle: text("subtitle").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -99,6 +106,7 @@ export const dogMedia = pgTable("dog_media", {
 
 export const dogs = pgTable("dogs", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   name: text("name").notNull(),
   registrationName: text("registration_name"),
   breed: text("breed").notNull(),
@@ -179,6 +187,7 @@ export const dogMediaRelations = relations(dogMedia, ({ one }) => ({
 
 export const litters = pgTable("litters", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   dueDate: date("due_date").notNull(),
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
@@ -252,6 +261,7 @@ export type NewDogDocument = typeof dogDocuments.$inferInsert;
 
 export const principles = pgTable("principles", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   title: text("title").notNull(),
   description: text("description").notNull(),
   imageUrl: text("image_url").notNull(),
@@ -286,6 +296,7 @@ export type NewContactInfo = typeof contactInfo.$inferInsert;
 
 export const goats = pgTable("goats", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   name: text("name").notNull(),
   registrationName: text("registration_name"),
   breed: text("breed").notNull(),
@@ -339,6 +350,7 @@ export const goatDocuments = pgTable("goat_documents", {
 
 export const goatLitters = pgTable("goat_litters", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   dueDate: date("due_date").notNull(),
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
@@ -430,6 +442,7 @@ export type NewGoatLitter = typeof goatLitters.$inferInsert;
 
 export const marketSections = pgTable("market_sections", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   name: text("name").notNull(), // "about", "bakery", "market_garden", "animal_products"
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -451,12 +464,12 @@ export type NewMarketSection = typeof marketSections.$inferInsert;
 
 export const marketSchedules = pgTable("market_schedules", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   location: text("location").notNull(),
   address: text("address").notNull(),
   dayOfWeek: text("day_of_week").notNull(),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
-
   description: text("description"),
   order: integer("order").notNull().default(0),
   isActive: boolean("is_active").default(true),
@@ -474,6 +487,7 @@ export type NewMarketSchedule = typeof marketSchedules.$inferInsert;
 
 export const litter_interest_signups = pgTable("litter_interest_signups", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   litterId: integer("litter_id").notNull(),
   name: text("name").notNull(),
   email: text("email").notNull(),
