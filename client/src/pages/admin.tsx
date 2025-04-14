@@ -9,6 +9,7 @@ import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
+import SiteSelector from "@/components/admin/site-selector";
 import {
   LayoutDashboard,
   Dog as DogIcon,
@@ -64,11 +65,17 @@ export default function Admin() {
 
   const SidebarContent = () => (
     <div className="p-4 md:p-6">
-      <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
         <Link href="/">
-          <a className="hover:text-primary transition-colors">Little Way Acres</a>
+          <a className="hover:text-primary transition-colors">Admin Panel</a>
         </Link>
       </h2>
+      
+      {/* Site Selector */}
+      <div className="mb-6">
+        <SiteSelector />
+      </div>
+      
       <TabsList className="flex-col gap-1 bg-transparent p-0">
         <button
           onClick={() => handleTabChange("dogs")}

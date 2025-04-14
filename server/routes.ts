@@ -1559,6 +1559,20 @@ export function registerRoutes(app: Express): Server {
       res.json({ isLoggedIn: false });
     }
   });
+  
+  // API endpoint to get available sites
+  app.get("/api/sites", async (_req, res) => {
+    try {
+      const allSites = await db.query.sites.findMany({
+        orderBy: (sites, { asc }) => [asc(sites.name)]
+      });
+      
+      res.json(allSites);
+    } catch (error) {
+      console.error("Error fetching sites:", error);
+      res.status(500).json({ message: "Failed to fetch sites" });
+    }
+  });
 
   // Add the GET /api/goats endpoint with proper relations
   app.get("/api/goats", async (_req, res) => {
