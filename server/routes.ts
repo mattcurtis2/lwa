@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { db } from "@db";
 import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -309,7 +310,10 @@ export function registerRoutes(app: Express): Server {
 
   // Site content routes
   app.get("/api/site-content", async (req, res) => {
-    const content = await db.query.siteContent.findMany();
+    const siteId = getCurrentSiteId(req);
+    const content = await db.query.siteContent.findMany({
+      where: eq(siteContent.siteId, siteId)
+    });
     res.json(content);
   });
 
@@ -614,8 +618,10 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add carousel routes
-  app.get("/api/carousel", async (_req, res) => {
+  app.get("/api/carousel", async (req, res) => {
+    const siteId = getCurrentSiteId(req);
     const items = await db.query.carouselItems.findMany({
+      where: eq(carouselItems.siteId, siteId),
       orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
     });
     res.json(items);
@@ -708,8 +714,10 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Update the GET /api/dogs route to include parent and litter information
-  app.get("/api/dogs", async (_req, res) => {
+  app.get("/api/dogs", async (req, res) => {
+    const siteId = getCurrentSiteId(req);
     const allDogs = await db.query.dogs.findMany({
+      where: eq(dogs.siteId, siteId),
       orderBy: (dogs, { asc }) => [asc(dogs.order)],
       with: {
         media: {
@@ -1036,8 +1044,10 @@ export function registerRoutes(app: Express): Server {
   }));
 
   // Add litter routes
-  app.get("/api/litters", async (_req, res) => {
+  app.get("/api/litters", async (req, res) => {
+    const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
+      where: eq(litters.siteId, siteId),
       with: {
         mother: {
           with: {
@@ -1260,10 +1270,12 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add the current litters endpoint right after the other litter routes
-  app.get("/api/litters/list/current", async (_req, res) => {
+  app.get("/api/litters/list/current", async (req, res) => {
     try {
-      // Get all litters
+      const siteId = getCurrentSiteId(req);
+      // Get all litters for the current site
       const allLitters = await db.query.litters.findMany({
+        where: eq(litters.siteId, siteId),
         orderBy: (litters, { desc }) => [desc(litters.dueDate)],
         with: {
           mother: {
