@@ -65,16 +65,11 @@ export default function Admin() {
 
   const SidebarContent = () => (
     <div className="p-4 md:p-6">
-      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
+      <h2 className="text-xl md:text-2xl font-bold mb-6">
         <Link href="/">
           <a className="hover:text-primary transition-colors">Admin Panel</a>
         </Link>
       </h2>
-      
-      {/* Site Selector */}
-      <div className="mb-6">
-        <SiteSelector />
-      </div>
       
       <TabsList className="flex-col gap-1 bg-transparent p-0">
         <button
@@ -127,7 +122,10 @@ export default function Admin() {
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[250px] pt-6 px-0 pb-0">
+                <SheetContent side="left" className="w-[280px] pt-6 px-0 pb-0">
+                  <div className="px-6 mb-6">
+                    <SiteSelector />
+                  </div>
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
@@ -150,12 +148,19 @@ export default function Admin() {
         <div className={`flex-1 ${isMobile ? 'pl-0' : 'md:pl-64'}`}>
           <div className="container p-4 md:p-6">
             {!isMobile && (
-              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
-                <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
-                  <LogOut size={16} />
-                  Logout
-                </Button>
+              <div className="flex flex-col gap-6 mb-8">
+                <div className="flex justify-between items-center">
+                  <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
+                  <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                    <LogOut size={16} />
+                    Logout
+                  </Button>
+                </div>
+                
+                {/* Site Manager Card - Main Display */}
+                <div className="w-full md:w-80">
+                  <SiteSelector />
+                </div>
               </div>
             )}
             <TabsContent value="dogs">
