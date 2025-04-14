@@ -71,7 +71,7 @@ export default function Admin() {
         </Link>
       </h2>
       
-      <TabsList className="flex-col gap-1 bg-transparent p-0">
+      <TabsList className="flex-col gap-1 bg-transparent p-0 mb-6">
         <button
           onClick={() => handleTabChange("dogs")}
           className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "dogs" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
@@ -101,6 +101,11 @@ export default function Admin() {
           Content
         </button>
       </TabsList>
+      
+      {/* Site Manager Card added below tabs */}
+      <div className="mt-6">
+        <SiteSelector />
+      </div>
     </div>
   );
 
@@ -148,19 +153,12 @@ export default function Admin() {
         <div className={`flex-1 ${isMobile ? 'pl-0' : 'md:pl-64'}`}>
           <div className="container p-4 md:p-6">
             {!isMobile && (
-              <div className="flex flex-col gap-6 mb-8">
-                <div className="flex justify-between items-center">
-                  <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
-                  <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
-                    <LogOut size={16} />
-                    Logout
-                  </Button>
-                </div>
-                
-                {/* Site Manager Card - Main Display */}
-                <div className="w-full md:w-80">
-                  <SiteSelector />
-                </div>
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
+                <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                  <LogOut size={16} />
+                  Logout
+                </Button>
               </div>
             )}
             <TabsContent value="dogs">

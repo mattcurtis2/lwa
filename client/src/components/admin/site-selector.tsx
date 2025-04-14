@@ -49,15 +49,15 @@ export default function SiteSelector() {
   return (
     <Card className="border-dashed border-primary/40 hover:border-primary/70 transition-colors">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-medium">Site Manager</CardTitle>
-          <Badge variant="outline" className="text-xs">
-            {sites.length} site{sites.length !== 1 ? 's' : ''}
-          </Badge>
+        <div className="flex items-center gap-2">
+          <Building className="h-4 w-4 text-primary" />
+          <div className="flex-1">
+            <CardTitle className="text-sm font-medium">Site Manager</CardTitle>
+            <CardDescription className="text-xs">
+              {sites.length} site{sites.length !== 1 ? 's' : ''} available
+            </CardDescription>
+          </div>
         </div>
-        <CardDescription className="text-xs">
-          Manage content across multiple sites
-        </CardDescription>
       </CardHeader>
       <CardContent className="pb-3">
         <div className="flex flex-col gap-1">
@@ -66,11 +66,8 @@ export default function SiteSelector() {
             value={currentSiteId.toString()}
             onValueChange={handleSiteChange}
           >
-            <SelectTrigger className="w-full bg-background">
-              <div className="flex items-center gap-2">
-                <Building className="h-4 w-4 text-primary" />
-                <SelectValue placeholder="Select site" />
-              </div>
+            <SelectTrigger className="w-full bg-background text-sm">
+              <SelectValue placeholder="Select site" />
             </SelectTrigger>
             <SelectContent>
               {sites.map((site) => (
