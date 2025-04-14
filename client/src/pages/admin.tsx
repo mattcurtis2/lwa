@@ -66,8 +66,8 @@ export default function Admin() {
   const SidebarContent = () => (
     <div className="p-4 md:p-6">
       <h2 className="text-xl md:text-2xl font-bold mb-6">
-        <Link href="/">
-          <a className="hover:text-primary transition-colors">Admin Panel</a>
+        <Link href="/" className="hover:text-primary transition-colors">
+          Admin Panel
         </Link>
       </h2>
       
