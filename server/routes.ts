@@ -1463,6 +1463,24 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to fetch about cards" });
     }
   });
+  
+  // Add contact info endpoint
+  app.get("/api/contact-info", async (_req, res) => {
+    try {
+      const contact = await db.query.contactInfo.findFirst({
+        where: (ci, { eq }) => eq(ci.siteId, 1)
+      });
+      
+      if (contact) {
+        res.json(contact);
+      } else {
+        res.status(404).json({ message: "Contact info not found" });
+      }
+    } catch (error) {
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ message: "Failed to fetch contact info" });
+    }
+  });
 
   app.put("/api/about-cards", async (req, res) => {
     try {
