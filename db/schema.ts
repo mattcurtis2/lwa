@@ -97,6 +97,7 @@ export const dogsHero = pgTable("dogs_hero", {
 
 export const dogMedia = pgTable("dog_media", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   dogId: integer("dog_id").notNull(),
   url: text("url").notNull(),
   type: text("type").notNull(), // "image" or "video"
@@ -137,6 +138,7 @@ export const dogs = pgTable("dogs", {
 
 export const dogDocuments = pgTable("dog_documents", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   dogId: integer("dog_id").notNull(),
   url: text("url").notNull(),
   type: text("type").notNull(), // 'health' or 'pedigree'
@@ -281,6 +283,7 @@ export type NewPrinciple = typeof principles.$inferInsert;
 
 export const contactInfo = pgTable("contact_info", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   email: text("email"),
   phone: text("phone"),
   facebook: text("facebook"),
