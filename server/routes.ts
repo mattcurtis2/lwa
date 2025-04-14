@@ -1375,9 +1375,11 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add this with the other route definitions
-  app.get("/api/principles", async (_req, res) => {
+  app.get("/api/principles", async (req, res) => {
     try {
+      const siteId = getCurrentSiteId(req);
       const allPrinciples = await db.query.principles.findMany({
+        where: eq(principles.siteId, siteId),
         orderBy: (principles, { asc }) => [asc(principles.order)],
       });
       res.json(allPrinciples);
@@ -1426,25 +1428,12 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Principles routes
-  app.get("/api/principles", async (_req, res) => {
-    try {
-      const allPrinciples = await db.query.principles.findMany({
-        orderBy: (principles, { asc }) => [asc(principles.order)],
-      });
 
-      res.setHeader('Content-Type', 'application/json');
-      res.json(allPrinciples || []);
-    } catch (error) {
-      console.error("Error fetching principles:", error);
-      res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: "Failed to fetch principles" });
-    }
-  });
 
   // Add these routes before the httpServer creation
-  app.get("/api/about-cards", async (_req, res) => {
+  app.get("/api/about-cards", async (req, res) => {
     try {
+      const siteId = getCurrentSiteId(req);
       // Fetch all about card related content
       const cardKeys = [
         'about_card_1_title', 'about_card_1_description', 'about_card_1_icon',
@@ -1454,8 +1443,11 @@ export function registerRoutes(app: Express): Server {
       ];
 
       const content = await db.query.siteContent.findMany({
-        where: (siteContent, { or, eq}) =>
-          or(...cardKeys.map(key => eq(siteContent.key, key)))
+        where: (siteContent, { or, eq, and }) =>
+          and(
+            eq(siteContent.siteId, siteId),
+            or(...cardKeys.map(key => eq(siteContent.key, key)))
+          )
       });
 
       // Transform into a more usable structure
@@ -1477,10 +1469,11 @@ export function registerRoutes(app: Express): Server {
   });
   
   // Add contact info endpoint
-  app.get("/api/contact-info", async (_req, res) => {
+  app.get("/api/contact-info", async (req, res) => {
     try {
+      const siteId = getCurrentSiteId(req);
       const contact = await db.query.contactInfo.findFirst({
-        where: (ci, { eq }) => eq(ci.siteId, 1)
+        where: eq(contactInfo.siteId, siteId)
       });
       
       if (contact) {
@@ -1587,9 +1580,11 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Add the GET /api/goats endpoint with proper relations
-  app.get("/api/goats", async (_req, res) => {
+  app.get("/api/goats", async (req, res) => {
     try {
+      const siteId = getCurrentSiteId(req);
       const allGoats = await db.query.goats.findMany({
+        where: eq(goats.siteId, siteId),
         orderBy: (goats, { asc }) => [asc(goats.order)],
         with: {
           media: {
