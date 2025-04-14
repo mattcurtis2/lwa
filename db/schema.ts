@@ -334,6 +334,7 @@ export const goats = pgTable("goats", {
 
 export const goatMedia = pgTable("goat_media", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   goatId: integer("goat_id").notNull(),
   url: text("url").notNull(),
   type: text("type").notNull(), // "image" or "video"
@@ -343,6 +344,7 @@ export const goatMedia = pgTable("goat_media", {
 
 export const goatDocuments = pgTable("goat_documents", {
   id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
   goatId: integer("goat_id").notNull(),
   url: text("url").notNull(),
   type: text("type").notNull(), // 'health' or 'pedigree'
