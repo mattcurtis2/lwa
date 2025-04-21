@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { GoatLitter, Goat } from "@db/schema";
@@ -14,6 +14,15 @@ export function useGoatLitterManagement() {
   const [showLitterForm, setShowLitterForm] = useState(false);
   const [litterFormMode, setLitterFormMode] = useState<'create' | 'edit'>('create');
   const [editLitter, setEditLitter] = useState<ExtendedGoatLitter | null>(null);
+  
+  // This effect will ensure the form state is properly reset when the form is closed
+  useEffect(() => {
+    if (!showLitterForm) {
+      console.log("Form closed - Resetting form mode to 'create'");
+      // We'll reset this on form close, not on form open with a litter
+      setLitterFormMode('create');
+    }
+  }, [showLitterForm]);
 
   const createLitter = async () => {
     console.log("Creating litter with mode:", litterFormMode, "and data:", editLitter);

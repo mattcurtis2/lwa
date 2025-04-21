@@ -277,9 +277,9 @@ export default function GoatLitterManagement() {
           open={showLitterForm} 
           onOpenChange={(open) => {
             if (!open) {
+              // Just close the form - the useEffect in the hook 
+              // will handle the reset of form state
               setShowLitterForm(false);
-              setEditLitter(null);
-              setLitterFormMode('create');
             }
           }}>
           <SheetContent side="right" className="w-1/3">
@@ -405,9 +405,9 @@ export default function GoatLitterManagement() {
 
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => {
+                  // Just close the form - the useEffect in the hook 
+                  // will handle resetting the state
                   setShowLitterForm(false);
-                  setEditLitter(null);
-                  setLitterFormMode('create');
                 }}>
                   Cancel
                 </Button>
