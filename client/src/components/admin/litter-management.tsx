@@ -21,6 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { useLitterManagement } from "@/hooks/use-litter-management";
 import { X, Plus } from "lucide-react";
@@ -382,6 +383,50 @@ export default function LitterManagement() {
                       dueDate: e.target.value,
                     }))}
                   />
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isVisible" 
+                      checked={editLitter?.isVisible} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isVisible: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isVisible">Is Visible</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isCurrentLitter" 
+                      checked={editLitter?.isCurrentLitter} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isCurrentLitter: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isCurrentLitter">Display as Current Litter</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isPastLitter" 
+                      checked={editLitter?.isPastLitter} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isPastLitter: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isPastLitter">Display as Past Litter</Label>
+                  </div>
                 </div>
               </div>
 

@@ -21,6 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { useGoatLitterManagement } from "@/hooks/use-goat-litter-management";
 import { X, Plus } from "lucide-react";
