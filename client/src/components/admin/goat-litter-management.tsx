@@ -242,6 +242,7 @@ export default function GoatLitterManagement() {
             </AlertDialog>
             <Button
               onClick={() => {
+                setLitterFormMode('edit');
                 setEditLitter({ ...litter, mother, father, kids: litterKids });
                 setShowLitterForm(true);
               }}
@@ -260,6 +261,7 @@ export default function GoatLitterManagement() {
       <p className="text-muted-foreground mb-6">Manage upcoming and current goat litters</p>
       <div className="space-y-6">
         <Button onClick={() => {
+          setLitterFormMode('create');
           setEditLitter(null);
           setShowLitterForm(true);
         }}>
@@ -270,7 +272,15 @@ export default function GoatLitterManagement() {
           {litters?.map(renderLitterCard)}
         </div>
 
-        <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
+        <Sheet 
+          open={showLitterForm} 
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowLitterForm(false);
+              setEditLitter(null);
+              setLitterFormMode('create');
+            }
+          }}>
           <SheetContent side="right" className="w-1/3">
             <SheetHeader>
               <SheetTitle>
@@ -393,7 +403,11 @@ export default function GoatLitterManagement() {
               </div>
 
               <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setShowLitterForm(false)}>
+                <Button variant="outline" onClick={() => {
+                  setShowLitterForm(false);
+                  setEditLitter(null);
+                  setLitterFormMode('create');
+                }}>
                   Cancel
                 </Button>
                 <Button onClick={litterFormMode === 'create' ? createLitter : updateLitter}>
