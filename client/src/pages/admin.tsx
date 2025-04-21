@@ -101,11 +101,6 @@ export default function Admin() {
           Content
         </button>
       </TabsList>
-      
-      {/* Site Manager Card added below tabs */}
-      <div className="mt-6">
-        <SiteSelector />
-      </div>
     </div>
   );
 
@@ -128,9 +123,6 @@ export default function Admin() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[280px] pt-6 px-0 pb-0">
-                  <div className="px-6 mb-6">
-                    <SiteSelector />
-                  </div>
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
