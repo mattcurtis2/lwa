@@ -5,7 +5,7 @@ import { eq, and, desc, asc } from 'drizzle-orm';
 
 const router = express.Router();
 
-// Get current goat litters (all litters, with or without kids)
+// Get current goat litters
 router.get('/api/goat-litters/list/current', async (req, res) => {
   try {
     // Get all litters
@@ -102,6 +102,51 @@ router.get('/api/goat-litters/list/past', async (req, res) => {
   }
 });
 
+// Get all goat litters
+router.get('/api/goat-litters', async (req, res) => {
+  try {
+    const allLitters = await db.query.goatLitters.findMany({
+      orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
+      with: {
+        mother: {
+          with: {
+            media: true
+          }
+        },
+        father: {
+          with: {
+            media: true
+          }
+        }
+      }
+    });
+    
+    // For each litter, find kids (goats with litterId matching the litter's id)
+    const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
+      const kids = await db.query.goats.findMany({
+        where: eq(goats.litterId, litter.id),
+        with: {
+          media: true,
+          documents: true
+        }
+      });
+      
+      return {
+        ...litter,
+        kids
+      };
+    }));
+    
+    res.json(littersWithKids);
+  } catch (error: any) {
+    console.error('Error fetching goat litters:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch goat litters',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
+
 // Create new goat litter
 router.post('/api/goat-litters', async (req, res) => {
   try {
@@ -142,6 +187,55 @@ router.post('/api/goat-litters', async (req, res) => {
     console.error('Error creating goat litter:', error);
     res.status(500).json({ 
       error: 'Failed to create goat litter',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
+
+// Get single goat litter by ID
+router.get('/api/goat-litters/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const litter = await db.query.goatLitters.findFirst({
+      where: eq(goatLitters.id, id),
+      with: {
+        mother: {
+          with: {
+            media: true,
+            documents: true
+          }
+        },
+        father: {
+          with: {
+            media: true,
+            documents: true
+          }
+        }
+      }
+    });
+    
+    if (!litter) {
+      return res.status(404).json({ error: 'Goat litter not found' });
+    }
+    
+    // Find kids (goats with litterId matching this litter's id)
+    const kids = await db.query.goats.findMany({
+      where: eq(goats.litterId, id),
+      with: {
+        media: true,
+        documents: true
+      }
+    });
+    
+    // Return litter with kids
+    res.json({
+      ...litter,
+      kids
+    });
+  } catch (error: any) {
+    console.error('Error fetching goat litter:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch goat litter',
       details: error.message || 'Unknown error' 
     });
   }
@@ -236,55 +330,6 @@ router.delete('/api/goat-litters/:id', async (req, res) => {
     console.error('Error deleting goat litter:', error);
     res.status(500).json({ 
       error: 'Failed to delete goat litter',
-      details: error.message || 'Unknown error' 
-    });
-  }
-});
-
-// Get current goat litters (all litters, with or without kids)
-router.get('/api/goat-litters/list/current', async (req, res) => {
-  try {
-    // Get all litters
-    const allLitters = await db.query.goatLitters.findMany({
-      where: and(
-        eq(goatLitters.isVisible, true),
-        eq(goatLitters.isCurrentLitter, true)
-      ),
-      orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
-      with: {
-        mother: {
-          with: {
-            media: true
-          }
-        },
-        father: {
-          with: {
-            media: true
-          }
-        }
-      }
-    });
-    
-    // For each litter, find kids (kid goats with litterId matching the litter's id)
-    const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
-      const kids = await db.query.goats.findMany({
-        where: eq(goats.litterId, litter.id),
-        with: {
-          media: true
-        }
-      });
-      
-      return {
-        ...litter,
-        kids: kids || []
-      };
-    }));
-    
-    res.json(littersWithKids);
-  } catch (error: any) {
-    console.error('Error fetching current goat litters:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch current goat litters',
       details: error.message || 'Unknown error' 
     });
   }
