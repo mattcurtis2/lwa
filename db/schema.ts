@@ -195,6 +195,8 @@ export const litters = pgTable("litters", {
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
   isVisible: boolean("is_visible").default(true),
+  isCurrentLitter: boolean("is_current_litter").default(false),
+  isPastLitter: boolean("is_past_litter").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -362,6 +364,8 @@ export const goatLitters = pgTable("goat_litters", {
   motherId: integer("mother_id").notNull(),
   fatherId: integer("father_id").notNull(),
   isVisible: boolean("is_visible").default(true),
+  isCurrentLitter: boolean("is_current_litter").default(false),
+  isPastLitter: boolean("is_past_litter").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
