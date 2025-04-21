@@ -167,6 +167,7 @@ export default function DogForm({
       puppy: defaultValues?.puppy ?? isPuppy,
       available: defaultValues?.available ?? false,
       sold: defaultValues?.sold ?? false, // Added sold field to default values
+      display: defaultValues?.display ?? true, // Added display field default to true
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
       documents: defaultValues?.documents || []
@@ -226,7 +227,8 @@ export default function DogForm({
           fileName: m.fileName,
         })) || [],
         documents: dog.documents || [],
-        sold: dog.sold ?? false //Added sold
+        sold: dog.sold ?? false, //Added sold
+        display: dog.display ?? true //Added display
       });
 
       const media = dog.media?.map(m => ({
@@ -542,6 +544,7 @@ export default function DogForm({
         available: Boolean(values.available),
         puppy: Boolean(values.puppy),
         outsideBreeder: Boolean(values.outsideBreeder),
+        display: Boolean(values.display),
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))

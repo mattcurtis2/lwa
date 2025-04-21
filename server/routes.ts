@@ -716,8 +716,16 @@ export function registerRoutes(app: Express): Server {
   // Update the GET /api/dogs route to include parent and litter information
   app.get("/api/dogs", async (req, res) => {
     const siteId = getCurrentSiteId(req);
+    const isAdmin = req.query.admin === 'true';
+    
+    // Define the where condition based on whether this is an admin request
+    // For admin, show all dogs; for public pages, only show dogs with display=true
+    const whereCondition = isAdmin
+      ? eq(dogs.siteId, siteId)
+      : and(eq(dogs.siteId, siteId), eq(dogs.display, true));
+    
     const allDogs = await db.query.dogs.findMany({
-      where: eq(dogs.siteId, siteId),
+      where: whereCondition,
       orderBy: (dogs, { asc }) => [asc(dogs.order)],
       with: {
         media: {
@@ -830,6 +838,7 @@ export function registerRoutes(app: Express): Server {
           sold: Boolean(dogData.sold),
           available: Boolean(dogData.available),
           puppy: Boolean(dogData.puppy),
+          display: dogData.display !== undefined ? Boolean(dogData.display) : true,
           outsideBreeder: Boolean(dogData.outsideBreeder),
           updatedAt: new Date(),
           // Handle string fields with null

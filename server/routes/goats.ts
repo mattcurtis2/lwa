@@ -8,7 +8,16 @@ const router = express.Router();
 // Get all goats
 router.get('/api/goats', async (req, res) => {
   try {
+    const isAdmin = req.query.admin === 'true';
+    
+    // Define the where condition based on whether this is an admin request
+    // For admin, show all goats; for public pages, only show goats with display=true
+    const whereCondition = isAdmin
+      ? undefined
+      : eq(goats.display, true);
+    
     const allGoats = await db.query.goats.findMany({
+      where: whereCondition,
       with: {
         media: true,
         documents: true,
@@ -138,6 +147,9 @@ router.put('/api/goats/:id', async (req, res) => {
         } else {
           processedData[key] = value;
         }
+      } else if (key === 'display') {
+        // Ensure display is a boolean
+        processedData[key] = value !== undefined ? Boolean(value) : true;
       } else {
         processedData[key] = value;
       }
