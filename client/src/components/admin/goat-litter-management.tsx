@@ -346,6 +346,50 @@ export default function GoatLitterManagement() {
                     }))}
                   />
                 </div>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isVisible" 
+                      checked={editLitter?.isVisible} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isVisible: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isVisible">Is Visible</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isCurrentLitter" 
+                      checked={editLitter?.isCurrentLitter} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isCurrentLitter: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isCurrentLitter">Display as Current Litter</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="isPastLitter" 
+                      checked={editLitter?.isPastLitter} 
+                      onCheckedChange={(checked) => 
+                        setEditLitter(prev => ({
+                          ...prev!,
+                          isPastLitter: !!checked,
+                        }))
+                      } 
+                    />
+                    <Label htmlFor="isPastLitter">Display as Past Litter</Label>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-between pt-4">

@@ -35,7 +35,9 @@ export function useGoatLitterManagement() {
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
           dueDate: editLitter.dueDate,
-          isVisible: true
+          isVisible: editLitter.isVisible || true,
+          isCurrentLitter: editLitter.isCurrentLitter || false,
+          isPastLitter: editLitter.isPastLitter || false
         }),
       });
 
@@ -82,7 +84,9 @@ export function useGoatLitterManagement() {
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
           dueDate: new Date(editLitter.dueDate).toISOString().split('T')[0],
-          isVisible: editLitter.isVisible
+          isVisible: editLitter.isVisible,
+          isCurrentLitter: editLitter.isCurrentLitter || false,
+          isPastLitter: editLitter.isPastLitter || false
         }),
       });
 
