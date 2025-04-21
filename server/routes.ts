@@ -716,7 +716,7 @@ export function registerRoutes(app: Express): Server {
   // Update the GET /api/dogs route to include parent and litter information
   app.get("/api/dogs", async (req, res) => {
     const siteId = getCurrentSiteId(req);
-    const isAdmin = req.query.admin === 'true';
+    const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
     
     // Define the where condition based on whether this is an admin request
     // For admin, show all dogs; for public pages, only show dogs with display=true
@@ -1592,7 +1592,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/goats", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
-      const isAdmin = Boolean(req.session.isAdmin);
+      const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
       
       // Define the where condition based on whether this is an admin request
       // For admin, show all goats; for public pages, only show goats with display=true
