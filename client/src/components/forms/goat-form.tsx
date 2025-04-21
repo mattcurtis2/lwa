@@ -562,6 +562,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         available: Boolean(values.available),
         kid: Boolean(values.kid),
         outsideBreeder: Boolean(values.outsideBreeder),
+        display: Boolean(values.display),
         media: mediaInputs
           .filter(media => media && media.url)
           .map(media => ({
@@ -1262,6 +1263,27 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
                   <FormLabel>Sold</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="display"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>Display on Website</FormLabel>
+                  <FormDescription className="text-xs">
+                    When turned off, this goat will only be visible in the admin panel
+                  </FormDescription>
                 </div>
                 <FormControl>
                   <Switch
