@@ -28,6 +28,13 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const { data: dogs } = useQuery<(Dog & { media?: DogMedia[] })[]>({
     queryKey: ["/api/dogs"],
+    onSuccess: (data) => {
+      console.log("Dogs fetched for public page:", data);
+      if (data) {
+        console.log("Number of dogs displayed:", data.length);
+        console.log("Dogs with display=false:", data.filter(dog => dog.display === false).length);
+      }
+    }
   });
 
   const { data: litters } = useQuery<(Litter & {

@@ -718,10 +718,14 @@ export function registerRoutes(app: Express): Server {
     const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
     
+    console.log(`GET /api/dogs - isAdmin: ${isAdmin}`);
+    console.log(`Session admin status: ${Boolean(req.session.isAdmin)}`);
+    console.log(`Admin query param: ${req.query.admin}`);
+    
     // Define the where condition based on whether this is an admin request
     // For admin, show all dogs; for public pages, only show dogs with display=true
     const whereCondition = isAdmin
-      ? eq(dogs.siteId, siteId)
+      ? eq(dogs.siteId, siteId) 
       : and(eq(dogs.siteId, siteId), eq(dogs.display, true));
     
     const allDogs = await db.query.dogs.findMany({
