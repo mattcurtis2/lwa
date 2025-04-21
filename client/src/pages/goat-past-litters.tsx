@@ -70,7 +70,7 @@ export default function GoatPastLitters() {
               <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                 <div>
                   <div className="bg-stone-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-stone-800 text-sm font-semibold mb-3 inline-block">
-                    Born {litter.puppies?.length > 0 ? formatDisplayDate(new Date(litter.puppies[0].birthDate)) : "N/A"}
+                    Born {litter.dueDate ? formatDisplayDate(new Date(litter.dueDate)) : "N/A"}
                   </div>
                   <p className="text-muted-foreground text-sm">
                     {litter.puppies?.length} {litter.puppies?.length === 1 ? "kid" : "kids"} from this litter
