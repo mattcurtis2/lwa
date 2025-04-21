@@ -1225,69 +1225,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/litters/list/past", async (_req, res) => {
-    try {
-      const allLitters = await db.query.litters.findMany({
-        with: {
-          mother: {
-            with: {
-              media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-              },
-            },
-          },
-          father: {
-            with: {
-              media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-              },
-            },
-          },
-        },
-      });
-
-      //      // For each litter, fetch its puppies
-      const littersWithPuppies = await Promise.all(
-        allLitters.map(async (litter) => {
-          const puppies = await db.query.dogs.findMany({
-            where: eq(dogs.litterId, litter.id),
-            with: {
-              media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-              },
-            },
-          });
-
-          // Only include if thereare puppies and at least one puppy has a birth date
-          if (puppies.length > 0 && puppies.some(puppy => puppy.birthDate)) {
-            return {
-              ...litter,
-              puppies,
-            };
-          }
-          return null;
-        })
-      );
-
-      // Filter out null entries (litters without puppies or birth dates)
-      const validLitters = littersWithPuppies.filter(litter => litter !== null);
-
-      // Sort by the first puppy's birth date in descending order (most recent first)
-      const sortedLitters = validLitters.sort((a, b) => {
-        const aDate = new Date(a.puppies[0].birthDate);
-        const bDate = new Date(b.puppies[0].birthDate);
-        return bDate.getTime() - aDate.getTime();
-      });
-
-      res.json(sortedLitters);
-    } catch (error) {
-      console.error("Error fetching past litters:", error);
-      res.status(500).json({ message: "Failed to fetch past litters" });
-    }
-  });
-
-  // Add the current litters endpoint right after the other litter routes
-  app.get("/api/litters/list/current", async (req, res) => {
+  // Removed duplicate past litters endpoint
+app.get("/api/litters/list/current", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       // Get litters marked as current for the current site
@@ -1334,9 +1273,15 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/litters/list/past", async (_req, res) => {
+  app.get("/api/litters/list/past", async (req, res) => {
     try {
+      const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
+        where: and(
+          eq(litters.siteId, siteId),
+          eq(litters.isVisible, true),
+          eq(litters.isPastLitter, true)
+        ),
         with: {
           mother: {
             with: {
