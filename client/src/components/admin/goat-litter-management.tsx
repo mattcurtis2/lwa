@@ -34,6 +34,7 @@ export default function GoatLitterManagement() {
     showLitterForm,
     setShowLitterForm,
     litterFormMode,
+    setLitterFormMode,
     editLitter,
     setEditLitter,
     createLitter,
