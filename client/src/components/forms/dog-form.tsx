@@ -1595,6 +1595,27 @@ export default function DogForm({
                 </FormItem>
               )}
             />
+            
+            <FormField
+              control={form.control}
+              name="display"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Display on Website</FormLabel>
+                    <FormDescription>
+                      When turned off, this dog will only be visible in the admin panel
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="price"

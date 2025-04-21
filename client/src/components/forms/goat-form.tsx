@@ -142,6 +142,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       kid: Boolean(goat?.kid),
       available: Boolean(goat?.available),
       sold: Boolean(goat?.sold),
+      display: goat?.display ?? true,
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,
       litterId: goat?.litterId || null,
