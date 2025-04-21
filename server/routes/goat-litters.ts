@@ -102,11 +102,11 @@ router.get('/api/goat-litters/:id', async (req, res) => {
 // Get past goat litters
 router.get('/api/goat-litters/list/past', async (req, res) => {
   try {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0]; // Convert to YYYY-MM-DD string
-    
     const pastLitters = await db.query.goatLitters.findMany({
-      where: (goatLitters, { lt }) => lt(goatLitters.dueDate, todayStr),
+      where: and(
+        eq(goatLitters.isVisible, true),
+        eq(goatLitters.isPastLitter, true)
+      ),
       orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
       with: {
         mother: {
@@ -158,7 +158,9 @@ router.post('/api/goat-litters', async (req, res) => {
       motherId: data.motherId,
       fatherId: data.fatherId,
       dueDate: data.dueDate,
-      isVisible: data.isVisible ?? true
+      isVisible: data.isVisible ?? true,
+      isCurrentLitter: data.isCurrentLitter ?? false,
+      isPastLitter: data.isPastLitter ?? false
     }).returning({ id: goatLitters.id });
     
     const litterId = litterResult.id;
@@ -206,7 +208,9 @@ router.put('/api/goat-litters/:id', async (req, res) => {
         motherId: data.motherId,
         fatherId: data.fatherId,
         dueDate: data.dueDate,
-        isVisible: data.isVisible
+        isVisible: data.isVisible,
+        isCurrentLitter: data.isCurrentLitter,
+        isPastLitter: data.isPastLitter
       })
       .where(eq(goatLitters.id, id));
     
@@ -287,6 +291,10 @@ router.get('/api/goat-litters/list/current', async (req, res) => {
   try {
     // Get all litters
     const allLitters = await db.query.goatLitters.findMany({
+      where: and(
+        eq(goatLitters.isVisible, true),
+        eq(goatLitters.isCurrentLitter, true)
+      ),
       orderBy: (goatLitters, { desc }) => [desc(goatLitters.dueDate)],
       with: {
         mother: {
