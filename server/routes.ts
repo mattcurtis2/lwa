@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
 import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
 import session from "express-session";
@@ -1592,8 +1592,16 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/goats", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
+      const isAdmin = Boolean(req.session.isAdmin);
+      
+      // Define the where condition based on whether this is an admin request
+      // For admin, show all goats; for public pages, only show goats with display=true
+      const whereCondition = isAdmin 
+        ? eq(goats.siteId, siteId)
+        : and(eq(goats.siteId, siteId), eq(goats.display, true));
+        
       const allGoats = await db.query.goats.findMany({
-        where: eq(goats.siteId, siteId),
+        where: whereCondition,
         orderBy: (goats, { asc }) => [asc(goats.order)],
         with: {
           media: {
