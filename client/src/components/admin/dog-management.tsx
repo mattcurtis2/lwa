@@ -12,7 +12,14 @@ export default function DogManagement() {
   const queryClient = useQueryClient();
 
   const { data: dogs = [] } = useQuery<Dog[]>({
-    queryKey: ["/api/dogs"],
+    queryKey: ["/api/dogs", "admin"],
+    queryFn: async () => {
+      const response = await fetch("/api/dogs?admin=true");
+      if (!response.ok) {
+        throw new Error("Failed to fetch dogs");
+      }
+      return response.json();
+    },
   });
 
   const handleEditDog = (dog: Dog) => {
@@ -21,7 +28,7 @@ export default function DogManagement() {
   };
 
   const handleDogFormClose = () => {
-    queryClient.invalidateQueries({ queryKey: ['/api/dogs'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/dogs', 'admin'] });
     setShowDogForm(false);
     setSelectedDog(null);
   };
@@ -38,7 +45,7 @@ export default function DogManagement() {
           method: "DELETE",
         });
         if (res.ok) {
-          queryClient.invalidateQueries({ queryKey: ["/api/dogs"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/dogs", "admin"] });
         }
       }}
     />

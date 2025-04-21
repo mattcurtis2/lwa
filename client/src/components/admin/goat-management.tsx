@@ -12,7 +12,14 @@ export default function GoatManagement() {
   const queryClient = useQueryClient();
 
   const { data: goats = [] } = useQuery<Goat[]>({
-    queryKey: ["/api/goats"],
+    queryKey: ["/api/goats", "admin"],
+    queryFn: async () => {
+      const response = await fetch("/api/goats?admin=true");
+      if (!response.ok) {
+        throw new Error("Failed to fetch goats");
+      }
+      return response.json();
+    },
   });
 
   const handleEditGoat = (goat: Goat) => {
@@ -21,7 +28,7 @@ export default function GoatManagement() {
   };
 
   const handleGoatFormClose = () => {
-    queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/goats', 'admin'] });
     setShowGoatForm(false);
     setSelectedGoat(null);
   };
@@ -38,7 +45,7 @@ export default function GoatManagement() {
           method: "DELETE",
         });
         if (res.ok) {
-          queryClient.invalidateQueries({ queryKey: ["/api/goats"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/goats", "admin"] });
         }
       }}
     />
