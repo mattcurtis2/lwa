@@ -1290,9 +1290,13 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/litters/list/current", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
-      // Get all litters for the current site
+      // Get litters marked as current for the current site
       const allLitters = await db.query.litters.findMany({
-        where: eq(litters.siteId, siteId),
+        where: and(
+          eq(litters.siteId, siteId),
+          eq(litters.isVisible, true),
+          eq(litters.isCurrentLitter, true)
+        ),
         orderBy: (litters, { desc }) => [desc(litters.dueDate)],
         with: {
           mother: {
