@@ -30,19 +30,34 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     (content) => content.key === "goat_description"
   )?.value;
 
-  // Filter goats based on props - exclude outside breeders
+  // Filter goats based on props - exclude outside breeders and non-displayed
   const filteredGoats = goats.filter(goat => {
-    // Always exclude outside breeders from public pages
+    // Always exclude outside breeders from public pages and non-displayed goats
     if (goat.outsideBreeder) return false;
+    if (goat.display === false) return false;
     if (genderFilter && goat.gender !== genderFilter) return false;
     if (showAvailable && !goat.available) return false;
     return true;
   });
 
-  // Filter goats for different sections on main page - exclude outside breeders
-  const availableGoats = goats.filter(goat => goat.available === true && !goat.outsideBreeder);
-  const females = goats.filter(goat => goat.gender === 'female' && !goat.available && !goat.outsideBreeder);
-  const males = goats.filter(goat => goat.gender === 'male' && !goat.available && !goat.outsideBreeder);
+  // Filter goats for different sections on main page - exclude outside breeders and non-displayed
+  const availableGoats = goats.filter(goat => 
+    goat.available === true && 
+    !goat.outsideBreeder && 
+    goat.display !== false
+  );
+  const females = goats.filter(goat => 
+    goat.gender === 'female' && 
+    !goat.available && 
+    !goat.outsideBreeder && 
+    goat.display !== false
+  );
+  const males = goats.filter(goat => 
+    goat.gender === 'male' && 
+    !goat.available && 
+    !goat.outsideBreeder && 
+    goat.display !== false
+  );
 
   // Determine the page title and description
   let pageTitle = "Our Nigerian Dwarf Goats";

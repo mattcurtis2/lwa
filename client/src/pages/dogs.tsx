@@ -50,21 +50,23 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   const visibleLitter = litters?.find(litter => litter.isVisible);
 
-  // Filter dogs based on gender and filter out puppies and outside breeders
+  // Filter dogs based on gender, display setting, and filter out puppies and outside breeders
   const females = dogs?.filter(dog =>
     dog.gender === 'female' &&
     !dog.outsideBreeder &&
-    !dog.puppy
+    !dog.puppy &&
+    dog.display !== false // Ensure only displayed dogs are shown
   ) || [];
 
   const males = dogs?.filter(dog =>
     dog.gender === 'male' &&
     !dog.outsideBreeder &&
-    !dog.puppy
+    !dog.puppy &&
+    dog.display !== false // Ensure only displayed dogs are shown
   ) || [];
 
   // Filter available dogs based on gender if we're on a gender-specific page
-  let availableDogs = dogs?.filter(dog => dog.available) || [];
+  let availableDogs = dogs?.filter(dog => dog.available && dog.display !== false) || [];
   
   // If we're on a gender-specific page, only show available dogs of that gender
   if (genderFilter === 'female') {
