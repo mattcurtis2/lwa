@@ -16,6 +16,7 @@ export function useGoatLitterManagement() {
   const [editLitter, setEditLitter] = useState<ExtendedGoatLitter | null>(null);
 
   const createLitter = async () => {
+    console.log("Creating litter with mode:", litterFormMode, "and data:", editLitter);
     try {
       if (!editLitter?.motherId || !editLitter?.fatherId || !editLitter?.dueDate) {
         toast({
@@ -65,6 +66,7 @@ export function useGoatLitterManagement() {
   };
 
   const updateLitter = async () => {
+    console.log("Updating litter with mode:", litterFormMode, "and data:", editLitter);
     try {
       if (!editLitter?.id || !editLitter?.motherId || !editLitter?.fatherId || !editLitter?.dueDate) {
         toast({

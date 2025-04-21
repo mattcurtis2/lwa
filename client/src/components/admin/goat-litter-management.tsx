@@ -411,7 +411,16 @@ export default function GoatLitterManagement() {
                 }}>
                   Cancel
                 </Button>
-                <Button onClick={litterFormMode === 'create' ? createLitter : updateLitter}>
+                <Button onClick={() => {
+                  console.log("Save button clicked, form mode:", litterFormMode);
+                  if (litterFormMode === 'create') {
+                    console.log("Calling createLitter()");
+                    createLitter();
+                  } else {
+                    console.log("Calling updateLitter()");
+                    updateLitter();
+                  }
+                }}>
                   Save Litter
                 </Button>
               </div>
