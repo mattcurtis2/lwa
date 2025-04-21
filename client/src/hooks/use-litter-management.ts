@@ -25,12 +25,14 @@ export function useLitterManagement() {
         return;
       }
 
-      const { dueDate, motherId, fatherId, isVisible, id } = editLitter;
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, id } = editLitter;
       const formattedLitter = {
         dueDate: new Date(dueDate).toISOString().split('T')[0],
         motherId,
         fatherId,
-        isVisible
+        isVisible,
+        isCurrentLitter: isCurrentLitter || false,
+        isPastLitter: isPastLitter || false
       };
 
       console.log('Sending litter data:', formattedLitter);
@@ -77,7 +79,9 @@ export function useLitterManagement() {
         dueDate: dueDate.toISOString().split('T')[0],
         motherId: litterData.motherId,
         fatherId: litterData.fatherId,
-        isVisible: litterData.isVisible
+        isVisible: litterData.isVisible,
+        isCurrentLitter: litterData.isCurrentLitter || false,
+        isPastLitter: litterData.isPastLitter || false
       };
 
       const res = await fetch(`/api/litters/${litterData.id}`, {

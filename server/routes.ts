@@ -1087,6 +1087,8 @@ export function registerRoutes(app: Express): Server {
       const formattedData = {
         ...req.body,
         dueDate: new Date(req.body.dueDate),
+        isCurrentLitter: req.body.isCurrentLitter || false,
+        isPastLitter: req.body.isPastLitter || false,
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -1114,13 +1116,15 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/litters/:id", async (req, res) => {
     try {
       console.log('Updating litter with data:', req.body);
-      const { dueDate, motherId, fatherId, isVisible } = req.body;
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter } = req.body;
 
       const updateData = {
         dueDate: new Date(dueDate),
         motherId,
         fatherId,
         isVisible,
+        isCurrentLitter: isCurrentLitter || false,
+        isPastLitter: isPastLitter || false,
         updatedAt: new Date(),
       };
       console.log('Formatted update data:', updateData);
