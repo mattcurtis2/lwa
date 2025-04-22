@@ -82,6 +82,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     available: z.boolean().optional().default(false),
     price: z.string().optional(),
     sold: z.boolean().optional().default(false), // Added sold field
+    display: z.boolean().optional().default(true), // Add display field with default true
     breed: z.string().optional().default("Colorado Mountain Dogs"),
     documents: z.array(z.object({
       type: z.string(),
