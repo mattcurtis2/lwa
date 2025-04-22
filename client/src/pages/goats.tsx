@@ -31,7 +31,8 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
   )?.value;
 
   // Filter goats based on props - exclude outside breeders and non-displayed
-  // Also sort to show available goats first
+  // For available page: Show only available goats
+  // For gender pages: Show both available and non-available, but with available first
   const filteredGoats = goats.filter(goat => {
     // Always exclude outside breeders from public pages and non-displayed goats
     if (goat.outsideBreeder) return false;
@@ -40,7 +41,8 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     if (showAvailable && !goat.available) return false;
     return true;
   }).sort((a, b) => {
-    // Sort by available (true first)
+    // Sort by available (true first) - this ensures available animals appear first
+    // in the gender-specific pages
     if (a.available && !b.available) return -1;
     if (!a.available && b.available) return 1;
     return 0;
@@ -52,33 +54,22 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     !goat.outsideBreeder && 
     goat.display !== false
   );
-  // Sort females to show available first (even though we filter for !available here,
-  // we're using this sorting for consistency with other areas)
+  
+  // Filter females - exclude available goats as they will be shown in the available section
   const females = goats.filter(goat => 
     goat.gender === 'female' && 
-    !goat.available && 
     !goat.outsideBreeder && 
+    !goat.available && // Explicitly exclude available goats
     goat.display !== false
-  ).sort((a, b) => {
-    // Sort by available (true first) - for consistency with other sorting
-    if (a.available && !b.available) return -1;
-    if (!a.available && b.available) return 1;
-    return 0;
-  });
+  );
   
-  // Sort males to show available first (even though we filter for !available here,
-  // we're using this sorting for consistency with other areas)
+  // Filter males - exclude available goats as they will be shown in the available section
   const males = goats.filter(goat => 
     goat.gender === 'male' && 
-    !goat.available && 
     !goat.outsideBreeder && 
+    !goat.available && // Explicitly exclude available goats
     goat.display !== false
-  ).sort((a, b) => {
-    // Sort by available (true first) - for consistency with other sorting
-    if (a.available && !b.available) return -1;
-    if (!a.available && b.available) return 1;
-    return 0;
-  });
+  );
 
   // Determine the page title and description
   let pageTitle = "Our Nigerian Dwarf Goats";
