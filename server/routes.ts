@@ -820,6 +820,7 @@ export function registerRoutes(app: Express): Server {
       console.log('Updating dog with ID:', dogId);
       console.log('Received dog data:', dogData);
       console.log('Sold status in request:', dogData.sold);
+      console.log('Display status in request:', dogData.display);
 
       const dog = await db.transaction(async (tx) => {
         const existingDog = await tx.query.dogs.findFirst({
@@ -834,6 +835,13 @@ export function registerRoutes(app: Express): Server {
         console.log('Existing dog data:', existingDog);
 
         // Process the data before update
+        // Add detailed logging for debugging display field
+        console.log('Display value before processing:', dogData.display);
+        console.log('Display value type:', typeof dogData.display);
+        
+        const displayValue = dogData.display !== undefined ? Boolean(dogData.display) : true;
+        console.log('Processed display value:', displayValue);
+        
         const updateData = {
           ...dogData,
           height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
@@ -842,7 +850,7 @@ export function registerRoutes(app: Express): Server {
           sold: Boolean(dogData.sold),
           available: Boolean(dogData.available),
           puppy: Boolean(dogData.puppy),
-          display: dogData.display !== undefined ? Boolean(dogData.display) : true,
+          display: displayValue, // Use the pre-processed value
           outsideBreeder: Boolean(dogData.outsideBreeder),
           updatedAt: new Date(),
           // Handle string fields with null
