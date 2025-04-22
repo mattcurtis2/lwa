@@ -215,9 +215,10 @@ export default function DogForm({
       console.log('Loading dog data for form:', dog);
       console.log('Current display value in DB:', dog.display);
       
-      // Force display to a strict boolean value - fixes the issue with null/undefined values
-      const displayValue = dog.display === true || dog.display === 'true';
-      console.log('Display value cleaned for form:', displayValue);
+      // Force display to a strict boolean value with strict comparison ONLY
+      // IMPORTANT: Using only strict equality here - fixes the server<->client mismatch
+      const displayValue = dog.display === true;
+      console.log('Display value strictly compared for form:', displayValue);
       
       const birthDate = parseApiDate(dog.birthDate);
       const formValues = {
@@ -554,9 +555,13 @@ export default function DogForm({
       // - true, "true", 1, or any other truthy value → should be true
       // We need to handle this explicitly to ensure consistent behavior
       
-      // Use strict comparison for booleans to avoid type coercion issues
+      // IMPORTANT: Use strict comparison for all boolean fields
+      // Display field must be strictly true to be shown publicly
       const displayValue = values.display === true;
       console.log('Display field strictly evaluated value:', displayValue);
+      
+      // Log the actual runtime type of the display field
+      console.log('Display field runtime type:', Object.prototype.toString.call(values.display));
       
       const processedValues = {
         ...values,
@@ -602,10 +607,12 @@ export default function DogForm({
       console.log('Final payload data being sent:', processedValues);
       console.log('Final display value being sent:', processedValues.display);
       
+      // CRITICAL FIX: Do NOT use Boolean() here as it coerces values
       // Ensure the display value is explicitly a boolean in stringified JSON
+      // using the already strictly checked displayValue variable
       const jsonData = JSON.stringify({
         ...processedValues,
-        display: Boolean(processedValues.display)
+        display: displayValue // Use our strictly compared boolean value
       });
       console.log('JSON payload:', jsonData);
       
@@ -1643,9 +1650,10 @@ export default function DogForm({
                 console.log('Display field in form render:', field.value);
                 console.log('Display field type:', typeof field.value);
                 
-                // Ensure value is always boolean
-                const displayValue = Boolean(field.value);
-                console.log('Converted display value:', displayValue);
+                // IMPORTANT: Use strict comparison instead of Boolean() to avoid coercion
+                // Boolean() can convert empty objects, arrays, etc to true
+                const displayValue = field.value === true;
+                console.log('Display value with strict comparison:', displayValue);
                 
                 return (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
