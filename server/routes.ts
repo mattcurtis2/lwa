@@ -839,21 +839,22 @@ export function registerRoutes(app: Express): Server {
         console.log('Display value before processing:', dogData.display);
         console.log('Display value type:', typeof dogData.display);
         
-        // FIXED: Don't default display to true, respect the exact value sent
-        // Previous: const displayValue = dogData.display !== undefined ? Boolean(dogData.display) : true;
-        const displayValue = Boolean(dogData.display);
-        console.log('Processed display value:', displayValue);
+        // FIXED: Use strict boolean comparison to interpret display value
+        // Previous: const displayValue = Boolean(dogData.display); - this still coerces values like {} to true
+        const displayValue = dogData.display === true;
+        console.log('Processed display value using strict comparison:', displayValue);
         
         const updateData = {
           ...dogData,
           height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
           weight: dogData.weight !== undefined && dogData.weight !== "" ? parseFloat(dogData.weight) : null,
           price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dogData.price) : null,
-          sold: Boolean(dogData.sold),
-          available: Boolean(dogData.available),
-          puppy: Boolean(dogData.puppy),
-          display: displayValue, // Use the pre-processed value
-          outsideBreeder: Boolean(dogData.outsideBreeder),
+          // Use strict boolean comparison for all boolean fields
+          sold: dogData.sold === true,
+          available: dogData.available === true,
+          puppy: dogData.puppy === true,
+          display: displayValue, // Value is pre-processed with strict comparison
+          outsideBreeder: dogData.outsideBreeder === true,
           updatedAt: new Date(),
           // Handle string fields with null
           description: dogData.description || null,
