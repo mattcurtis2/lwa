@@ -139,11 +139,11 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       wetherPrice: goat?.wetherPrice || "",
       profileImageUrl: goat?.profileImageUrl || "",
       media: goat?.media || [],
-      outsideBreeder: Boolean(goat?.outsideBreeder),
-      kid: Boolean(goat?.kid),
-      available: Boolean(goat?.available),
-      sold: Boolean(goat?.sold),
-      // Force strict boolean for display field
+      // Force strict boolean comparison for all boolean fields
+      outsideBreeder: goat?.outsideBreeder === true,
+      kid: goat?.kid === true,
+      available: goat?.available === true,
+      sold: goat?.sold === true,
       display: goat?.display === true,
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,

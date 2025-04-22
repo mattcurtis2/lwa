@@ -163,11 +163,12 @@ export default function DogForm({
       pedigree: defaultValues?.pedigree || "",
       narrativeDescription: defaultValues?.narrativeDescription || "",
       media: defaultValues?.media || [],
-      outsideBreeder: defaultValues?.outsideBreeder ?? false,
-      puppy: defaultValues?.puppy ?? isPuppy,
-      available: defaultValues?.available ?? false,
-      sold: defaultValues?.sold ?? false, // Added sold field to default values
-      display: defaultValues?.display ?? true, // Added display field default to true
+      // Use strict boolean comparison for boolean fields to avoid type coercion issues
+      outsideBreeder: defaultValues?.outsideBreeder === true,
+      puppy: defaultValues?.puppy === true || isPuppy === true,
+      available: defaultValues?.available === true,
+      sold: defaultValues?.sold === true,
+      display: defaultValues?.display === true, // True only if explicitly true
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
       documents: defaultValues?.documents || []
