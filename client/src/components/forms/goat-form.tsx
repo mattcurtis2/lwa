@@ -560,11 +560,12 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         price: priceValue, // Use our processed price value
         bucklingPrice: bucklingPriceValue, // Add processed buckling price
         wetherPrice: wetherPriceValue, // Add processed wether price
-        sold: Boolean(values.sold),
-        available: Boolean(values.available),
-        kid: Boolean(values.kid),
-        outsideBreeder: Boolean(values.outsideBreeder),
-        display: Boolean(values.display),
+        // Use strict boolean comparisons instead of Boolean() coercion to avoid issues
+        sold: values.sold === true,
+        available: values.available === true,
+        kid: values.kid === true,
+        outsideBreeder: values.outsideBreeder === true,
+        display: values.display === true,
         media: mediaInputs
           .filter(media => media && media.url)
           .map(media => ({

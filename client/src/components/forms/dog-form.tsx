@@ -584,8 +584,8 @@ export default function DogForm({
         furLength: values.furLength || null,
         pedigree: values.pedigree || null,
         registrationName: values.registrationName || null,
-        media: values.media || [],
-        sold: values.sold // Added sold
+        media: values.media || []
+        // Note: sold is already set above using strict comparison
       };
 
       Object.keys(processedValues).forEach(key => {
