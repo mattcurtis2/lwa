@@ -148,8 +148,11 @@ router.put('/api/goats/:id', async (req, res) => {
           processedData[key] = value;
         }
       } else if (key === 'display') {
-        // Ensure display is a boolean
-        processedData[key] = value !== undefined ? Boolean(value) : true;
+        // FIXED: Don't default display to true, respect the value sent
+        console.log('Goat display field - original value:', value);
+        const displayValue = Boolean(value);
+        console.log('Goat display field - processed value:', displayValue);
+        processedData[key] = displayValue;
       } else {
         processedData[key] = value;
       }

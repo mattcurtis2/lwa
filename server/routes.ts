@@ -839,7 +839,9 @@ export function registerRoutes(app: Express): Server {
         console.log('Display value before processing:', dogData.display);
         console.log('Display value type:', typeof dogData.display);
         
-        const displayValue = dogData.display !== undefined ? Boolean(dogData.display) : true;
+        // FIXED: Don't default display to true, respect the exact value sent
+        // Previous: const displayValue = dogData.display !== undefined ? Boolean(dogData.display) : true;
+        const displayValue = Boolean(dogData.display);
         console.log('Processed display value:', displayValue);
         
         const updateData = {
