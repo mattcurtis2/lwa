@@ -70,7 +70,16 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   ) || [];
 
   // Filter available dogs based on gender if we're on a gender-specific page
+  // Sort by sold status so unsold dogs appear first
   let availableDogs = dogs?.filter(dog => dog.available && dog.display !== false) || [];
+  
+  // Sort available dogs to put unsold ones first
+  availableDogs = availableDogs.sort((a, b) => {
+    // First sort by sold status (unsold first)
+    if (!a.sold && b.sold) return -1;
+    if (a.sold && !b.sold) return 1;
+    return 0;
+  });
   
   // If we're on a gender-specific page, only show available dogs of that gender
   if (genderFilter === 'female') {

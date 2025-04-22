@@ -41,10 +41,16 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     if (showAvailable && !goat.available) return false;
     return true;
   }).sort((a, b) => {
-    // Sort by available (true first) - this ensures available animals appear first
-    // in the gender-specific pages
+    // First sort by available status (available first)
     if (a.available && !b.available) return -1;
     if (!a.available && b.available) return 1;
+    
+    // If both are available, sort by sold status (unsold first)
+    if (a.available && b.available) {
+      if (!a.sold && b.sold) return -1;
+      if (a.sold && !b.sold) return 1;
+    }
+    
     return 0;
   });
 
@@ -53,7 +59,12 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     goat.available === true && 
     !goat.outsideBreeder && 
     goat.display !== false
-  );
+  ).sort((a, b) => {
+    // Sort by sold status to show unsold goats first
+    if (!a.sold && b.sold) return -1;
+    if (a.sold && !b.sold) return 1;
+    return 0;
+  });
   
   // Filter females - exclude available goats as they will be shown in the available section
   const females = goats.filter(goat => 
