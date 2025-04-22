@@ -78,6 +78,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     kid: z.boolean().default(false),
     available: z.boolean().default(false),
     sold: z.boolean().default(false),
+    display: z.boolean().default(true),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
     litterId: z.number().optional().nullable(),
@@ -142,7 +143,8 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       kid: Boolean(goat?.kid),
       available: Boolean(goat?.available),
       sold: Boolean(goat?.sold),
-      display: goat?.display ?? true,
+      // Force strict boolean for display field
+      display: goat?.display === true,
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,
       litterId: goat?.litterId || null,

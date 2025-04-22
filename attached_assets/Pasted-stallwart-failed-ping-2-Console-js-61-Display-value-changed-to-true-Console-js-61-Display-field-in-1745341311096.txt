@@ -1,0 +1,21 @@
+stallwart: failed ping 2
+Console.js:61 Display value changed to: true
+Console.js:61 Display field in form render: true
+Console.js:61 Display field type: boolean
+Console.js:61 Converted display value: true
+Console.js:61 Display field in form render: true
+Console.js:61 Display field type: boolean
+Console.js:61 Converted display value: true
+Console.js:61 Form submission started with values: {name: 'Patsy', registrationName: 'LWA Patsy', birthDate: '2025-03-14', gender: 'female', motherId: null, …}
+Console.js:61 Display field current value: undefined
+Console.js:61 Display field converted value: false
+Console.js:61 Display value before final processing: false
+Console.js:61 Final payload data being sent: {name: 'Patsy', registrationName: 'LWA Patsy', birthDate: '2025-03-14', gender: 'female', motherId: null, …}
+Console.js:61 Final display value being sent: false
+Console.js:61 JSON payload: {"name":"Patsy","registrationName":"LWA Patsy","birthDate":"2025-03-14","gender":"female","motherId":null,"fatherId":null,"litterId":null,"description":null,"profileImageUrl":"https://lwacontent.s3.us-east-2.amazonaws.com/c4121816-ac15-498b-ae2c-047742997284-cropped-image-jpg.jpg","healthData":null,"color":null,"dewclaws":null,"furLength":null,"height":null,"weight":null,"pedigree":null,"narrativeDescription":null,"media":[{"url":"https://lwacontent.s3.us-east-2.amazonaws.com/a60dda32-4c5a-4899-bd91-db97b2c194f7-1000003860-jpg.jpg","type":"image"},{"url":"https://lwacontent.s3.us-east-2.amazonaws.com/968387de-d5dd-4e66-ac54-71b58514836b-1000003555-jpg.jpg","type":"image"},{"url":"https://lwacontent.s3.us-east-2.amazonaws.com/8663b757-5b37-4da8-9393-630b34674f9a-PXL-20250317-152256932-MP-2-jp.jpg","type":"image"}],"outsideBreeder":false,"puppy":true,"available":true,"price":null,"sold":true,"breed":"Colorado Mountain Dogs","documents":[],"display":false}
+Console.js:61 Display field in form render: true
+Console.js:61 Display field type: boolean
+Console.js:61 Converted display value: true
+Console.js:61 Display field in form render: true
+Console.js:61 Display field type: boolean
+Console.js:61 Converted display value: true

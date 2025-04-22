@@ -214,6 +214,10 @@ export default function DogForm({
       console.log('Loading dog data for form:', dog);
       console.log('Current display value in DB:', dog.display);
       
+      // Force display to a strict boolean value - fixes the issue with null/undefined values
+      const displayValue = dog.display === true || dog.display === 'true';
+      console.log('Display value cleaned for form:', displayValue);
+      
       const birthDate = parseApiDate(dog.birthDate);
       const formValues = {
         ...dog,
@@ -231,7 +235,7 @@ export default function DogForm({
         })) || [],
         documents: dog.documents || [],
         sold: dog.sold ?? false, //Added sold
-        display: dog.display ?? true //Added display
+        display: displayValue //Use the explicitly cleaned display value
       };
       
       console.log('Form reset with values:', formValues);
@@ -543,11 +547,15 @@ export default function DogForm({
       // Debug values for display field
       console.log('Form submission started with values:', values);
       console.log('Display field current value:', values.display);
-      console.log('Display field converted value:', Boolean(values.display));
       
-      // Extract display value and ensure it's a boolean
-      const displayValue = Boolean(values.display);
-      console.log('Display value before final processing:', displayValue);
+      // When dealing with boolean fields from forms, they can sometimes come through as:
+      // - undefined, null, "", "false", 0 → should be false
+      // - true, "true", 1, or any other truthy value → should be true
+      // We need to handle this explicitly to ensure consistent behavior
+      
+      // Use strict comparison for booleans to avoid type coercion issues
+      const displayValue = values.display === true;
+      console.log('Display field strictly evaluated value:', displayValue);
       
       const processedValues = {
         ...values,
@@ -558,10 +566,11 @@ export default function DogForm({
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
         breed: "Colorado Mountain Dogs",
-        available: Boolean(values.available),
-        puppy: Boolean(values.puppy),
-        outsideBreeder: Boolean(values.outsideBreeder),
-        // Explicitly set display to the extracted boolean value
+        available: values.available === true,
+        puppy: values.puppy === true,
+        outsideBreeder: values.outsideBreeder === true,
+        sold: values.sold === true,
+        // Explicitly set display as a strict boolean value
         display: displayValue,
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
