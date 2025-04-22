@@ -211,8 +211,11 @@ export default function DogForm({
 
   useEffect(() => {
     if (dog) {
+      console.log('Loading dog data for form:', dog);
+      console.log('Current display value in DB:', dog.display);
+      
       const birthDate = parseApiDate(dog.birthDate);
-      form.reset({
+      const formValues = {
         ...dog,
         birthDate: formatInputDate(birthDate),
         motherId: dog.motherId || null,
@@ -229,7 +232,12 @@ export default function DogForm({
         documents: dog.documents || [],
         sold: dog.sold ?? false, //Added sold
         display: dog.display ?? true //Added display
-      });
+      };
+      
+      console.log('Form reset with values:', formValues);
+      console.log('Display value being set in form:', formValues.display);
+      
+      form.reset(formValues);
 
       const media = dog.media?.map(m => ({
         url: m.url,
@@ -532,6 +540,15 @@ export default function DogForm({
 
   const onSubmitWrapper = async (values: any) => {
     try {
+      // Debug values for display field
+      console.log('Form submission started with values:', values);
+      console.log('Display field current value:', values.display);
+      console.log('Display field converted value:', Boolean(values.display));
+      
+      // Extract display value and ensure it's a boolean
+      const displayValue = Boolean(values.display);
+      console.log('Display value before final processing:', displayValue);
+      
       const processedValues = {
         ...values,
         height: values.height ? parseFloat(values.height) : null,
@@ -544,7 +561,8 @@ export default function DogForm({
         available: Boolean(values.available),
         puppy: Boolean(values.puppy),
         outsideBreeder: Boolean(values.outsideBreeder),
-        display: Boolean(values.display),
+        // Explicitly set display to the extracted boolean value
+        display: displayValue,
         documents: [
           ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
           ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
@@ -570,12 +588,23 @@ export default function DogForm({
       const url = dog?.id ? `/api/dogs/${dog.id}` : '/api/dogs';
       const method = dog?.id ? 'PUT' : 'POST';
 
+      // Log the final data being sent to the server
+      console.log('Final payload data being sent:', processedValues);
+      console.log('Final display value being sent:', processedValues.display);
+      
+      // Ensure the display value is explicitly a boolean in stringified JSON
+      const jsonData = JSON.stringify({
+        ...processedValues,
+        display: Boolean(processedValues.display)
+      });
+      console.log('JSON payload:', jsonData);
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(processedValues),
+        body: jsonData,
       });
 
       if (!response.ok) {
@@ -1599,22 +1628,35 @@ export default function DogForm({
             <FormField
               control={form.control}
               name="display"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Display on Website</FormLabel>
-                    <FormDescription>
-                      When turned off, this dog will only be visible in the admin panel
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Add debugging for display field
+                console.log('Display field in form render:', field.value);
+                console.log('Display field type:', typeof field.value);
+                
+                // Ensure value is always boolean
+                const displayValue = Boolean(field.value);
+                console.log('Converted display value:', displayValue);
+                
+                return (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Display on Website</FormLabel>
+                      <FormDescription>
+                        When turned off, this dog will only be visible in the admin panel
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={displayValue}
+                        onCheckedChange={(checked) => {
+                          console.log('Display value changed to:', checked);
+                          field.onChange(checked);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
