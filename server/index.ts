@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
 import goatLittersRouter from "./routes/goat-litters";
+import { dbErrorHandler } from "./middleware/db-error-handler";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -93,12 +94,19 @@ app.use((req, res, next) => {
 (async () => {
   const server = registerRoutes(app);
 
+  // Database error handler middleware (must be before the general error handler)
+  app.use(dbErrorHandler);
+  
+  // General error handler middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    
+    console.error('Server error:', err);
     res.status(status).json({ message });
-    throw err;
+    
+    // Do not throw the error again as it will crash the server
+    // Just log it and let the server continue running
   });
 
   // importantly only setup vite in development and after

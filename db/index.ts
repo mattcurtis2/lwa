@@ -1,6 +1,5 @@
-// Import from our new connection module
-import { db, executeQuery, withRetry } from "./connection";
-import * as schema from "@db/schema";
+// Import from our resilient database module
+import { db, executeQuery, withRetry, schema } from "./resilient-db";
 
-// Re-export the schema and the db instance for backwards compatibility
+// Export the database, schema, and utility functions for use throughout the application
 export { db, schema, executeQuery, withRetry };
