@@ -386,46 +386,55 @@ export default function LitterManagement() {
                 </div>
 
                 <div className="space-y-4 pt-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="isVisible" 
-                      checked={editLitter?.isVisible} 
-                      onCheckedChange={(checked) => 
-                        setEditLitter(prev => ({
-                          ...prev!,
-                          isVisible: !!checked,
-                        }))
-                      } 
-                    />
-                    <Label htmlFor="isVisible">Visible in Public Listings</Label>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="isVisible" 
+                        checked={editLitter?.isVisible} 
+                        onCheckedChange={(checked) => 
+                          setEditLitter(prev => ({
+                            ...prev!,
+                            isVisible: !!checked,
+                          }))
+                        } 
+                      />
+                      <Label htmlFor="isVisible">Visible in Public Listings</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground ml-6">Controls whether this litter appears in any public pages</p>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="isCurrentLitter" 
-                      checked={editLitter?.isCurrentLitter} 
-                      onCheckedChange={(checked) => 
-                        setEditLitter(prev => ({
-                          ...prev!,
-                          isCurrentLitter: !!checked,
-                        }))
-                      } 
-                    />
-                    <Label htmlFor="isCurrentLitter">Show Banner on Dogs Page</Label>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="isCurrentLitter" 
+                        checked={editLitter?.isCurrentLitter} 
+                        onCheckedChange={(checked) => 
+                          setEditLitter(prev => ({
+                            ...prev!,
+                            isCurrentLitter: !!checked,
+                          }))
+                        } 
+                      />
+                      <Label htmlFor="isCurrentLitter">Show Banner on Dogs Page</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground ml-6">Shows the "New Litter Coming Soon!" banner on the dogs page</p>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="isPastLitter" 
-                      checked={editLitter?.isPastLitter} 
-                      onCheckedChange={(checked) => 
-                        setEditLitter(prev => ({
-                          ...prev!,
-                          isPastLitter: !!checked,
-                        }))
-                      } 
-                    />
-                    <Label htmlFor="isPastLitter">Display as Past Litter</Label>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="isPastLitter" 
+                        checked={editLitter?.isPastLitter} 
+                        onCheckedChange={(checked) => 
+                          setEditLitter(prev => ({
+                            ...prev!,
+                            isPastLitter: !!checked,
+                          }))
+                        } 
+                      />
+                      <Label htmlFor="isPastLitter">Display as Past Litter</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground ml-6">Shows this litter in the past litters section</p>
                   </div>
                 </div>
               </div>
