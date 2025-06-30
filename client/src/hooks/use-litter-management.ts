@@ -26,7 +26,7 @@ export function useLitterManagement() {
         return;
       }
 
-      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, id } = editLitter;
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate } = editLitter;
       const formattedLitter = {
         dueDate: formatApiDate(dueDate),
         motherId,
@@ -41,8 +41,8 @@ export function useLitterManagement() {
 
       console.log('Sending litter data:', formattedLitter);
 
-      const res = await fetch(`/api/litters/${id}`, {
-        method: 'PUT',
+      const res = await fetch('/api/litters', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formattedLitter),
       });

@@ -264,7 +264,21 @@ export default function GoatLitterManagement() {
       <div className="space-y-6">
         <Button onClick={() => {
           setLitterFormMode('create');
-          setEditLitter(null);
+          setEditLitter({
+            id: 0,
+            siteId: 1,
+            motherId: 0,
+            fatherId: 0,
+            dueDate: new Date().toISOString().split('T')[0],
+            isVisible: true,
+            isCurrentLitter: false,
+            isPastLitter: false,
+            isPlannedLitter: false,
+            expectedBreedingDate: null,
+            expectedPickupDate: null,
+            createdAt: null,
+            updatedAt: null
+          });
           setShowLitterForm(true);
         }}>
           Add New Litter

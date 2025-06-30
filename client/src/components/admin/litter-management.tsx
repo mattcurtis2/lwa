@@ -298,7 +298,22 @@ export default function LitterManagement() {
       <p className="text-muted-foreground mb-6">Manage upcoming and current litters</p>
       <div className="space-y-6">
         <Button onClick={() => {
-          setEditLitter(null);
+          setLitterFormMode('create');
+          setEditLitter({
+            id: 0,
+            siteId: 1,
+            motherId: 0,
+            fatherId: 0,
+            dueDate: new Date().toISOString().split('T')[0],
+            isVisible: true,
+            isCurrentLitter: false,
+            isPastLitter: false,
+            isPlannedLitter: false,
+            expectedBreedingDate: null,
+            expectedPickupDate: null,
+            createdAt: null,
+            updatedAt: null
+          });
           setShowLitterForm(true);
         }}>
           Add New Litter
