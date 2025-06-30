@@ -95,3 +95,10 @@ Preferred communication style: Simple, everyday language.
 
 Changelog:
 - June 30, 2025. Initial setup
+- June 30, 2025. Implemented configurable waitlist links for litters:
+  - Added waitlist_link field to both dog and goat litter schemas
+  - Updated admin forms to include waitlist link input fields
+  - Modified litter detail pages to use custom waitlist links instead of hardcoded URLs
+  - Updated future litters page to show "Sign Up Here" buttons when waitlist links are configured
+  - Changed date displays to month-based format for planned litters (breeding and pickup dates)
+  - Removed "Planned Parent Pairing" text from future litter cards

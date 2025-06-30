@@ -82,7 +82,7 @@ export default function DogFutureLitters() {
                 </p>
                 {litter.expectedPickupDate && (
                   <p className="text-muted-foreground text-sm">
-                    Expected pickup: {format(new Date(litter.expectedPickupDate), 'MMM d, yyyy')}
+                    Expected pickup: {format(new Date(litter.expectedPickupDate), 'MMM yyyy')}
                   </p>
                 )}
               </div>
@@ -96,7 +96,6 @@ export default function DogFutureLitters() {
                       <h3 className="text-lg font-semibold">
                         {litter.mother?.name || "Unknown Dam"} × {litter.father?.name || "Unknown Sire"}
                       </h3>
-                      <p className="text-muted-foreground mb-3">Planned Parent Pairing</p>
                       
                       {/* Parents info */}
                       <div className="flex items-center gap-2 mb-2">
