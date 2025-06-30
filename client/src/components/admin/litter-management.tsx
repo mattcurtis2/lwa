@@ -34,6 +34,7 @@ export default function LitterManagement() {
     showLitterForm,
     setShowLitterForm,
     litterFormMode,
+    setLitterFormMode,
     editLitter,
     setEditLitter,
     createLitter,
