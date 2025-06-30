@@ -16,6 +16,9 @@ interface PhotoItem {
   description?: string;
   animalName?: string;
   animalId?: number;
+  date?: string | Date | null;
+  linkTo?: string;
+  entityType?: 'dog' | 'goat' | 'carousel' | 'site-content' | 'gallery';
 }
 
 export default function Gallery() {
@@ -60,6 +63,9 @@ export default function Gallery() {
           description: `${dog.name} - ${dog.breed}`,
           animalName: dog.name,
           animalId: dog.id,
+          date: dog.updatedAt || dog.createdAt,
+          linkTo: `/dogs#${dog.name.toLowerCase().replace(/\s+/g, '-')}`,
+          entityType: 'dog',
         });
       }
       
@@ -76,6 +82,9 @@ export default function Gallery() {
               description: `${dog.name} - Photo ${index + 1}`,
               animalName: dog.name,
               animalId: dog.id,
+              date: media.createdAt || dog.createdAt,
+              linkTo: `/dogs#${dog.name.toLowerCase().replace(/\s+/g, '-')}`,
+              entityType: 'dog',
             });
           });
       }
@@ -97,6 +106,9 @@ export default function Gallery() {
           description: `${goat.name} - ${goat.breed}`,
           animalName: goat.name,
           animalId: goat.id,
+          date: goat.updatedAt || goat.createdAt,
+          linkTo: `/goats#${goat.name.toLowerCase().replace(/\s+/g, '-')}`,
+          entityType: 'goat',
         });
       }
       
