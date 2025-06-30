@@ -48,7 +48,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     window.scrollTo(0, 0);
   }, []);
 
-  const visibleLitter = litters?.find(litter => litter.isVisible);
+  const visibleLitter = litters?.find(litter => litter.isVisible && litter.isCurrentLitter);
 
   // Filter dogs based on gender, display setting, and filter out puppies, outside breeders, and available dogs
   // Available dogs should only be shown in the available section
