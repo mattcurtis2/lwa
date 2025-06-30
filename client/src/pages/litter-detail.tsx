@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
+import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,6 +54,7 @@ export default function LitterDetail() {
   }
 
   const isPastDueDate = new Date(litter.dueDate) < new Date();
+  const isPlannedLitter = litter.isPlannedLitter;
   const puppyCount = litter.puppies?.length || 0;
   const maleCount = litter.puppies?.filter(puppy => puppy.gender === 'male').length || 0;
   const femaleCount = litter.puppies?.filter(puppy => puppy.gender === 'female').length || 0;

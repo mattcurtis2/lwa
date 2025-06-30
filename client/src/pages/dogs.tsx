@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import DogDetails from "@/components/dog-details";
 import { useLocation, Link } from "wouter";
@@ -169,7 +170,12 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       {visibleLitter.isPlannedLitter ? "New Litter Coming Soon!" : "New Litter Available!"}
                     </div>
                     <p className="text-amber-800">
-                      {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
+                      {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">
+                        {visibleLitter.isPlannedLitter && visibleLitter.expectedBreedingDate 
+                          ? format(new Date(visibleLitter.expectedBreedingDate), 'MMM yyyy')
+                          : formatDisplayDate(new Date(visibleLitter.dueDate))
+                        }
+                      </span>
                     </p>
                   </div>
 
