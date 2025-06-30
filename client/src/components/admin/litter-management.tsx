@@ -397,7 +397,7 @@ export default function LitterManagement() {
                         }))
                       } 
                     />
-                    <Label htmlFor="isVisible">Is Visible</Label>
+                    <Label htmlFor="isVisible">Visible in Public Listings</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
@@ -411,7 +411,7 @@ export default function LitterManagement() {
                         }))
                       } 
                     />
-                    <Label htmlFor="isCurrentLitter">Display as Current Litter</Label>
+                    <Label htmlFor="isCurrentLitter">Show Banner on Dogs Page</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
