@@ -55,7 +55,7 @@ export default function GoatManagement() {
   const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid && !goat.available);
   const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid && !goat.available);
   const kids = goats.filter(goat => goat.kid);
-  const availableGoats = goats.filter(goat => goat.available);
+  const availableGoats = goats.filter(goat => goat.available && !goat.kid);
   const outsideBreeders = goats.filter(goat => goat.outsideBreeder);
 
   return (
