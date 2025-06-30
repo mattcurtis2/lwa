@@ -163,7 +163,7 @@ export default function GalleryManagement() {
               linkTo: `/dogs#${dog.name.toLowerCase().replace(/\s+/g, '-')}`,
               entityType: 'dog',
               isVisible: dog.display || true,
-              canToggle: false,
+              canToggle: true,
             });
           });
       }
@@ -189,7 +189,7 @@ export default function GalleryManagement() {
           linkTo: `/goats#${goat.name.toLowerCase().replace(/\s+/g, '-')}`,
           entityType: 'goat',
           isVisible: goat.display || true,
-          canToggle: false,
+          canToggle: true,
         });
       }
       
@@ -210,7 +210,7 @@ export default function GalleryManagement() {
               linkTo: `/goats#${goat.name.toLowerCase().replace(/\s+/g, '-')}`,
               entityType: 'goat',
               isVisible: goat.display || true,
-              canToggle: false,
+              canToggle: true,
             });
           });
       }
@@ -229,7 +229,7 @@ export default function GalleryManagement() {
       linkTo: '/',
       entityType: 'carousel' as const,
       isVisible: true,
-      canToggle: false,
+      canToggle: true,
     })),
     
     // Site content images
@@ -245,7 +245,7 @@ export default function GalleryManagement() {
         linkTo: '/',
         entityType: 'site-content' as const,
         isVisible: true,
-        canToggle: false,
+        canToggle: true,
       })),
 
     // Gallery photos
@@ -310,15 +310,20 @@ export default function GalleryManagement() {
         }
         
         const uploadResult = await uploadResponse.json();
+        console.log('Upload result:', uploadResult);
         
-        // Create gallery photo with uploaded image URL
-        createGalleryPhotoMutation.mutate({
-          ...data,
-          imageUrl: uploadResult.url,
+        // Create gallery photo with uploaded image URL  
+        const photoData = {
+          title: data.title,
+          description: data.description || null,
+          imageUrl: uploadResult[0]?.url || uploadResult.url, // Handle both response formats
           category: 'farm',
           order: 0, // Default order since we sort by date
-          description: data.description || null,
-        });
+          isVisible: data.isVisible,
+        };
+        console.log('Creating gallery photo with data:', photoData);
+        
+        createGalleryPhotoMutation.mutate(photoData);
       } catch (error) {
         toast({ title: "Failed to upload image", variant: "destructive" });
       } finally {
