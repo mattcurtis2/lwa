@@ -200,6 +200,7 @@ export const litters = pgTable("litters", {
   isPlannedLitter: boolean("is_planned_litter").default(false),
   expectedBreedingDate: date("expected_breeding_date"),
   expectedPickupDate: date("expected_pickup_date"),
+  waitlistLink: text("waitlist_link"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

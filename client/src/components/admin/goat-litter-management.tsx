@@ -447,6 +447,20 @@ export default function GoatLitterManagement() {
                       />
                       <p className="text-xs text-muted-foreground">This will be used for both breeding and expected kid availability</p>
                     </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Waitlist Sign-up Link</Label>
+                      <Input
+                        type="url"
+                        placeholder="https://docs.google.com/forms/..."
+                        value={editLitter?.waitlistLink || ""}
+                        onChange={(e) => setEditLitter(prev => ({
+                          ...prev!,
+                          waitlistLink: e.target.value || null,
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">Link where visitors can sign up for the litter waitlist</p>
+                    </div>
                   </div>
                 )}
               </div>
