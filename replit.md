@@ -102,3 +102,12 @@ Changelog:
   - Updated future litters page to show "Sign Up Here" buttons when waitlist links are configured
   - Changed date displays to month-based format for planned litters (breeding and pickup dates)
   - Removed "Planned Parent Pairing" text from future litter cards
+- June 30, 2025. Created comprehensive photo gallery system:
+  - Built dedicated /gallery page with responsive grid layout and category filtering
+  - Added gallery_photos database table for standalone farm photos not tied to animals
+  - Integrated photos from dogs, goats, carousel items, and site content into unified display
+  - Added "Photo Gallery" navigation links to header and mobile menu
+  - Implemented lightbox viewing with photo navigation
+  - Added date-based sorting (newest first) using actual database upload dates
+  - Added clickable links from animal photos to their respective detail pages
+  - Used authentic upload dates from database rather than synthetic data

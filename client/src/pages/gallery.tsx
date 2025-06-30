@@ -64,7 +64,7 @@ export default function Gallery() {
           description: `${dog.name} - ${dog.breed}`,
           animalName: dog.name,
           animalId: dog.id,
-          date: dog.updatedAt || dog.createdAt,
+          date: dog.createdAt,
           linkTo: `/dogs#${dog.name.toLowerCase().replace(/\s+/g, '-')}`,
           entityType: 'dog',
         });
@@ -107,7 +107,7 @@ export default function Gallery() {
           description: `${goat.name} - ${goat.breed}`,
           animalName: goat.name,
           animalId: goat.id,
-          date: goat.updatedAt || goat.createdAt,
+          date: goat.createdAt,
           linkTo: `/goats#${goat.name.toLowerCase().replace(/\s+/g, '-')}`,
           entityType: 'goat',
         });
@@ -266,10 +266,8 @@ export default function Gallery() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm truncate">{photo.title}</h3>
-                    {photo.date && (
-                      <p className="text-xs text-stone-500">
-                        {new Date(photo.date).toLocaleDateString()}
-                      </p>
+                    {photo.description && (
+                      <p className="text-xs text-stone-600 truncate">{photo.description}</p>
                     )}
                   </div>
                   {photo.linkTo && (photo.entityType === 'dog' || photo.entityType === 'goat') && (
