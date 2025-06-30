@@ -26,7 +26,7 @@ export function useLitterManagement() {
         return;
       }
 
-      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate } = editLitter;
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = editLitter;
       const formattedLitter = {
         dueDate: formatApiDate(dueDate),
         motherId,
@@ -36,7 +36,8 @@ export function useLitterManagement() {
         isPastLitter: isPastLitter || false,
         isPlannedLitter: isPlannedLitter || false,
         expectedBreedingDate: expectedBreedingDate ? formatApiDate(expectedBreedingDate) : null,
-        expectedPickupDate: expectedPickupDate ? formatApiDate(expectedPickupDate) : null
+        expectedPickupDate: expectedPickupDate ? formatApiDate(expectedPickupDate) : null,
+        waitlistLink: waitlistLink || null
       };
 
       console.log('Sending litter data:', formattedLitter);
