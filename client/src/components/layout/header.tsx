@@ -187,6 +187,13 @@ export default function Header() {
                 </Link>
               </div>
             </div>
+
+            {/* Photo Gallery Link */}
+            <Link href="/gallery">
+              <span className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium cursor-pointer">
+                Photo Gallery
+              </span>
+            </Link>
           </div>
 
           <MobileNav />

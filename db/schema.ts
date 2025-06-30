@@ -496,7 +496,28 @@ export const marketSchedules = pgTable("market_schedules", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const galleryPhotos = pgTable("gallery_photos", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  title: text("title").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url").notNull(),
+  category: text("category").notNull().default('farm'), // 'farm', 'events', 'general'
+  order: integer("order").notNull().default(0),
+  isVisible: boolean("is_visible").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const marketSchedulesRelations = relations(marketSchedules, ({}) => ({}));
+
+export const galleryPhotosRelations = relations(galleryPhotos, ({}) => ({}));
+
+export const insertGalleryPhotoSchema = createInsertSchema(galleryPhotos);
+export const selectGalleryPhotoSchema = createSelectSchema(galleryPhotos);
+
+export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
+export type NewGalleryPhoto = typeof galleryPhotos.$inferInsert;
 
 export const insertMarketScheduleSchema = createInsertSchema(marketSchedules);
 export const selectMarketScheduleSchema = createSelectSchema(marketSchedules);

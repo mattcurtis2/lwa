@@ -127,6 +127,15 @@ export default function MobileNav() {
               </a>
             </Link>
           </div>
+
+          {/* Photo Gallery */}
+          <div className="flex flex-col gap-2">
+            <Link href="/gallery">
+              <a onClick={handleSelect} className="block px-2 py-1 text-lg font-medium text-stone-600 hover:text-stone-900">
+                Photo Gallery
+              </a>
+            </Link>
+          </div>
         </nav>
       </SheetContent>
     </Sheet>
