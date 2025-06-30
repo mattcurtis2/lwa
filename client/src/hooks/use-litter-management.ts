@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
 import { Dog, Litter } from '@db/schema';
+import { formatApiDate } from '@/lib/date-utils';
 
 export function useLitterManagement() {
   const { toast } = useToast();

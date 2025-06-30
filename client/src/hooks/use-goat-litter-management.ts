@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { GoatLitter, Goat } from "@db/schema";
+import { formatApiDate } from "@/lib/date-utils";
 
 interface ExtendedGoatLitter extends GoatLitter {
   mother?: Goat;
@@ -44,7 +45,7 @@ export function useGoatLitterManagement() {
         body: JSON.stringify({
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
-          dueDate: editLitter.dueDate,
+          dueDate: formatApiDate(editLitter.dueDate),
           isVisible: editLitter.isVisible || true,
           isCurrentLitter: editLitter.isCurrentLitter || false,
           isPastLitter: editLitter.isPastLitter || false
@@ -94,7 +95,7 @@ export function useGoatLitterManagement() {
         body: JSON.stringify({
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
-          dueDate: new Date(editLitter.dueDate).toISOString().split('T')[0],
+          dueDate: formatApiDate(editLitter.dueDate),
           isVisible: editLitter.isVisible,
           isCurrentLitter: editLitter.isCurrentLitter || false,
           isPastLitter: editLitter.isPastLitter || false
