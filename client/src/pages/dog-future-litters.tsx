@@ -76,13 +76,10 @@ export default function DogFutureLitters() {
                   Planned Breeding
                 </h3>
                 <p className="text-muted-foreground">
-                  Expected: {format(new Date(litter.dueDate), 'MMM d, yyyy')}
+                  Expected: {litter.expectedBreedingDate 
+                    ? format(new Date(litter.expectedBreedingDate), 'MMM yyyy')
+                    : format(new Date(litter.dueDate), 'MMM d, yyyy')}
                 </p>
-                {litter.expectedBreedingDate && (
-                  <p className="text-muted-foreground text-sm">
-                    Expected breeding/availability: {format(new Date(litter.expectedBreedingDate), 'MMM yyyy')}
-                  </p>
-                )}
                 {litter.expectedPickupDate && (
                   <p className="text-muted-foreground text-sm">
                     Expected pickup: {format(new Date(litter.expectedPickupDate), 'MMM d, yyyy')}

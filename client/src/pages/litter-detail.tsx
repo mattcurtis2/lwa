@@ -67,14 +67,16 @@ export default function LitterDetail() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left">
               <div className="inline-block bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2">
-                {isPastDueDate ? 'Born Litter' : 'Upcoming Litter'}
+                {isPlannedLitter ? 'Planned Litter' : (isPastDueDate ? 'Born Litter' : 'Upcoming Litter')}
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-amber-900">
-                {isPastDueDate
-                  ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
-                  : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
+                {isPlannedLitter && litter.expectedBreedingDate
+                  ? `Expected ${format(new Date(litter.expectedBreedingDate), 'MMM yyyy')}`
+                  : (isPastDueDate
+                    ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
+                    : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`)}
               </h1>
-              {!isPastDueDate && (
+              {(!isPastDueDate || isPlannedLitter) && (
                 <div className="mt-4">
                   <p className="text-amber-800 font-medium mb-2">Interested in a puppy?</p>
                   <a 
