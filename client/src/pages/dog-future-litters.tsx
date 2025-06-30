@@ -164,9 +164,26 @@ export default function DogFutureLitters() {
                   {/* Additional info for future litters */}
                   <div className="bg-amber-50 p-4 rounded-lg">
                     <h4 className="font-medium mb-2 text-amber-800">Join Our Waitlist</h4>
-                    <p className="text-sm text-amber-700">
-                      Interested in a puppy from this planned litter? Contact us to join our waitlist and be the first to know when puppies become available.
-                    </p>
+                    {litter.waitlistLink ? (
+                      <div className="space-y-3">
+                        <p className="text-sm text-amber-700">
+                          Interested in a puppy from this planned litter? Join our waitlist to be the first to know when puppies become available.
+                        </p>
+                        <a
+                          href={litter.waitlistLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+                        >
+                          Sign Up Here
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-amber-700">
+                        Interested in a puppy from this planned litter? Contact us to join our waitlist and be the first to know when puppies become available.
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
