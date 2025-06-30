@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react";
 import { Dog, DogMedia, Goat, GoatMedia, CarouselItem, SiteContent, GalleryPhoto } from "@db/schema";
 
 interface PhotoItem {
@@ -125,6 +126,9 @@ export default function Gallery() {
               description: `${goat.name} - Photo ${index + 1}`,
               animalName: goat.name,
               animalId: goat.id,
+              date: media.createdAt || goat.createdAt,
+              linkTo: `/goats#${goat.name.toLowerCase().replace(/\s+/g, '-')}`,
+              entityType: 'goat',
             });
           });
       }
@@ -139,6 +143,9 @@ export default function Gallery() {
       title: item.title,
       category: 'farm' as const,
       description: item.description,
+      date: item.createdAt,
+      linkTo: '/',
+      entityType: 'carousel' as const,
     })),
     
     // Site content images
@@ -150,6 +157,9 @@ export default function Gallery() {
         title: content.key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         category: 'farm' as const,
         description: `Farm image: ${content.key}`,
+        date: content.updatedAt,
+        linkTo: '/',
+        entityType: 'site-content' as const,
       })),
 
     // Gallery photos
@@ -159,8 +169,17 @@ export default function Gallery() {
       title: photo.title,
       category: 'farm' as const,
       description: photo.description || photo.title,
+      date: photo.createdAt,
+      linkTo: '/gallery',
+      entityType: 'gallery' as const,
     })),
-  ];
+  ]
+  // Sort by date (newest first)
+  .sort((a, b) => {
+    const dateA = a.date ? new Date(a.date).getTime() : 0;
+    const dateB = b.date ? new Date(b.date).getTime() : 0;
+    return dateB - dateA;
+  });
 
   // Filter photos based on active category
   const filteredPhotos = activeCategory === 'all' 
@@ -244,10 +263,28 @@ export default function Gallery() {
                 </Badge>
               </div>
               <CardContent className="p-3">
-                <h3 className="font-semibold text-sm truncate">{photo.title}</h3>
-                {photo.description && (
-                  <p className="text-xs text-stone-600 truncate">{photo.description}</p>
-                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate">{photo.title}</h3>
+                    {photo.date && (
+                      <p className="text-xs text-stone-500">
+                        {new Date(photo.date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                  {photo.linkTo && (photo.entityType === 'dog' || photo.entityType === 'goat') && (
+                    <Link href={photo.linkTo}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-stone-100"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
