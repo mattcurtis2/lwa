@@ -70,6 +70,11 @@ export default function Header() {
                     Past Litters
                   </a>
                 </Link>
+                <Link href="/dogs/litters/future">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Future Litters
+                  </a>
+                </Link>
                 <Link href="/dogs/available">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Available Dogs

@@ -32,10 +32,10 @@ export default function LitterBanner() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12">
               <div>
                 <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2 inline-block">
-                  New Litter Available!
+                  {visibleLitter.isPlannedLitter ? "New Litter Coming Soon!" : "New Litter Available!"}
                 </div>
                 <p className="text-amber-800">
-                  Born: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
+                  {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">{formatDisplayDate(new Date(visibleLitter.dueDate))}</span>
                 </p>
               </div>
 

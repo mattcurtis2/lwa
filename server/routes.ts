@@ -1299,6 +1299,38 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
+  app.get("/api/litters/list/future", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      // Get litters marked as planned for the current site
+      const allLitters = await db.query.litters.findMany({
+        where: and(
+          eq(litters.siteId, siteId),
+          eq(litters.isVisible, true),
+          eq(litters.isPlannedLitter, true)
+        ),
+        orderBy: (litters, { desc }) => [desc(litters.dueDate)],
+        with: {
+          mother: {
+            with: {
+              media: true
+            }
+          },
+          father: {
+            with: {
+              media: true
+            }
+          }
+        }
+      });
+      
+      res.json(allLitters);
+    } catch (error) {
+      console.error("Error fetching future litters:", error);
+      res.status(500).json({ message: "Failed to fetch future litters" });
+    }
+  });
+
   app.get("/api/litters/list/past", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
