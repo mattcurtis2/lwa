@@ -89,7 +89,8 @@ export function useLitterManagement() {
         isPastLitter: litterData.isPastLitter || false,
         isPlannedLitter: litterData.isPlannedLitter || false,
         expectedBreedingDate: litterData.expectedBreedingDate ? formatApiDate(litterData.expectedBreedingDate) : null,
-        expectedPickupDate: litterData.expectedPickupDate ? formatApiDate(litterData.expectedPickupDate) : null
+        expectedPickupDate: litterData.expectedPickupDate ? formatApiDate(litterData.expectedPickupDate) : null,
+        waitlistLink: litterData.waitlistLink || null
       };
 
       const res = await fetch(`/api/litters/${litterData.id}`, {
