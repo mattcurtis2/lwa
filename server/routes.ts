@@ -1652,6 +1652,131 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
+  // Add goat litter routes
+  app.get("/api/goat-litters", async (req, res) => {
+    const siteId = getCurrentSiteId(req);
+    const allGoatLitters = await db.query.goatLitters.findMany({
+      where: eq(goatLitters.siteId, siteId),
+      with: {
+        mother: {
+          with: {
+            media: {
+              orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+            },
+            documents: true,
+          },
+        },
+        father: {
+          with: {
+            media: {
+              orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
+            },
+            documents: true,
+          },
+        },
+        puppies: {
+          with: {
+            media: {
+              orderBy: (m, { asc }) => [asc(m.order)],
+            },
+          },
+        },
+      },
+    });
+    res.json(allGoatLitters);
+  });
+
+  app.post("/api/goat-litters", async (req, res) => {
+    try {
+      console.log('Creating goat litter with data:', req.body);
+      const formattedData = {
+        ...req.body,
+        dueDate: req.body.dueDate,
+        isCurrentLitter: req.body.isCurrentLitter || false,
+        isPastLitter: req.body.isPastLitter || false,
+        isPlannedLitter: req.body.isPlannedLitter || false,
+        expectedBreedingDate: req.body.expectedBreedingDate || null,
+        expectedPickupDate: req.body.expectedPickupDate || null,
+        waitlistLink: req.body.waitlistLink || null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      console.log('Formatted data:', formattedData);
+
+      const litter = await db.insert(goatLitters)
+        .values(formattedData)
+        .returning();
+
+      const litterWithParents = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithParents);
+    } catch (error) {
+      console.error("Error creating goat litter:", error);
+      res.status(500).json({ message: "Failed to create goat litter" });
+    }
+  });
+
+  app.put("/api/goat-litters/:id", async (req, res) => {
+    try {
+      console.log('Updating goat litter with data:', req.body);
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
+
+      const updateData = {
+        dueDate: dueDate,
+        motherId,
+        fatherId,
+        isVisible,
+        isCurrentLitter: isCurrentLitter || false,
+        isPastLitter: isPastLitter || false,
+        isPlannedLitter: isPlannedLitter || false,
+        expectedBreedingDate: expectedBreedingDate || null,
+        expectedPickupDate: expectedPickupDate || null,
+        waitlistLink: waitlistLink || null,
+        updatedAt: new Date(),
+      };
+      console.log('Formatted update data:', updateData);
+
+      const litter = await db.update(goatLitters)
+        .set(updateData)
+        .where(eq(goatLitters.id, parseInt(req.params.id)))
+        .returning();
+
+      const litterWithParents = await db.query.goatLitters.findFirst({
+        where: eq(goatLitters.id, litter[0].id),
+        with: {
+          mother: true,
+          father: true,
+        },
+      });
+
+      res.json(litterWithParents);
+    } catch (error) {
+      console.error("Error updating goat litter - Full error:", error);
+      res.status(500).json({ message: "Failed to update goat litter", error: error.message });
+    }
+  });
+
+  app.delete("/api/goat-litters/:id", async (req, res) => {
+    try {
+      const litterId = parseInt(req.params.id);
+
+      // Delete the goat litter
+      await db.delete(goatLitters)
+        .where(eq(goatLitters.id, litterId));
+
+      res.json({ message: "Goat litter deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting goat litter:", error);
+      res.status(500).json({ message: "Failed to delete goat litter" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

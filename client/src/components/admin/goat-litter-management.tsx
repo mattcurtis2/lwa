@@ -276,6 +276,7 @@ export default function GoatLitterManagement() {
             isPlannedLitter: false,
             expectedBreedingDate: null,
             expectedPickupDate: null,
+            waitlistLink: null,
             createdAt: null,
             updatedAt: null
           });

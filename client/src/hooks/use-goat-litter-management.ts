@@ -8,6 +8,7 @@ interface ExtendedGoatLitter extends GoatLitter {
   mother?: Goat;
   father?: Goat;
   kids?: Goat[];
+  waitlistLink?: string | null;
 }
 
 export function useGoatLitterManagement() {
@@ -51,7 +52,8 @@ export function useGoatLitterManagement() {
           isPastLitter: editLitter.isPastLitter || false,
           isPlannedLitter: editLitter.isPlannedLitter || false,
           expectedBreedingDate: editLitter.expectedBreedingDate ? formatApiDate(editLitter.expectedBreedingDate) : null,
-          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null
+          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null,
+          waitlistLink: editLitter.waitlistLink || null
         }),
       });
 
@@ -104,7 +106,8 @@ export function useGoatLitterManagement() {
           isPastLitter: editLitter.isPastLitter || false,
           isPlannedLitter: editLitter.isPlannedLitter || false,
           expectedBreedingDate: editLitter.expectedBreedingDate ? formatApiDate(editLitter.expectedBreedingDate) : null,
-          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null
+          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null,
+          waitlistLink: editLitter.waitlistLink || null
         }),
       });
 
