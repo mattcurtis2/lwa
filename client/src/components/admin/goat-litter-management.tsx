@@ -81,7 +81,8 @@ export default function GoatLitterManagement() {
   const renderLitterCard = (litter: GoatLitter & { mother?: Goat; father?: Goat; kids?: Goat[] }) => {
     const mother = goats.find(g => g.id === litter.motherId);
     const father = goats.find(g => g.id === litter.fatherId);
-    const litterKids = goats.filter(g => g.litterId === litter.id);
+    // Use kids from litter data instead of filtering goats array to avoid duplicates
+    const litterKids = litter.kids || [];
 
     return (
       <Card key={litter.id} className="mb-4">
