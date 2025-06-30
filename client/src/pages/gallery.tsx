@@ -246,7 +246,15 @@ export default function Gallery() {
             <Card 
               key={photo.id} 
               className="group cursor-pointer transition-transform hover:scale-105 overflow-hidden"
-              onClick={() => openLightbox(photo)}
+              onClick={() => {
+                // If the photo has a link to an animal or page, navigate there
+                if (photo.linkTo && (photo.entityType === 'dog' || photo.entityType === 'goat' || photo.entityType === 'carousel')) {
+                  window.location.href = photo.linkTo;
+                } else {
+                  // Otherwise, open the lightbox
+                  openLightbox(photo);
+                }
+              }}
             >
               <div className="relative aspect-square">
                 <img
@@ -261,6 +269,13 @@ export default function Gallery() {
                 >
                   {photo.category === 'farm' ? 'Farm' : photo.category}
                 </Badge>
+                {photo.linkTo && (photo.entityType === 'dog' || photo.entityType === 'goat') && (
+                  <div className="absolute bottom-2 right-2">
+                    <Badge variant="outline" className="bg-white/90 text-xs">
+                      Click to View
+                    </Badge>
+                  </div>
+                )}
               </div>
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
@@ -270,18 +285,7 @@ export default function Gallery() {
                       <p className="text-xs text-stone-600 truncate">{photo.description}</p>
                     )}
                   </div>
-                  {photo.linkTo && (photo.entityType === 'dog' || photo.entityType === 'goat') && (
-                    <Link href={photo.linkTo}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 hover:bg-stone-100"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    </Link>
-                  )}
+
                 </div>
               </CardContent>
             </Card>
