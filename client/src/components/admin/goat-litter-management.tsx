@@ -50,11 +50,7 @@ export default function GoatLitterManagement() {
     queryKey: ["/api/goat-litters"]
   });
 
-  // Debug logging for litters data
-  console.log('Litters data:', litters?.length, 'litters');
-  litters?.forEach((litter, index) => {
-    console.log(`Litter ${index + 1}:`, litter.id, 'Kids:', litter.kids?.length || 0);
-  });
+
 
   const handleAddKid = (litter: GoatLitter) => {
     const mother = goats.find(g => g.id === litter.motherId);
@@ -87,11 +83,13 @@ export default function GoatLitterManagement() {
   const renderLitterCard = (litter: GoatLitter & { mother?: Goat; father?: Goat; kids?: Goat[] }) => {
     const mother = goats.find(g => g.id === litter.motherId);
     const father = goats.find(g => g.id === litter.fatherId);
-    // Use kids from litter data instead of filtering goats array to avoid duplicates
-    const litterKids = litter.kids || [];
+    // Use kids from litter data and ensure uniqueness by ID to prevent any duplicates
+    const rawKids = litter.kids || [];
+    const litterKids = rawKids.filter((kid, index, array) => 
+      array.findIndex(k => k.id === kid.id) === index
+    );
     
-    // Debug logging
-    console.log('Litter ID:', litter.id, 'Kids from litter data:', litterKids.length, litterKids.map(k => k.name));
+
 
     return (
       <Card key={litter.id} className="mb-4">
