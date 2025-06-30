@@ -436,7 +436,52 @@ export default function LitterManagement() {
                     </div>
                     <p className="text-xs text-muted-foreground ml-6">Shows this litter in the past litters section</p>
                   </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="isPlannedLitter" 
+                        checked={editLitter?.isPlannedLitter} 
+                        onCheckedChange={(checked) => 
+                          setEditLitter(prev => ({
+                            ...prev!,
+                            isPlannedLitter: !!checked,
+                          }))
+                        } 
+                      />
+                      <Label htmlFor="isPlannedLitter">Planned Litter</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground ml-6">This is a future litter for waitlist management</p>
+                  </div>
                 </div>
+
+                {editLitter?.isPlannedLitter && (
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="text-sm font-medium">Planned Litter Details</h4>
+                    <div className="space-y-2">
+                      <Label>Expected Breeding Date</Label>
+                      <Input
+                        type="date"
+                        value={editLitter?.expectedBreedingDate ? editLitter.expectedBreedingDate.split('T')[0] : ""}
+                        onChange={(e) => setEditLitter(prev => ({
+                          ...prev!,
+                          expectedBreedingDate: e.target.value,
+                        }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Expected Puppy Pickup Date</Label>
+                      <Input
+                        type="date"
+                        value={editLitter?.expectedPickupDate ? editLitter.expectedPickupDate.split('T')[0] : ""}
+                        onChange={(e) => setEditLitter(prev => ({
+                          ...prev!,
+                          expectedPickupDate: e.target.value,
+                        }))}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between pt-4">

@@ -48,7 +48,10 @@ export function useGoatLitterManagement() {
           dueDate: formatApiDate(editLitter.dueDate),
           isVisible: editLitter.isVisible || true,
           isCurrentLitter: editLitter.isCurrentLitter || false,
-          isPastLitter: editLitter.isPastLitter || false
+          isPastLitter: editLitter.isPastLitter || false,
+          isPlannedLitter: editLitter.isPlannedLitter || false,
+          expectedBreedingDate: editLitter.expectedBreedingDate ? formatApiDate(editLitter.expectedBreedingDate) : null,
+          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null
         }),
       });
 
@@ -98,7 +101,10 @@ export function useGoatLitterManagement() {
           dueDate: formatApiDate(editLitter.dueDate),
           isVisible: editLitter.isVisible,
           isCurrentLitter: editLitter.isCurrentLitter || false,
-          isPastLitter: editLitter.isPastLitter || false
+          isPastLitter: editLitter.isPastLitter || false,
+          isPlannedLitter: editLitter.isPlannedLitter || false,
+          expectedBreedingDate: editLitter.expectedBreedingDate ? formatApiDate(editLitter.expectedBreedingDate) : null,
+          expectedPickupDate: editLitter.expectedPickupDate ? formatApiDate(editLitter.expectedPickupDate) : null
         }),
       });
 

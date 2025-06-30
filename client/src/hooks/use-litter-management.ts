@@ -26,14 +26,17 @@ export function useLitterManagement() {
         return;
       }
 
-      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, id } = editLitter;
+      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, id } = editLitter;
       const formattedLitter = {
         dueDate: formatApiDate(dueDate),
         motherId,
         fatherId,
         isVisible,
         isCurrentLitter: isCurrentLitter || false,
-        isPastLitter: isPastLitter || false
+        isPastLitter: isPastLitter || false,
+        isPlannedLitter: isPlannedLitter || false,
+        expectedBreedingDate: expectedBreedingDate ? formatApiDate(expectedBreedingDate) : null,
+        expectedPickupDate: expectedPickupDate ? formatApiDate(expectedPickupDate) : null
       };
 
       console.log('Sending litter data:', formattedLitter);
@@ -82,7 +85,10 @@ export function useLitterManagement() {
         fatherId: litterData.fatherId,
         isVisible: litterData.isVisible,
         isCurrentLitter: litterData.isCurrentLitter || false,
-        isPastLitter: litterData.isPastLitter || false
+        isPastLitter: litterData.isPastLitter || false,
+        isPlannedLitter: litterData.isPlannedLitter || false,
+        expectedBreedingDate: litterData.expectedBreedingDate ? formatApiDate(litterData.expectedBreedingDate) : null,
+        expectedPickupDate: litterData.expectedPickupDate ? formatApiDate(litterData.expectedPickupDate) : null
       };
 
       const res = await fetch(`/api/litters/${litterData.id}`, {
