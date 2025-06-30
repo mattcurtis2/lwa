@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { formatApiDate, formatInputDate } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -120,7 +121,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     defaultValues: {
       name: goat?.name || "",
       registrationName: goat?.registrationName || "",
-      birthDate: goat?.birthDate ? goat.birthDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      birthDate: goat?.birthDate ? formatInputDate(new Date(goat.birthDate)) : formatInputDate(new Date()),
       gender: goat?.gender || "female",
       breed: goat?.breed || "Nigerian Dwarf",
       color: goat?.color || "",
@@ -555,6 +556,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       
       const processedValues = {
         ...values,
+        birthDate: formatApiDate(values.birthDate), // Format birth date properly for API
         height: values.height ? parseFloat(values.height) : undefined,
         weight: values.weight ? parseFloat(values.weight) : undefined,
         price: priceValue, // Use our processed price value

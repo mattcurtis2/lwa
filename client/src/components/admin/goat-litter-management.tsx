@@ -7,6 +7,7 @@ import GoatForm from "@/components/forms/goat-form";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { formatApiDate } from "@/lib/date-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +62,7 @@ export default function GoatLitterManagement() {
       fatherId: litter.fatherId,
       mother,
       father,
-      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
+      birthDate: formatApiDate(litter.dueDate),
       gender: 'female',
       available: false,
       breed: "Nigerian Dwarf",
