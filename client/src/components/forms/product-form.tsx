@@ -293,6 +293,33 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
 
         <FormField
           control={form.control}
+          name="section"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Section</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a section" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="bakery">Bakery</SelectItem>
+                  <SelectItem value="garden">Garden</SelectItem>
+                  <SelectItem value="animal_products">Animal Products</SelectItem>
+                  <SelectItem value="apparel">Apparel</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>

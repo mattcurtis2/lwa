@@ -11,8 +11,9 @@ export default function MarketSectionPage() {
   // Convert URL path to section name
   const sectionNameMap: Record<string, string> = {
     'bakery': 'bakery',
-    'market-garden': 'market_garden',
-    'animal-products': 'animal_products'
+    'garden': 'garden',
+    'animal-products': 'animal_products',
+    'apparel': 'apparel'
   };
 
   const { data: sections = [] } = useQuery<MarketSection[]>({
