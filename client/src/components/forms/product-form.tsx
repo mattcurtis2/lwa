@@ -33,7 +33,6 @@ import { ImageIcon } from "lucide-react";
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   category: z.string().min(1, "Category is required"),
-  section: z.string().min(1, "Section is required"),
   description: z.string(),
   price: z.string().min(1, "Price is required"),
   imageUrl: z.string().optional().nullable(),
@@ -56,7 +55,6 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
     defaultValues: {
       name: product?.name ?? "",
       category: product?.category ?? "",
-      section: product?.section ?? "",
       description: product?.description ?? "",
       price: product?.price ?? "",
       imageUrl: product?.imageUrl ?? "",
@@ -66,10 +64,16 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof productSchema>) => {
+      // Set section to match category for consistency
+      const productData = {
+        ...values,
+        section: values.category
+      };
+      
       const res = await fetch(product ? `/api/products/${product.id}` : "/api/products", {
         method: product ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(productData),
       });
 
       if (!res.ok) throw new Error("Failed to save product");
@@ -276,37 +280,6 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="bread">Bread</SelectItem>
-                  <SelectItem value="pastry">Pastry</SelectItem>
-                  <SelectItem value="vegetable">Vegetable</SelectItem>
-                  <SelectItem value="fruit">Fruit</SelectItem>
-                  <SelectItem value="eggs">Eggs</SelectItem>
-                  <SelectItem value="honey">Honey</SelectItem>
-                  <SelectItem value="apparel">Apparel</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="section"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Section</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a section" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
                   <SelectItem value="bakery">Bakery</SelectItem>
                   <SelectItem value="garden">Garden</SelectItem>
                   <SelectItem value="animal_products">Animal Products</SelectItem>
@@ -317,6 +290,8 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
             </FormItem>
           )}
         />
+
+
 
         <FormField
           control={form.control}
