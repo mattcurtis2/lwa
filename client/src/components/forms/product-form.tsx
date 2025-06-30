@@ -33,6 +33,7 @@ import { ImageIcon } from "lucide-react";
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   category: z.string().min(1, "Category is required"),
+  section: z.string().min(1, "Section is required"),
   description: z.string(),
   price: z.string().min(1, "Price is required"),
   imageUrl: z.string().optional().nullable(),
@@ -55,6 +56,7 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
     defaultValues: {
       name: product?.name ?? "",
       category: product?.category ?? "",
+      section: product?.section ?? "",
       description: product?.description ?? "",
       price: product?.price ?? "",
       imageUrl: product?.imageUrl ?? "",
@@ -277,6 +279,11 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
                   <SelectItem value="bread">Bread</SelectItem>
                   <SelectItem value="pastry">Pastry</SelectItem>
                   <SelectItem value="vegetable">Vegetable</SelectItem>
+                  <SelectItem value="fruit">Fruit</SelectItem>
+                  <SelectItem value="eggs">Eggs</SelectItem>
+                  <SelectItem value="honey">Honey</SelectItem>
+                  <SelectItem value="apparel">Apparel</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
