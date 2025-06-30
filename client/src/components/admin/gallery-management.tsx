@@ -18,8 +18,6 @@ import { Dog, DogMedia, Goat, GoatMedia, CarouselItem, SiteContent, GalleryPhoto
 const galleryPhotoSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
-  order: z.number().min(0, "Order must be 0 or greater"),
   isVisible: z.boolean(),
 });
 
@@ -36,7 +34,7 @@ interface PhotoItem {
   date?: string | Date | null;
   linkTo?: string;
   entityType?: 'dog' | 'goat' | 'carousel' | 'site-content' | 'gallery';
-  isVisible?: boolean;
+  isVisible?: boolean | null;
   canToggle?: boolean; // Whether visibility can be controlled
 }
 
@@ -260,7 +258,7 @@ export default function GalleryManagement() {
       date: photo.createdAt,
       linkTo: '/gallery',
       entityType: 'gallery' as const,
-      isVisible: photo.isVisible,
+      isVisible: photo.isVisible ?? true,
       canToggle: true, // Gallery photos can be toggled
     })),
   ]
@@ -271,18 +269,19 @@ export default function GalleryManagement() {
     return dateB - dateA;
   });
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const form = useForm<GalleryPhotoForm>({
     resolver: zodResolver(galleryPhotoSchema),
     defaultValues: {
       title: '',
       description: '',
-      category: 'farm',
-      order: 0,
       isVisible: true,
     },
   });
 
-  const onSubmit = (data: GalleryPhotoForm) => {
+  const onSubmit = async (data: GalleryPhotoForm) => {
     if (editingPhoto) {
       updateGalleryPhotoMutation.mutate({
         id: editingPhoto.id,
@@ -290,10 +289,41 @@ export default function GalleryManagement() {
       });
       setEditingPhoto(null);
     } else {
-      createGalleryPhotoMutation.mutate({
-        ...data,
-        imageUrl: '', // This would need to be handled with file upload
-      });
+      if (!selectedFile) {
+        toast({ title: "Please select an image file", variant: "destructive" });
+        return;
+      }
+
+      setUploading(true);
+      try {
+        // Upload file first
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error('File upload failed');
+        }
+        
+        const uploadResult = await uploadResponse.json();
+        
+        // Create gallery photo with uploaded image URL
+        createGalleryPhotoMutation.mutate({
+          ...data,
+          imageUrl: uploadResult.url,
+          category: 'farm',
+          order: 0, // Default order since we sort by date
+          description: data.description || null,
+        });
+      } catch (error) {
+        toast({ title: "Failed to upload image", variant: "destructive" });
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -326,9 +356,7 @@ export default function GalleryManagement() {
         form.reset({
           title: galleryPhoto.title,
           description: galleryPhoto.description || '',
-          category: galleryPhoto.category || 'farm',
-          order: galleryPhoto.order || 0,
-          isVisible: galleryPhoto.isVisible,
+          isVisible: galleryPhoto.isVisible ?? true,
         });
       }
     }
@@ -423,6 +451,7 @@ export default function GalleryManagement() {
         if (!open) {
           setShowAddDialog(false);
           setEditingPhoto(null);
+          setSelectedFile(null);
           form.reset();
         }
       }}>
@@ -462,23 +491,27 @@ export default function GalleryManagement() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Order</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!editingPhoto && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Photo File</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSelectedFile(file);
+                      }
+                    }}
+                    required={!editingPhoto}
+                  />
+                  {selectedFile && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <FormField
                 control={form.control}
@@ -504,6 +537,7 @@ export default function GalleryManagement() {
                   onClick={() => {
                     setShowAddDialog(false);
                     setEditingPhoto(null);
+                    setSelectedFile(null);
                     form.reset();
                   }}
                 >
