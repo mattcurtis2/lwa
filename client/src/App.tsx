@@ -88,6 +88,7 @@ function Router() {
           <Route path="/market/bakery" component={MarketSection} />
           <Route path="/market/market-garden" component={MarketSection} />
           <Route path="/market/animal-products" component={MarketSection} />
+          <Route path="/market/apparel" component={MarketSection} />
           <Route component={NotFound} />
         </Switch>
       </main>
