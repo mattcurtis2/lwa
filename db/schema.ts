@@ -197,6 +197,9 @@ export const litters = pgTable("litters", {
   isVisible: boolean("is_visible").default(true),
   isCurrentLitter: boolean("is_current_litter").default(false),
   isPastLitter: boolean("is_past_litter").default(false),
+  isPlannedLitter: boolean("is_planned_litter").default(false),
+  expectedBreedingDate: date("expected_breeding_date"),
+  expectedPickupDate: date("expected_pickup_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -366,6 +369,9 @@ export const goatLitters = pgTable("goat_litters", {
   isVisible: boolean("is_visible").default(true),
   isCurrentLitter: boolean("is_current_litter").default(false),
   isPastLitter: boolean("is_past_litter").default(false),
+  isPlannedLitter: boolean("is_planned_litter").default(false),
+  expectedBreedingDate: date("expected_breeding_date"),
+  expectedPickupDate: date("expected_pickup_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
