@@ -1222,17 +1222,9 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "Litter not found" });
       }
 
-      // Check if this is an admin request
-      const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
-      
       // Fetch puppies separately since they're not directly related in the schema
-      // For public views, only show puppies with display=true
-      const puppiesWhere = isAdmin 
-        ? eq(dogs.litterId, litterId)
-        : and(eq(dogs.litterId, litterId), eq(dogs.display, true));
-        
       const puppies = await db.query.dogs.findMany({
-        where: puppiesWhere,
+        where: eq(dogs.litterId, litterId),
         with: {
           media: {
             orderBy: (media, { asc }) => [asc(media.order)],
