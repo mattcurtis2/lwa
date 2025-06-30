@@ -160,7 +160,10 @@ router.post('/api/goat-litters', async (req, res) => {
       dueDate: data.dueDate,
       isVisible: data.isVisible ?? true,
       isCurrentLitter: data.isCurrentLitter ?? false,
-      isPastLitter: data.isPastLitter ?? false
+      isPastLitter: data.isPastLitter ?? false,
+      isPlannedLitter: data.isPlannedLitter ?? false,
+      expectedBreedingDate: data.expectedBreedingDate || null,
+      expectedPickupDate: data.expectedPickupDate || null
     }).returning({ id: goatLitters.id });
     
     const litterId = litterResult.id;
@@ -259,7 +262,10 @@ router.put('/api/goat-litters/:id', async (req, res) => {
         dueDate: data.dueDate,
         isVisible: data.isVisible,
         isCurrentLitter: data.isCurrentLitter,
-        isPastLitter: data.isPastLitter
+        isPastLitter: data.isPastLitter,
+        isPlannedLitter: data.isPlannedLitter,
+        expectedBreedingDate: data.expectedBreedingDate || null,
+        expectedPickupDate: data.expectedPickupDate || null
       })
       .where(eq(goatLitters.id, id));
     
