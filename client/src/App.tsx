@@ -14,6 +14,7 @@ import LitterDetail from "@/pages/litter-detail";
 import UpcomingLitters from "@/pages/upcoming-litters";
 import PastLitters from "@/pages/past-litters";
 import DogCurrentLitters from "@/pages/dog-current-litters";
+import DogFutureLitters from "@/pages/dog-future-litters";
 import Goats from "@/pages/goats";
 import GoatDetail from "@/pages/goat-detail";
 import GoatLitterDetail from "@/pages/goat-litter-detail";
@@ -61,6 +62,7 @@ function Router() {
             {() => <Dogs showAvailable={true} />}
           </Route>
           <Route path="/dogs/litters/current" component={DogCurrentLitters} />
+          <Route path="/dogs/litters/future" component={DogFutureLitters} />
           <Route path="/dogs/litters/upcoming" component={UpcomingLitters} />
           <Route path="/dogs/litters/past" component={PastLitters} />
           <Route path="/dogs/litters/:id" component={LitterDetail} />
