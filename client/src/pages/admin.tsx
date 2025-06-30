@@ -9,12 +9,14 @@ import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
+import GalleryManagement from "@/components/admin/gallery-management";
 import SiteSelector from "@/components/admin/site-selector";
 import {
   LayoutDashboard,
   Dog as DogIcon,
   Cat,
   ShoppingBag,
+  ImageIcon,
   Loader2,
   Menu,
   X
@@ -92,6 +94,13 @@ export default function Admin() {
         >
           <ShoppingBag className="h-4 w-4 mr-2" />
           Market
+        </button>
+        <button
+          onClick={() => handleTabChange("gallery")}
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "gallery" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
+        >
+          <ImageIcon className="h-4 w-4 mr-2" />
+          Gallery
         </button>
         <button
           onClick={() => handleTabChange("content")}
@@ -201,6 +210,10 @@ export default function Admin() {
                   </TabsContent>
                 </Tabs>
               </div>
+            </TabsContent>
+
+            <TabsContent value="gallery">
+              <GalleryManagement />
             </TabsContent>
 
             <TabsContent value="content">
