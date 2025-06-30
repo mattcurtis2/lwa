@@ -1363,7 +1363,7 @@ app.get("/api/litters/list/current", async (req, res) => {
       const littersWithPuppies = await Promise.all(
         allLitters.map(async (litter) => {
           const puppies = await db.query.dogs.findMany({
-            where: and(eq(dogs.litterId, litter.id), eq(dogs.display, true)),
+            where: eq(dogs.litterId, litter.id),
             with: {
               media: {
                 orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
