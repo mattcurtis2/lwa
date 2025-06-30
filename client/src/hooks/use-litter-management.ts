@@ -28,7 +28,7 @@ export function useLitterManagement() {
 
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, id } = editLitter;
       const formattedLitter = {
-        dueDate: new Date(dueDate).toISOString().split('T')[0],
+        dueDate: formatApiDate(dueDate),
         motherId,
         fatherId,
         isVisible,
@@ -77,7 +77,7 @@ export function useLitterManagement() {
       }
 
       const formattedLitter = {
-        dueDate: dueDate.toISOString().split('T')[0],
+        dueDate: formatApiDate(litterData.dueDate),
         motherId: litterData.motherId,
         fatherId: litterData.fatherId,
         isVisible: litterData.isVisible,

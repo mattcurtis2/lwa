@@ -1097,7 +1097,7 @@ export function registerRoutes(app: Express): Server {
       console.log('Creating litter with data:', req.body);
       const formattedData = {
         ...req.body,
-        dueDate: new Date(req.body.dueDate),
+        dueDate: req.body.dueDate,
         isCurrentLitter: req.body.isCurrentLitter || false,
         isPastLitter: req.body.isPastLitter || false,
         createdAt: new Date(),
@@ -1130,7 +1130,7 @@ export function registerRoutes(app: Express): Server {
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter } = req.body;
 
       const updateData = {
-        dueDate: new Date(dueDate),
+        dueDate: dueDate,
         motherId,
         fatherId,
         isVisible,
