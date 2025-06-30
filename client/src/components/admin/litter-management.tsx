@@ -277,6 +277,7 @@ export default function LitterManagement() {
             <Button
               onClick={() => {
                 setEditLitter({ ...litter, mother, father, puppies: litterPuppies });
+                setLitterFormMode('edit');
                 setShowLitterForm(true);
               }}
             >
@@ -324,7 +325,13 @@ export default function LitterManagement() {
           {litters?.map(renderLitterCard)}
         </div>
 
-        <Sheet open={showLitterForm} onOpenChange={setShowLitterForm}>
+        <Sheet open={showLitterForm} onOpenChange={(open) => {
+          setShowLitterForm(open);
+          if (!open) {
+            setLitterFormMode('create');
+            setEditLitter(null);
+          }
+        }}>
           <SheetContent side="right" className="w-1/3">
             <SheetHeader>
               <SheetTitle>
@@ -503,10 +510,22 @@ export default function LitterManagement() {
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => {
                   setShowLitterForm(false);
+                  setLitterFormMode('create');
+                  setEditLitter(null);
                 }}>
                   Cancel
                 </Button>
-                <Button onClick={litterFormMode === 'create' ? createLitter : updateLitter}>
+                <Button onClick={() => {
+                  console.log("Save button clicked, form mode:", litterFormMode);
+                  console.log("Edit litter data:", editLitter);
+                  if (litterFormMode === 'create') {
+                    console.log("Calling createLitter()");
+                    createLitter();
+                  } else {
+                    console.log("Calling updateLitter()");
+                    updateLitter();
+                  }
+                }}>
                   Save Litter
                 </Button>
               </div>
