@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
@@ -1774,6 +1774,76 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error) {
       console.error("Error deleting goat litter:", error);
       res.status(500).json({ message: "Failed to delete goat litter" });
+    }
+  });
+
+  // Gallery Photo Routes
+  app.get("/api/gallery-photos", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const photos = await db.query.galleryPhotos.findMany({
+        where: and(eq(galleryPhotos.siteId, siteId), eq(galleryPhotos.isVisible, true)),
+        orderBy: (galleryPhotos, { asc }) => [asc(galleryPhotos.order), asc(galleryPhotos.createdAt)],
+      });
+      res.json(photos);
+    } catch (error) {
+      console.error("Error fetching gallery photos:", error);
+      res.status(500).json({ message: "Failed to fetch gallery photos" });
+    }
+  });
+
+  app.post("/api/gallery-photos", async (req, res) => {
+    try {
+      if (!req.session.isAdmin) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const siteId = getCurrentSiteId(req);
+      const photo = await db.insert(galleryPhotos)
+        .values({
+          ...req.body,
+          siteId,
+        })
+        .returning();
+      res.json(photo[0]);
+    } catch (error) {
+      console.error("Error creating gallery photo:", error);
+      res.status(500).json({ message: "Failed to create gallery photo" });
+    }
+  });
+
+  app.put("/api/gallery-photos/:id", async (req, res) => {
+    try {
+      if (!req.session.isAdmin) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const photo = await db.update(galleryPhotos)
+        .set({
+          ...req.body,
+          updatedAt: new Date()
+        })
+        .where(eq(galleryPhotos.id, parseInt(req.params.id)))
+        .returning();
+      res.json(photo[0]);
+    } catch (error) {
+      console.error("Error updating gallery photo:", error);
+      res.status(500).json({ message: "Failed to update gallery photo" });
+    }
+  });
+
+  app.delete("/api/gallery-photos/:id", async (req, res) => {
+    try {
+      if (!req.session.isAdmin) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      await db.delete(galleryPhotos)
+        .where(eq(galleryPhotos.id, parseInt(req.params.id)));
+      res.json({ message: "Gallery photo deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting gallery photo:", error);
+      res.status(500).json({ message: "Failed to delete gallery photo" });
     }
   });
 

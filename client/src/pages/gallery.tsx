@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Dog, DogMedia, Goat, GoatMedia, CarouselItem, SiteContent } from "@db/schema";
+import { Dog, DogMedia, Goat, GoatMedia, CarouselItem, SiteContent, GalleryPhoto } from "@db/schema";
 
 interface PhotoItem {
   id: string;
