@@ -40,6 +40,10 @@ export default function Gallery() {
     queryKey: ['/api/site-content'],
   });
 
+  const { data: galleryPhotos = [] } = useQuery<GalleryPhoto[]>({
+    queryKey: ['/api/gallery-photos'],
+  });
+
   // Process all photos into a unified format
   const allPhotos: PhotoItem[] = [
     // Dog photos
@@ -135,6 +139,15 @@ export default function Gallery() {
         category: 'farm' as const,
         description: `Farm image: ${content.key}`,
       })),
+
+    // Gallery photos
+    ...galleryPhotos.map(photo => ({
+      id: `gallery-${photo.id}`,
+      url: photo.imageUrl,
+      title: photo.title,
+      category: 'farm' as const,
+      description: photo.description || photo.title,
+    })),
   ];
 
   // Filter photos based on active category
