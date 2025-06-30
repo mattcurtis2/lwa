@@ -435,26 +435,17 @@ export default function GoatLitterManagement() {
                   <div className="space-y-4 pt-4 border-t">
                     <h4 className="text-sm font-medium">Planned Litter Details</h4>
                     <div className="space-y-2">
-                      <Label>Expected Breeding Date</Label>
+                      <Label>Expected Breeding Month</Label>
                       <Input
-                        type="date"
-                        value={editLitter?.expectedBreedingDate ? editLitter.expectedBreedingDate.split('T')[0] : ""}
+                        type="month"
+                        value={editLitter?.expectedBreedingDate ? editLitter.expectedBreedingDate.substring(0, 7) : ""}
                         onChange={(e) => setEditLitter(prev => ({
                           ...prev!,
-                          expectedBreedingDate: e.target.value,
+                          expectedBreedingDate: e.target.value ? `${e.target.value}-01` : null,
+                          expectedPickupDate: e.target.value ? `${e.target.value}-01` : null, // Use same month for both
                         }))}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Expected Kid Pickup Date</Label>
-                      <Input
-                        type="date"
-                        value={editLitter?.expectedPickupDate ? editLitter.expectedPickupDate.split('T')[0] : ""}
-                        onChange={(e) => setEditLitter(prev => ({
-                          ...prev!,
-                          expectedPickupDate: e.target.value,
-                        }))}
-                      />
+                      <p className="text-xs text-muted-foreground">This will be used for both breeding and expected kid availability</p>
                     </div>
                   </div>
                 )}
