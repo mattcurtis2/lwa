@@ -46,7 +46,7 @@ export function useContentManagement(
           const formData = new FormData();
           formData.append('value', value);
 
-          const isImageContent = key === 'hero_background';
+          const isImageContent = key === 'hero_background' || key.includes('_image') || key.includes('hero_');
           const headers: Record<string, string> = {};
           
           if (!isImageContent) {

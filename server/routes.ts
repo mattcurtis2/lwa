@@ -319,6 +319,9 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/site-content/:key", upload.single('file'), async (req, res) => {
     const key = req.params.key;
+    console.log(`=== SITE CONTENT UPDATE: ${key} ===`);
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file ? 'Present' : 'None');
     try {
       let value = req.body.value;
 
