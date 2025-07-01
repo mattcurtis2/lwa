@@ -117,3 +117,6 @@ Changelog:
   - Added sheep card with proper content management integration
   - Fixed image upload functionality for all content types using S3 storage
   - Ensured consistent visual layout and functionality across all animal sections
+  - Moved sheep card editing to admin Content > Carousel section as requested
+  - Added all required database entries for sheep content (title, text, button text, redirect URL)
+  - Fixed missing text fields in admin interface by populating database with default values
