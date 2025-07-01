@@ -496,6 +496,80 @@ export const marketSchedules = pgTable("market_schedules", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const sheep = pgTable("sheep", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  name: text("name").notNull(),
+  registrationName: text("registration_name"),
+  breed: text("breed").notNull(),
+  gender: text("gender").notNull(),
+  birthDate: date("birth_date").notNull(),
+  description: text("description"),
+  motherId: integer("mother_id").references(() => sheep.id),
+  fatherId: integer("father_id").references(() => sheep.id),
+  damName: text("dam_name"),
+  sireName: text("sire_name"),
+  litterId: integer("litter_id").references(() => sheepLitters.id),
+  lamb: boolean("lamb").default(false).notNull(),
+  available: boolean("available").default(false).notNull(),
+  sold: boolean("sold").default(false).notNull(),
+  display: boolean("display").default(true).notNull(),
+  price: text("price"),
+  ramPrice: text("ram_price"),
+  wetherPrice: text("wether_price"),
+  profileImageUrl: text("profile_image_url"),
+  healthData: text("health_data"),
+  color: text("color"),
+  fleeceType: text("fleece_type"),
+  fleeceWeight: decimal("fleece_weight", { precision: 5, scale: 2 }),
+  height: decimal("height", { precision: 5, scale: 2 }),
+  weight: decimal("weight", { precision: 5, scale: 2 }),
+  pedigree: text("pedigree"),
+  narrativeDescription: text("narrative_description"),
+  order: integer("order").notNull().default(0),
+  outsideBreeder: boolean("outside_breeder").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const sheepMedia = pgTable("sheep_media", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  sheepId: integer("sheep_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // "image" or "video"
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sheepDocuments = pgTable("sheep_documents", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  sheepId: integer("sheep_id").notNull(),
+  url: text("url").notNull(),
+  type: text("type").notNull(), // 'health' or 'pedigree'
+  name: text("name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sheepLitters = pgTable("sheep_litters", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  dueDate: date("due_date").notNull(),
+  motherId: integer("mother_id").notNull(),
+  fatherId: integer("father_id").notNull(),
+  isVisible: boolean("is_visible").default(true),
+  isCurrentLitter: boolean("is_current_litter").default(false),
+  isPastLitter: boolean("is_past_litter").default(false),
+  isPlannedLitter: boolean("is_planned_litter").default(false),
+  expectedBreedingDate: date("expected_breeding_date"),
+  expectedPickupDate: date("expected_pickup_date"),
+  waitlistLink: text("waitlist_link"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const galleryPhotos = pgTable("gallery_photos", {
   id: serial("id").primaryKey(),
   siteId: integer("site_id").references(() => sites.id).default(1),
@@ -524,6 +598,86 @@ export const selectMarketScheduleSchema = createSelectSchema(marketSchedules);
 
 export type MarketSchedule = typeof marketSchedules.$inferSelect;
 export type NewMarketSchedule = typeof marketSchedules.$inferInsert;
+
+export const sheepRelations = relations(sheep, ({ many, one }) => ({
+  media: many(sheepMedia),
+  documents: many(sheepDocuments),
+  mother: one(sheep, {
+    fields: [sheep.motherId],
+    references: [sheep.id],
+  }),
+  father: one(sheep, {
+    fields: [sheep.fatherId],
+    references: [sheep.id],
+  }),
+  litter: one(sheepLitters, {
+    fields: [sheep.litterId],
+    references: [sheepLitters.id],
+  }),
+  motherOf: many(sheep, { relationName: "mother" }),
+  fatherOf: many(sheep, { relationName: "father" }),
+}));
+
+export const sheepMediaRelations = relations(sheepMedia, ({ one }) => ({
+  sheep: one(sheep, {
+    fields: [sheepMedia.sheepId],
+    references: [sheep.id],
+  }),
+}));
+
+export const sheepLitterRelations = relations(sheepLitters, ({ one, many }) => ({
+  mother: one(sheep, {
+    fields: [sheepLitters.motherId],
+    references: [sheep.id],
+  }),
+  father: one(sheep, {
+    fields: [sheepLitters.fatherId],
+    references: [sheep.id],
+  }),
+  lambs: many(sheep, {
+    fields: [sheepLitters.id],
+    references: [sheep.litterId],
+  }),
+}));
+
+export const sheepDocumentsRelations = relations(sheepDocuments, ({ one }) => ({
+  sheep: one(sheep, {
+    fields: [sheepDocuments.sheepId],
+    references: [sheep.id],
+  }),
+}));
+
+export const insertSheepSchema = createInsertSchema(sheep);
+export const selectSheepSchema = createSelectSchema(sheep);
+export const insertSheepMediaSchema = createInsertSchema(sheepMedia);
+export const selectSheepMediaSchema = createSelectSchema(sheepMedia);
+export const insertSheepDocumentSchema = createInsertSchema(sheepDocuments);
+export const selectSheepDocumentSchema = createSelectSchema(sheepDocuments);
+export const insertSheepLitterSchema = createInsertSchema(sheepLitters);
+export const selectSheepLitterSchema = createSelectSchema(sheepLitters);
+
+export type SheepWithRelations = InferSelectModel<typeof sheep> & {
+  media?: SheepMedia[];
+  documents?: SheepDocument[];
+  mother?: SheepWithRelations | null;
+  father?: SheepWithRelations | null;
+  litter?: SheepLitterWithRelations | null;
+};
+
+export type SheepLitterWithRelations = InferSelectModel<typeof sheepLitters> & {
+  mother?: SheepWithRelations;
+  father?: SheepWithRelations;
+  lambs?: SheepWithRelations[];
+};
+
+export type Sheep = SheepWithRelations;
+export type NewSheep = typeof sheep.$inferInsert;
+export type SheepMedia = typeof sheepMedia.$inferSelect;
+export type NewSheepMedia = typeof sheepMedia.$inferInsert;
+export type SheepDocument = typeof sheepDocuments.$inferSelect;
+export type NewSheepDocument = typeof sheepDocuments.$inferInsert;
+export type SheepLitter = SheepLitterWithRelations;
+export type NewSheepLitter = typeof sheepLitters.$inferInsert;
 
 export const litter_interest_signups = pgTable("litter_interest_signups", {
   id: serial("id").primaryKey(),
