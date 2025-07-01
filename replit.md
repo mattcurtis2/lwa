@@ -111,3 +111,9 @@ Changelog:
   - Added date-based sorting (newest first) using actual database upload dates
   - Added clickable links from animal photos to their respective detail pages
   - Used authentic upload dates from database rather than synthetic data
+- January 1, 2025. Enhanced "What We Offer" section to include Katahdin sheep:
+  - Added sheep card editing interface to admin content section with image upload
+  - Updated homepage farm-info component to display 4 cards in responsive grid
+  - Added sheep card with proper content management integration
+  - Fixed image upload functionality for all content types using S3 storage
+  - Ensured consistent visual layout and functionality across all animal sections

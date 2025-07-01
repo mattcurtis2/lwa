@@ -30,7 +30,7 @@ export default function FarmInfo() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <Link to={getContent("animals_redirect") || "/dogs"}>
             <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full">
               <div className="aspect-video w-full overflow-hidden">
@@ -103,6 +103,32 @@ export default function FarmInfo() {
                 <div className="text-center">
                   <Button className="w-full">
                     {getContent("products_button_text") || "Visit Our Market"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={getContent("sheep_redirect") || "/sheep"}>
+            <Card className="cursor-pointer transition-transform hover:scale-[1.02] flex flex-col h-full">
+              <div className="aspect-video w-full overflow-hidden">
+                <img 
+                  src={getContent("sheep_image") || "https://images.unsplash.com/photo-1486620775214-8b6e85e3e3fc"} 
+                  alt="Our Sheep"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <CardContent className="pt-6 flex-1 flex flex-col">
+                <h3 className="text-xl font-bold mb-4">
+                  {getContent("sheep_title") || "Katahdin Sheep"}
+                </h3>
+                <p className="text-stone-600 mb-6 line-clamp-10 flex-grow">
+                  {getContent("sheep_text") || 
+                    "Hardy Katahdin sheep known for their natural shedding coat and excellent meat production, raised with care on our pastures."}
+                </p>
+                <div className="text-center">
+                  <Button className="w-full">
+                    {getContent("sheep_button_text") || "Learn About Our Sheep"}
                   </Button>
                 </div>
               </CardContent>

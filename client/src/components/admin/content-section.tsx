@@ -911,6 +911,65 @@ export default function ContentSection() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Sheep Card */}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold mb-4">Sheep Card</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={getContentValue("sheep_title")}
+                    onChange={(e) => handleContentChange("sheep_title", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={getContentValue("sheep_text")}
+                    onChange={(e) => handleContentChange("sheep_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Button Text</Label>
+                  <Input
+                    value={getContentValue("sheep_button_text")}
+                    onChange={(e) => handleContentChange("sheep_button_text", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Redirect URL</Label>
+                  <Input
+                    value={getContentValue("sheep_redirect")}
+                    onChange={(e) => handleContentChange("sheep_redirect", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("sheep_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("sheep_image")}
+                  />
+                  {getContentValue("sheep_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("sheep_image")}
+                        alt="Sheep Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="carousel" className="space-y-6">
