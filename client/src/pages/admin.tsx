@@ -6,6 +6,7 @@ import DogManagement from "@/components/admin/dog-management";
 import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
 import GoatLitterManagement from "@/components/admin/goat-litter-management";
+import SheepManagement from "@/components/admin/sheep-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
@@ -19,7 +20,8 @@ import {
   ImageIcon,
   Loader2,
   Menu,
-  X
+  X,
+  Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -87,6 +89,13 @@ export default function Admin() {
         >
           <Cat className="h-4 w-4 mr-2" />
           Goats
+        </button>
+        <button
+          onClick={() => handleTabChange("sheep")}
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "sheep" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
+        >
+          <Zap className="h-4 w-4 mr-2" />
+          Sheep
         </button>
         <button
           onClick={() => handleTabChange("market")}
