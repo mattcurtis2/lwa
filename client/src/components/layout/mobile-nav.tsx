@@ -4,9 +4,33 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Sheep, SheepLitter } from "@db/schema";
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
+
+  // Fetch sheep data to determine what links to show
+  const { data: sheep = [] } = useQuery<Sheep[]>({
+    queryKey: ["/api/sheep"],
+  });
+
+  const { data: sheepLitters = [] } = useQuery<SheepLitter[]>({
+    queryKey: ["/api/sheep-litters"],
+  });
+
+  // Check if there are sheep matching various criteria
+  const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
+  const hasCurrentSheepLitters = sheepLitters.some(l => {
+    const dueDate = new Date(l.dueDate);
+    const today = new Date();
+    return dueDate >= today;
+  });
+  const hasPastSheepLitters = sheepLitters.some(l => {
+    const dueDate = new Date(l.dueDate);
+    const today = new Date();
+    return dueDate < today;
+  });
 
   const handleSelect = () => {
     setOpen(false);
@@ -121,21 +145,27 @@ export default function MobileNav() {
                 Ewes
               </a>
             </Link>
-            <Link href="/sheep/litters/current">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Current Litters
-              </a>
-            </Link>
-            <Link href="/sheep/litters/past">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Past Litters
-              </a>
-            </Link>
-            <Link href="/sheep/available">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Available Sheep
-              </a>
-            </Link>
+            {hasCurrentSheepLitters && (
+              <Link href="/sheep/litters/current">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Current Litters
+                </a>
+              </Link>
+            )}
+            {hasPastSheepLitters && (
+              <Link href="/sheep/litters/past">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Past Litters
+                </a>
+              </Link>
+            )}
+            {hasAvailableSheep && (
+              <Link href="/sheep/available">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Available Sheep
+                </a>
+              </Link>
+            )}
           </div>
 
           {/* Farmers Market */}

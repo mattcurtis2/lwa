@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { SiteContent } from "@db/schema";
+import { SiteContent, Sheep, SheepLitter } from "@db/schema";
 import MobileNav from "./mobile-nav";
 import { useState } from "react";
 
@@ -13,7 +13,29 @@ export default function Header() {
     queryKey: ["/api/site-content"],
   });
 
+  // Fetch sheep data to determine what links to show
+  const { data: sheep = [] } = useQuery<Sheep[]>({
+    queryKey: ["/api/sheep"],
+  });
+
+  const { data: sheepLitters = [] } = useQuery<SheepLitter[]>({
+    queryKey: ["/api/sheep-litters"],
+  });
+
   const logo = siteContent?.find(content => content.key === "logo");
+
+  // Check if there are sheep matching various criteria
+  const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
+  const hasCurrentSheepLitters = sheepLitters.some(l => {
+    const dueDate = new Date(l.dueDate);
+    const today = new Date();
+    return dueDate >= today;
+  });
+  const hasPastSheepLitters = sheepLitters.some(l => {
+    const dueDate = new Date(l.dueDate);
+    const today = new Date();
+    return dueDate < today;
+  });
 
   return (
     <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
@@ -176,21 +198,27 @@ export default function Header() {
                     Ewes
                   </a>
                 </Link>
-                <Link href="/sheep/litters/current">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Current Litters
-                  </a>
-                </Link>
-                <Link href="/sheep/litters/past">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Past Litters
-                  </a>
-                </Link>
-                <Link href="/sheep/available">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Available Sheep
-                  </a>
-                </Link>
+                {hasCurrentSheepLitters && (
+                  <Link href="/sheep/litters/current">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Current Litters
+                    </a>
+                  </Link>
+                )}
+                {hasPastSheepLitters && (
+                  <Link href="/sheep/litters/past">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Past Litters
+                    </a>
+                  </Link>
+                )}
+                {hasAvailableSheep && (
+                  <Link href="/sheep/available">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Available Sheep
+                    </a>
+                  </Link>
+                )}
               </div>
             </div>
 
