@@ -7,13 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react";
-import { Dog, DogMedia, Goat, GoatMedia, CarouselItem, SiteContent, GalleryPhoto } from "@db/schema";
+import { Dog, DogMedia, Goat, GoatMedia, Sheep, SheepMedia, CarouselItem, SiteContent, GalleryPhoto } from "@db/schema";
 
 interface PhotoItem {
   id: string;
   url: string;
   title: string;
-  category: 'dogs' | 'goats' | 'farm' | 'carousel';
+  category: 'dogs' | 'goats' | 'sheep' | 'farm' | 'carousel';
   description?: string;
   animalName?: string;
   animalId?: number;
@@ -25,7 +25,7 @@ interface PhotoItem {
 export default function Gallery() {
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<'all' | 'dogs' | 'goats' | 'farm'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'dogs' | 'goats' | 'sheep' | 'farm'>('all');
 
   // Fetch all data sources for photos
   const { data: dogs = [] } = useQuery<(Dog & { media?: DogMedia[] })[]>({
@@ -34,6 +34,10 @@ export default function Gallery() {
 
   const { data: goats = [] } = useQuery<(Goat & { media?: GoatMedia[] })[]>({
     queryKey: ['/api/goats'],
+  });
+
+  const { data: sheep = [] } = useQuery<(Sheep & { media?: SheepMedia[] })[]>({
+    queryKey: ['/api/sheep'],
   });
 
   const { data: carousel = [] } = useQuery<CarouselItem[]>({
@@ -136,6 +140,49 @@ export default function Gallery() {
       return photos;
     }),
     
+    // Sheep photos
+    ...sheep.flatMap(sheep => {
+      const photos: PhotoItem[] = [];
+      
+      // Profile image
+      if (sheep.profileImageUrl) {
+        photos.push({
+          id: `sheep-profile-${sheep.id}`,
+          url: sheep.profileImageUrl,
+          title: sheep.name,
+          category: 'sheep',
+          description: `${sheep.name} - ${sheep.breed}`,
+          animalName: sheep.name,
+          animalId: sheep.id,
+          date: sheep.createdAt,
+          linkTo: `/sheep#${sheep.name.toLowerCase().replace(/\s+/g, '-')}`,
+          entityType: 'sheep',
+        });
+      }
+      
+      // Additional media
+      if (sheep.media) {
+        sheep.media
+          .filter(media => media.type === 'image')
+          .forEach((media, index) => {
+            photos.push({
+              id: `sheep-media-${sheep.id}-${media.id}`,
+              url: media.url,
+              title: sheep.name,
+              category: 'sheep',
+              description: `${sheep.name} - Photo ${index + 1}`,
+              animalName: sheep.name,
+              animalId: sheep.id,
+              date: media.createdAt || sheep.createdAt,
+              linkTo: `/sheep#${sheep.name.toLowerCase().replace(/\s+/g, '-')}`,
+              entityType: 'sheep',
+            });
+          });
+      }
+      
+      return photos;
+    }),
+    
     // Carousel photos
     ...carousel.map(item => ({
       id: `carousel-${item.id}`,
@@ -206,7 +253,7 @@ export default function Gallery() {
     setSelectedPhoto(filteredPhotos[newIndex]);
   };
 
-  const getCategoryCount = (category: 'all' | 'dogs' | 'goats' | 'farm') => {
+  const getCategoryCount = (category: 'all' | 'dogs' | 'goats' | 'sheep' | 'farm') => {
     if (category === 'all') return allPhotos.length;
     return allPhotos.filter(photo => photo.category === category).length;
   };

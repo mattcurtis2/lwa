@@ -201,6 +201,10 @@ export default function Admin() {
               </Tabs>
             </TabsContent>
 
+            <TabsContent value="sheep">
+              <SheepManagement />
+            </TabsContent>
+
             <TabsContent value="market">
               <div>
                 <Tabs
