@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
   const [isGoatDropdownOpen, setIsGoatDropdownOpen] = useState(false);
+  const [isSheepDropdownOpen, setIsSheepDropdownOpen] = useState(false);
   const [isMarketDropdownOpen, setIsMarketDropdownOpen] = useState(false);
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
@@ -133,6 +134,61 @@ export default function Header() {
                 <Link href="/goats/available">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Available Goats
+                  </a>
+                </Link>
+              </div>
+            </div>
+
+            {/* Katahdin Sheep Dropdown */}
+            <div className="relative">
+              <Link href="/sheep">
+                <button
+                  onMouseEnter={() => setIsSheepDropdownOpen(true)}
+                  onMouseLeave={() => setIsSheepDropdownOpen(false)}
+                  className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
+                >
+                  Katahdin Sheep
+                </button>
+              </Link>
+              <div 
+                className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
+                  isSheepDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+                onMouseEnter={() => setIsSheepDropdownOpen(true)}
+                onMouseLeave={() => setIsSheepDropdownOpen(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsSheepDropdownOpen(false);
+                }}
+              >
+                <Link href="/sheep">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    About
+                  </a>
+                </Link>
+                <Link href="/sheep/males">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Rams
+                  </a>
+                </Link>
+                <Link href="/sheep/females">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Ewes
+                  </a>
+                </Link>
+                <Link href="/sheep/litters/current">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Current Litters
+                  </a>
+                </Link>
+                <Link href="/sheep/litters/past">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Past Litters
+                  </a>
+                </Link>
+                <Link href="/sheep/available">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Available Sheep
                   </a>
                 </Link>
               </div>

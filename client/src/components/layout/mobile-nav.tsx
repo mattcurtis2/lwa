@@ -99,6 +99,45 @@ export default function MobileNav() {
             </Link>
           </div>
 
+          {/* Katahdin Sheep */}
+          <div className="flex flex-col gap-2">
+            <Link href="/sheep">
+              <a onClick={handleSelect} className="block px-2 py-1 text-lg font-medium text-stone-600 hover:text-stone-900">
+                Katahdin Sheep
+              </a>
+            </Link>
+            <Link href="/sheep">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                About
+              </a>
+            </Link>
+            <Link href="/sheep/males">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Rams
+              </a>
+            </Link>
+            <Link href="/sheep/females">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Ewes
+              </a>
+            </Link>
+            <Link href="/sheep/litters/current">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Current Litters
+              </a>
+            </Link>
+            <Link href="/sheep/litters/past">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Past Litters
+              </a>
+            </Link>
+            <Link href="/sheep/available">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Available Sheep
+              </a>
+            </Link>
+          </div>
+
           {/* Farmers Market */}
           <div className="flex flex-col gap-2">
             <Link href="/market">
