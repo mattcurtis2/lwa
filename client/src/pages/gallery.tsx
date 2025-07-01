@@ -19,7 +19,7 @@ interface PhotoItem {
   animalId?: number;
   date?: string | Date | null;
   linkTo?: string;
-  entityType?: 'dog' | 'goat' | 'carousel' | 'site-content' | 'gallery';
+  entityType?: 'dog' | 'goat' | 'sheep' | 'carousel' | 'site-content' | 'gallery';
 }
 
 export default function Gallery() {
@@ -264,13 +264,13 @@ export default function Gallery() {
         <h1 className="text-4xl font-bold text-stone-800 mb-4">Photo Gallery</h1>
         <p className="text-lg text-stone-600 max-w-2xl mx-auto">
           Explore our collection of photos featuring our Colorado Mountain Dogs, Nigerian Dwarf Goats, 
-          and life here at Little Way Acres.
+          Katahdin Sheep, and life here at Little Way Acres.
         </p>
       </div>
 
       {/* Category Filter */}
       <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as any)} className="mb-8">
-        <TabsList className="grid w-full grid-cols-4 max-w-md mx-auto">
+        <TabsList className="grid w-full grid-cols-5 max-w-2xl mx-auto">
           <TabsTrigger value="all" className="text-sm">
             All ({getCategoryCount('all')})
           </TabsTrigger>
@@ -279,6 +279,9 @@ export default function Gallery() {
           </TabsTrigger>
           <TabsTrigger value="goats" className="text-sm">
             Goats ({getCategoryCount('goats')})
+          </TabsTrigger>
+          <TabsTrigger value="sheep" className="text-sm">
+            Sheep ({getCategoryCount('sheep')})
           </TabsTrigger>
           <TabsTrigger value="farm" className="text-sm">
             Farm ({getCategoryCount('farm')})
