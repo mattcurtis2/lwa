@@ -541,6 +541,7 @@ export default function ContentSection() {
             <TabsTrigger value="carousel">Carousel</TabsTrigger>
             <TabsTrigger value="dogs">Dogs</TabsTrigger>
             <TabsTrigger value="goats">Goats</TabsTrigger>
+            <TabsTrigger value="sheep">Sheep</TabsTrigger>
             <TabsTrigger value="market">Market</TabsTrigger>
           </TabsList>
         </div>
@@ -1162,6 +1163,100 @@ export default function ContentSection() {
                       value={getContentValue("goat_does_description") || "Meet our Nigerian Dwarf does. These lovely ladies are the foundation of our breeding program, known for their excellent milk production."}
                       onChange={(e) => handleContentChange("goat_does_description", e.target.value)}
                       placeholder="Enter does description"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="sheep" className="space-y-6">
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Hero Title</Label>
+                    <Input
+                      value={getContentValue("sheep_hero_title") || "Katahdin Sheep"}
+                      onChange={(e) => handleContentChange("sheep_hero_title", e.target.value)}
+                      placeholder="Enter hero title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Subtitle</Label>
+                    <Textarea
+                      value={getContentValue("sheep_hero_subtitle") || "Discover our hardy Katahdin sheep, known for their natural shedding coat and excellent meat production."}
+                      onChange={(e) => handleContentChange("sheep_hero_subtitle", e.target.value)}
+                      placeholder="Enter hero subtitle"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hero Background Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("sheep_hero_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("sheep_hero_image")}
+                    />
+                    {getContentValue("sheep_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("sheep_hero_image")}
+                          alt="Sheep Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("sheep_hero_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Page Description</Label>
+                    <Textarea
+                      value={getContentValue("sheep_description") || "Our Katahdin sheep are hardy, naturally shedding sheep known for their excellent mothering abilities and lean meat production."}
+                      onChange={(e) => handleContentChange("sheep_description", e.target.value)}
+                      placeholder="Enter page description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Breeding Program Description</Label>
+                    <Textarea
+                      value={getContentValue("sheep_breeding_program") || "Our breeding program focuses on producing high-quality Katahdin sheep with excellent conformation, hardiness, and meat production capabilities."}
+                      onChange={(e) => handleContentChange("sheep_breeding_program", e.target.value)}
+                      placeholder="Enter breeding program description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Available Sheep Message</Label>
+                    <Textarea
+                      value={getContentValue("sheep_available_message") || "Check out our currently available Katahdin sheep. Contact us for more information about any of our available animals."}
+                      onChange={(e) => handleContentChange("sheep_available_message", e.target.value)}
+                      placeholder="Enter available sheep message"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Male Sheep (Rams) Description</Label>
+                    <Textarea
+                      value={getContentValue("sheep_rams_description") || "Meet our Katahdin rams. These hardy boys are carefully selected for their excellent genetics and strong conformation."}
+                      onChange={(e) => handleContentChange("sheep_rams_description", e.target.value)}
+                      placeholder="Enter rams description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Female Sheep (Ewes) Description</Label>
+                    <Textarea
+                      value={getContentValue("sheep_ewes_description") || "Meet our Katahdin ewes. These lovely ladies are the foundation of our flock, known for their excellent mothering abilities."}
+                      onChange={(e) => handleContentChange("sheep_ewes_description", e.target.value)}
+                      placeholder="Enter ewes description"
                     />
                   </div>
                 </div>

@@ -89,13 +89,16 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
 
   if (genderFilter === 'male') {
     pageTitle = "Meet Our Rams";
-    pageDescription = "Meet our Katahdin rams. These hardy boys are carefully selected for their excellent genetics and strong conformation.";
+    pageDescription = siteContent.find(c => c.key === 'sheep_rams_description')?.value || 
+      "Meet our Katahdin rams. These hardy boys are carefully selected for their excellent genetics and strong conformation.";
   } else if (genderFilter === 'female') {
     pageTitle = "Our Ewes";
-    pageDescription = "Meet our Katahdin ewes. These lovely ladies are the foundation of our flock, known for their excellent mothering abilities.";
+    pageDescription = siteContent.find(c => c.key === 'sheep_ewes_description')?.value || 
+      "Meet our Katahdin ewes. These lovely ladies are the foundation of our flock, known for their excellent mothering abilities.";
   } else if (showAvailable) {
     pageTitle = "Available Sheep";
-    pageDescription = "Browse our currently available Katahdin sheep. Each animal is raised with care and attention.";
+    pageDescription = siteContent.find(c => c.key === 'sheep_available_message')?.value || 
+      "Browse our currently available Katahdin sheep. Each animal is raised with care and attention.";
   }
 
   return (
