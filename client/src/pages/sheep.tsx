@@ -116,7 +116,7 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
         {/* Coming Soon Banner when no sheep exist */}
         {!genderFilter && !showAvailable && sheep.length === 0 && (
           <div className="mt-16 mb-16">
-            <div className="bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200 rounded-lg p-8 text-center">
+            <div className="rounded-lg p-8 text-center" style={{ backgroundColor: '#FDF7EB' }}>
               <h2 className="text-3xl font-bold text-stone-800 mb-4">Coming Soon!</h2>
               <p className="text-lg text-stone-600 mb-6">
                 We're currently developing our Katahdin sheep program. Our sheep will be available soon!
