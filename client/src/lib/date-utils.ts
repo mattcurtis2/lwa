@@ -1,5 +1,8 @@
 import { differenceInDays, differenceInMonths, differenceInYears, format, parseISO } from "date-fns";
 
+// Re-export parseISO for convenience
+export { parseISO };
+
 // Format date for display in a consistent format across the application
 export function formatDisplayDate(date: Date): string {
   return format(date, 'MMMM d, yyyy');

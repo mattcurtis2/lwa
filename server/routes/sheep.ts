@@ -6,7 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import { uploadToS3, deleteFromS3 } from "../utils/s3";
+import { uploadToS3 } from "../utils/s3";
 
 const router = Router();
 
@@ -109,7 +109,7 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     let profileImageUrl = null;
     if (req.file) {
       const s3Result = await uploadToS3(req.file);
-      profileImageUrl = s3Result.url;
+      profileImageUrl = s3Result;
     }
     
     // Parse media and documents from JSON strings
@@ -136,7 +136,8 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     // Start a transaction
     const result = await db.transaction(async (tx) => {
       // Create the sheep
-      const [newSheep] = await tx.insert(sheep).values(processedData).returning();
+      const result = await tx.insert(sheep).values(processedData).returning();
+      const newSheep = result[0];
       
       // Insert media if there are any
       if (media.length > 0) {
@@ -297,30 +298,8 @@ router.delete('/api/sheep/:id', async (req, res) => {
       await tx.delete(sheep).where(eq(sheep.id, id));
     });
     
-    // Delete files from S3 (profile image and media)
-    const filesToDelete = [];
-    if (sheepToDelete.profileImageUrl) {
-      filesToDelete.push(sheepToDelete.profileImageUrl);
-    }
-    if (sheepToDelete.media) {
-      sheepToDelete.media.forEach(mediaItem => {
-        filesToDelete.push(mediaItem.url);
-      });
-    }
-    if (sheepToDelete.documents) {
-      sheepToDelete.documents.forEach(document => {
-        filesToDelete.push(document.url);
-      });
-    }
-    
-    // Delete files from S3
-    for (const fileUrl of filesToDelete) {
-      try {
-        await deleteFromS3(fileUrl);
-      } catch (error) {
-        console.error('Error deleting file from S3:', error);
-      }
-    }
+    // Note: Files remain in S3 for now
+    // TODO: Implement S3 cleanup if needed
     
     res.json({ message: 'Sheep deleted successfully' });
   } catch (error: any) {
