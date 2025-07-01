@@ -354,8 +354,13 @@ export function registerRoutes(app: Express): Server {
         res.json(content[0]);
       } else {
         // If it exists, update it
+        const siteId = getCurrentSiteId(req);
         const content = await db.update(siteContent)
-          .set({ value, updatedAt: new Date() })
+          .set({ 
+            siteId,
+            value, 
+            updatedAt: new Date() 
+          })
           .where(eq(siteContent.key, key))
           .returning();
         res.json(content[0]);
@@ -401,8 +406,13 @@ export function registerRoutes(app: Express): Server {
       });
 
       if (existingContent) {
+        const siteId = getCurrentSiteId(req);
         const content = await db.update(siteContent)
-          .set({ value, updatedAt: new Date() })
+          .set({ 
+            siteId,
+            value, 
+            updatedAt: new Date() 
+          })
           .where(eq(siteContent.key, "cmd_description"))
           .returning();
         res.json(content[0]);
