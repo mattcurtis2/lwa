@@ -342,8 +342,10 @@ export function registerRoutes(app: Express): Server {
 
       if (!existingContent) {
         // If it doesn't exist, create it
+        const siteId = getCurrentSiteId(req);
         const content = await db.insert(siteContent)
           .values({
+            siteId,
             key,
             value,
             type: key.includes('image') ? 'image' : 'text',
@@ -405,8 +407,10 @@ export function registerRoutes(app: Express): Server {
           .returning();
         res.json(content[0]);
       } else {
+        const siteId = getCurrentSiteId(req);
         const content = await db.insert(siteContent)
           .values({
+            siteId,
             key: "cmd_description",
             value,
             type: "text",
