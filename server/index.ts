@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
 import goatLittersRouter from "./routes/goat-litters";
+import sheepRouter from "./routes/sheep";
+import sheepLittersRouter from "./routes/sheep-litters";
 import { dbErrorHandler } from "./middleware/db-error-handler";
 
 // Load environment variables from .env file
@@ -86,6 +88,12 @@ app.use(goatsRouter);
 
 // Add goat litters router
 app.use(goatLittersRouter);
+
+// Add sheep router
+app.use(sheepRouter);
+
+// Add sheep litters router
+app.use(sheepLittersRouter);
 
 app.use((req, res, next) => {
   const start = Date.now();
