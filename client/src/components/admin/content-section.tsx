@@ -912,16 +912,20 @@ export default function ContentSection() {
             </CardContent>
           </Card>
 
-          {/* Sheep Card */}
+        </TabsContent>
+
+        <TabsContent value="carousel" className="space-y-6">
+          {/* Sheep Card Section */}
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">Sheep Card</h3>
+              <h3 className="text-lg font-semibold mb-4">Katahdin Sheep Card</h3>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
                   <Input
                     value={getContentValue("sheep_title")}
                     onChange={(e) => handleContentChange("sheep_title", e.target.value)}
+                    placeholder="Enter sheep card title"
                   />
                 </div>
                 <div className="space-y-2">
@@ -929,6 +933,7 @@ export default function ContentSection() {
                   <Textarea
                     value={getContentValue("sheep_text")}
                     onChange={(e) => handleContentChange("sheep_text", e.target.value)}
+                    placeholder="Enter sheep card description"
                   />
                 </div>
                 <div className="space-y-2">
@@ -936,6 +941,7 @@ export default function ContentSection() {
                   <Input
                     value={getContentValue("sheep_button_text")}
                     onChange={(e) => handleContentChange("sheep_button_text", e.target.value)}
+                    placeholder="Enter button text"
                   />
                 </div>
                 <div className="space-y-2">
@@ -943,6 +949,7 @@ export default function ContentSection() {
                   <Input
                     value={getContentValue("sheep_redirect")}
                     onChange={(e) => handleContentChange("sheep_redirect", e.target.value)}
+                    placeholder="Enter redirect URL (e.g., /sheep)"
                   />
                 </div>
                 <div className="space-y-2">
@@ -961,7 +968,7 @@ export default function ContentSection() {
                     <div className="relative group">
                       <img
                         src={getContentValue("sheep_image")}
-                        alt="Sheep Image Preview"
+                        alt="Sheep Card Image Preview"
                         className="mt-4 rounded-lg max-h-48 object-cover"
                       />
                     </div>
@@ -970,11 +977,12 @@ export default function ContentSection() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="carousel" className="space-y-6">
-          {carouselItems.map((item) => (
-            <div key={item.id} className="space-y-4 border rounded-lg p-4">
+          {/* Carousel Items */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Carousel Slides</h3>
+            {carouselItems.map((item) => (
+              <div key={item.id} className="space-y-4 border rounded-lg p-4">
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input
@@ -1035,6 +1043,7 @@ export default function ContentSection() {
               </div>
             </div>
           ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="dogs" className="space-y-6">
