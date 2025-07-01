@@ -20,6 +20,7 @@ export default function MobileNav() {
   });
 
   // Check if there are sheep matching various criteria
+  const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => {
     const dueDate = new Date(l.dueDate);
@@ -135,16 +136,20 @@ export default function MobileNav() {
                 About
               </a>
             </Link>
-            <Link href="/sheep/males">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Rams
-              </a>
-            </Link>
-            <Link href="/sheep/females">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Ewes
-              </a>
-            </Link>
+            {hasSheep && (
+              <Link href="/sheep/males">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Rams
+                </a>
+              </Link>
+            )}
+            {hasSheep && (
+              <Link href="/sheep/females">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Ewes
+                </a>
+              </Link>
+            )}
             {hasCurrentSheepLitters && (
               <Link href="/sheep/litters/current">
                 <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">

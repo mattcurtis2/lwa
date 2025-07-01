@@ -25,6 +25,7 @@ export default function Header() {
   const logo = siteContent?.find(content => content.key === "logo");
 
   // Check if there are sheep matching various criteria
+  const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => {
     const dueDate = new Date(l.dueDate);
@@ -188,16 +189,20 @@ export default function Header() {
                     About
                   </a>
                 </Link>
-                <Link href="/sheep/males">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Rams
-                  </a>
-                </Link>
-                <Link href="/sheep/females">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Ewes
-                  </a>
-                </Link>
+                {hasSheep && (
+                  <Link href="/sheep/males">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Rams
+                    </a>
+                  </Link>
+                )}
+                {hasSheep && (
+                  <Link href="/sheep/females">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Ewes
+                    </a>
+                  </Link>
+                )}
                 {hasCurrentSheepLitters && (
                   <Link href="/sheep/litters/current">
                     <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
