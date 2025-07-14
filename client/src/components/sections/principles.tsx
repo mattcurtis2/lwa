@@ -91,13 +91,7 @@ export default function Principles() {
           </p>
         </motion.div>
 
-        <motion.div 
-          className="space-y-24"
-          variants={staggerChildren}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true }}
-        >
+        <div className="space-y-24">
           {isLoading ? (
             [...Array(3)].map((_, index) => (
               <motion.div 
@@ -120,9 +114,8 @@ export default function Principles() {
             principles.sort((a, b) => a.order - b.order).map((principle, index) => {
               console.log(`Rendering principle ${index + 1}:`, { id: principle.id, title: principle.title, order: principle.order });
               return (
-                <motion.div 
+                <div 
                   key={principle.id}
-                  variants={fadeInUp}
                   className={`flex flex-col md:flex-row items-center gap-8 ${
                     index % 2 === 0 ? '' : 'md:flex-row-reverse'
                   }`}
@@ -150,7 +143,7 @@ export default function Principles() {
                     {principle.description}
                   </p>
                 </div>
-              </motion.div>
+              </div>
               );
             })
           ) : (
@@ -158,7 +151,7 @@ export default function Principles() {
               <p>No principles available at the moment.</p>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
