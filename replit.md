@@ -120,3 +120,9 @@ Changelog:
   - Moved sheep card editing to admin Content > Carousel section as requested
   - Added all required database entries for sheep content (title, text, button text, redirect URL)
   - Fixed missing text fields in admin interface by populating database with default values
+- January 14, 2025. Fixed principles section display issue:
+  - Resolved issue where "Self-Sustaining" and "Profitable (Eventually)" principles were not displaying on production
+  - Issue was caused by Framer Motion staggered animations preventing proper rendering
+  - Fixed by replacing staggered container animation with individual item animations
+  - All three principles now display correctly with proper animations
+  - Backend was working correctly, issue was frontend-only

@@ -41,25 +41,7 @@ export default function Principles() {
     }
   });
 
-  // Log query state for debugging
-  console.log("API Response:", {
-    principles,
-    error: error?.message,
-    raw: error
-  });
 
-  console.log("Principles component state:", {
-    isLoading,
-    hasData: !!principles,
-    dataLength: principles?.length,
-    error: error?.message
-  });
-
-  // Log sorted principles for debugging
-  if (principles?.length) {
-    const sorted = principles.sort((a, b) => a.order - b.order);
-    console.log("Sorted principles:", sorted.map(p => ({ id: p.id, title: p.title, order: p.order })));
-  }
 
   return (
     <section className="relative py-16" style={{ backgroundColor: '#FDF7EB' }}>
@@ -94,9 +76,8 @@ export default function Principles() {
         <div className="space-y-24">
           {isLoading ? (
             [...Array(3)].map((_, index) => (
-              <motion.div 
+              <div 
                 key={index}
-                variants={fadeInUp}
                 className={`flex flex-col md:flex-row items-center gap-8 ${
                   index % 2 === 0 ? '' : 'md:flex-row-reverse'
                 }`}
@@ -108,18 +89,20 @@ export default function Principles() {
                   <div className="h-8 bg-stone-200 rounded animate-pulse w-3/4" />
                   <div className="h-24 bg-stone-200 rounded animate-pulse" />
                 </div>
-              </motion.div>
+              </div>
             ))
           ) : principles?.length ? (
-            principles.sort((a, b) => a.order - b.order).map((principle, index) => {
-              console.log(`Rendering principle ${index + 1}:`, { id: principle.id, title: principle.title, order: principle.order });
-              return (
-                <div 
-                  key={principle.id}
-                  className={`flex flex-col md:flex-row items-center gap-8 ${
-                    index % 2 === 0 ? '' : 'md:flex-row-reverse'
-                  }`}
-                >
+            principles.sort((a, b) => a.order - b.order).map((principle, index) => (
+              <motion.div 
+                key={principle.id}
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
+                className={`flex flex-col md:flex-row items-center gap-8 ${
+                  index % 2 === 0 ? '' : 'md:flex-row-reverse'
+                }`}
+              >
                 <div className="w-full md:w-1/2">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-lg shadow-xl">
                     <img 
@@ -143,9 +126,8 @@ export default function Principles() {
                     {principle.description}
                   </p>
                 </div>
-              </div>
-              );
-            })
+              </motion.div>
+            ))
           ) : (
             <div className="text-center text-stone-600">
               <p>No principles available at the moment.</p>
