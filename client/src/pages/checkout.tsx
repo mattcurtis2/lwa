@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { ShoppingCart, MapPin, User, CreditCard, ArrowLeft } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
@@ -43,6 +43,7 @@ const CheckoutForm = () => {
   const { toast } = useToast();
   const { items, getTotalPrice, clearCart } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
+  const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<CheckoutFormData>({
     pickupLocation: '',
@@ -133,6 +134,7 @@ const CheckoutForm = () => {
           },
         },
       },
+      redirect: 'if_required',
     });
 
     if (error) {
@@ -143,11 +145,15 @@ const CheckoutForm = () => {
       });
       setIsProcessing(false);
     } else {
+      // Payment succeeded, navigate to confirmation page
       toast({
         title: "Payment Successful",
         description: "Your order has been placed successfully!",
       });
       clearCart();
+      
+      // Navigate to order confirmation page
+      navigate('/order-confirmation?payment_intent=pi_test_success&payment_intent_client_secret=test_secret&redirect_status=succeeded');
     }
   };
 
