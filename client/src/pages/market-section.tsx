@@ -43,7 +43,11 @@ export default function MarketSectionPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <div className="relative rounded-lg overflow-hidden h-64">
+          <div className={`relative rounded-lg overflow-hidden h-64 ${
+            currentSection === 'apparel' && !section.imageUrl 
+              ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500' 
+              : ''
+          }`}>
             {section.imageUrl && (
               <img
                 src={section.imageUrl}
@@ -51,10 +55,28 @@ export default function MarketSectionPage() {
                 className="absolute inset-0 w-full h-full object-cover"
               />
             )}
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-center p-8">
+            <div className={`absolute inset-0 flex items-center justify-center text-center p-8 ${
+              currentSection === 'apparel' 
+                ? section.imageUrl
+                  ? 'bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20' 
+                  : 'bg-black/20'
+                : 'bg-black/50'
+            }`}>
               <div className="max-w-2xl">
-                <h1 className="text-4xl font-bold text-white mb-4">{section.title}</h1>
-                <p className="text-lg text-white/90">{section.description}</p>
+                <h1 className={`text-4xl font-bold mb-4 ${
+                  currentSection === 'apparel' 
+                    ? 'text-white drop-shadow-lg' 
+                    : 'text-white'
+                }`}>
+                  {section.title}
+                </h1>
+                <p className={`text-lg ${
+                  currentSection === 'apparel' 
+                    ? 'text-white/95 drop-shadow-md' 
+                    : 'text-white/90'
+                }`}>
+                  {section.description}
+                </p>
               </div>
             </div>
           </div>
