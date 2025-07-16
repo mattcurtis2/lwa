@@ -64,31 +64,52 @@ export default function DogManagement() {
         </Button>
       </div>
 
-      {/* Females Section */}
-      {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder).length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Females</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {dogs
-              .filter(dog => dog.gender === 'female' && !dog.outsideBreeder)
-              .map((dog, index) => (
-                <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
-                  {renderDogCard(dog)}
-                </div>
-              ))}
+      {/* On The Farm Section */}
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold mb-6">On The Farm</h3>
+        
+        {/* Females Section */}
+        {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold).length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-medium mb-4">Females</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {dogs
+                .filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold)
+                .map((dog, index) => (
+                  <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
+                    {renderDogCard(dog)}
+                  </div>
+                ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Males Section */}
-      {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder).length > 0 && (
+        {/* Males Section */}
+        {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold).length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-medium mb-4">Males</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {dogs
+                .filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold)
+                .map((dog, index) => (
+                  <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
+                    {renderDogCard(dog)}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Sold Section */}
+      {dogs.filter(dog => dog.sold && !dog.outsideBreeder).length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Males</h3>
+          <h3 className="text-xl font-semibold mb-6">Sold</h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
-              .filter(dog => dog.gender === 'male' && !dog.outsideBreeder)
+              .filter(dog => dog.sold && !dog.outsideBreeder)
               .map((dog, index) => (
-                <div key={dog.id} className="border rounded-lg p-3 sm:p-4">
+                <div key={dog.id} className="border rounded-lg p-3 sm:p-4 opacity-75">
                   {renderDogCard(dog)}
                 </div>
               ))}
