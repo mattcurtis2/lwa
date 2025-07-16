@@ -140,3 +140,8 @@ Changelog:
   - Updated both dog and goat litter management forms with proper state management
   - Ensured litters now appear in only one section (current, planned, or past)
   - Cleaned up existing database entries to resolve conflicting litter states
+- January 16, 2025. Enhanced "No Current Litters" page layout:
+  - Added "View Past Litters" button alongside existing "View Our Dogs" button
+  - Displays upcoming/future litters below the buttons when available
+  - Shows planned litter cards with parent information and waitlist signup buttons
+  - Improved overall layout and spacing for better user experience

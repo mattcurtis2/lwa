@@ -22,6 +22,10 @@ export default function UpcomingLitters() {
     queryKey: ["/api/litters/list/current"],
   });
 
+  const { data: futureLitters, isLoading: futureLittersLoading } = useQuery<PastLitter[]>({
+    queryKey: ["/api/litters/list/future"],
+  });
+
   // Show loading skeleton
   if (isLoading) {
     return (
@@ -58,12 +62,105 @@ export default function UpcomingLitters() {
 
   if (!litters?.length) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
-        <p className="text-muted-foreground">
-          We currently don't have any available puppies.
-          Please check back later or contact us for more information.
-        </p>
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
+          <p className="text-muted-foreground mb-8">
+            We currently don't have any available puppies.
+            Please check back later or contact us for more information.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button 
+              onClick={() => navigate('/dogs')}
+              variant="outline"
+              size="lg"
+            >
+              View Our Dogs
+            </Button>
+            <Button 
+              onClick={() => navigate('/dogs/past-litters')}
+              variant="outline"
+              size="lg"
+            >
+              View Past Litters
+            </Button>
+          </div>
+        </div>
+
+        {/* Future Litters Section */}
+        {futureLitters && futureLitters.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 text-center">Upcoming Litters</h2>
+            <div className="grid gap-6">
+              {futureLitters.map((litter) => (
+                <Card key={litter.id} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="grid md:grid-cols-[1fr,2fr] gap-6">
+                      <div>
+                        <div className="bg-secondary py-2 px-4 rounded-full text-secondary-foreground text-sm font-semibold mb-3 inline-block">
+                          Planned for {formatDisplayDate(litter.dueDate)}
+                        </div>
+                        <p className="text-muted-foreground text-sm mt-2">
+                          {litter.waitlistLink && (
+                            <Button 
+                              onClick={() => window.open(litter.waitlistLink, '_blank')}
+                              size="sm"
+                              className="mt-2"
+                            >
+                              Sign Up Here
+                            </Button>
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3 p-2 rounded-lg">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                            {litter.mother.profileImageUrl ? (
+                              <img
+                                src={litter.mother.profileImageUrl}
+                                alt={litter.mother.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-pink-100 flex items-center justify-center">
+                                <span className="text-2xl text-pink-500">♀</span>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{litter.mother.name}</p>
+                            <p className="text-sm text-muted-foreground">Mother</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-2 rounded-lg">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                            {litter.father.profileImageUrl ? (
+                              <img
+                                src={litter.father.profileImageUrl}
+                                alt={litter.father.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                                <span className="text-2xl text-blue-500">♂</span>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{litter.father.name}</p>
+                            <p className="text-sm text-muted-foreground">Father</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
