@@ -1639,15 +1639,6 @@ app.get("/api/litters/list/current", async (req, res) => {
         metadata: {
           items: JSON.stringify(items),
           itemCount: items.length.toString(),
-          customerName: customerInfo ? `${customerInfo.firstName} ${customerInfo.lastName}` : '',
-          customerEmail: customerInfo?.email || '',
-          customerPhone: customerInfo?.phone || '',
-          pickupLocation: pickupLocation?.location || '',
-          pickupAddress: pickupLocation?.address || '',
-          pickupTime: pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : '',
-          pickupInstructions: pickupLocation?.location?.toLowerCase().includes('little way acres') 
-            ? "Look for the farm stand with clear totes, find the bag marked with your name, arrive during pickup hours, enjoy your LWA order!"
-            : "Look for the Little Way Acres stand between spots 59-57, give your last name to receive your order, arrive during pickup hours, enjoy your LWA order!",
           orderTotal: `$${amount.toFixed(2)}`,
         },
       });
@@ -1656,6 +1647,40 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error: any) {
       console.error("Error creating payment intent:", error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // Update payment intent with customer information
+  app.post("/api/update-payment-intent", async (req, res) => {
+    try {
+      const { paymentIntentId, customerInfo, pickupLocation } = req.body;
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ message: "Payment intent ID is required" });
+      }
+
+      // Generate pickup instructions based on location
+      const pickupInstructions = pickupLocation?.location?.toLowerCase().includes('little way acres') 
+        ? "Look for the farm stand with clear totes, find the bag marked with your name, arrive during pickup hours, enjoy your LWA order!"
+        : "Look for the Little Way Acres stand between spots 59-57, give your last name to receive your order, arrive during pickup hours, enjoy your LWA order!";
+
+      // Update the payment intent with customer and pickup information
+      const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
+        metadata: {
+          customerName: customerInfo ? `${customerInfo.firstName} ${customerInfo.lastName}` : '',
+          customerEmail: customerInfo?.email || '',
+          customerPhone: customerInfo?.phone || '',
+          pickupLocation: pickupLocation?.location || '',
+          pickupAddress: pickupLocation?.address || '',
+          pickupTime: pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : '',
+          pickupInstructions: pickupInstructions,
+        },
+      });
+
+      res.json({ success: true, paymentIntent: updatedPaymentIntent });
+    } catch (error: any) {
+      console.error("Error updating payment intent:", error);
+      res.status(500).json({ message: "Error updating payment intent: " + error.message });
     }
   });
 

@@ -37,7 +37,7 @@ interface CheckoutFormData {
   phone: string;
 }
 
-const CheckoutForm = () => {
+const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -61,7 +61,7 @@ const CheckoutForm = () => {
     },
   });
 
-  const handleStepNext = () => {
+  const handleStepNext = async () => {
     if (currentStep === 1 && !formData.pickupLocation) {
       toast({
         title: "Pickup Location Required",
@@ -76,6 +76,31 @@ const CheckoutForm = () => {
         toast({
           title: "Required Information Missing",
           description: "Please fill in all required fields.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update payment intent with customer and pickup information
+      const paymentIntentId = clientSecret.split('_secret_')[0];
+      const selectedSchedule = schedules.find(s => s.id.toString() === formData.pickupLocation);
+      
+      try {
+        await apiRequest("POST", "/api/update-payment-intent", {
+          paymentIntentId,
+          customerInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone
+          },
+          pickupLocation: selectedSchedule
+        });
+      } catch (error) {
+        console.error("Error updating payment intent:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update payment information. Please try again.",
           variant: "destructive",
         });
         return;
@@ -449,13 +474,7 @@ export default function Checkout() {
         quantity: item.quantity
       })),
       amount: totalAmount,
-      customerInfo: formData.firstName && formData.lastName && formData.email ? {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone
-      } : null,
-      pickupLocation: selectedSchedule
+
     })
       .then((res) => res.json())
       .then((data) => {
@@ -464,7 +483,7 @@ export default function Checkout() {
       .catch((error) => {
         console.error("Error creating payment intent:", error);
       });
-  }, [items, getTotalPrice, formData, selectedSchedule]);
+  }, [items, getTotalPrice]);
 
   if (items.length === 0) {
     return (
@@ -524,7 +543,7 @@ export default function Checkout() {
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>
-      <CheckoutForm />
+      <CheckoutForm clientSecret={clientSecret} />
     </Elements>
   );
 }
