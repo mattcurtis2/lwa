@@ -123,6 +123,7 @@ const CheckoutForm = () => {
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/order-confirmation`,
+        receipt_email: formData.email,
         payment_method_data: {
           billing_details: {
             name: `${formData.firstName} ${formData.lastName}`,
@@ -447,7 +448,14 @@ export default function Checkout() {
         price: parseFloat(item.product.price?.replace('$', '') || '0'),
         quantity: item.quantity
       })),
-      amount: totalAmount
+      amount: totalAmount,
+      customerInfo: formData.firstName && formData.lastName && formData.email ? {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone
+      } : null,
+      pickupLocation: selectedSchedule
     })
       .then((res) => res.json())
       .then((data) => {
@@ -456,7 +464,7 @@ export default function Checkout() {
       .catch((error) => {
         console.error("Error creating payment intent:", error);
       });
-  }, [items, getTotalPrice]);
+  }, [items, getTotalPrice, formData, selectedSchedule]);
 
   if (items.length === 0) {
     return (

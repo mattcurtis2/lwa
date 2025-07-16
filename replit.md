@@ -179,3 +179,7 @@ Changelog:
   - Updated cart page with "Proceed to Checkout" button
   - Implemented comprehensive error handling for payment processing
   - Added order summary sidebar showing cart items and total throughout checkout
+  - Configured automatic Stripe receipt emails with pickup instructions and order details
+  - Added prominent print confirmation button on order confirmation page
+  - Updated pickup times to end at 1:00 PM for both locations
+  - Differentiated pickup instructions: bags with names at farm stand, last name at market

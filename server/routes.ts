@@ -1619,7 +1619,7 @@ app.get("/api/litters/list/current", async (req, res) => {
   // Stripe payment route for checkout
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
-      const { amount, items } = req.body;
+      const { amount, items, customerInfo, pickupLocation } = req.body;
       
       console.log("Creating payment intent for amount:", amount);
       console.log("Items:", items);
@@ -1635,9 +1635,20 @@ app.get("/api/litters/list/current", async (req, res) => {
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
         payment_method_types: ["card"],
+        receipt_email: null, // Will be set during payment confirmation
         metadata: {
           items: JSON.stringify(items),
           itemCount: items.length.toString(),
+          customerName: customerInfo ? `${customerInfo.firstName} ${customerInfo.lastName}` : '',
+          customerEmail: customerInfo?.email || '',
+          customerPhone: customerInfo?.phone || '',
+          pickupLocation: pickupLocation?.location || '',
+          pickupAddress: pickupLocation?.address || '',
+          pickupTime: pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : '',
+          pickupInstructions: pickupLocation?.location?.toLowerCase().includes('little way acres') 
+            ? "Look for the farm stand with clear totes, find the bag marked with your name, arrive during pickup hours, enjoy your LWA order!"
+            : "Look for the Little Way Acres stand between spots 59-57, give your last name to receive your order, arrive during pickup hours, enjoy your LWA order!",
+          orderTotal: `$${amount.toFixed(2)}`,
         },
       });
 
