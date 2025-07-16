@@ -1959,8 +1959,9 @@ app.get("/api/litters/list/current", async (req, res) => {
 
       console.log(`Attempting to fetch products for shop ID: ${actualShopId}`);
       
-      const response = await fetch(
-        `https://api.printify.com/v1/shops/${actualShopId}/products.json`,
+      // Try to get published products first, which should have external IDs
+      let response = await fetch(
+        `https://api.printify.com/v1/shops/${actualShopId}/products.json?published=true`,
         {
           headers: {
             'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
@@ -1968,6 +1969,19 @@ app.get("/api/litters/list/current", async (req, res) => {
           }
         }
       );
+
+      // If that doesn't work, fall back to regular products endpoint
+      if (!response.ok) {
+        response = await fetch(
+          `https://api.printify.com/v1/shops/${actualShopId}/products.json`,
+          {
+            headers: {
+              'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
 
       console.log(`Products API response status: ${response.status}`);
       
@@ -1998,9 +2012,10 @@ app.get("/api/litters/list/current", async (req, res) => {
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
         
-        // Generate the correct Printify store URL format
-        // For now, direct users to the main store page since exact product URLs are complex
-        const productUrl = `https://little-way-acres.printify.me/`;
+        // Generate the correct Printify store URL format using external.id
+        const productUrl = product.external?.id 
+          ? `https://little-way-acres.printify.me/product/${product.external.id}/${urlSlug}`
+          : `https://little-way-acres.printify.me/`;
         
         return {
           id: product.id,
