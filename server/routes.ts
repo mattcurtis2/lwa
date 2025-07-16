@@ -1634,10 +1634,6 @@ app.get("/api/litters/list/current", async (req, res) => {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
-        automatic_payment_methods: {
-          enabled: true,
-          allow_redirects: "never",
-        },
         payment_method_types: ["card"],
         metadata: {
           items: JSON.stringify(items),
