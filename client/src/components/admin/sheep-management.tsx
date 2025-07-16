@@ -45,10 +45,11 @@ export default function SheepManagement() {
   );
 
   // Separate sheep into categories
-  const ewes = sheep.filter(s => s.gender === 'female' && !s.outsideBreeder && !s.lamb && !s.available);
-  const rams = sheep.filter(s => s.gender === 'male' && !s.outsideBreeder && !s.lamb && !s.available);
-  const lambs = sheep.filter(s => s.lamb);
-  const availableSheep = sheep.filter(s => s.available && !s.lamb);
+  const ewes = sheep.filter(s => s.gender === 'female' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold);
+  const rams = sheep.filter(s => s.gender === 'male' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold);
+  const lambs = sheep.filter(s => s.lamb && !s.sold);
+  const availableSheep = sheep.filter(s => s.available && !s.lamb && !s.sold);
+  const soldSheep = sheep.filter(s => s.sold && !s.outsideBreeder);
   const outsideBreeders = sheep.filter(s => s.outsideBreeder);
 
   return (
@@ -113,6 +114,20 @@ export default function SheepManagement() {
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {availableSheep.map(sheep => (
               <div key={sheep.id} className="border rounded-lg p-3 sm:p-4">
+                {renderSheepCard(sheep)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sold Section */}
+      {soldSheep.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-6">Sold</h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {soldSheep.map(sheep => (
+              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 opacity-75">
                 {renderSheepCard(sheep)}
               </div>
             ))}
