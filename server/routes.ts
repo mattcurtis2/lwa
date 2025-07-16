@@ -1664,6 +1664,7 @@ app.get("/api/litters/list/current", async (req, res) => {
         : "Look for the Little Way Acres stand between spots 59-57, give your last name to receive your order, arrive during pickup hours, enjoy your LWA order!";
 
       // Update the payment intent with customer and pickup information
+      console.log("Updating payment intent with customer info:", customerInfo?.email);
       const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
         metadata: {
           customerName: customerInfo ? `${customerInfo.firstName} ${customerInfo.lastName}` : '',
