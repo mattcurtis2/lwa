@@ -159,11 +159,16 @@ export default function GoatManagement() {
 
       {/* Outside Breeders Section */}
       {outsideBreeders.length > 0 && (
-        <div>
-          <h3 className="text-xl font-semibold mb-6">Outside Breeders</h3>
+        <div className="mb-12 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-yellow-800 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L13.09 8.26L18 7L16.74 12.26L22 14L16.74 15.74L18 21L13.09 19.74L12 26L10.91 19.74L6 21L7.26 15.74L2 14L7.26 12.26L6 7L10.91 8.26L12 2Z"/>
+            </svg>
+            Outside Breeders
+          </h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {outsideBreeders.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
                 {renderGoatCard(goat)}
               </div>
             ))}
