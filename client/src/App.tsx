@@ -26,6 +26,8 @@ import Gallery from "@/pages/gallery";
 import Market from "@/pages/market";
 import MarketSection from "@/pages/market-section";
 import Cart from "@/pages/cart";
+import Checkout from "@/pages/checkout";
+import OrderConfirmation from "@/pages/order-confirmation";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { CartProvider } from "@/contexts/cart-context";
@@ -116,6 +118,8 @@ function Router() {
           <Route path="/market/animal-products" component={MarketSection} />
           <Route path="/market/apparel" component={MarketSection} />
           <Route path="/cart" component={Cart} />
+          <Route path="/checkout" component={Checkout} />
+          <Route path="/order-confirmation" component={OrderConfirmation} />
           <Route component={NotFound} />
         </Switch>
       </main>

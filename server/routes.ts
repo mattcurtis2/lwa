@@ -11,6 +11,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
+import Stripe from "stripe";
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -32,6 +33,14 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024, // 50MB limit
     files: 10 // Allow up to 10 files at once
   }
+});
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
 });
 
 // In-memory cache for ultra-fast product responses
@@ -1604,6 +1613,32 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error) {
       console.error("Error updating about cards:", error);
       res.status(500).json({ message: "Failed to update about cards" });
+    }
+  });
+
+  // Stripe payment route for checkout
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount, items } = req.body;
+      
+      console.log("Creating payment intent for amount:", amount);
+      console.log("Items:", items);
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          items: JSON.stringify(items),
+        },
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
     }
   });
 

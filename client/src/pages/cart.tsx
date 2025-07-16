@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'wouter';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } = useCart();
@@ -133,9 +134,14 @@ export default function Cart() {
                     <span>${getTotalPrice().toFixed(2)}</span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg" disabled>
-                  Proceed to Checkout (Coming Soon)
-                </Button>
+                <Link href="/checkout">
+                  <a className="w-full">
+                    <Button className="w-full" size="lg">
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Proceed to Checkout
+                    </Button>
+                  </a>
+                </Link>
                 <Button variant="outline" className="w-full" onClick={() => window.history.back()}>
                   Continue Shopping
                 </Button>
