@@ -63,16 +63,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           alt={product.name}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
-          <Badge variant={product.inStock ? "default" : "secondary"}>
-            {product.inStock ? "In Stock" : "Out of Stock"}
-          </Badge>
-          {product.availableForPurchase && (
-            <Badge variant="outline" className="bg-green-50 border-green-200 text-green-800">
-              Available for Purchase
-            </Badge>
-          )}
-        </div>
+
       </div>
       <CardContent className="pt-6 flex-grow flex flex-col">
         <h3 className="text-xl font-bold mb-2">{product.name}</h3>
@@ -126,8 +117,8 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
               </Button>
             </div>
           ) : (
-            <Button variant="outline" className="w-full" disabled>
-              Display Only
+            <Button variant="outline" className="w-full text-gray-500" disabled>
+              Currently Unavailable
             </Button>
           )
         )}
