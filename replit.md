@@ -134,3 +134,9 @@ Changelog:
   - Made all Sheet components scrollable with overflow-y-auto
   - Added proper spacing and visual separation between form content and action buttons
   - All forms now work seamlessly on both desktop and mobile devices
+- January 16, 2025. Fixed litter categorization logic to prevent overlap:
+  - Added mutually exclusive checkbox logic for current/planned/past litter states
+  - Fixed database inconsistencies where litters were marked as both current and planned
+  - Updated both dog and goat litter management forms with proper state management
+  - Ensured litters now appear in only one section (current, planned, or past)
+  - Cleaned up existing database entries to resolve conflicting litter states
