@@ -1688,18 +1688,28 @@ app.get("/api/litters/list/current", async (req, res) => {
   // Send order confirmation email
   app.post("/api/send-order-confirmation", async (req, res) => {
     try {
+      console.log('=== EMAIL ENDPOINT CALLED ===');
       const { paymentIntentId } = req.body;
+      console.log('Payment Intent ID:', paymentIntentId);
       
       if (!paymentIntentId) {
+        console.log('❌ No payment intent ID provided');
         return res.status(400).json({ message: "Payment intent ID is required" });
       }
 
       // Retrieve the payment intent to get order details
+      console.log('Retrieving payment intent from Stripe...');
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
       
       if (!paymentIntent) {
+        console.log('❌ Payment intent not found');
         return res.status(404).json({ message: "Payment intent not found" });
       }
+
+      console.log('Payment intent retrieved successfully');
+      console.log('Payment intent metadata:', JSON.stringify(paymentIntent.metadata, null, 2));
+      console.log('Payment intent amount:', paymentIntent.amount);
+      console.log('Payment intent status:', paymentIntent.status);
 
       // Extract customer and order information from metadata
       const metadata = paymentIntent.metadata;
@@ -1708,15 +1718,20 @@ app.get("/api/litters/list/current", async (req, res) => {
       const pickupLocation = metadata.pickupLocation || '';
       const pickupInstructions = metadata.pickupInstructions || '';
       
+      console.log('Extracted customer info:', { customerName, customerEmail, pickupLocation });
+      
       if (!customerEmail) {
+        console.log('❌ No customer email found in payment intent metadata');
         return res.status(400).json({ message: "Customer email not found in payment intent" });
       }
 
       // Parse order items from metadata (these should be stored when payment intent is created)
       const orderItemsString = metadata.orderItems || '[]';
+      console.log('Order items string from metadata:', orderItemsString);
       let orderItems;
       try {
         orderItems = JSON.parse(orderItemsString);
+        console.log('Parsed order items:', orderItems);
       } catch (error) {
         console.error("Error parsing order items:", error);
         orderItems = [];
@@ -1734,11 +1749,18 @@ app.get("/api/litters/list/current", async (req, res) => {
         paymentIntentId,
       };
 
+      console.log('Prepared email data:', JSON.stringify(emailData, null, 2));
+      console.log('Calling SendGrid email function...');
+
       const emailSent = await sendOrderConfirmationEmail(emailData);
       
+      console.log('Email sending result:', emailSent);
+      
       if (emailSent) {
+        console.log('✅ Email sent successfully, responding with success');
         res.json({ success: true, message: "Order confirmation email sent successfully" });
       } else {
+        console.log('❌ Email failed to send, responding with error');
         res.status(500).json({ message: "Failed to send order confirmation email" });
       }
     } catch (error: any) {

@@ -22,6 +22,13 @@ interface OrderEmailData {
 }
 
 export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<boolean> {
+  console.log('=== SENDGRID EMAIL ATTEMPT ===');
+  console.log('SendGrid API Key exists:', !!process.env.SENDGRID_API_KEY);
+  console.log('API Key starts with:', process.env.SENDGRID_API_KEY?.substring(0, 8) + '...');
+  console.log('Customer Email:', data.customerEmail);
+  console.log('Order Items:', data.orderItems);
+  console.log('Order Total:', data.orderTotal);
+  
   try {
     const itemsHtml = data.orderItems
       .map(item => `
@@ -133,11 +140,27 @@ If you have any questions, please contact us at littlewayacresmi@gmail.com
       html: htmlContent,
     };
 
+    console.log('Prepared email message:', JSON.stringify(msg, null, 2));
+    console.log('Attempting to send email...');
+
     await sgMail.send(msg);
-    console.log('Order confirmation email sent successfully to:', data.customerEmail);
+    console.log('✅ Order confirmation email sent successfully to:', data.customerEmail);
     return true;
-  } catch (error) {
-    console.error('SendGrid email error:', error);
+  } catch (error: any) {
+    console.error('❌ SendGrid email error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+      console.error('Response body:', error.response.body);
+      
+      if (error.response.body && error.response.body.errors) {
+        console.error('Detailed errors:', JSON.stringify(error.response.body.errors, null, 2));
+      }
+    }
+    
     return false;
   }
 }
