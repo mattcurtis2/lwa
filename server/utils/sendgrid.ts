@@ -133,7 +133,7 @@ If you have any questions, please contact us at littlewayacresmi@gmail.com
       to: data.customerEmail,
       from: {
         email: 'littlewayacresmi@gmail.com',
-        name: 'LWA'
+        name: 'Little Way Acres'
       },
       subject: `Order Confirmation - Little Way Acres`,
       text: textContent,
