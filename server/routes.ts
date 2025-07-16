@@ -1979,23 +1979,47 @@ app.get("/api/litters/list/current", async (req, res) => {
 
       const data = await response.json();
       
+      // Helper function to strip HTML tags
+      const stripHtml = (html: string) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').trim();
+      };
+      
       // Transform Printify products to match our frontend expectations
-      const transformedProducts = data.data.map((product: any) => ({
-        id: product.id,
-        title: product.title,
-        description: product.description,
-        tags: product.tags,
-        images: product.images,
-        created_at: product.created_at,
-        updated_at: product.updated_at,
-        visible: product.visible,
-        is_locked: product.is_locked,
-        external_id: product.external_id,
-        blueprintId: product.blueprint_id,
-        userDefinedId: product.user_defined_id,
-        printifyUrl: `https://little-way-acres.printify.me/product/${product.id}`,
-        variants: product.variants
-      }));
+      const transformedProducts = data.data.map((product: any) => {
+        // Fix price formatting - convert cents to dollars
+        const variants = product.variants?.map((variant: any) => ({
+          ...variant,
+          price: variant.price / 100 // Convert cents to dollars
+        })) || [];
+        
+        // Generate URL slug from title
+        const urlSlug = product.title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        
+        // Use external_id if available, otherwise use a different approach
+        const productUrl = product.external_id 
+          ? `https://little-way-acres.printify.me/product/${product.external_id}/${urlSlug}`
+          : `https://little-way-acres.printify.me/products/${urlSlug}`;
+        
+        return {
+          id: product.id,
+          title: product.title,
+          description: stripHtml(product.description),
+          tags: product.tags,
+          images: product.images,
+          created_at: product.created_at,
+          updated_at: product.updated_at,
+          visible: product.visible,
+          is_locked: product.is_locked,
+          external_id: product.external_id,
+          blueprintId: product.blueprint_id,
+          userDefinedId: product.user_defined_id,
+          printifyUrl: productUrl,
+          variants: variants
+        };
+      });
 
       res.json(transformedProducts);
     } catch (error) {
