@@ -37,6 +37,7 @@ const productSchema = z.object({
   price: z.string().min(1, "Price is required"),
   imageUrl: z.string().optional().nullable(),
   inStock: z.boolean().default(true),
+  availableForPurchase: z.boolean().default(false),
 });
 
 interface ProductFormProps {
@@ -59,6 +60,7 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
       price: product?.price ?? "",
       imageUrl: product?.imageUrl ?? "",
       inStock: product?.inStock ?? true,
+      availableForPurchase: product?.availableForPurchase ?? false,
     },
   });
 
@@ -337,7 +339,28 @@ export default function ProductForm({ product, onClose }: ProductFormProps) {
               <div className="space-y-0.5">
                 <FormLabel className="text-base">In Stock</FormLabel>
                 <div className="text-sm text-muted-foreground">
-                  Mark this product as available for purchase
+                  Mark this product as currently in stock
+                </div>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="availableForPurchase"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Available for Purchase</FormLabel>
+                <div className="text-sm text-muted-foreground">
+                  Allow customers to order this product online
                 </div>
               </div>
               <FormControl>

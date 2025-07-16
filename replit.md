@@ -145,3 +145,9 @@ Changelog:
   - Displays upcoming/future litters below the buttons when available
   - Shows planned litter cards with parent information and waitlist signup buttons
   - Improved overall layout and spacing for better user experience
+- January 16, 2025. Added purchase availability selector for farmers market items:
+  - Added `availableForPurchase` boolean field to products database schema
+  - Updated product admin form to include toggle for enabling/disabling purchase availability
+  - Added visual indicators on product cards showing "Available for Purchase" badge
+  - Modified product card footer to show "Order Now (Coming Soon)" for purchasable items
+  - Separated "In Stock" status from "Available for Purchase" for better inventory management

@@ -75,6 +75,7 @@ export const products = pgTable("products", {
   unit: text("unit"), // e.g., "loaf", "dozen", "lb"
   imageUrl: text("image_url"),
   inStock: boolean("in_stock").default(true),
+  availableForPurchase: boolean("available_for_purchase").default(false),
   seasonal: boolean("seasonal").default(false),
   availableFrom: date("available_from"),
   availableTo: date("available_to"),
