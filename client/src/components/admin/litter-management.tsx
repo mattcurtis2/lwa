@@ -436,10 +436,13 @@ export default function LitterManagement() {
                           setEditLitter(prev => ({
                             ...prev!,
                             isCurrentLitter: !!checked,
+                            // If marking as current, uncheck planned and past
+                            isPlannedLitter: checked ? false : prev!.isPlannedLitter,
+                            isPastLitter: checked ? false : prev!.isPastLitter,
                           }))
                         } 
                       />
-                      <Label htmlFor="isCurrentLitter">Show Banner on Dogs Page</Label>
+                      <Label htmlFor="isCurrentLitter">Current Litter</Label>
                     </div>
                     <p className="text-xs text-muted-foreground ml-6">Shows the "New Litter Coming Soon!" banner on the dogs page</p>
                   </div>
@@ -453,10 +456,13 @@ export default function LitterManagement() {
                           setEditLitter(prev => ({
                             ...prev!,
                             isPastLitter: !!checked,
+                            // If marking as past, uncheck current and planned
+                            isCurrentLitter: checked ? false : prev!.isCurrentLitter,
+                            isPlannedLitter: checked ? false : prev!.isPlannedLitter,
                           }))
                         } 
                       />
-                      <Label htmlFor="isPastLitter">Display as Past Litter</Label>
+                      <Label htmlFor="isPastLitter">Past Litter</Label>
                     </div>
                     <p className="text-xs text-muted-foreground ml-6">Shows this litter in the past litters section</p>
                   </div>
@@ -470,6 +476,9 @@ export default function LitterManagement() {
                           setEditLitter(prev => ({
                             ...prev!,
                             isPlannedLitter: !!checked,
+                            // If marking as planned, uncheck current and past
+                            isCurrentLitter: checked ? false : prev!.isCurrentLitter,
+                            isPastLitter: checked ? false : prev!.isPastLitter,
                           }))
                         } 
                       />
