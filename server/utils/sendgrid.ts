@@ -97,10 +97,7 @@ If you have any questions, please contact us at littlewayacresmi@gmail.com
 
     const msg = {
       to: data.customerEmail,
-      from: {
-        email: 'littlewayacresmi@gmail.com',
-        name: 'Little Way Acres'
-      },
+      from: 'littlewayacresmi@gmail.com',
       subject: `Order Confirmation - Little Way Acres`,
       text: textContent,
       html: htmlContent,
