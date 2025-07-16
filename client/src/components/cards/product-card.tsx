@@ -56,7 +56,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
   };
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <div className="aspect-square relative">
         <img
           src={product.imageUrl || "https://images.unsplash.com/photo-1485637701894-09ad422f6de6"}
@@ -74,15 +74,15 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           )}
         </div>
       </div>
-      <CardContent className="pt-6">
+      <CardContent className="pt-6 flex-grow flex flex-col">
         <h3 className="text-xl font-bold mb-2">{product.name}</h3>
         <p className="text-stone-600 mb-2">
           Category: {product.category}
         </p>
-        <p className="text-stone-600 mb-2">{product.description}</p>
+        <p className="text-stone-600 mb-2 flex-grow">{product.description}</p>
         <p className="font-bold">{product.price || '$0.00'}</p>
       </CardContent>
-      <CardFooter className="flex gap-2">
+      <CardFooter className="flex gap-2 mt-auto">
         {isAdmin ? (
           <>
             <Button variant="outline" onClick={onEdit}>Edit</Button>

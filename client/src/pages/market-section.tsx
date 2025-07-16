@@ -81,7 +81,7 @@ export default function MarketSectionPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {currentSection === 'apparel' ? (
               // Show Printify products for apparel section
               printifyProducts.map((product: any) => (
