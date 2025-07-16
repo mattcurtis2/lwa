@@ -1636,7 +1636,9 @@ app.get("/api/litters/list/current", async (req, res) => {
         currency: "usd",
         automatic_payment_methods: {
           enabled: true,
+          allow_redirects: "never",
         },
+        payment_method_types: ["card"],
         metadata: {
           items: JSON.stringify(items),
           itemCount: items.length.toString(),

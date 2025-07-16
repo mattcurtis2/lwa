@@ -34,19 +34,15 @@ interface OrderData {
 
 export default function OrderConfirmation() {
   const [, navigate] = useLocation();
-  const { clearCart } = useCart();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
 
   useEffect(() => {
-    // Clear cart when order is confirmed
-    clearCart();
-
     // Get stored order data
     const storedOrderData = localStorage.getItem('orderData');
     if (storedOrderData) {
       setOrderData(JSON.parse(storedOrderData));
     }
-  }, [clearCart]);
+  }, []);
 
   // Get payment intent from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -205,8 +201,10 @@ export default function OrderConfirmation() {
               </div>
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Look for the farm stand with clear totes</li>
+                <li>• Find the bag marked with your name</li>
                 <li>• Bring a valid ID for order verification</li>
                 <li>• Arrive during the specified pickup hours</li>
+                <li>• Enjoy your LWA order!</li>
               </ul>
             </div>
           ) : (
@@ -227,8 +225,10 @@ export default function OrderConfirmation() {
               </div>
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Look for the Little Way Acres stand between spots 59-57</li>
+                <li>• Find the bag marked with your name</li>
                 <li>• Bring a valid ID for order verification</li>
                 <li>• Arrive during market hours: {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}</li>
+                <li>• Enjoy your LWA order!</li>
               </ul>
             </div>
           )}
@@ -240,7 +240,7 @@ export default function OrderConfirmation() {
             </div>
             <p className="text-sm text-blue-700">
               If you have any questions about your order or need to make changes, 
-              please contact us at littlewayacres@gmail.com
+              please contact us at littlewayacresmi@gmail.com
             </p>
           </div>
         </CardContent>

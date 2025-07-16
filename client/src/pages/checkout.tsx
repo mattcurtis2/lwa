@@ -305,6 +305,13 @@ const CheckoutForm = () => {
                   <PaymentElement 
                     options={{
                       paymentMethodOrder: ['card'],
+                      defaultValues: {
+                        billingDetails: {
+                          address: {
+                            country: 'US',
+                          },
+                        },
+                      },
                       fields: {
                         billingDetails: {
                           address: {
@@ -316,6 +323,12 @@ const CheckoutForm = () => {
                             postalCode: 'auto',
                           },
                         },
+                      },
+                      layout: {
+                        type: 'accordion',
+                        defaultCollapsed: false,
+                        radios: false,
+                        spacedAccordionItems: false,
                       },
                     }}
                   />
