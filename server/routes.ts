@@ -309,6 +309,53 @@ export function registerRoutes(app: Express): Server {
         }
       }
     }
+
+    // Add default market sections if they don't exist
+    const existingMarketSections = await db.query.marketSections.findMany();
+    
+    if (existingMarketSections.length === 0) {
+      const defaultSections = [
+        {
+          name: "about",
+          title: "About Our Market",
+          description: "Learn more about our farmers market and what we offer",
+          imageUrl: "https://images.unsplash.com/photo-1488459716781-31db52582fe9",
+          order: 1
+        },
+        {
+          name: "bakery",
+          title: "Bakery",
+          description: "Fresh baked goods made daily with locally sourced ingredients",
+          imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff",
+          order: 2
+        },
+        {
+          name: "garden",
+          title: "Market Garden",
+          description: "Seasonal vegetables and herbs grown with sustainable practices",
+          imageUrl: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b",
+          order: 3
+        },
+        {
+          name: "animal_products",
+          title: "Animal Products",
+          description: "Fresh eggs, dairy, and other farm-fresh animal products",
+          imageUrl: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041",
+          order: 4
+        },
+        {
+          name: "apparel",
+          title: "Farm Apparel",
+          description: "High-quality clothing and accessories featuring Little Way Acres designs",
+          imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+          order: 5
+        }
+      ];
+
+      for (const section of defaultSections) {
+        await db.insert(marketSections).values(section);
+      }
+    }
   })();
 
   // Site content routes
@@ -1866,6 +1913,138 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error) {
       console.error("Error deleting gallery photo:", error);
       res.status(500).json({ message: "Failed to delete gallery photo" });
+    }
+  });
+
+  // Printify API endpoint to fetch apparel products
+  app.get("/api/printify/products", async (req, res) => {
+    try {
+      const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
+      const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
+
+      if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
+        return res.status(500).json({ 
+          message: "Printify API credentials not configured" 
+        });
+      }
+
+      // First, try to get the shops to find the correct shop ID
+      let actualShopId = PRINTIFY_SHOP_ID;
+      
+      // If the shop ID is not numeric, try to get shops first
+      if (!/^\d+$/.test(PRINTIFY_SHOP_ID)) {
+        const shopsResponse = await fetch(
+          'https://api.printify.com/v1/shops.json',
+          {
+            headers: {
+              'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (shopsResponse.ok) {
+          const shopsData = await shopsResponse.json();
+          // Find the shop by name or use the first shop
+          const targetShop = shopsData.find((shop: any) => 
+            shop.title.toLowerCase().includes('little way acres') || 
+            shop.title.toLowerCase().includes('lwa')
+          ) || shopsData[0];
+          
+          if (targetShop) {
+            actualShopId = targetShop.id.toString();
+          }
+        }
+      }
+
+      console.log(`Attempting to fetch products for shop ID: ${actualShopId}`);
+      
+      const response = await fetch(
+        `https://api.printify.com/v1/shops/${actualShopId}/products.json`,
+        {
+          headers: {
+            'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log(`Products API response status: ${response.status}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log(`API Error Response: ${errorText}`);
+        throw new Error(`Printify API error: ${response.status} - ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Transform Printify products to match our frontend expectations
+      const transformedProducts = data.data.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        tags: product.tags,
+        images: product.images,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+        visible: product.visible,
+        is_locked: product.is_locked,
+        external_id: product.external_id,
+        blueprintId: product.blueprint_id,
+        userDefinedId: product.user_defined_id,
+        printifyUrl: `https://little-way-acres.printify.me/product/${product.id}`,
+        variants: product.variants
+      }));
+
+      res.json(transformedProducts);
+    } catch (error) {
+      console.error("Error fetching Printify products:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch Printify products",
+        error: error.message 
+      });
+    }
+  });
+
+  // Debug endpoint to test Printify shops API
+  app.get("/api/printify/shops", async (req, res) => {
+    try {
+      const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
+
+      if (!PRINTIFY_API_TOKEN) {
+        return res.status(500).json({ 
+          message: "Printify API token not configured" 
+        });
+      }
+
+      const response = await fetch(
+        'https://api.printify.com/v1/shops.json',
+        {
+          headers: {
+            'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log(`Shops API response status: ${response.status}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log(`Shops API Error Response: ${errorText}`);
+        throw new Error(`Printify Shops API error: ${response.status} - ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`Found ${data.length} shops`);
+      res.json(data);
+    } catch (error) {
+      console.error("Error fetching Printify shops:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch Printify shops",
+        error: error.message 
+      });
     }
   });
 

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { MarketSection, Product } from "@db/schema";
 import ProductCard from "@/components/cards/product-card";
+import PrintifyProductCard from "@/components/cards/printify-product-card";
 
 export default function MarketSectionPage() {
   // Extract section name from URL
@@ -22,6 +23,14 @@ export default function MarketSectionPage() {
 
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+  });
+
+  // Fetch Printify products specifically for apparel section
+  const { data: printifyProducts = [] } = useQuery({
+    queryKey: ["/api/printify/products"],
+    enabled: currentSection === 'apparel',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Find the section using the mapped section name
@@ -51,9 +60,17 @@ export default function MarketSectionPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sectionProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {currentSection === 'apparel' ? (
+              // Show Printify products for apparel section
+              printifyProducts.map((product: any) => (
+                <PrintifyProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              // Show regular products for other sections
+              sectionProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            )}
           </div>
         </div>
       </div>
