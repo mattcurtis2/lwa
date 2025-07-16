@@ -3,11 +3,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/cart-context";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +22,8 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
   const { toast } = useToast();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [showAddToCartDialog, setShowAddToCartDialog] = useState(false);
+  const [, setLocation] = useLocation();
 
   const deleteProduct = useMutation({
     mutationFn: async () => {
@@ -41,10 +45,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
     for (let i = 0; i < quantity; i++) {
       addItem(product);
     }
-    toast({
-      title: "Added to cart",
-      description: `${quantity} ${product.name}${quantity > 1 ? 's' : ''} added to your cart`,
-    });
+    setShowAddToCartDialog(true);
   };
 
   const handleQuantityChange = (newQuantity: string) => {
@@ -131,6 +132,37 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           )
         )}
       </CardFooter>
+
+      <Dialog open={showAddToCartDialog} onOpenChange={setShowAddToCartDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Added to Cart!</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">
+              {quantity} {product.name}{quantity > 1 ? 's' : ''} added to your cart
+            </p>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAddToCartDialog(false)}
+              className="flex-1"
+            >
+              Continue Shopping
+            </Button>
+            <Button
+              onClick={() => {
+                setShowAddToCartDialog(false);
+                setLocation('/cart');
+              }}
+              className="flex-1"
+            >
+              Go to Cart
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

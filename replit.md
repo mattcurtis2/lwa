@@ -163,3 +163,9 @@ Changelog:
   - Users can now select multiple quantities before adding items to cart
   - Quantity validation ensures minimum of 1 item per addition
   - Toast notifications show exact quantity added to cart with proper pluralization
+- January 16, 2025. Added add-to-cart confirmation dialog:
+  - Added popup dialog that appears after adding items to cart
+  - Dialog shows confirmation message with quantity and product name
+  - Users can choose to "Continue Shopping" or "Go to Cart"
+  - "Go to Cart" button navigates directly to cart page
+  - "Continue Shopping" closes dialog and allows continued browsing
