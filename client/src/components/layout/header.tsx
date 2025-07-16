@@ -3,12 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteContent, Sheep, SheepLitter } from "@db/schema";
 import MobileNav from "./mobile-nav";
 import { useState } from "react";
+import { useCart } from "@/contexts/cart-context";
+import { ShoppingCart } from "lucide-react";
 
 export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
   const [isGoatDropdownOpen, setIsGoatDropdownOpen] = useState(false);
   const [isSheepDropdownOpen, setIsSheepDropdownOpen] = useState(false);
   const [isMarketDropdownOpen, setIsMarketDropdownOpen] = useState(false);
+  const { getTotalItems } = useCart();
   const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
@@ -282,6 +285,18 @@ export default function Header() {
               <span className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium cursor-pointer">
                 Apparel
               </span>
+            </Link>
+
+            {/* Cart Icon */}
+            <Link href="/cart">
+              <div className="relative cursor-pointer group">
+                <ShoppingCart className="h-6 w-6 text-stone-600 group-hover:text-stone-900 transition-colors duration-75" />
+                {getTotalItems() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </div>
             </Link>
           </div>
 

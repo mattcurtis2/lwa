@@ -1,14 +1,16 @@
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Sheep, SheepLitter } from "@db/schema";
+import { useCart } from "@/contexts/cart-context";
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
+  const { getTotalItems } = useCart();
 
   // Fetch sheep data to determine what links to show
   const { data: sheep = [] } = useQuery<Sheep[]>({
@@ -38,12 +40,25 @@ export default function MobileNav() {
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
+    <div className="flex items-center gap-4 md:hidden">
+      {/* Cart Icon for Mobile */}
+      <Link href="/cart">
+        <div className="relative cursor-pointer group">
+          <ShoppingCart className="h-6 w-6 text-stone-600 group-hover:text-stone-900 transition-colors duration-75" />
+          {getTotalItems() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {getTotalItems()}
+            </span>
+          )}
+        </div>
+      </Link>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Menu className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
         <nav className="flex flex-col gap-4 h-full overflow-y-auto px-6 py-8">
           {/* Colorado Mountain Dogs */}
@@ -210,8 +225,24 @@ export default function MobileNav() {
               </a>
             </Link>
           </div>
+
+          {/* Cart Link in Mobile Menu */}
+          <div className="flex flex-col gap-2 border-t pt-4 mt-4">
+            <Link href="/cart">
+              <div onClick={handleSelect} className="flex items-center gap-2 px-2 py-1 text-lg font-medium text-stone-600 hover:text-stone-900">
+                <ShoppingCart className="h-5 w-5" />
+                Cart
+                {getTotalItems() > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </div>
+            </Link>
+          </div>
         </nav>
       </SheetContent>
     </Sheet>
+    </div>
   );
 }

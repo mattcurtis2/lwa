@@ -25,8 +25,10 @@ import GoatCurrentLitters from "@/pages/goat-current-litters";
 import Gallery from "@/pages/gallery";
 import Market from "@/pages/market";
 import MarketSection from "@/pages/market-section";
+import Cart from "@/pages/cart";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import { CartProvider } from "@/contexts/cart-context";
 import { useEffect } from "react";
 
 function ScrollToTop() {
@@ -114,6 +116,7 @@ function Router() {
           <Route path="/market/market-garden" component={MarketSection} />
           <Route path="/market/animal-products" component={MarketSection} />
           <Route path="/market/apparel" component={MarketSection} />
+          <Route path="/cart" component={Cart} />
           <Route component={NotFound} />
         </Switch>
       </main>
@@ -127,8 +130,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SiteProvider>
-          <Router />
-          <Toaster />
+          <CartProvider>
+            <Router />
+            <Toaster />
+          </CartProvider>
         </SiteProvider>
       </AuthProvider>
     </QueryClientProvider>

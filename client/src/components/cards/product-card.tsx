@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/cart-context";
+import { ShoppingCart } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, isAdmin, onEdit }: ProductCardProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { addItem } = useCart();
 
   const deleteProduct = useMutation({
     mutationFn: async () => {
@@ -30,6 +33,14 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
       });
     },
   });
+
+  const handleAddToCart = () => {
+    addItem(product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart`,
+    });
+  };
 
   return (
     <Card>
@@ -71,8 +82,9 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           </>
         ) : (
           product.availableForPurchase ? (
-            <Button className="w-full" disabled>
-              Order Now (Coming Soon)
+            <Button className="w-full" onClick={handleAddToCart}>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Add to Cart
             </Button>
           ) : (
             <Button variant="outline" className="w-full" disabled>
