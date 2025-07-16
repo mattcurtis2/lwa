@@ -1635,7 +1635,6 @@ app.get("/api/litters/list/current", async (req, res) => {
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
         payment_method_types: ["card"],
-        receipt_email: null, // Will be set during payment confirmation
         metadata: {
           items: JSON.stringify(items),
           itemCount: items.length.toString(),
