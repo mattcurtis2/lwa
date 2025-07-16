@@ -134,9 +134,6 @@ export default function OrderConfirmation() {
             
             <div className="mt-4 p-3 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground">
-                Payment ID: {paymentIntentId}
-              </p>
-              <p className="text-sm text-muted-foreground">
                 Order Date: {orderDateTime.toLocaleDateString()} at {orderDateTime.toLocaleTimeString()}
               </p>
             </div>
@@ -237,9 +234,9 @@ export default function OrderConfirmation() {
                 </a>
               </div>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Look for the Little Way Acres stand between spots 59-57</li>
+                <li>• Look for the Little Way Acres stand. We are usually placed in a spot between 59-57</li>
                 <li>• Give your last name to receive your order</li>
-                <li>• Arrive during market hours: {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}</li>
+                <li>• Arrive during market hours: 8:00 AM - 1:00 PM</li>
                 <li>• Enjoy your LWA order!</li>
               </ul>
             </div>

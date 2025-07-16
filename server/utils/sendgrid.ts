@@ -44,25 +44,22 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
         <h1 style="color: #2c5530;">Order Confirmation - Little Way Acres</h1>
-        <p>Thank you for your order!</p>
         
-        <p>Hello ${data.customerName},</p>
-        <p>Your order has been successfully processed.</p>
+        <p>${data.customerName.split(' ')[0]}, thank you for your order!</p>
         
         <h2 style="color: #2c5530;">Order Summary</h2>
         ${data.orderItems.map(item => `
-          <p>${item.name} x${item.quantity} - $${(item.quantity * item.price).toFixed(2)}</p>
+          <p>${item.quantity} ${item.name} - $${(item.quantity * item.price).toFixed(2)}</p>
         `).join('')}
         <p><strong>Order Total: $${data.orderTotal.toFixed(2)}</strong></p>
         
         <h2 style="color: #2c5530;">Pickup Information</h2>
         <p><strong>Location:</strong> ${data.pickupLocation}</p>
-        <p><strong>Pickup Hours:</strong> 10:00 AM - 1:00 PM</p>
-        <p><strong>Instructions:</strong> ${data.pickupInstructions}</p>
+        <p><strong>Pickup Hours:</strong> ${data.pickupLocation.includes('Muskegon') ? '8:00 AM - 1:00 PM' : '10:00 AM - 1:00 PM'}</p>
+        <p><strong>Instructions:</strong> ${data.pickupLocation.includes('Muskegon') ? 'Look for the Little Way Acres stand. We are usually placed in a spot between 59-57.' : data.pickupInstructions}</p>
         
         <h2 style="color: #2c5530;">Order Details</h2>
         <p><strong>Order Date:</strong> ${data.orderDate}</p>
-        <p><strong>Payment ID:</strong> ${data.paymentIntentId}</p>
         
         <p>Thank you for supporting Little Way Acres!</p>
         <p>Questions? Contact: littlewayacresmi@gmail.com</p>
@@ -72,23 +69,20 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
     const textContent = `
 Order Confirmation - Little Way Acres
 
-Hello ${data.customerName},
-
-Your order has been successfully processed. Here are the details:
+${data.customerName.split(' ')[0]}, thank you for your order!
 
 ORDER SUMMARY:
-${data.orderItems.map(item => `${item.name} x${item.quantity} - $${(item.quantity * item.price).toFixed(2)}`).join('\n')}
+${data.orderItems.map(item => `${item.quantity} ${item.name} - $${(item.quantity * item.price).toFixed(2)}`).join('\n')}
 
 Order Total: $${data.orderTotal.toFixed(2)}
 
 PICKUP INFORMATION:
 Location: ${data.pickupLocation}
-Pickup Hours: 10:00 AM - 1:00 PM
-Instructions: ${data.pickupInstructions}
+Pickup Hours: ${data.pickupLocation.includes('Muskegon') ? '8:00 AM - 1:00 PM' : '10:00 AM - 1:00 PM'}
+Instructions: ${data.pickupLocation.includes('Muskegon') ? 'Look for the Little Way Acres stand. We are usually placed in a spot between 59-57.' : data.pickupInstructions}
 
 ORDER DETAILS:
 Order Date: ${data.orderDate}
-Payment ID: ${data.paymentIntentId}
 
 Thank you for supporting Little Way Acres!
 
