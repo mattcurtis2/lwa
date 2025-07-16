@@ -661,7 +661,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6">
         <FormField
           control={form.control}
           name="profileImageUrl"
@@ -1416,7 +1416,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
           )}
         />
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 sticky bottom-0 bg-background border-t mt-6 py-4 -mx-6 px-6">
           <Button
             type="button"
             variant="outline"

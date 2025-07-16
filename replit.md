@@ -126,3 +126,11 @@ Changelog:
   - Fixed by replacing staggered container animation with individual item animations
   - All three principles now display correctly with proper animations
   - Backend was working correctly, issue was frontend-only
+- January 16, 2025. Enhanced all edit/create forms with proper scrolling and accessibility:
+  - Fixed dog litter edit panel scrolling issue for mobile devices
+  - Applied same improvements to goat litter management form
+  - Added sticky save/cancel buttons to all forms (dog, goat, and litter forms)
+  - Improved mobile responsiveness with proper width constraints
+  - Made all Sheet components scrollable with overflow-y-auto
+  - Added proper spacing and visual separation between form content and action buttons
+  - All forms now work seamlessly on both desktop and mobile devices

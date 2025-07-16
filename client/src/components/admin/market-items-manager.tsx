@@ -117,7 +117,7 @@ export default function MarketItemsManager() {
       </CardContent>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent>
+        <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</SheetTitle>
           </SheetHeader>

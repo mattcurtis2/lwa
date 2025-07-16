@@ -306,13 +306,13 @@ export default function GoatLitterManagement() {
               setShowLitterForm(false);
             }
           }}>
-          <SheetContent side="right" className="w-1/3">
+          <SheetContent side="right" className="w-1/3 max-w-[95vw] sm:max-w-[600px] overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 {litterFormMode === 'create' ? 'Create New Litter' : 'Edit Litter'}
               </SheetTitle>
             </SheetHeader>
-            <div className="space-y-6 mt-6">
+            <div className="space-y-6 mt-6 pb-6">
               <div className="grid gap-4">
                 <div className="space-y-2">
                   <Label>Mother</Label>
@@ -474,7 +474,7 @@ export default function GoatLitterManagement() {
                 )}
               </div>
 
-              <div className="flex justify-between pt-4">
+              <div className="flex justify-between pt-4 sticky bottom-0 bg-background border-t mt-6 py-4 -mx-6 px-6">
                 <Button variant="outline" onClick={() => {
                   // Just close the form - the useEffect in the hook 
                   // will handle resetting the state

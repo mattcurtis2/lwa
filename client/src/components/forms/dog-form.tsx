@@ -904,7 +904,7 @@ export default function DogForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmitWrapper)} className="space-y-6 pb-6">
         <FormField
           control={form.control}
           name="profileImageUrl"
@@ -1704,7 +1704,7 @@ export default function DogForm({
             />
           </div>
         )}
-        <div className="flex justify-between pt-6">
+        <div className="flex justify-between pt-6 sticky bottom-0 bg-background border-t mt-6 py-4 -mx-6 px-6">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
