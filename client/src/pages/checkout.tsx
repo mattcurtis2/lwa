@@ -97,6 +97,27 @@ const CheckoutForm = () => {
       return;
     }
 
+    // Store order data in localStorage before payment
+    const orderData = {
+      items: items.map(item => ({
+        id: item.product.id,
+        name: item.product.name,
+        price: parseFloat(item.product.price?.replace('$', '') || '0'),
+        quantity: item.quantity
+      })),
+      customer: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone
+      },
+      pickupLocation: selectedSchedule,
+      total: getTotalPrice(),
+      orderDate: new Date().toISOString()
+    };
+    
+    localStorage.setItem('orderData', JSON.stringify(orderData));
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
