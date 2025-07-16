@@ -108,6 +108,7 @@ const CheckoutForm = () => {
             phone: formData.phone,
             address: {
               country: 'US',
+              postal_code: '00000',
             },
           },
         },
