@@ -140,8 +140,8 @@ export default function GoatManagement() {
 
       {/* Sold Section */}
       {soldGoats.length > 0 && (
-        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-300 rounded-lg">
-          <h3 className="text-2xl font-bold mb-8 text-gray-700 flex items-center">
+        <div className="mb-12 p-6 bg-rose-50 border-2 border-rose-200 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-rose-800 flex items-center">
             <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
             </svg>
