@@ -61,7 +61,10 @@ export function registerRoutes(app: Express): Server {
     secret: "farm-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
+    }
   }));
 
   // Initialize admin user and site content
@@ -1563,14 +1566,9 @@ app.get("/api/litters/list/current", async (req, res) => {
       const { username, password } = req.body;
 
       if (username === "LWA" && password === "Tecumseh1-") {
-        // Create a session for 30 days
+        // Create a session (30-day persistence configured globally)
         req.session.isAdmin = true;
         req.session.username = username;
-
-        // Set cookie to expire in 30 days
-        if (req.session.cookie) {
-          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-        }
 
         res.status(200).json({ success: true });
       } else {
