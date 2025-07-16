@@ -113,7 +113,6 @@ function Router() {
           {/* Market Routes */}
           <Route path="/market" component={Market} />
           <Route path="/market/bakery" component={MarketSection} />
-          <Route path="/market/market-garden" component={MarketSection} />
           <Route path="/market/animal-products" component={MarketSection} />
           <Route path="/market/apparel" component={MarketSection} />
           <Route path="/cart" component={Cart} />

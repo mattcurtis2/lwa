@@ -1405,24 +1405,7 @@ export default function ContentSection() {
                   </div>
                 </div>
 
-                {/* Market Garden Section */}
-                <div className="space-y-4 mb-8">
-                  <h4 className="font-medium">Market Garden Section</h4>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      value={getContentValue("market_garden_title") || "Market Garden"}
-                      onChange={(e) => handleContentChange("market_garden_title", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={getContentValue("market_garden_description") || "Fresh vegetables and fruits from our garden."}
-                      onChange={(e) => handleContentChange("market_garden_description", e.target.value)}
-                    />
-                  </div>
-                </div>
+
 
                 {/* Animal Products Section */}
                 <div className="space-y-4">

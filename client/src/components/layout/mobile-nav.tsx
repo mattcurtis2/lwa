@@ -205,11 +205,7 @@ export default function MobileNav() {
                 Bakery
               </a>
             </Link>
-            <Link href="/market/market-garden">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Market Garden
-              </a>
-            </Link>
+
             <Link href="/market/animal-products">
               <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
                 Animal Products

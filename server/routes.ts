@@ -334,13 +334,7 @@ export function registerRoutes(app: Express): Server {
           imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff",
           order: 2
         },
-        {
-          name: "garden",
-          title: "Market Garden",
-          description: "Seasonal vegetables and herbs grown with sustainable practices",
-          imageUrl: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b",
-          order: 3
-        },
+
         {
           name: "animal_products",
           title: "Animal Products",
