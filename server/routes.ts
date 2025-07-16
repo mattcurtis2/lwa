@@ -34,6 +34,11 @@ const upload = multer({
   }
 });
 
+// In-memory cache for ultra-fast product responses
+let productCache: any[] = [];
+let cacheLastUpdated: Date | null = null;
+const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+
 export function registerRoutes(app: Express): Server {
   app.get("/api/files/:filename", async (req, res) => {
     try {
@@ -2030,6 +2035,9 @@ app.get("/api/litters/list/current", async (req, res) => {
         await db.insert(printifyProducts).values(productsToInsert);
       }
 
+      // Update in-memory cache
+      await updateProductCache();
+
       console.log(`Synced ${productsToInsert.length} products from Printify`);
       return productsToInsert.length;
     } catch (error) {
@@ -2038,45 +2046,12 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   }
 
-  // Cached Printify products endpoint
-  app.get("/api/printify/products", async (req, res) => {
+  // Helper function to update in-memory cache
+  async function updateProductCache() {
     try {
-      // Check if we have cached products
       const cachedProducts = await db.select().from(printifyProducts).orderBy(printifyProducts.title);
       
-      // If we have cached products and they're not too old, return them
-      if (cachedProducts.length > 0) {
-        const lastSync = cachedProducts[0].lastSyncedAt;
-        const hoursSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceSync < 12) {
-          // Return cached products
-          const formattedProducts = cachedProducts.map(product => ({
-            id: product.printifyId,
-            title: product.title,
-            description: product.description,
-            tags: product.tags,
-            images: product.images,
-            variants: product.variants,
-            blueprintId: product.blueprintId,
-            external_id: product.externalId,
-            printifyUrl: product.printifyUrl,
-            visible: product.visible,
-            is_locked: product.isLocked,
-            created_at: product.createdAt,
-            updated_at: product.updatedAt
-          }));
-          
-          return res.json(formattedProducts);
-        }
-      }
-
-      // If no cached products or they're stale, sync from API
-      await syncPrintifyProducts();
-      
-      // Return the freshly synced products
-      const freshProducts = await db.select().from(printifyProducts).orderBy(printifyProducts.title);
-      const formattedProducts = freshProducts.map(product => ({
+      productCache = cachedProducts.map(product => ({
         id: product.printifyId,
         title: product.title,
         description: product.description,
@@ -2092,7 +2067,82 @@ app.get("/api/litters/list/current", async (req, res) => {
         updated_at: product.updatedAt
       }));
       
-      res.json(formattedProducts);
+      cacheLastUpdated = new Date();
+      console.log(`Updated in-memory cache with ${productCache.length} products`);
+    } catch (error) {
+      console.error("Error updating product cache:", error);
+    }
+  }
+
+  // Helper function to check if cache is fresh
+  function isCacheFresh(): boolean {
+    if (!cacheLastUpdated || productCache.length === 0) return false;
+    return (Date.now() - cacheLastUpdated.getTime()) < CACHE_DURATION_MS;
+  }
+
+  // Ultra-fast cached Printify products endpoint
+  app.get("/api/printify/products", async (req, res) => {
+    try {
+      // Set cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=300'); // 5 minutes browser cache
+      
+      // Step 1: Check in-memory cache first (fastest)
+      if (isCacheFresh() && productCache.length > 0) {
+        return res.json(productCache);
+      }
+
+      // Step 2: Check database cache
+      const dbProducts = await db.select({
+        printifyId: printifyProducts.printifyId,
+        title: printifyProducts.title,
+        description: printifyProducts.description,
+        tags: printifyProducts.tags,
+        images: printifyProducts.images,
+        variants: printifyProducts.variants,
+        blueprintId: printifyProducts.blueprintId,
+        externalId: printifyProducts.externalId,
+        printifyUrl: printifyProducts.printifyUrl,
+        visible: printifyProducts.visible,
+        isLocked: printifyProducts.isLocked,
+        createdAt: printifyProducts.createdAt,
+        updatedAt: printifyProducts.updatedAt,
+        lastSyncedAt: printifyProducts.lastSyncedAt
+      }).from(printifyProducts)
+        .where(eq(printifyProducts.visible, true))
+        .orderBy(printifyProducts.title);
+      
+      if (dbProducts.length > 0) {
+        const lastSync = dbProducts[0].lastSyncedAt;
+        const hoursSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursSinceSync < 12) {
+          // Update in-memory cache and return products
+          productCache = dbProducts.map(product => ({
+            id: product.printifyId,
+            title: product.title,
+            description: product.description,
+            tags: product.tags,
+            images: product.images,
+            variants: product.variants,
+            blueprintId: product.blueprintId,
+            external_id: product.externalId,
+            printifyUrl: product.printifyUrl,
+            visible: product.visible,
+            is_locked: product.isLocked,
+            created_at: product.createdAt,
+            updated_at: product.updatedAt
+          }));
+          
+          cacheLastUpdated = new Date();
+          return res.json(productCache);
+        }
+      }
+
+      // Step 3: Database cache is stale, sync from API (slowest)
+      await syncPrintifyProducts();
+      
+      // Return the freshly cached products
+      return res.json(productCache);
     } catch (error) {
       console.error("Error fetching Printify products:", error);
       res.status(500).json({ 
@@ -2311,6 +2361,9 @@ app.get("/api/litters/list/current", async (req, res) => {
       if (products.length === 0) {
         console.log("No cached products found, performing initial sync...");
         await syncPrintifyProducts();
+      } else {
+        console.log("Initializing in-memory cache...");
+        await updateProductCache();
       }
     } catch (error) {
       console.error("Error during initial sync:", error);
