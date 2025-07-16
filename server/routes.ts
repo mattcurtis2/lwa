@@ -1569,6 +1569,17 @@ app.get("/api/litters/list/current", async (req, res) => {
       const trimmedUsername = username?.trim();
       const trimmedPassword = password?.trim();
 
+      console.log("Login attempt:", { 
+        original: { username, password }, 
+        trimmed: { username: trimmedUsername, password: trimmedPassword },
+        lengths: { 
+          originalUsername: username?.length, 
+          trimmedUsername: trimmedUsername?.length,
+          originalPassword: password?.length,
+          trimmedPassword: trimmedPassword?.length
+        }
+      });
+
       if (trimmedUsername === "LWA" && trimmedPassword === "Tecumseh1-") {
         // Create a session (30-day persistence configured globally)
         req.session.isAdmin = true;
