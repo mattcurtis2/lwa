@@ -108,7 +108,6 @@ const CheckoutForm = () => {
             phone: formData.phone,
             address: {
               country: 'US',
-              postal_code: '00000',
             },
           },
         },
@@ -281,7 +280,14 @@ const CheckoutForm = () => {
                       paymentMethodOrder: ['card'],
                       fields: {
                         billingDetails: {
-                          address: 'never',
+                          address: {
+                            country: 'never',
+                            line1: 'auto',
+                            line2: 'auto',
+                            city: 'auto',
+                            state: 'auto',
+                            postalCode: 'auto',
+                          },
                         },
                       },
                     }}
