@@ -20,13 +20,13 @@ export function SheepHero() {
           })`,
         }}
       >
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
       </div>
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
           {getContentValue("sheep_hero_title") || "Katahdin Sheep"}
         </h1>
-        <p className="text-xl md:text-2xl max-w-2xl">
+        <p className="text-xl md:text-2xl max-w-2xl drop-shadow-md">
           {getContentValue("sheep_hero_subtitle") ||
             "Hardy and naturally shedding sheep known for their excellent mothering abilities and lean meat production"}
         </p>

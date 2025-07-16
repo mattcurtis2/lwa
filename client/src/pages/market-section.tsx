@@ -44,7 +44,7 @@ export default function MarketSectionPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           <div className={`relative rounded-lg overflow-hidden h-64 ${
-            currentSection === 'apparel' && !section.imageUrl 
+            !section.imageUrl 
               ? 'bg-gradient-to-br from-primary via-primary/80 to-primary/60' 
               : ''
           }`}>
@@ -56,25 +56,15 @@ export default function MarketSectionPage() {
               />
             )}
             <div className={`absolute inset-0 flex items-center justify-center text-center p-8 ${
-              currentSection === 'apparel' 
-                ? section.imageUrl
-                  ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10' 
-                  : 'bg-black/20'
-                : 'bg-black/50'
+              section.imageUrl
+                ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10' 
+                : 'bg-black/20'
             }`}>
               <div className="max-w-2xl">
-                <h1 className={`text-4xl font-bold mb-4 ${
-                  currentSection === 'apparel' 
-                    ? 'text-white drop-shadow-lg' 
-                    : 'text-white'
-                }`}>
+                <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-lg">
                   {section.title}
                 </h1>
-                <p className={`text-lg ${
-                  currentSection === 'apparel' 
-                    ? 'text-white/95 drop-shadow-md' 
-                    : 'text-white/90'
-                }`}>
+                <p className="text-lg text-white/95 drop-shadow-md">
                   {section.description}
                 </p>
               </div>
