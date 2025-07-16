@@ -272,7 +272,16 @@ const CheckoutForm = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <PaymentElement />
+                  <PaymentElement 
+                    options={{
+                      paymentMethodOrder: ['card'],
+                      fields: {
+                        billingDetails: {
+                          address: 'never',
+                        },
+                      },
+                    }}
+                  />
                   
                   <div className="mt-6 p-4 bg-muted rounded-lg">
                     <h4 className="font-medium mb-2">Order Summary:</h4>
