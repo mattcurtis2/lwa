@@ -106,6 +106,9 @@ const CheckoutForm = () => {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
             phone: formData.phone,
+            address: {
+              country: 'US',
+            },
           },
         },
       },
