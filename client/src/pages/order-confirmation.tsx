@@ -238,7 +238,7 @@ export default function OrderConfirmation() {
               </div>
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Look for the Little Way Acres stand between spots 59-57</li>
-                <li>• Give your last name ({orderData.customer.lastName}) to receive your order</li>
+                <li>• Give your last name to receive your order</li>
                 <li>• Arrive during market hours: {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}</li>
                 <li>• Enjoy your LWA order!</li>
               </ul>
