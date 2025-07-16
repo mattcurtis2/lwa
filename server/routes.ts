@@ -1998,10 +1998,9 @@ app.get("/api/litters/list/current", async (req, res) => {
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
         
-        // Use external_id if available, otherwise use a different approach
-        const productUrl = product.external_id 
-          ? `https://little-way-acres.printify.me/product/${product.external_id}/${urlSlug}`
-          : `https://little-way-acres.printify.me/products/${urlSlug}`;
+        // Generate the correct Printify store URL format
+        // For now, direct users to the main store page since exact product URLs are complex
+        const productUrl = `https://little-way-acres.printify.me/`;
         
         return {
           id: product.id,
