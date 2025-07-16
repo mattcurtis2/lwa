@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ShoppingCart, MapPin, Mail, ExternalLink, Calendar, User, Phone } from 'lucide-react';
+import { CheckCircle, ShoppingCart, MapPin, Mail, ExternalLink, Calendar, User, Phone, Printer } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useCart } from '@/contexts/cart-context';
 
@@ -72,6 +72,10 @@ export default function OrderConfirmation() {
   const isLWAPickup = orderData.pickupLocation.location.toLowerCase().includes('little way acres');
   const orderDateTime = new Date(orderData.orderDate);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       {/* Order Confirmation Header */}
@@ -84,6 +88,16 @@ export default function OrderConfirmation() {
           <p className="text-muted-foreground">
             Thank you for your order! Your payment has been processed successfully.
           </p>
+          <div className="mt-6">
+            <Button 
+              onClick={handlePrint}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg"
+              size="lg"
+            >
+              <Printer className="w-5 h-5 mr-2" />
+              Print Confirmation
+            </Button>
+          </div>
         </CardHeader>
       </Card>
 
@@ -202,7 +216,6 @@ export default function OrderConfirmation() {
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Look for the farm stand with clear totes</li>
                 <li>• Find the bag marked with your name</li>
-                <li>• Bring a valid ID for order verification</li>
                 <li>• Arrive during the specified pickup hours</li>
                 <li>• Enjoy your LWA order!</li>
               </ul>
@@ -226,7 +239,6 @@ export default function OrderConfirmation() {
               <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Look for the Little Way Acres stand between spots 59-57</li>
                 <li>• Find the bag marked with your name</li>
-                <li>• Bring a valid ID for order verification</li>
                 <li>• Arrive during market hours: {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}</li>
                 <li>• Enjoy your LWA order!</li>
               </ul>
