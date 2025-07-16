@@ -42,65 +42,31 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
       .join('');
 
     const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Order Confirmation - Little Way Acres</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h1 style="color: #2c5530; margin: 0; font-size: 24px;">Order Confirmation</h1>
-          <p style="margin: 10px 0 0 0; color: #666;">Thank you for your order from Little Way Acres!</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <p>Hello ${data.customerName},</p>
-          <p>Your order has been successfully processed. Here are the details:</p>
-        </div>
-
-        <div style="background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-          <h2 style="color: #2c5530; margin-top: 0; font-size: 18px;">Order Summary</h2>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background-color: #f8f9fa;">
-                <th style="padding: 12px 8px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
-                <th style="padding: 12px 8px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
-                <th style="padding: 12px 8px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
-                <th style="padding: 12px 8px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-            <tfoot>
-              <tr style="background-color: #f8f9fa; font-weight: bold;">
-                <td colspan="3" style="padding: 12px 8px; text-align: right; border-top: 2px solid #ddd;">Order Total:</td>
-                <td style="padding: 12px 8px; text-align: right; border-top: 2px solid #ddd;">$${data.orderTotal.toFixed(2)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div style="background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-          <h2 style="color: #2c5530; margin-top: 0; font-size: 18px;">Pickup Information</h2>
-          <p><strong>Location:</strong> ${data.pickupLocation}</p>
-          <p><strong>Pickup Hours:</strong> 10:00 AM - 1:00 PM</p>
-          <p><strong>Instructions:</strong> ${data.pickupInstructions}</p>
-        </div>
-
-        <div style="background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-          <h2 style="color: #2c5530; margin-top: 0; font-size: 18px;">Order Details</h2>
-          <p><strong>Order Date:</strong> ${data.orderDate}</p>
-          <p><strong>Payment ID:</strong> ${data.paymentIntentId}</p>
-        </div>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666;">
-          <p>Thank you for supporting Little Way Acres!</p>
-          <p>If you have any questions, please contact us at <a href="mailto:littlewayacresmi@gmail.com">littlewayacresmi@gmail.com</a></p>
-        </div>
-      </body>
-      </html>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+        <h1 style="color: #2c5530;">Order Confirmation - Little Way Acres</h1>
+        <p>Thank you for your order!</p>
+        
+        <p>Hello ${data.customerName},</p>
+        <p>Your order has been successfully processed.</p>
+        
+        <h2 style="color: #2c5530;">Order Summary</h2>
+        ${data.orderItems.map(item => `
+          <p>${item.name} x${item.quantity} - $${(item.quantity * item.price).toFixed(2)}</p>
+        `).join('')}
+        <p><strong>Order Total: $${data.orderTotal.toFixed(2)}</strong></p>
+        
+        <h2 style="color: #2c5530;">Pickup Information</h2>
+        <p><strong>Location:</strong> ${data.pickupLocation}</p>
+        <p><strong>Pickup Hours:</strong> 10:00 AM - 1:00 PM</p>
+        <p><strong>Instructions:</strong> ${data.pickupInstructions}</p>
+        
+        <h2 style="color: #2c5530;">Order Details</h2>
+        <p><strong>Order Date:</strong> ${data.orderDate}</p>
+        <p><strong>Payment ID:</strong> ${data.paymentIntentId}</p>
+        
+        <p>Thank you for supporting Little Way Acres!</p>
+        <p>Questions? Contact: littlewayacresmi@gmail.com</p>
+      </div>
     `;
 
     const textContent = `
