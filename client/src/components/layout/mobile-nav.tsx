@@ -202,11 +202,11 @@ export default function MobileNav() {
             </Link>
           </div>
 
-          {/* Photo Gallery */}
+          {/* Apparel */}
           <div className="flex flex-col gap-2">
-            <Link href="/gallery">
+            <Link href="/market/apparel">
               <a onClick={handleSelect} className="block px-2 py-1 text-lg font-medium text-stone-600 hover:text-stone-900">
-                Photo Gallery
+                Apparel
               </a>
             </Link>
           </div>

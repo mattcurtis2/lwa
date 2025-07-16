@@ -277,10 +277,10 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Photo Gallery Link */}
-            <Link href="/gallery">
+            {/* Apparel Link */}
+            <Link href="/market/apparel">
               <span className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium cursor-pointer">
-                Photo Gallery
+                Apparel
               </span>
             </Link>
           </div>
