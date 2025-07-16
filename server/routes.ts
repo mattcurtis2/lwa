@@ -1624,6 +1624,13 @@ app.get("/api/litters/list/current", async (req, res) => {
       console.log("Creating payment intent for amount:", amount);
       console.log("Items:", items);
 
+      // Validate minimum amount (50 cents for USD)
+      if (amount < 0.50) {
+        return res.status(400).json({ 
+          message: "Order total must be at least $0.50" 
+        });
+      }
+
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
@@ -1632,6 +1639,7 @@ app.get("/api/litters/list/current", async (req, res) => {
         },
         metadata: {
           items: JSON.stringify(items),
+          itemCount: items.length.toString(),
         },
       });
 

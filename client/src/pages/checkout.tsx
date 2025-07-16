@@ -329,15 +329,15 @@ const CheckoutForm = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex justify-between items-start">
+                <div key={item.product.id} className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h4 className="font-medium">{item.name}</h4>
+                    <h4 className="font-medium">{item.product.name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      ${item.price.toFixed(2)} × {item.quantity}
+                      ${parseFloat(item.product.price?.replace('$', '') || '0').toFixed(2)} × {item.quantity}
                     </p>
                   </div>
                   <div className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(parseFloat(item.product.price?.replace('$', '') || '0') * item.quantity).toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -366,21 +366,29 @@ const CheckoutForm = () => {
 };
 
 export default function Checkout() {
-  const { items } = useCart();
+  const { items, getTotalPrice } = useCart();
   const [clientSecret, setClientSecret] = useState("");
 
   useEffect(() => {
     if (items.length === 0) return;
 
+    const totalAmount = getTotalPrice();
+    
+    // Stripe requires minimum 50 cents for USD
+    if (totalAmount < 0.50) {
+      console.error("Amount too small for Stripe:", totalAmount);
+      return;
+    }
+
     // Create PaymentIntent when component loads
     apiRequest("POST", "/api/create-payment-intent", { 
       items: items.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
+        id: item.product.id,
+        name: item.product.name,
+        price: parseFloat(item.product.price?.replace('$', '') || '0'),
         quantity: item.quantity
       })),
-      amount: items.reduce((total, item) => total + (item.price * item.quantity), 0)
+      amount: totalAmount
     })
       .then((res) => res.json())
       .then((data) => {
@@ -389,7 +397,7 @@ export default function Checkout() {
       .catch((error) => {
         console.error("Error creating payment intent:", error);
       });
-  }, [items]);
+  }, [items, getTotalPrice]);
 
   if (items.length === 0) {
     return (
@@ -413,6 +421,32 @@ export default function Checkout() {
   }
 
   if (!clientSecret) {
+    const totalAmount = getTotalPrice();
+    
+    // Show error if amount is too small
+    if (totalAmount > 0 && totalAmount < 0.50) {
+      return (
+        <div className="max-w-2xl mx-auto p-4 text-center">
+          <Card>
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-semibold mb-2">Order Total Too Small</h2>
+              <p className="text-muted-foreground mb-4">
+                Your order total of ${totalAmount.toFixed(2)} is below the minimum of $0.50 required for payment processing.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Please add more items to your cart to reach the minimum order amount.
+              </p>
+              <Link href="/cart">
+                <a>
+                  <Button>Return to Cart</Button>
+                </a>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    
     return (
       <div className="max-w-2xl mx-auto p-4 text-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
