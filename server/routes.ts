@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
@@ -1916,8 +1916,212 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
-  // Printify API endpoint to fetch apparel products
+  // Sync Printify products from API to database
+  async function syncPrintifyProducts() {
+    try {
+      const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
+      const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
+
+      if (!PRINTIFY_API_TOKEN || !PRINTIFY_SHOP_ID) {
+        console.error("Printify API credentials not configured");
+        return;
+      }
+
+      console.log("Starting Printify product sync...");
+      
+      // Fetch products from Printify API
+      let actualShopId = PRINTIFY_SHOP_ID;
+      if (!/^\d+$/.test(PRINTIFY_SHOP_ID)) {
+        const shopsResponse = await fetch(
+          'https://api.printify.com/v1/shops.json',
+          {
+            headers: {
+              'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (shopsResponse.ok) {
+          const shopsData = await shopsResponse.json();
+          const targetShop = shopsData.find((shop: any) => 
+            shop.title.toLowerCase().includes('little way acres') || 
+            shop.title.toLowerCase().includes('lwa')
+          ) || shopsData[0];
+          
+          if (targetShop) {
+            actualShopId = targetShop.id.toString();
+          }
+        }
+      }
+
+      let response = await fetch(
+        `https://api.printify.com/v1/shops/${actualShopId}/products.json?published=true`,
+        {
+          headers: {
+            'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        response = await fetch(
+          `https://api.printify.com/v1/shops/${actualShopId}/products.json`,
+          {
+            headers: {
+              'Authorization': `Bearer ${PRINTIFY_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`Printify API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Helper function to strip HTML tags
+      const stripHtml = (html: string) => {
+        if (!html) return '';
+        return html.replace(/<[^>]*>/g, '').trim();
+      };
+
+      // Process and save products to database
+      const now = new Date();
+      const productsToInsert = data.data.map((product: any) => {
+        const variants = product.variants?.map((variant: any) => ({
+          ...variant,
+          price: variant.price / 100
+        })) || [];
+
+        const urlSlug = product.title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+
+        const productUrl = product.external?.id 
+          ? `https://little-way-acres.printify.me/product/${product.external.id}/${urlSlug}`
+          : product.id 
+            ? `https://little-way-acres.printify.me/product/${product.id}/${urlSlug}`
+            : `https://little-way-acres.printify.me/`;
+
+        return {
+          printifyId: product.id,
+          title: product.title,
+          description: stripHtml(product.description),
+          tags: product.tags || [],
+          images: product.images || [],
+          variants: variants,
+          blueprintId: product.blueprint_id,
+          externalId: product.external?.id || null,
+          printifyUrl: productUrl,
+          visible: product.visible,
+          isLocked: product.is_locked,
+          lastSyncedAt: now,
+          updatedAt: now
+        };
+      });
+
+      // Clear existing products and insert new ones
+      await db.delete(printifyProducts);
+      if (productsToInsert.length > 0) {
+        await db.insert(printifyProducts).values(productsToInsert);
+      }
+
+      console.log(`Synced ${productsToInsert.length} products from Printify`);
+      return productsToInsert.length;
+    } catch (error) {
+      console.error("Error syncing Printify products:", error);
+      throw error;
+    }
+  }
+
+  // Cached Printify products endpoint
   app.get("/api/printify/products", async (req, res) => {
+    try {
+      // Check if we have cached products
+      const cachedProducts = await db.select().from(printifyProducts).orderBy(printifyProducts.title);
+      
+      // If we have cached products and they're not too old, return them
+      if (cachedProducts.length > 0) {
+        const lastSync = cachedProducts[0].lastSyncedAt;
+        const hoursSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursSinceSync < 12) {
+          // Return cached products
+          const formattedProducts = cachedProducts.map(product => ({
+            id: product.printifyId,
+            title: product.title,
+            description: product.description,
+            tags: product.tags,
+            images: product.images,
+            variants: product.variants,
+            blueprintId: product.blueprintId,
+            external_id: product.externalId,
+            printifyUrl: product.printifyUrl,
+            visible: product.visible,
+            is_locked: product.isLocked,
+            created_at: product.createdAt,
+            updated_at: product.updatedAt
+          }));
+          
+          return res.json(formattedProducts);
+        }
+      }
+
+      // If no cached products or they're stale, sync from API
+      await syncPrintifyProducts();
+      
+      // Return the freshly synced products
+      const freshProducts = await db.select().from(printifyProducts).orderBy(printifyProducts.title);
+      const formattedProducts = freshProducts.map(product => ({
+        id: product.printifyId,
+        title: product.title,
+        description: product.description,
+        tags: product.tags,
+        images: product.images,
+        variants: product.variants,
+        blueprintId: product.blueprintId,
+        external_id: product.externalId,
+        printifyUrl: product.printifyUrl,
+        visible: product.visible,
+        is_locked: product.isLocked,
+        created_at: product.createdAt,
+        updated_at: product.updatedAt
+      }));
+      
+      res.json(formattedProducts);
+    } catch (error) {
+      console.error("Error fetching Printify products:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch Printify products",
+        error: error.message 
+      });
+    }
+  });
+
+  // Manual sync endpoint for admin use
+  app.post("/api/printify/sync", async (req, res) => {
+    try {
+      const count = await syncPrintifyProducts();
+      res.json({ 
+        message: "Printify products synced successfully",
+        count: count
+      });
+    } catch (error) {
+      console.error("Error syncing Printify products:", error);
+      res.status(500).json({ 
+        message: "Failed to sync Printify products",
+        error: error.message 
+      });
+    }
+  });
+
+  // Remove the old Printify endpoint and replace with the new one
+  // This is the original endpoint that will be replaced by the cached version above
+  app.get("/api/printify/products/direct", async (req, res) => {
     try {
       const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
       const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
@@ -2099,6 +2303,29 @@ app.get("/api/litters/list/current", async (req, res) => {
       });
     }
   });
+
+  // Initialize automatic sync on startup
+  setTimeout(async () => {
+    try {
+      const products = await db.select().from(printifyProducts);
+      if (products.length === 0) {
+        console.log("No cached products found, performing initial sync...");
+        await syncPrintifyProducts();
+      }
+    } catch (error) {
+      console.error("Error during initial sync:", error);
+    }
+  }, 5000); // Wait 5 seconds after startup
+
+  // Set up automatic sync every 12 hours
+  setInterval(async () => {
+    try {
+      console.log("Performing scheduled Printify sync...");
+      await syncPrintifyProducts();
+    } catch (error) {
+      console.error("Error during scheduled sync:", error);
+    }
+  }, 12 * 60 * 60 * 1000); // 12 hours in milliseconds
 
   const httpServer = createServer(app);
   return httpServer;

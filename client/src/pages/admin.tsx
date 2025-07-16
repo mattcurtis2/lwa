@@ -11,6 +11,7 @@ import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
 import GalleryManagement from "@/components/admin/gallery-management";
+import PrintifyManagement from "@/components/admin/printify-management";
 import SiteSelector from "@/components/admin/site-selector";
 import {
   LayoutDashboard,
@@ -21,7 +22,8 @@ import {
   Loader2,
   Menu,
   X,
-  Zap
+  Zap,
+  Shirt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -110,6 +112,13 @@ export default function Admin() {
         >
           <ImageIcon className="h-4 w-4 mr-2" />
           Gallery
+        </button>
+        <button
+          onClick={() => handleTabChange("apparel")}
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "apparel" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
+        >
+          <Shirt className="h-4 w-4 mr-2" />
+          Apparel
         </button>
         <button
           onClick={() => handleTabChange("content")}
@@ -227,6 +236,18 @@ export default function Admin() {
 
             <TabsContent value="gallery">
               <GalleryManagement />
+            </TabsContent>
+
+            <TabsContent value="apparel">
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold">Apparel Management</h2>
+                <div className="space-y-4">
+                  <div className="bg-card rounded-lg p-4">
+                    <h3 className="text-lg font-semibold mb-2">Printify Sync Status</h3>
+                    <PrintifyManagement />
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="content">

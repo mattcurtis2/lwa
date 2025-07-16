@@ -692,3 +692,34 @@ export const litter_interest_signups = pgTable("litter_interest_signups", {
   message: text("message"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const printifyProducts = pgTable("printify_products", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  printifyId: text("printify_id").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description"),
+  tags: jsonb("tags"),
+  images: jsonb("images"),
+  variants: jsonb("variants"),
+  blueprintId: integer("blueprint_id"),
+  externalId: text("external_id"),
+  printifyUrl: text("printify_url"),
+  visible: boolean("visible").default(true),
+  isLocked: boolean("is_locked").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastSyncedAt: timestamp("last_synced_at").defaultNow(),
+});
+
+export const printifyProductsRelations = relations(printifyProducts, ({ one }) => ({
+  site: one(sites, {
+    fields: [printifyProducts.siteId],
+    references: [sites.id],
+  }),
+}));
+
+export const insertPrintifyProductSchema = createInsertSchema(printifyProducts);
+export const selectPrintifyProductSchema = createSelectSchema(printifyProducts);
+export type PrintifyProduct = typeof printifyProducts.$inferSelect;
+export type NewPrintifyProduct = typeof printifyProducts.$inferInsert;
