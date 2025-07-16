@@ -72,69 +72,84 @@ export default function GoatManagement() {
         </Button>
       </div>
 
-      {/* Does Section */}
-      {does.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Does</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {does.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
-                {renderGoatCard(goat)}
-              </div>
-            ))}
+      {/* On The Farm Section */}
+      <div className="mb-12 p-6 bg-green-50 border-2 border-green-200 rounded-lg">
+        <h3 className="text-2xl font-bold mb-8 text-green-800 flex items-center">
+          <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z"/>
+          </svg>
+          On The Farm
+        </h3>
+        
+        {/* Does Section */}
+        {does.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Does</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {does.map(goat => (
+                <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderGoatCard(goat)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Bucks Section */}
-      {bucks.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Bucks</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {bucks.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
-                {renderGoatCard(goat)}
-              </div>
-            ))}
+        {/* Bucks Section */}
+        {bucks.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Bucks</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {bucks.map(goat => (
+                <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderGoatCard(goat)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Kids Section */}
-      {kids.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Kids</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {kids.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
-                {renderGoatCard(goat)}
-              </div>
-            ))}
+        {/* Kids Section */}
+        {kids.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Kids</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {kids.map(goat => (
+                <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderGoatCard(goat)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Available Goats Section */}
-      {availableGoats.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Available Goats</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {availableGoats.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4">
-                {renderGoatCard(goat)}
-              </div>
-            ))}
+        {/* Available Goats Section */}
+        {availableGoats.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Available Goats</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {availableGoats.map(goat => (
+                <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderGoatCard(goat)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Sold Section */}
       {soldGoats.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Sold</h3>
+        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-300 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-gray-700 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Sold
+          </h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {soldGoats.map(goat => (
-              <div key={goat.id} className="border rounded-lg p-3 sm:p-4 opacity-75">
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-75">
                 {renderGoatCard(goat)}
               </div>
             ))}

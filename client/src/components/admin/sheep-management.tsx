@@ -65,69 +65,84 @@ export default function SheepManagement() {
         </Button>
       </div>
 
-      {/* Rams Section */}
-      {rams.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Rams</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {rams.map(sheep => (
-              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4">
-                {renderSheepCard(sheep)}
-              </div>
-            ))}
+      {/* On The Farm Section */}
+      <div className="mb-12 p-6 bg-green-50 border-2 border-green-200 rounded-lg">
+        <h3 className="text-2xl font-bold mb-8 text-green-800 flex items-center">
+          <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7V10C2 16 6 20.5 12 22C18 20.5 22 16 22 10V7L12 2Z"/>
+          </svg>
+          On The Farm
+        </h3>
+        
+        {/* Rams Section */}
+        {rams.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Rams</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {rams.map(sheep => (
+                <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderSheepCard(sheep)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Ewes Section */}
-      {ewes.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Ewes</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {ewes.map(sheep => (
-              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4">
-                {renderSheepCard(sheep)}
-              </div>
-            ))}
+        {/* Ewes Section */}
+        {ewes.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Ewes</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {ewes.map(sheep => (
+                <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderSheepCard(sheep)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Lambs Section */}
-      {lambs.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Lambs</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {lambs.map(sheep => (
-              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4">
-                {renderSheepCard(sheep)}
-              </div>
-            ))}
+        {/* Lambs Section */}
+        {lambs.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Lambs</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {lambs.map(sheep => (
+                <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderSheepCard(sheep)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Available Sheep Section */}
-      {availableSheep.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Available Sheep</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {availableSheep.map(sheep => (
-              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4">
-                {renderSheepCard(sheep)}
-              </div>
-            ))}
+        {/* Available Sheep Section */}
+        {availableSheep.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold mb-4 text-green-700">Available Sheep</h4>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {availableSheep.map(sheep => (
+                <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderSheepCard(sheep)}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Sold Section */}
       {soldSheep.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-6">Sold</h3>
+        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-300 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-gray-700 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Sold
+          </h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {soldSheep.map(sheep => (
-              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 opacity-75">
+              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-75">
                 {renderSheepCard(sheep)}
               </div>
             ))}
