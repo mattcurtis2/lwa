@@ -43,23 +43,8 @@ export default function MarketSectionPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <div className={`relative rounded-lg overflow-hidden h-64 ${
-            !section.imageUrl 
-              ? 'bg-gradient-to-br from-primary via-primary/80 to-primary/60' 
-              : ''
-          }`}>
-            {section.imageUrl && (
-              <img
-                src={section.imageUrl}
-                alt={section.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
-            <div className={`absolute inset-0 flex items-center justify-center text-center p-8 ${
-              section.imageUrl
-                ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10' 
-                : 'bg-black/20'
-            }`}>
+          <div className="relative rounded-lg overflow-hidden h-64 bg-gradient-to-br from-primary via-primary/80 to-primary/60">
+            <div className="absolute inset-0 flex items-center justify-center text-center p-8 bg-black/20">
               <div className="max-w-2xl">
                 <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-lg">
                   {section.title}
