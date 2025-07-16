@@ -1993,6 +1993,17 @@ app.get("/api/litters/list/current", async (req, res) => {
 
       const data = await response.json();
       
+      // Console log a more concise version for debugging
+      console.log('=== PRINTIFY API RESPONSE SUMMARY ===');
+      if (data.data && data.data.length > 0) {
+        const firstProduct = data.data[0];
+        console.log('Product ID:', firstProduct.id);
+        console.log('Product external:', firstProduct.external);
+        console.log('Product user_defined_id:', firstProduct.user_defined_id);
+        console.log('Product shop_id:', firstProduct.shop_id);
+      }
+      console.log('=== END SUMMARY ===');
+      
       // Helper function to strip HTML tags
       const stripHtml = (html: string) => {
         if (!html) return '';
@@ -2013,9 +2024,12 @@ app.get("/api/litters/list/current", async (req, res) => {
           .replace(/^-+|-+$/g, '');
         
         // Generate the correct Printify store URL format using external.id
+        // If external.id is not available, try using the product's internal id as fallback
         const productUrl = product.external?.id 
           ? `https://little-way-acres.printify.me/product/${product.external.id}/${urlSlug}`
-          : `https://little-way-acres.printify.me/`;
+          : product.id 
+            ? `https://little-way-acres.printify.me/product/${product.id}/${urlSlug}`
+            : `https://little-way-acres.printify.me/`;
         
         return {
           id: product.id,
