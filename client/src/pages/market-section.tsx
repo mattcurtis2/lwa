@@ -45,7 +45,7 @@ export default function MarketSectionPage() {
         <div className="space-y-8">
           <div className={`relative rounded-lg overflow-hidden h-64 ${
             currentSection === 'apparel' && !section.imageUrl 
-              ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500' 
+              ? 'bg-gradient-to-br from-primary via-primary/80 to-primary/60' 
               : ''
           }`}>
             {section.imageUrl && (
@@ -58,7 +58,7 @@ export default function MarketSectionPage() {
             <div className={`absolute inset-0 flex items-center justify-center text-center p-8 ${
               currentSection === 'apparel' 
                 ? section.imageUrl
-                  ? 'bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20' 
+                  ? 'bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10' 
                   : 'bg-black/20'
                 : 'bg-black/50'
             }`}>
