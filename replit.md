@@ -158,3 +158,8 @@ Changelog:
   - Built comprehensive cart page with quantity controls, item removal, and order summary
   - Added cart route and integrated CartProvider throughout the application
   - Cart persists across page reloads and browser sessions until localStorage is cleared
+- January 16, 2025. Added quantity selection to product cards:
+  - Added quantity input controls with plus/minus buttons on product cards
+  - Users can now select multiple quantities before adding items to cart
+  - Quantity validation ensures minimum of 1 item per addition
+  - Toast notifications show exact quantity added to cart with proper pluralization

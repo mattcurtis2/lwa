@@ -2,10 +2,12 @@ import { Product } from "@db/schema";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/cart-context";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +19,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { addItem } = useCart();
+  const [quantity, setQuantity] = useState(1);
 
   const deleteProduct = useMutation({
     mutationFn: async () => {
@@ -35,11 +38,20 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
   });
 
   const handleAddToCart = () => {
-    addItem(product);
+    for (let i = 0; i < quantity; i++) {
+      addItem(product);
+    }
     toast({
       title: "Added to cart",
-      description: `${product.name} has been added to your cart`,
+      description: `${quantity} ${product.name}${quantity > 1 ? 's' : ''} added to your cart`,
     });
+  };
+
+  const handleQuantityChange = (newQuantity: string) => {
+    const num = parseInt(newQuantity);
+    if (!isNaN(num) && num >= 1) {
+      setQuantity(num);
+    }
   };
 
   return (
@@ -82,10 +94,36 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           </>
         ) : (
           product.availableForPurchase ? (
-            <Button className="w-full" onClick={handleAddToCart}>
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Add to Cart
-            </Button>
+            <div className="w-full space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => handleQuantityChange(e.target.value)}
+                  className="w-16 text-center"
+                  min="1"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button className="w-full" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Add to Cart
+              </Button>
+            </div>
           ) : (
             <Button variant="outline" className="w-full" disabled>
               Display Only
