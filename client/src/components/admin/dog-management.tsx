@@ -74,12 +74,12 @@ export default function DogManagement() {
         </h3>
         
         {/* Females Section */}
-        {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold).length > 0 && (
+        {dogs.filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold && !dog.died).length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg font-semibold mb-4 text-green-700">Females</h4>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {dogs
-                .filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold)
+                .filter(dog => dog.gender === 'female' && !dog.outsideBreeder && !dog.sold && !dog.died)
                 .map((dog, index) => (
                   <div key={dog.id} className="border rounded-lg p-3 sm:p-4 bg-white">
                     {renderDogCard(dog)}
@@ -90,12 +90,12 @@ export default function DogManagement() {
         )}
 
         {/* Males Section */}
-        {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold).length > 0 && (
+        {dogs.filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold && !dog.died).length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg font-semibold mb-4 text-green-700">Males</h4>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {dogs
-                .filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold)
+                .filter(dog => dog.gender === 'male' && !dog.outsideBreeder && !dog.sold && !dog.died)
                 .map((dog, index) => (
                   <div key={dog.id} className="border rounded-lg p-3 sm:p-4 bg-white">
                     {renderDogCard(dog)}
@@ -107,7 +107,7 @@ export default function DogManagement() {
       </div>
 
       {/* Sold Section */}
-      {dogs.filter(dog => dog.sold && !dog.outsideBreeder).length > 0 && (
+      {dogs.filter(dog => dog.sold && !dog.outsideBreeder && !dog.died).length > 0 && (
         <div className="mb-12 p-6 bg-rose-50 border-2 border-rose-200 rounded-lg">
           <h3 className="text-2xl font-bold mb-8 text-rose-800 flex items-center">
             <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@ export default function DogManagement() {
           </h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
-              .filter(dog => dog.sold && !dog.outsideBreeder)
+              .filter(dog => dog.sold && !dog.outsideBreeder && !dog.died)
               .map((dog, index) => (
                 <div key={dog.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-75">
                   {renderDogCard(dog)}
@@ -128,7 +128,7 @@ export default function DogManagement() {
       )}
 
       {/* Outside Breeders Section */}
-      {dogs.filter(dog => dog.outsideBreeder).length > 0 && (
+      {dogs.filter(dog => dog.outsideBreeder && !dog.died).length > 0 && (
         <div className="mb-12 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
           <h3 className="text-2xl font-bold mb-8 text-yellow-800 flex items-center">
             <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -138,9 +138,30 @@ export default function DogManagement() {
           </h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {dogs
-              .filter(dog => dog.outsideBreeder)
+              .filter(dog => dog.outsideBreeder && !dog.died)
               .map((dog, index) => (
                 <div key={dog.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                  {renderDogCard(dog)}
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Died on the Farm Section */}
+      {dogs.filter(dog => dog.died).length > 0 && (
+        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-400 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Died on the Farm
+          </h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {dogs
+              .filter(dog => dog.died)
+              .map((dog, index) => (
+                <div key={dog.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-60">
                   {renderDogCard(dog)}
                 </div>
               ))}

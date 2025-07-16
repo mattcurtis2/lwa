@@ -79,6 +79,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     kid: z.boolean().default(false),
     available: z.boolean().default(false),
     sold: z.boolean().default(false),
+    died: z.boolean().default(false),
     display: z.boolean().default(true),
     motherId: z.number().optional().nullable(),
     fatherId: z.number().optional().nullable(),
@@ -145,6 +146,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       kid: goat?.kid === true,
       available: goat?.available === true,
       sold: goat?.sold === true,
+      died: goat?.died === true,
       display: goat?.display === true,
       motherId: goat?.motherId || null,
       fatherId: goat?.fatherId || null,
@@ -567,6 +569,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         available: values.available === true,
         kid: values.kid === true,
         outsideBreeder: values.outsideBreeder === true,
+        died: values.died === true,
         display: values.display === true,
         media: mediaInputs
           .filter(media => media && media.url)
@@ -1268,6 +1271,27 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
                   <FormLabel>Sold</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="died"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-red-50">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-red-700">Died on Farm</FormLabel>
+                  <FormDescription className="text-xs">
+                    Mark this if the goat has died on the farm
+                  </FormDescription>
                 </div>
                 <FormControl>
                   <Switch

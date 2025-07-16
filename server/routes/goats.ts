@@ -153,7 +153,7 @@ router.put('/api/goats/:id', async (req, res) => {
         const displayValue = value === true;
         console.log('Goat display field - processed value with strict comparison:', displayValue);
         processedData[key] = displayValue;
-      } else if (key === 'sold' || key === 'available' || key === 'kid' || key === 'outsideBreeder') {
+      } else if (key === 'sold' || key === 'available' || key === 'kid' || key === 'outsideBreeder' || key === 'died') {
         // Use strict boolean comparison for all boolean fields
         console.log(`Goat ${key} field - original value:`, value);
         const boolValue = value === true;

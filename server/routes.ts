@@ -873,6 +873,7 @@ export function registerRoutes(app: Express): Server {
           sold: dogData.sold === true,
           available: dogData.available === true,
           puppy: dogData.puppy === true,
+          died: dogData.died === true,
           display: displayValue, // Value is pre-processed with strict comparison
           outsideBreeder: dogData.outsideBreeder === true,
           updatedAt: new Date(),

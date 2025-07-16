@@ -52,12 +52,13 @@ export default function GoatManagement() {
   );
 
   // Separate goats into categories
-  const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid && !goat.available && !goat.sold);
-  const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid && !goat.available && !goat.sold);
-  const kids = goats.filter(goat => goat.kid && !goat.sold);
-  const availableGoats = goats.filter(goat => goat.available && !goat.kid && !goat.sold);
-  const soldGoats = goats.filter(goat => goat.sold && !goat.outsideBreeder);
-  const outsideBreeders = goats.filter(goat => goat.outsideBreeder);
+  const does = goats.filter(goat => goat.gender === 'female' && !goat.outsideBreeder && !goat.kid && !goat.available && !goat.sold && !goat.died);
+  const bucks = goats.filter(goat => goat.gender === 'male' && !goat.outsideBreeder && !goat.kid && !goat.available && !goat.sold && !goat.died);
+  const kids = goats.filter(goat => goat.kid && !goat.sold && !goat.died);
+  const availableGoats = goats.filter(goat => goat.available && !goat.kid && !goat.sold && !goat.died);
+  const soldGoats = goats.filter(goat => goat.sold && !goat.outsideBreeder && !goat.died);
+  const outsideBreeders = goats.filter(goat => goat.outsideBreeder && !goat.died);
+  const diedGoats = goats.filter(goat => goat.died);
 
   return (
     <div className="mb-8">
@@ -169,6 +170,25 @@ export default function GoatManagement() {
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {outsideBreeders.map(goat => (
               <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                {renderGoatCard(goat)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Died on the Farm Section */}
+      {diedGoats.length > 0 && (
+        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-400 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Died on the Farm
+          </h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {diedGoats.map(goat => (
+              <div key={goat.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-60">
                 {renderGoatCard(goat)}
               </div>
             ))}

@@ -45,12 +45,13 @@ export default function SheepManagement() {
   );
 
   // Separate sheep into categories
-  const ewes = sheep.filter(s => s.gender === 'female' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold);
-  const rams = sheep.filter(s => s.gender === 'male' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold);
-  const lambs = sheep.filter(s => s.lamb && !s.sold);
-  const availableSheep = sheep.filter(s => s.available && !s.lamb && !s.sold);
-  const soldSheep = sheep.filter(s => s.sold && !s.outsideBreeder);
-  const outsideBreeders = sheep.filter(s => s.outsideBreeder);
+  const ewes = sheep.filter(s => s.gender === 'female' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold && !s.died);
+  const rams = sheep.filter(s => s.gender === 'male' && !s.outsideBreeder && !s.lamb && !s.available && !s.sold && !s.died);
+  const lambs = sheep.filter(s => s.lamb && !s.sold && !s.died);
+  const availableSheep = sheep.filter(s => s.available && !s.lamb && !s.sold && !s.died);
+  const soldSheep = sheep.filter(s => s.sold && !s.outsideBreeder && !s.died);
+  const outsideBreeders = sheep.filter(s => s.outsideBreeder && !s.died);
+  const diedSheep = sheep.filter(s => s.died);
 
   return (
     <div className="mb-8">
@@ -162,6 +163,25 @@ export default function SheepManagement() {
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {outsideBreeders.map(sheep => (
               <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white">
+                {renderSheepCard(sheep)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Died on the Farm Section */}
+      {diedSheep.length > 0 && (
+        <div className="mb-12 p-6 bg-gray-50 border-2 border-gray-400 rounded-lg">
+          <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center">
+            <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Died on the Farm
+          </h3>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {diedSheep.map(sheep => (
+              <div key={sheep.id} className="border rounded-lg p-3 sm:p-4 bg-white opacity-60">
                 {renderSheepCard(sheep)}
               </div>
             ))}

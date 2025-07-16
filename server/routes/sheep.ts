@@ -119,7 +119,7 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     // Process boolean fields
     const processedData: Record<string, any> = {};
     for (const [key, value] of Object.entries(data)) {
-      if (key === 'display' || key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder') {
+      if (key === 'display' || key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder' || key === 'died') {
         processedData[key] = value === true || value === 'true';
       } else if (key === 'price' || key === 'ramPrice' || key === 'wetherPrice') {
         processedData[key] = value === '' || value === null || value === undefined ? null : value;
@@ -197,7 +197,7 @@ router.put('/api/sheep/:id', async (req, res) => {
         // Use strict boolean comparison to interpret display value
         const displayValue = value === true;
         processedData[key] = displayValue;
-      } else if (key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder') {
+      } else if (key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder' || key === 'died') {
         // Use strict boolean comparison for all boolean fields
         const boolValue = value === true;
         processedData[key] = boolValue;

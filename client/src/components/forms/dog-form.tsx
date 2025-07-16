@@ -82,6 +82,7 @@ const createDogSchema = (isPuppy: boolean = false) => {
     available: z.boolean().optional().default(false),
     price: z.string().optional(),
     sold: z.boolean().optional().default(false), // Added sold field
+    died: z.boolean().optional().default(false), // Added died field
     display: z.boolean().optional().default(true), // Add display field with default true
     breed: z.string().optional().default("Colorado Mountain Dogs"),
     documents: z.array(z.object({
@@ -169,6 +170,7 @@ export default function DogForm({
       puppy: defaultValues?.puppy === true || isPuppy === true,
       available: defaultValues?.available === true,
       sold: defaultValues?.sold === true,
+      died: defaultValues?.died === true,
       display: defaultValues?.display === true, // True only if explicitly true
       price: defaultValues?.price || "",
       breed: defaultValues?.breed || "Colorado Mountain Dogs",
@@ -577,6 +579,7 @@ export default function DogForm({
         puppy: values.puppy === true,
         outsideBreeder: values.outsideBreeder === true,
         sold: values.sold === true,
+        died: values.died === true,
         // Explicitly set display as a strict boolean value
         display: displayValue,
         documents: [
@@ -1631,6 +1634,26 @@ export default function DogForm({
                     <FormLabel className="text-base">Sold</FormLabel>
                     <FormDescription>
                       Mark this if the dog has been sold
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="died"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-red-50">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base text-red-700">Died on Farm</FormLabel>
+                    <FormDescription>
+                      Mark this if the dog has died on the farm
                     </FormDescription>
                   </div>
                   <FormControl>

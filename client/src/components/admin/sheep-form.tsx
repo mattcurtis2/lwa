@@ -26,6 +26,7 @@ const sheepFormSchema = z.object({
   description: z.string().optional(),
   available: z.boolean().default(false),
   sold: z.boolean().default(false),
+  died: z.boolean().default(false),
   profileImageUrl: z.string().optional(),
   display: z.boolean().default(true),
 });
@@ -61,6 +62,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
       description: "",
       available: false,
       sold: false,
+      died: false,
       profileImageUrl: "",
       display: true,
     },
@@ -79,6 +81,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         description: sheep.description || "",
         available: sheep.available || false,
         sold: sheep.sold || false,
+        died: sheep.died || false,
         profileImageUrl: sheep.profileImageUrl || "",
         display: sheep.display !== false,
       });
@@ -95,6 +98,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         description: "",
         available: false,
         sold: false,
+        died: false,
         profileImageUrl: "",
         display: true,
       });
@@ -352,7 +356,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="available"
@@ -383,6 +387,27 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
                         <FormLabel className="text-base">Sold</FormLabel>
                         <div className="text-sm text-muted-foreground">
                           Mark as sold
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="died"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-red-50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base text-red-700">Died on Farm</FormLabel>
+                        <div className="text-sm text-red-600">
+                          Mark if the sheep has died on the farm
                         </div>
                       </div>
                       <FormControl>
