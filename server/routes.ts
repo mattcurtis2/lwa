@@ -12,6 +12,7 @@ import path from "path";
 import fs from "fs-extra";
 import express from 'express';
 import Stripe from "stripe";
+import { sendOrderConfirmationEmail } from "./utils/sendgrid";
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -1636,7 +1637,7 @@ app.get("/api/litters/list/current", async (req, res) => {
         currency: "usd",
         payment_method_types: ["card"],
         metadata: {
-          items: JSON.stringify(items),
+          orderItems: JSON.stringify(items),
           itemCount: items.length.toString(),
           orderTotal: `$${amount.toFixed(2)}`,
         },
@@ -1681,6 +1682,68 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error: any) {
       console.error("Error updating payment intent:", error);
       res.status(500).json({ message: "Error updating payment intent: " + error.message });
+    }
+  });
+
+  // Send order confirmation email
+  app.post("/api/send-order-confirmation", async (req, res) => {
+    try {
+      const { paymentIntentId } = req.body;
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ message: "Payment intent ID is required" });
+      }
+
+      // Retrieve the payment intent to get order details
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (!paymentIntent) {
+        return res.status(404).json({ message: "Payment intent not found" });
+      }
+
+      // Extract customer and order information from metadata
+      const metadata = paymentIntent.metadata;
+      const customerName = metadata.customerName || 'Customer';
+      const customerEmail = metadata.customerEmail;
+      const pickupLocation = metadata.pickupLocation || '';
+      const pickupInstructions = metadata.pickupInstructions || '';
+      
+      if (!customerEmail) {
+        return res.status(400).json({ message: "Customer email not found in payment intent" });
+      }
+
+      // Parse order items from metadata (these should be stored when payment intent is created)
+      const orderItemsString = metadata.orderItems || '[]';
+      let orderItems;
+      try {
+        orderItems = JSON.parse(orderItemsString);
+      } catch (error) {
+        console.error("Error parsing order items:", error);
+        orderItems = [];
+      }
+
+      // Send the email
+      const emailData = {
+        customerName,
+        customerEmail,
+        orderTotal: paymentIntent.amount / 100, // Convert from cents
+        orderItems,
+        pickupLocation,
+        pickupInstructions,
+        orderDate: new Date().toLocaleDateString(),
+        paymentIntentId,
+      };
+
+      const emailSent = await sendOrderConfirmationEmail(emailData);
+      
+      if (emailSent) {
+        res.json({ success: true, message: "Order confirmation email sent successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to send order confirmation email" });
+      }
+    } catch (error: any) {
+      console.error("Error sending order confirmation email:", error);
+      res.status(500).json({ message: "Error sending order confirmation email: " + error.message });
     }
   });
 

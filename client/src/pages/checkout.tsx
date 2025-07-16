@@ -171,7 +171,31 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
       });
       setIsProcessing(false);
     } else {
-      // Payment succeeded, navigate to confirmation page
+      // Payment succeeded, send confirmation email
+      try {
+        const paymentIntent = await stripe.retrievePaymentIntent(clientSecret);
+        if (paymentIntent.paymentIntent) {
+          // Send order confirmation email
+          const emailResponse = await fetch('/api/send-order-confirmation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              paymentIntentId: paymentIntent.paymentIntent.id,
+            }),
+          });
+
+          if (emailResponse.ok) {
+            console.log('Order confirmation email sent successfully');
+          } else {
+            console.error('Failed to send order confirmation email');
+          }
+        }
+      } catch (emailError) {
+        console.error('Error sending order confirmation email:', emailError);
+      }
+
       toast({
         title: "Payment Successful",
         description: "Your order has been placed successfully!",
