@@ -1565,10 +1565,14 @@ app.get("/api/litters/list/current", async (req, res) => {
     try {
       const { username, password } = req.body;
 
-      if (username === "LWA" && password === "Tecumseh1-") {
+      // Trim whitespace from username and password
+      const trimmedUsername = username?.trim();
+      const trimmedPassword = password?.trim();
+
+      if (trimmedUsername === "LWA" && trimmedPassword === "Tecumseh1-") {
         // Create a session (30-day persistence configured globally)
         req.session.isAdmin = true;
-        req.session.username = username;
+        req.session.username = trimmedUsername;
 
         res.status(200).json({ success: true });
       } else {
