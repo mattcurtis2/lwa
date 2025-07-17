@@ -12,7 +12,7 @@ import path from "path";
 import fs from "fs-extra";
 import express from 'express';
 import Stripe from "stripe";
-import { sendOrderConfirmationEmail } from "./utils/sendgrid";
+
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -1662,11 +1662,15 @@ app.get("/api/litters/list/current", async (req, res) => {
       // Generate pickup instructions based on location
       const pickupInstructions = pickupLocation?.location?.toLowerCase().includes('little way acres') 
         ? "Look for the farm stand with clear totes, find the bag marked with your name, arrive during pickup hours, enjoy your LWA order!"
-        : "Look for the Little Way Acres stand between spots 59-57, give your last name to receive your order, arrive during pickup hours, enjoy your LWA order!";
+        : "Look for the Little Way Acres stand. We are usually placed in a spot between 59-57.";
+
+      // Create receipt description with pickup information
+      const receiptDescription = `Order pickup: ${pickupLocation?.location || 'TBD'} - ${pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : 'TBD'} - ${pickupInstructions}`;
 
       // Update the payment intent with customer and pickup information
       console.log("Updating payment intent with customer info:", customerInfo?.email);
       const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
+        description: receiptDescription,
         metadata: {
           customerName: customerInfo ? `${customerInfo.firstName} ${customerInfo.lastName}` : '',
           customerEmail: customerInfo?.email || '',
@@ -1685,87 +1689,17 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
-  // Send order confirmation email
+  // Legacy endpoint - no longer used, Stripe handles email receipts automatically
   app.post("/api/send-order-confirmation", async (req, res) => {
     try {
-      console.log('=== EMAIL ENDPOINT CALLED ===');
-      const { paymentIntentId } = req.body;
-      console.log('Payment Intent ID:', paymentIntentId);
-      
-      if (!paymentIntentId) {
-        console.log('❌ No payment intent ID provided');
-        return res.status(400).json({ message: "Payment intent ID is required" });
-      }
-
-      // Retrieve the payment intent to get order details
-      console.log('Retrieving payment intent from Stripe...');
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
-      if (!paymentIntent) {
-        console.log('❌ Payment intent not found');
-        return res.status(404).json({ message: "Payment intent not found" });
-      }
-
-      console.log('Payment intent retrieved successfully');
-      console.log('Payment intent metadata:', JSON.stringify(paymentIntent.metadata, null, 2));
-      console.log('Payment intent amount:', paymentIntent.amount);
-      console.log('Payment intent status:', paymentIntent.status);
-
-      // Extract customer and order information from metadata
-      const metadata = paymentIntent.metadata;
-      const customerName = metadata.customerName || 'Customer';
-      const customerEmail = metadata.customerEmail;
-      const pickupLocation = metadata.pickupLocation || '';
-      const pickupInstructions = metadata.pickupInstructions || '';
-      
-      console.log('Extracted customer info:', { customerName, customerEmail, pickupLocation });
-      
-      if (!customerEmail) {
-        console.log('❌ No customer email found in payment intent metadata');
-        return res.status(400).json({ message: "Customer email not found in payment intent" });
-      }
-
-      // Parse order items from metadata (these should be stored when payment intent is created)
-      const orderItemsString = metadata.orderItems || '[]';
-      console.log('Order items string from metadata:', orderItemsString);
-      let orderItems;
-      try {
-        orderItems = JSON.parse(orderItemsString);
-        console.log('Parsed order items:', orderItems);
-      } catch (error) {
-        console.error("Error parsing order items:", error);
-        orderItems = [];
-      }
-
-      // Send the email
-      const emailData = {
-        customerName,
-        customerEmail,
-        orderTotal: paymentIntent.amount / 100, // Convert from cents
-        orderItems,
-        pickupLocation,
-        pickupInstructions,
-        orderDate: new Date().toLocaleDateString(),
-        paymentIntentId,
-      };
-
-      console.log('Prepared email data:', JSON.stringify(emailData, null, 2));
-      console.log('Calling SendGrid email function...');
-
-      const emailSent = await sendOrderConfirmationEmail(emailData);
-      
-      console.log('Email sending result:', emailSent);
-      
-      if (emailSent) {
-        console.log('✅ Email sent successfully, responding with success');
-        res.json({ success: true, message: "Order confirmation email sent successfully" });
-      } else {
-        console.log('❌ Email failed to send, responding with error');
-        res.status(500).json({ message: "Failed to send order confirmation email" });
-      }
+      // Just return success - Stripe handles email receipts in production
+      res.json({ 
+        success: true, 
+        message: "Order confirmation handled by Stripe receipt system" 
+      });
     } catch (error: any) {
-      console.error("Error sending order confirmation email:", error);
-      res.status(500).json({ message: "Error sending order confirmation email: " + error.message });
+      console.error("Error in order confirmation endpoint:", error);
+      res.status(500).json({ message: "Error in order confirmation: " + error.message });
     }
   });
 

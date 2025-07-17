@@ -191,3 +191,12 @@ Changelog:
   - Emails sent immediately after successful payment processing
   - Template includes order summary table, pickup location details, and farm branding
   - Used SendGrid API key named "LittleWayAcres" with full access permissions
+- January 17, 2025. Switched back to Stripe automatic receipt emails due to deliverability issues:
+  - Identified DMARC alignment problems with Gmail sending through SendGrid
+  - Removed SendGrid email system and reverted to Stripe's built-in receipt functionality
+  - Updated payment intent to include detailed pickup information in description field
+  - Configured receipt_email during payment confirmation for automatic Stripe receipts
+  - Updated pickup instructions: Muskegon (8:00 AM - 1:00 PM) with "Look for the Little Way Acres stand. We are usually placed in a spot between 59-57."
+  - Maintained existing Little Way Acres pickup instructions for farm stand location
+  - Stripe receipts include order details, pickup location, timing, and instructions in payment description
+  - System now relies on Stripe's proven email delivery infrastructure for better reliability
