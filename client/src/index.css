@@ -2,6 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Print styles for order sheets */
+@media print {
+  @page {
+    margin: 0.5in;
+  }
+  
+  /* Hide elements that shouldn't print */
+  .print\\:hidden,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure good print layout */
+  .print\\:break-before-page {
+    page-break-before: always;
+  }
+  
+  .print\\:break-after-page {
+    page-break-after: always;
+  }
+  
+  .print\\:break-inside-avoid {
+    page-break-inside: avoid;
+  }
+  
+  /* Adjust text sizes for print */
+  .print\\:text-xs {
+    font-size: 10px !important;
+  }
+  
+  .print\\:text-sm {
+    font-size: 12px !important;
+  }
+  
+  .print\\:text-base {
+    font-size: 14px !important;
+  }
+  
+  .print\\:text-lg {
+    font-size: 16px !important;
+  }
+  
+  /* Adjust spacing for print */
+  .print\\:space-y-1 > * + * {
+    margin-top: 4px !important;
+  }
+  
+  .print\\:space-y-2 > * + * {
+    margin-top: 8px !important;
+  }
+  
+  .print\\:space-y-3 > * + * {
+    margin-top: 12px !important;
+  }
+  
+  .print\\:space-y-4 > * + * {
+    margin-top: 16px !important;
+  }
+  
+  /* Adjust padding for print */
+  .print\\:p-1 {
+    padding: 4px !important;
+  }
+  
+  .print\\:p-2 {
+    padding: 8px !important;
+  }
+  
+  .print\\:p-3 {
+    padding: 12px !important;
+  }
+  
+  /* Adjust margins for print */
+  .print\\:mb-2 {
+    margin-bottom: 8px !important;
+  }
+  
+  .print\\:mb-4 {
+    margin-bottom: 16px !important;
+  }
+  
+  /* Background colors for print */
+  .print\\:bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+  
+  /* Border colors for print */
+  .print\\:border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+  
+  /* Icon sizes for print */
+  .print\\:w-4 {
+    width: 16px !important;
+  }
+  
+  .print\\:h-4 {
+    height: 16px !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

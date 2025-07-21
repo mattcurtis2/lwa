@@ -2497,7 +2497,9 @@ app.get("/api/litters/list/current", async (req, res) => {
   app.get("/api/orders/summary", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
-      const allOrders = await db.query.orders.findMany({
+      const environment = req.query.env as string;
+      
+      let allOrders = await db.query.orders.findMany({
         where: eq(orders.siteId, siteId),
         with: {
           items: true,
@@ -2505,6 +2507,19 @@ app.get("/api/litters/list/current", async (req, res) => {
         },
         orderBy: (orders, { desc }) => desc(orders.createdAt)
       });
+
+      // Filter by environment if specified
+      if (environment === 'test') {
+        allOrders = allOrders.filter(order => 
+          order.stripePaymentIntentId?.includes('test') || 
+          order.stripePaymentIntentId?.startsWith('pi_test')
+        );
+      } else if (environment === 'prod') {
+        allOrders = allOrders.filter(order => 
+          !order.stripePaymentIntentId?.includes('test') && 
+          !order.stripePaymentIntentId?.startsWith('pi_test')
+        );
+      }
 
       // Group orders by Saturday (pickup date)
       const summary = allOrders.reduce((acc: any, order) => {
