@@ -723,4 +723,69 @@ export const printifyProductsRelations = relations(printifyProducts, ({ one }) =
 export const insertPrintifyProductSchema = createInsertSchema(printifyProducts);
 export const selectPrintifyProductSchema = createSelectSchema(printifyProducts);
 export type PrintifyProduct = typeof printifyProducts.$inferSelect;
+
+// Orders and Order Items tables
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique().notNull(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  pickupLocationId: integer("pickup_location_id").references(() => marketSchedules.id),
+  pickupDate: date("pickup_date").notNull(),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending"), // "pending", "confirmed", "ready", "completed", "cancelled"
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").references(() => sites.id).default(1),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  productName: text("product_name").notNull(), // Store name at time of order
+  quantity: integer("quantity").notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const orderRelations = relations(orders, ({ many, one }) => ({
+  items: many(orderItems),
+  pickupLocation: one(marketSchedules, {
+    fields: [orders.pickupLocationId],
+    references: [marketSchedules.id],
+  }),
+}));
+
+export const orderItemRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
+}));
+
+export const insertOrderSchema = createInsertSchema(orders);
+export const selectOrderSchema = createSelectSchema(orders);
+export const insertOrderItemSchema = createInsertSchema(orderItems);
+export const selectOrderItemSchema = createSelectSchema(orderItems);
+
+export type Order = typeof orders.$inferSelect & {
+  items?: OrderItem[];
+  pickupLocation?: MarketSchedule;
+};
+
+export type OrderItem = typeof orderItems.$inferSelect & {
+  product?: typeof products.$inferSelect;
+};
+
+export type NewOrder = typeof orders.$inferInsert;
+export type NewOrderItem = typeof orderItems.$inferInsert;
 export type NewPrintifyProduct = typeof printifyProducts.$inferInsert;

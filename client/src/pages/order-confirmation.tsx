@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, ShoppingCart, MapPin, Mail, ExternalLink, Calendar, User, Phone, Printer } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useCart } from '@/contexts/cart-context';
+import { apiRequest } from '@/lib/queryClient';
 
 interface OrderItem {
   id: number;
@@ -28,6 +29,7 @@ interface OrderData {
     startTime: string;
     endTime: string;
   };
+  pickupDate: string;
   total: number;
   orderDate: string;
 }
@@ -35,14 +37,59 @@ interface OrderData {
 export default function OrderConfirmation() {
   const [, navigate] = useLocation();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [orderCreated, setOrderCreated] = useState(false);
 
   useEffect(() => {
     // Get stored order data
     const storedOrderData = localStorage.getItem('orderData');
     if (storedOrderData) {
-      setOrderData(JSON.parse(storedOrderData));
+      const data = JSON.parse(storedOrderData);
+      setOrderData(data);
+      
+      // Create order record after successful payment
+      if (!orderCreated) {
+        createOrderRecord(data);
+      }
     }
-  }, []);
+  }, [orderCreated]);
+
+  const createOrderRecord = async (data: OrderData) => {
+    try {
+      const paymentIntentId = new URLSearchParams(window.location.search).get('payment_intent');
+      
+      if (!paymentIntentId) {
+        console.error('No payment intent ID found');
+        return;
+      }
+
+      const orderPayload = {
+        stripePaymentIntentId: paymentIntentId,
+        customerName: `${data.customer.firstName} ${data.customer.lastName}`,
+        customerEmail: data.customer.email,
+        customerPhone: data.customer.phone,
+        pickupLocationId: data.pickupLocation.id,
+        pickupDate: data.pickupDate,
+        totalAmount: data.total.toString(),
+        cartItems: data.items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: `$${item.price.toFixed(2)}`,
+          quantity: item.quantity
+        }))
+      };
+
+      const response = await apiRequest('POST', '/api/orders', orderPayload);
+      
+      if (response.ok) {
+        setOrderCreated(true);
+        console.log('Order created successfully');
+      } else {
+        console.error('Failed to create order record');
+      }
+    } catch (error) {
+      console.error('Error creating order record:', error);
+    }
+  };
 
   // Get payment intent from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -174,10 +221,17 @@ export default function OrderConfirmation() {
                 <p className="text-sm text-muted-foreground">{orderData.pickupLocation.address}</p>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{orderData.pickupLocation.dayOfWeek}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}
+                  <span className="text-sm font-medium">
+                    {new Date(orderData.pickupDate).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
                   </span>
+                </div>
+                <div className="text-sm text-muted-foreground ml-6">
+                  {orderData.pickupLocation.startTime} - {orderData.pickupLocation.endTime}
                 </div>
               </div>
             </div>

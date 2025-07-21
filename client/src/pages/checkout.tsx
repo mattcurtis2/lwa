@@ -31,6 +31,7 @@ interface MarketSchedule {
 
 interface CheckoutFormData {
   pickupLocation: string;
+  pickupDate: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -47,6 +48,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<CheckoutFormData>({
     pickupLocation: '',
+    pickupDate: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -61,11 +63,37 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
     },
   });
 
+  // Generate next 4 Saturday dates
+  const getNextSaturdays = () => {
+    const saturdays = [];
+    const now = new Date();
+    let nextSaturday = new Date(now);
+    
+    // Find next Saturday
+    const daysUntilSaturday = (6 - now.getDay()) % 7;
+    if (daysUntilSaturday === 0 && now.getHours() > 14) {
+      // If it's Saturday after 2 PM, start from next Saturday
+      nextSaturday.setDate(now.getDate() + 7);
+    } else {
+      nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+    }
+
+    // Generate 4 consecutive Saturdays
+    for (let i = 0; i < 4; i++) {
+      saturdays.push(new Date(nextSaturday));
+      nextSaturday.setDate(nextSaturday.getDate() + 7);
+    }
+    
+    return saturdays;
+  };
+
+  const availableSaturdays = getNextSaturdays();
+
   const handleStepNext = async () => {
-    if (currentStep === 1 && !formData.pickupLocation) {
+    if (currentStep === 1 && (!formData.pickupLocation || !formData.pickupDate)) {
       toast({
-        title: "Pickup Location Required",
-        description: "Please select a pickup location to continue.",
+        title: "Pickup Information Required",
+        description: "Please select a pickup location and date to continue.",
         variant: "destructive",
       });
       return;
@@ -138,6 +166,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
         phone: formData.phone
       },
       pickupLocation: selectedSchedule,
+      pickupDate: formData.pickupDate,
       total: getTotalPrice(),
       orderDate: new Date().toISOString()
     };
@@ -203,7 +232,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
             <div className={`ml-2 text-sm ${
               step <= currentStep ? 'text-primary font-medium' : 'text-muted-foreground'
             }`}>
-              {step === 1 && 'Pickup Location'}
+              {step === 1 && 'Pickup Details'}
               {step === 2 && 'Customer Info'}
               {step === 3 && 'Payment'}
             </div>
@@ -219,33 +248,67 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Step 1: Pickup Location */}
+          {/* Step 1: Pickup Location & Date */}
           {currentStep === 1 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
-                  Select Pickup Location
+                  Select Pickup Location & Date
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <RadioGroup
-                  value={formData.pickupLocation}
-                  onValueChange={(value) => updateFormData('pickupLocation', value)}
-                >
-                  {schedules.map((schedule) => (
-                    <div key={schedule.id} className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <RadioGroupItem value={schedule.id.toString()} id={`location-${schedule.id}`} />
-                      <Label htmlFor={`location-${schedule.id}`} className="flex-1 cursor-pointer">
-                        <div className="font-medium">{schedule.location}</div>
-                        <div className="text-sm text-muted-foreground">{schedule.address}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {schedule.dayOfWeek} • {schedule.startTime} - {schedule.endTime}
-                        </div>
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+              <CardContent className="space-y-6">
+                <div>
+                  <Label className="text-base font-medium mb-3 block">Pickup Location</Label>
+                  <RadioGroup
+                    value={formData.pickupLocation}
+                    onValueChange={(value) => updateFormData('pickupLocation', value)}
+                  >
+                    {schedules.map((schedule) => (
+                      <div key={schedule.id} className="flex items-center space-x-2 p-4 border rounded-lg">
+                        <RadioGroupItem value={schedule.id.toString()} id={`location-${schedule.id}`} />
+                        <Label htmlFor={`location-${schedule.id}`} className="flex-1 cursor-pointer">
+                          <div className="font-medium">{schedule.location}</div>
+                          <div className="text-sm text-muted-foreground">{schedule.address}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {schedule.dayOfWeek} • {schedule.startTime} - {schedule.endTime}
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label className="text-base font-medium mb-3 block">Pickup Date</Label>
+                  <RadioGroup
+                    value={formData.pickupDate}
+                    onValueChange={(value) => updateFormData('pickupDate', value)}
+                  >
+                    {availableSaturdays.map((saturday, index) => (
+                      <div key={index} className="flex items-center space-x-2 p-4 border rounded-lg">
+                        <RadioGroupItem 
+                          value={saturday.toISOString().split('T')[0]} 
+                          id={`date-${index}`} 
+                        />
+                        <Label htmlFor={`date-${index}`} className="flex-1 cursor-pointer">
+                          <div className="font-medium">
+                            Saturday, {saturday.toLocaleDateString('en-US', { 
+                              month: 'long', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {index === 0 && 'This Saturday'}
+                            {index === 1 && 'Next Saturday'}
+                            {index > 1 && `${index + 1} weeks from now`}
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
               </CardContent>
             </Card>
           )}

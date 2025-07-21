@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
@@ -2469,6 +2469,125 @@ app.get("/api/litters/list/current", async (req, res) => {
       console.error("Error during scheduled sync:", error);
     }
   }, 12 * 60 * 60 * 1000); // 12 hours in milliseconds
+
+  // Orders API endpoints
+  app.get("/api/orders", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const allOrders = await db.query.orders.findMany({
+        where: eq(orders.siteId, siteId),
+        with: {
+          items: {
+            with: {
+              product: true
+            }
+          },
+          pickupLocation: true
+        },
+        orderBy: (orders, { desc }) => desc(orders.createdAt)
+      });
+
+      res.json(allOrders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  app.get("/api/orders/summary", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const allOrders = await db.query.orders.findMany({
+        where: eq(orders.siteId, siteId),
+        with: {
+          items: true,
+          pickupLocation: true
+        },
+        orderBy: (orders, { desc }) => desc(orders.createdAt)
+      });
+
+      // Group orders by Saturday (pickup date)
+      const summary = allOrders.reduce((acc: any, order) => {
+        const pickupDate = order.pickupDate;
+        const dateKey = pickupDate; // Store as string key
+        
+        if (!acc[dateKey]) {
+          acc[dateKey] = {
+            date: pickupDate,
+            totalOrders: 0,
+            totalRevenue: 0,
+            orders: []
+          };
+        }
+        
+        acc[dateKey].totalOrders += 1;
+        acc[dateKey].totalRevenue += parseFloat(order.totalAmount);
+        acc[dateKey].orders.push(order);
+        
+        return acc;
+      }, {});
+
+      // Convert to array and sort by date desc
+      const summaryArray = Object.values(summary).sort((a: any, b: any) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      res.json(summaryArray);
+    } catch (error) {
+      console.error("Error fetching orders summary:", error);
+      res.status(500).json({ message: "Failed to fetch orders summary" });
+    }
+  });
+
+  // Create order after successful payment
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const { 
+        stripePaymentIntentId, 
+        customerName, 
+        customerEmail, 
+        customerPhone,
+        pickupLocationId,
+        pickupDate,
+        totalAmount,
+        cartItems 
+      } = req.body;
+
+      // Create the order
+      const newOrder = await db.insert(orders).values({
+        siteId,
+        stripePaymentIntentId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        pickupLocationId,
+        pickupDate,
+        totalAmount,
+        status: 'confirmed'
+      }).returning();
+
+      const orderId = newOrder[0].id;
+
+      // Create order items
+      for (const item of cartItems) {
+        await db.insert(orderItems).values({
+          siteId,
+          orderId,
+          productId: item.id,
+          productName: item.name,
+          quantity: item.quantity,
+          unitPrice: parseFloat(item.price.replace('$', '')),
+          totalPrice: parseFloat(item.price.replace('$', '')) * item.quantity
+        });
+      }
+
+      res.json({ success: true, orderId });
+    } catch (error) {
+      console.error("Error creating order:", error);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

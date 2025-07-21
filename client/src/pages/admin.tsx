@@ -12,6 +12,7 @@ import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
 import GalleryManagement from "@/components/admin/gallery-management";
 import PrintifyManagement from "@/components/admin/printify-management";
+import OrdersManagement from "@/components/admin/orders-management";
 import SiteSelector from "@/components/admin/site-selector";
 import {
   LayoutDashboard,
@@ -23,7 +24,8 @@ import {
   Menu,
   X,
   Zap,
-  Shirt
+  Shirt,
+  ShoppingCart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -105,6 +107,13 @@ export default function Admin() {
         >
           <ShoppingBag className="h-4 w-4 mr-2" />
           Market
+        </button>
+        <button
+          onClick={() => handleTabChange("orders")}
+          className={`flex w-full items-center justify-start px-4 py-2 text-left text-sm ${activeTab === "orders" ? "bg-muted font-medium" : "bg-transparent hover:bg-muted/50"} transition-colors rounded-md`}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Orders
         </button>
         <button
           onClick={() => handleTabChange("gallery")}
@@ -232,6 +241,10 @@ export default function Admin() {
                   </TabsContent>
                 </Tabs>
               </div>
+            </TabsContent>
+
+            <TabsContent value="orders">
+              <OrdersManagement />
             </TabsContent>
 
             <TabsContent value="gallery">
