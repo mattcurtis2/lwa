@@ -44,21 +44,24 @@ interface OrderSummary {
 export default function OrdersManagement() {
   const [selectedEnvironment, setSelectedEnvironment] = useState<'all' | 'test' | 'prod'>('all');
 
-  const { data: ordersSummary = [], isLoading, error } = useQuery<OrderSummary[]>({
+  const { data: ordersSummary = [], isLoading, error, refetch } = useQuery<OrderSummary[]>({
     queryKey: ['/api/orders/summary', selectedEnvironment],
     queryFn: async () => {
       const res = await apiRequest('GET', `/api/orders/summary?env=${selectedEnvironment}`);
       return res.json();
     },
+    refetchInterval: 10000, // Refetch every 10 seconds to show new orders
   });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { 
+    const formatted = new Date(dateString).toLocaleDateString('en-US', { 
       weekday: 'long',
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
     });
+    // Ensure proper capitalization
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
   const formatCurrency = (amount: string | number) => {
@@ -112,6 +115,9 @@ export default function OrdersManagement() {
               <option value="prod">Production Orders</option>
             </select>
           </div>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="text-xs">
+            Refresh
+          </Button>
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5" />
             <span className="text-sm text-muted-foreground">
