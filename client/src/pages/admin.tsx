@@ -12,7 +12,7 @@ import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
 import GalleryManagement from "@/components/admin/gallery-management";
 import PrintifyManagement from "@/components/admin/printify-management";
-import OrdersManagement from "@/components/admin/orders-management-simple";
+import OrdersManagement from "@/components/admin/orders-management";
 import SiteSelector from "@/components/admin/site-selector";
 import {
   LayoutDashboard,
