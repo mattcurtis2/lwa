@@ -78,6 +78,8 @@ export default function OrdersManagement() {
     refetchInterval: 10000, // Refetch every 10 seconds to show new orders
   });
 
+  const availableDates = ordersSummary.map(s => s.date);
+
   const toggleSummary = (date: string) => {
     const newExpanded = new Set(expandedSummaries);
     if (newExpanded.has(date)) {
@@ -100,65 +102,18 @@ export default function OrdersManagement() {
   };
 
   const formatCurrency = (amount: string | number) => {
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
-    }).format(num);
+    }).format(typeof amount === 'string' ? parseFloat(amount) : amount);
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Orders Management</h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Orders Management</h2>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-muted-foreground">
-              <p>Error loading orders. Please try again later.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Get unique pickup dates for order sheet selection
-  const availableDates = ordersSummary.map(s => s.date).sort((a, b) => 
-    new Date(b).getTime() - new Date(a).getTime()
-  );
-
-  // Filter orders for order sheet view
+  // Get orders for the selected date or all orders if no date selected
   const getOrdersForSheet = () => {
     if (!selectedDate) return [];
+    
     const summary = ordersSummary.find(s => s.date === selectedDate);
-    return summary?.orders || [];
-  };
-
-  // Group orders by pickup location for order sheet
-  const getOrdersByLocation = () => {
-    const orders = getOrdersForSheet();
-    const grouped: Record<string, Order[]> = {};
-    
-    orders.forEach(order => {
-      const location = order.pickupLocation?.location || 'Unknown Location';
-      if (!grouped[location]) {
-        grouped[location] = [];
-      }
-      grouped[location].push(order);
-    });
-    
-    return grouped;
+    return summary ? summary.orders : [];
   };
 
   // Get consolidated items for production (what to make)
@@ -180,6 +135,57 @@ export default function OrdersManagement() {
     return itemCounts;
   };
 
+  // Get orders sorted by last name for packing list
+  const getOrdersByLastName = () => {
+    const orders = getOrdersForSheet();
+    const grouped: Record<string, Order[]> = {};
+    
+    orders.forEach(order => {
+      const location = order.pickupLocation?.location || 'Unknown Location';
+      if (!grouped[location]) {
+        grouped[location] = [];
+      }
+      grouped[location].push(order);
+    });
+    
+    // Sort each location's orders by last name
+    Object.keys(grouped).forEach(location => {
+      grouped[location].sort((a, b) => {
+        const lastNameA = a.customerName.split(' ').pop()?.toLowerCase() || '';
+        const lastNameB = b.customerName.split(' ').pop()?.toLowerCase() || '';
+        return lastNameA.localeCompare(lastNameB);
+      });
+    });
+    
+    return grouped;
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+            <p>Loading orders...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center text-red-500">
+            <p className="text-lg font-medium">Error loading orders</p>
+            <p>Please try refreshing the page.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -200,12 +206,6 @@ export default function OrdersManagement() {
           <Button variant="outline" size="sm" onClick={() => refetch()} className="text-xs">
             Refresh
           </Button>
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5" />
-            <span className="text-sm text-muted-foreground">
-              {ordersSummary.reduce((total, summary) => total + summary.totalOrders, 0)} total orders
-            </span>
-          </div>
         </div>
       </div>
 
@@ -219,159 +219,156 @@ export default function OrdersManagement() {
             <FileText className="w-4 h-4" />
             Order Sheet
           </TabsTrigger>
+          <TabsTrigger value="packing" className="flex items-center gap-2">
+            <Package className="w-4 h-4" />
+            Packing List
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-
-      {ordersSummary.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-muted-foreground">
-              <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No orders yet</p>
-              <p>Orders will appear here once customers start purchasing items.</p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {ordersSummary.map((summary) => (
-            <Card key={summary.date}>
-              <Collapsible 
-                open={expandedSummaries.has(summary.date)}
-                onOpenChange={() => toggleSummary(summary.date)}
-              >
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+          {ordersSummary.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center text-muted-foreground">
+                  <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium">No orders found</p>
+                  <p>Orders will appear here as customers make purchases.</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {ordersSummary.map((summary) => (
+                <Card key={summary.date}>
+                  <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {expandedSummaries.has(summary.date) ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                        <div>
-                          <CardTitle className="flex items-center gap-2">
-                            <Calendar className="w-5 h-5" />
-                            {formatDate(summary.date)}
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Saturday Market Day
-                          </p>
+                      <CardTitle className="flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5" />
+                        {formatDate(summary.date)}
+                      </CardTitle>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{summary.totalOrders} orders</span>
+                          <span>{formatCurrency(summary.totalRevenue)}</span>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-right">
-                          <div className="flex items-center gap-1">
-                            <Package className="w-4 h-4" />
-                            <span className="font-semibold">{summary.totalOrders}</span>
-                            <span className="text-sm text-muted-foreground">orders</span>
-                          </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              setSelectedDate(summary.date);
+                              setActiveTab('sheet');
+                            }}
+                            className="text-xs"
+                          >
+                            <FileText className="w-3 h-3 mr-1" />
+                            Order Sheet
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              setSelectedDate(summary.date);
+                              setActiveTab('packing');
+                            }}
+                            className="text-xs"
+                          >
+                            <Package className="w-3 h-3 mr-1" />
+                            Packing List
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSummary(summary.date)}
+                            className="text-xs"
+                          >
+                            {expandedSummaries.has(summary.date) ? (
+                              <ChevronDown className="w-4 h-4" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4" />
+                            )}
+                          </Button>
                         </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span className="font-semibold">{formatCurrency(summary.totalRevenue)}</span>
-                          </div>
-                        </div>
-                        <Badge variant="outline">
-                          {summary.orders.length > 0 ? 'Active' : 'No Orders'}
-                        </Badge>
                       </div>
                     </div>
                   </CardHeader>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent>
-                  <CardContent className="pt-0">
-                    <Separator className="mb-4" />
-                    <div className="space-y-4">
-                      {summary.orders.map((order) => (
-                        <Card key={order.id} className="bg-muted/30">
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <User className="w-4 h-4" />
-                                  <span className="font-medium">{order.customerName}</span>
-                                  <Badge variant="secondary" className="text-xs">
-                                    Order #{order.id}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <Mail className="w-3 h-3" />
-                                    {order.customerEmail}
+                  
+                  <Collapsible open={expandedSummaries.has(summary.date)}>
+                    <CollapsibleContent>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {summary.orders.map((order) => (
+                            <div key={order.id} className="border rounded-lg p-4">
+                              <div className="flex justify-between items-start mb-3">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-semibold">Order #{order.id}</span>
+                                    <Badge 
+                                      variant={order.stripePaymentIntentId?.includes('test') ? 'secondary' : 'default'}
+                                      className="text-xs"
+                                    >
+                                      {order.stripePaymentIntentId?.includes('test') ? 'TEST' : 'PROD'}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <User className="w-4 h-4" />
+                                    <span className="font-medium">{order.customerName}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Mail className="w-4 h-4" />
+                                    <span className="text-sm text-muted-foreground">{order.customerEmail}</span>
                                   </div>
                                   {order.customerPhone && (
-                                    <div className="flex items-center gap-1">
-                                      <Phone className="w-3 h-3" />
-                                      {order.customerPhone}
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Phone className="w-4 h-4" />
+                                      <span className="text-sm text-muted-foreground">{order.customerPhone}</span>
                                     </div>
                                   )}
-                                </div>
-                                {order.pickupLocation && (
-                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <MapPin className="w-3 h-3" />
-                                    {order.pickupLocation.location} - {order.pickupLocation.address}
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="w-4 h-4" />
+                                    <span className="text-sm font-medium">
+                                      {order.pickupLocation?.location || 'Unknown Location'}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">
+                                      on {formatDate(order.pickupDate)}
+                                    </span>
                                   </div>
-                                )}
+                                </div>
+                                <div className="text-right">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <DollarSign className="w-4 h-4" />
+                                    <span className="font-semibold">{formatCurrency(order.totalAmount)}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="text-right">
-                                <div className="font-semibold">{formatCurrency(order.totalAmount)}</div>
-                                <Badge 
-                                  variant={order.status === 'confirmed' ? 'default' : 'secondary'}
-                                  className="text-xs mt-1"
-                                >
-                                  {order.status}
-                                </Badge>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-sm">Order Items:</h4>
-                              <div className="grid gap-2">
+                              
+                              <Separator className="my-3" />
+                              
+                              <div className="space-y-1">
                                 {order.items.map((item) => (
-                                  <div key={item.id} className="flex justify-between items-center text-sm bg-background rounded p-2">
+                                  <div key={item.id} className="flex justify-between text-sm bg-background rounded p-2">
                                     <span>{item.productName}</span>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                    <div className="flex items-center gap-4">
                                       <span>Qty: {item.quantity}</span>
-                                      <span>×</span>
-                                      <span>{formatCurrency(item.unitPrice)}</span>
-                                      <span>=</span>
-                                      <span className="font-medium text-foreground">
-                                        {formatCurrency(item.totalPrice)}
-                                      </span>
+                                      <span className="font-medium">{formatCurrency(item.totalPrice)}</span>
                                     </div>
                                   </div>
                                 ))}
                               </div>
-                              <div className="text-xs text-muted-foreground pt-2 border-t">
-                                Ordered: {new Date(order.createdAt).toLocaleString()}
-                                {order.stripePaymentIntentId && (
-                                  <span className="ml-2">• Stripe ID: {order.stripePaymentIntentId}</span>
-                                )}
-                              </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      
-                      {summary.orders.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                          <p>No orders for this date</p>
+                          ))}
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Collapsible>
-            </Card>
-          ))}
-        </div>
-      )}
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="sheet" className="space-y-4">
@@ -380,7 +377,7 @@ export default function OrdersManagement() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />
-                  Production Order Sheet
+                  Order Sheet
                 </CardTitle>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -418,30 +415,38 @@ export default function OrdersManagement() {
                 <div className="print:break-before-page">
                   <div className="text-center mb-6 print:mb-4">
                     <h1 className="text-2xl font-bold print:text-lg">Little Way Acres</h1>
-                    <h2 className="text-xl print:text-base">Production Order Sheet</h2>
+                    <h2 className="text-xl print:text-base">Order Sheet - Production Summary</h2>
                     <p className="text-lg print:text-sm font-medium">{formatDate(selectedDate)}</p>
                     <Badge variant={selectedEnvironment === 'test' ? 'secondary' : 'default'} className="mt-2">
                       {selectedEnvironment === 'all' ? 'All Orders' : selectedEnvironment === 'test' ? 'TEST ENVIRONMENT' : 'PRODUCTION'}
                     </Badge>
                   </div>
 
-                  {/* Items to Make Summary */}
-                  <Card className="mb-6 print:mb-4">
+                  {/* Production Summary - Items to Make */}
+                  <Card className="mb-6 print:mb-4 print:break-inside-avoid">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg print:text-base">Items to Make</CardTitle>
+                      <CardTitle className="flex items-center gap-2 text-lg print:text-base">
+                        <Package className="w-5 h-5 print:w-4 print:h-4" />
+                        Items to Make
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Production summary for {formatDate(selectedDate)}
+                      </p>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-3 print:gap-2">
                         {Object.entries(getConsolidatedItems()).map(([item, data]) => (
-                          <div key={item} className="flex justify-between items-center p-3 print:p-2 bg-muted rounded-lg print:bg-gray-100">
-                            <span className="font-medium print:text-sm">{item}</span>
-                            <div className="flex items-center gap-4 print:gap-2">
-                              <Badge variant="outline" className="print:text-xs">
-                                Quantity: {data.quantity}
-                              </Badge>
-                              <span className="text-sm text-muted-foreground print:text-xs">
-                                Orders: {data.orders.join(', ')}
-                              </span>
+                          <div key={item} className="border rounded-lg p-3 print:p-2 print:border-gray-300 bg-background print:bg-white">
+                            <div className="flex justify-between items-center">
+                              <span className="font-semibold text-lg print:text-base">{item}</span>
+                              <div className="text-right">
+                                <p className="font-bold text-xl print:text-lg text-primary">
+                                  Make: {data.quantity}
+                                </p>
+                                <p className="text-xs text-muted-foreground print:text-xs">
+                                  Orders: {data.orders.join(', ')}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -450,9 +455,9 @@ export default function OrdersManagement() {
                   </Card>
 
                   {/* Orders by Pickup Location */}
-                  <div className="space-y-4 print:space-y-3">
-                    {Object.entries(getOrdersByLocation()).map(([location, locationOrders]) => (
-                      <Card key={location}>
+                  <div className="space-y-6 print:space-y-4">
+                    {Object.entries(getOrdersByLastName()).map(([location, locationOrders]) => (
+                      <Card key={location} className="print:break-inside-avoid">
                         <CardHeader className="pb-3">
                           <CardTitle className="flex items-center gap-2 text-lg print:text-base">
                             <MapPin className="w-5 h-5 print:w-4 print:h-4" />
@@ -465,44 +470,187 @@ export default function OrdersManagement() {
                           </p>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-4 print:space-y-2">
+                          <div className="grid gap-3 print:gap-2">
                             {locationOrders.map((order) => (
-                              <div key={order.id} className="border rounded-lg p-4 print:p-3 print:border-gray-300">
-                                <div className="flex justify-between items-start mb-3 print:mb-2">
-                                  <div>
+                              <div key={order.id} className="border rounded-lg p-3 print:p-2 print:border-gray-300 bg-background print:bg-white">
+                                <div className="flex justify-between items-start mb-2 print:mb-1">
+                                  <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <span className="font-semibold print:text-sm">Order #{order.id}</span>
+                                      <span className="font-semibold">Order #{order.id}</span>
                                       <Badge 
                                         variant={order.stripePaymentIntentId?.includes('test') ? 'secondary' : 'default'}
-                                        className="text-xs"
+                                        className="text-xs print:text-xs"
                                       >
                                         {order.stripePaymentIntentId?.includes('test') ? 'TEST' : 'PROD'}
                                       </Badge>
                                     </div>
-                                    <p className="font-medium print:text-sm">{order.customerName}</p>
+                                    <p className="font-medium text-base print:text-sm">{order.customerName}</p>
                                     <p className="text-sm text-muted-foreground print:text-xs">{order.customerEmail}</p>
                                     {order.customerPhone && (
                                       <p className="text-sm text-muted-foreground print:text-xs">{order.customerPhone}</p>
                                     )}
                                   </div>
                                   <div className="text-right">
-                                    <p className="font-semibold print:text-sm">{formatCurrency(order.totalAmount)}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {new Date(order.createdAt).toLocaleDateString()}
-                                    </p>
+                                    <p className="font-semibold text-lg print:text-base">{formatCurrency(order.totalAmount)}</p>
                                   </div>
                                 </div>
                                 
-                                <div className="space-y-1 print:space-y-1">
-                                  {order.items.map((item) => (
-                                    <div key={item.id} className="flex justify-between text-sm print:text-xs bg-background rounded p-2 print:p-1">
-                                      <span>{item.productName}</span>
-                                      <span>Qty: {item.quantity}</span>
-                                    </div>
-                                  ))}
+                                <div className="bg-muted rounded p-2 print:bg-gray-50 print:p-1">
+                                  <p className="font-medium text-sm print:text-xs mb-1">Items:</p>
+                                  <div className="space-y-1 print:space-y-0">
+                                    {order.items.map((item) => (
+                                      <div key={item.id} className="flex justify-between text-sm print:text-xs">
+                                        <span className="font-medium">{item.productName}</span>
+                                        <span className="font-semibold">Qty: {item.quantity}</span>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {getOrdersForSheet().length === 0 && (
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg font-medium">No orders for this date</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </CardContent>
+            )}
+
+            {!selectedDate && (
+              <CardContent className="pt-6">
+                <div className="text-center text-muted-foreground">
+                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium">Select a pickup date to view order sheet</p>
+                  <p>Choose a date to see detailed orders organized by pickup location.</p>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="packing" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Packing List by Market
+                </CardTitle>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium">Select Date:</label>
+                    <select 
+                      value={selectedDate} 
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="px-3 py-1 border rounded-md text-sm"
+                    >
+                      <option value="">Select a pickup date</option>
+                      {availableDates.map(date => (
+                        <option key={date} value={date}>
+                          {formatDate(date)} ({ordersSummary.find(s => s.date === date)?.totalOrders || 0} orders)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedDate && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => window.print()}
+                      className="flex items-center gap-2"
+                    >
+                      <Printer className="w-4 h-4" />
+                      Print List
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            
+            {selectedDate && (
+              <CardContent className="space-y-6 print:space-y-4">
+                <div className="print:break-before-page">
+                  <div className="text-center mb-6 print:mb-4">
+                    <h1 className="text-2xl font-bold print:text-lg">Little Way Acres</h1>
+                    <h2 className="text-xl print:text-base">Packing List - Alphabetical by Last Name</h2>
+                    <p className="text-lg print:text-sm font-medium">{formatDate(selectedDate)}</p>
+                    <Badge variant={selectedEnvironment === 'test' ? 'secondary' : 'default'} className="mt-2">
+                      {selectedEnvironment === 'all' ? 'All Orders' : selectedEnvironment === 'test' ? 'TEST ENVIRONMENT' : 'PRODUCTION'}
+                    </Badge>
+                  </div>
+
+                  {/* Packing List by Location (Alphabetical by Last Name) */}
+                  <div className="space-y-6 print:space-y-4">
+                    {Object.entries(getOrdersByLastName()).map(([location, locationOrders]) => (
+                      <Card key={location} className="print:break-inside-avoid">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="flex items-center gap-2 text-lg print:text-base">
+                            <MapPin className="w-5 h-5 print:w-4 print:h-4" />
+                            {location}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            {locationOrders.length} orders • Total: {formatCurrency(
+                              locationOrders.reduce((sum, order) => sum + parseFloat(order.totalAmount), 0)
+                            )} • Alphabetical by Last Name
+                          </p>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid gap-3 print:gap-2">
+                            {locationOrders.map((order, index) => {
+                              const lastName = order.customerName.split(' ').pop() || '';
+                              return (
+                                <div key={order.id} className="border rounded-lg p-3 print:p-2 print:border-gray-300 bg-background print:bg-white">
+                                  <div className="flex justify-between items-start mb-2 print:mb-1">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-semibold text-lg print:text-base">
+                                          {index + 1}. {lastName.toUpperCase()}
+                                        </span>
+                                        <Badge 
+                                          variant={order.stripePaymentIntentId?.includes('test') ? 'secondary' : 'default'}
+                                          className="text-xs print:text-xs"
+                                        >
+                                          {order.stripePaymentIntentId?.includes('test') ? 'TEST' : 'PROD'}
+                                        </Badge>
+                                        <span className="text-xs text-muted-foreground print:text-xs">
+                                          Order #{order.id}
+                                        </span>
+                                      </div>
+                                      <p className="font-medium text-base print:text-sm">{order.customerName}</p>
+                                      <p className="text-sm text-muted-foreground print:text-xs">{order.customerEmail}</p>
+                                      {order.customerPhone && (
+                                        <p className="text-sm text-muted-foreground print:text-xs">{order.customerPhone}</p>
+                                      )}
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="font-semibold text-lg print:text-base">{formatCurrency(order.totalAmount)}</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="bg-muted rounded p-2 print:bg-gray-50 print:p-1">
+                                    <p className="font-medium text-sm print:text-xs mb-1">Items:</p>
+                                    <div className="space-y-1 print:space-y-0">
+                                      {order.items.map((item) => (
+                                        <div key={item.id} className="flex justify-between text-sm print:text-xs">
+                                          <span className="font-medium">{item.productName}</span>
+                                          <span className="font-semibold">Qty: {item.quantity}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </CardContent>
                       </Card>
@@ -524,9 +672,9 @@ export default function OrdersManagement() {
             {!selectedDate && (
               <CardContent className="pt-6">
                 <div className="text-center text-muted-foreground">
-                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Select a pickup date to view order sheet</p>
-                  <p>Choose a date to see production requirements and customer orders.</p>
+                  <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium">Select a pickup date to view packing list</p>
+                  <p>Choose a date to see orders organized alphabetically by last name for easy packing.</p>
                 </div>
               </CardContent>
             )}
