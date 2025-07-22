@@ -1665,8 +1665,17 @@ app.get("/api/litters/list/current", async (req, res) => {
         ? "Look for the farm stand with clear totes, find the bag marked with your name, arrive during pickup hours, enjoy your LWA order!"
         : "Look for the Little Way Acres stand. We are usually placed in a spot between 59-57.";
 
-      // Create receipt description with pickup information
-      const receiptDescription = `Order pickup: ${pickupLocation?.location || 'TBD'} - ${pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : 'TBD'} - ${pickupInstructions}`;
+      // Get items from payment intent metadata
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      const items = paymentIntent.metadata?.orderItems ? JSON.parse(paymentIntent.metadata.orderItems) : [];
+      
+      // Create detailed items list for receipt
+      const itemsList = items.map((item: any) => 
+        `${item.name} (Qty: ${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}`
+      ).join(', ');
+      
+      // Create receipt description with items and pickup information
+      const receiptDescription = `Order Items: ${itemsList}. Pickup: ${pickupLocation?.location || 'TBD'} - ${pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : 'TBD'} - ${pickupInstructions}`;
 
       // Update the payment intent with customer and pickup information
       console.log("Updating payment intent with customer info:", customerInfo?.email);
@@ -1680,6 +1689,7 @@ app.get("/api/litters/list/current", async (req, res) => {
           pickupAddress: pickupLocation?.address || '',
           pickupTime: pickupLocation ? `${pickupLocation.dayOfWeek} ${pickupLocation.startTime} - ${pickupLocation.endTime}` : '',
           pickupInstructions: pickupInstructions,
+          orderItems: itemsList, // Add items list to metadata as well
         },
       });
 
