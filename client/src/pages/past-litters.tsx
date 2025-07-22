@@ -70,10 +70,10 @@ export default function PastLitters() {
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-8">Past Litters</h1>
       
-      {/* Puppy Placement Map */}
-      <div className="mb-12">
+      {/* Puppy Placement Map - Hidden for now */}
+      {/* <div className="mb-12">
         <SimplePuppyMap puppies={allPuppies} />
-      </div>
+      </div> */}
       
       <div className="grid gap-8">
         {litters.map((litter) => (
