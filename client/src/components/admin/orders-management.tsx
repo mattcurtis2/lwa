@@ -76,7 +76,7 @@ export default function OrdersManagement() {
       return res.json();
     },
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    staleTime: 0, // Always fetch fresh data when requested
   });
 
   const availableDates = ordersSummary.map(s => s.date);
