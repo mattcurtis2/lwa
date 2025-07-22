@@ -85,6 +85,8 @@ const createDogSchema = (isPuppy: boolean = false) => {
     died: z.boolean().optional().default(false), // Added died field
     display: z.boolean().optional().default(true), // Add display field with default true
     breed: z.string().optional().default("Colorado Mountain Dogs"),
+    placementCity: z.string().optional().nullable(),
+    placementState: z.string().optional().nullable(),
     documents: z.array(z.object({
       type: z.string(),
       url: z.string(),
@@ -1645,6 +1647,55 @@ export default function DogForm({
                 </FormItem>
               )}
             />
+            
+            {/* Placement location fields - shown when dog is sold */}
+            {form.watch("sold") && (
+              <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-900">Placement Location</h4>
+                <p className="text-sm text-blue-700 mb-4">
+                  Add the city and state where this puppy was placed to show on the placement map.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="placementCity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Placement City</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            placeholder="e.g., Denver"
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="placementState"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Placement State</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            placeholder="e.g., CO"
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Use 2-letter state abbreviation (e.g., CO, MI, TX)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
             <FormField
               control={form.control}
               name="died"

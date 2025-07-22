@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
+import PuppyPlacementMap from "@/components/puppy-placement-map";
 
 interface PastLitter extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -62,9 +63,18 @@ export default function PastLitters() {
     );
   }
 
+  // Get all puppies from past litters for the map
+  const allPuppies = litters?.flatMap(litter => litter.puppies) || [];
+
   return (
     <div className="container mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-8">Past Litters</h1>
+      
+      {/* Puppy Placement Map */}
+      <div className="mb-12">
+        <PuppyPlacementMap puppies={allPuppies} />
+      </div>
+      
       <div className="grid gap-8">
         {litters.map((litter) => (
           <Link

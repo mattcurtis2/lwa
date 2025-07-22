@@ -135,6 +135,8 @@ export const dogs = pgTable("dogs", {
   narrativeDescription: text("narrative_description"),
   order: integer("order").notNull().default(0),
   outsideBreeder: boolean("outside_breeder").default(false),
+  placementCity: text("placement_city"),
+  placementState: text("placement_state"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
