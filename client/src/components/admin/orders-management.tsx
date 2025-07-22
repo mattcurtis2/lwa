@@ -75,7 +75,8 @@ export default function OrdersManagement() {
       const res = await apiRequest('GET', `/api/orders/summary?env=${selectedEnvironment}`);
       return res.json();
     },
-    refetchInterval: 10000, // Refetch every 10 seconds to show new orders
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 
   const availableDates = ordersSummary.map(s => s.date);
