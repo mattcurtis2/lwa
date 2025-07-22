@@ -18,6 +18,7 @@ interface PlacementLocation {
 const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
   'Denver, CO': { lat: 39.7392, lng: -104.9903 },
   'Grand Rapids, MI': { lat: 42.9634, lng: -85.6681 },
+  'Lansing, MI': { lat: 42.3314, lng: -84.5467 },
   'Austin, TX': { lat: 30.2672, lng: -97.7431 },
   'Portland, OR': { lat: 45.5152, lng: -122.6784 },
   'Nashville, TN': { lat: 36.1627, lng: -86.7816 },
@@ -32,6 +33,11 @@ const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
   'San Diego, CA': { lat: 32.7157, lng: -117.1611 },
   'Dallas, TX': { lat: 32.7767, lng: -96.7970 },
   'Houston, TX': { lat: 29.7604, lng: -95.3698 },
+  // Additional Michigan cities
+  'Detroit, MI': { lat: 42.3314, lng: -83.0458 },
+  'Ann Arbor, MI': { lat: 42.2808, lng: -83.7430 },
+  'Kalamazoo, MI': { lat: 42.2917, lng: -85.5872 },
+  'Flint, MI': { lat: 43.0125, lng: -83.6875 },
 };
 
 export default function SimplePuppyMap({ puppies }: PuppyPlacementMapProps) {
