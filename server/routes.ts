@@ -2474,7 +2474,9 @@ app.get("/api/litters/list/current", async (req, res) => {
   app.get("/api/orders", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
-      const allOrders = await db.query.orders.findMany({
+      const environment = req.query.env as string;
+      
+      let allOrders = await db.query.orders.findMany({
         where: eq(orders.siteId, siteId),
         with: {
           items: {
@@ -2486,6 +2488,20 @@ app.get("/api/litters/list/current", async (req, res) => {
         },
         orderBy: (orders, { desc }) => desc(orders.createdAt)
       });
+
+      // Filter by environment if specified
+      if (environment === 'test') {
+        allOrders = allOrders.filter(order => 
+          order.stripePaymentIntentId?.includes('test') || 
+          order.stripePaymentIntentId?.startsWith('pi_test')
+        );
+      } else if (environment === 'prod') {
+        allOrders = allOrders.filter(order => 
+          !order.stripePaymentIntentId?.includes('test') && 
+          !order.stripePaymentIntentId?.startsWith('pi_test') &&
+          !order.stripePaymentIntentId?.includes('demo')
+        );
+      }
 
       res.json(allOrders);
     } catch (error) {
@@ -2517,7 +2533,8 @@ app.get("/api/litters/list/current", async (req, res) => {
       } else if (environment === 'prod') {
         allOrders = allOrders.filter(order => 
           !order.stripePaymentIntentId?.includes('test') && 
-          !order.stripePaymentIntentId?.startsWith('pi_test')
+          !order.stripePaymentIntentId?.startsWith('pi_test') &&
+          !order.stripePaymentIntentId?.includes('demo')
         );
       }
 
