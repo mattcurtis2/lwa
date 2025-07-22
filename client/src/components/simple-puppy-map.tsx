@@ -96,12 +96,34 @@ export default function SimplePuppyMap({ puppies }: PuppyPlacementMapProps) {
 
         if (!mounted) return;
 
-        // Fix for default markers
-        delete (L.Icon.Default.prototype as any)._getIconUrl;
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        // Create custom green marker icon to match company colors
+        const customIcon = L.divIcon({
+          html: `
+            <div style="
+              background-color: hsl(147 26% 33%);
+              width: 25px;
+              height: 25px;
+              border-radius: 50% 50% 50% 0;
+              transform: rotate(-45deg);
+              border: 3px solid white;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <div style="
+                width: 8px;
+                height: 8px;
+                background-color: white;
+                border-radius: 50%;
+                transform: rotate(45deg);
+              "></div>
+            </div>
+          `,
+          className: 'custom-marker',
+          iconSize: [25, 25],
+          iconAnchor: [12, 24],
+          popupAnchor: [1, -24]
         });
 
         // Calculate center
@@ -119,25 +141,51 @@ export default function SimplePuppyMap({ puppies }: PuppyPlacementMapProps) {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Add markers
+        // Add markers with custom styling
         locations.forEach((location) => {
-          const marker = L.marker([location.lat, location.lng]).addTo(map);
+          const marker = L.marker([location.lat, location.lng], { icon: customIcon }).addTo(map);
           
           const popupContent = `
-            <div style="padding: 8px;">
-              <h4 style="margin: 0 0 8px 0; font-weight: bold;">${location.city}, ${location.state}</h4>
-              <div style="margin-bottom: 8px;">
+            <div style="
+              padding: 12px;
+              font-family: Inter, sans-serif;
+              border-radius: 8px;
+              background: white;
+              border-top: 3px solid hsl(147 26% 33%);
+            ">
+              <h4 style="
+                margin: 0 0 10px 0;
+                font-weight: 600;
+                color: hsl(147 26% 33%);
+                font-size: 14px;
+              ">${location.city}, ${location.state}</h4>
+              <div style="margin-bottom: 10px;">
                 ${location.puppies.map(puppy => 
-                  `<div style="margin: 2px 0;"><strong>${puppy.name}</strong> ${puppy.gender ? `(${puppy.gender})` : ''}</div>`
+                  `<div style="
+                    margin: 4px 0;
+                    padding: 2px 0;
+                    color: #374151;
+                    font-size: 13px;
+                  "><strong style="color: hsl(147 26% 33%);">${puppy.name}</strong> ${puppy.gender ? `<span style="color: #6b7280;">(${puppy.gender})</span>` : ''}</div>`
                 ).join('')}
               </div>
-              <p style="margin: 0; font-size: 12px; color: #666;">
+              <p style="
+                margin: 0;
+                font-size: 11px;
+                color: #9ca3af;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              ">
                 ${location.count} ${location.count === 1 ? 'puppy' : 'puppies'}
               </p>
             </div>
           `;
           
-          marker.bindPopup(popupContent);
+          marker.bindPopup(popupContent, {
+            maxWidth: 300,
+            className: 'custom-popup'
+          });
         });
 
         mapInstance.current = map;
@@ -181,8 +229,16 @@ export default function SimplePuppyMap({ puppies }: PuppyPlacementMapProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Puppy Placement Map</h3>
+      <div 
+        className="flex items-center justify-between p-4 rounded-lg"
+        style={{ 
+          background: 'linear-gradient(135deg, hsl(147 26% 33% / 0.1) 0%, hsl(147 26% 33% / 0.05) 100%)',
+          border: '1px solid hsl(147 26% 33% / 0.2)'
+        }}
+      >
+        <h3 className="text-lg font-semibold" style={{ color: 'hsl(147 26% 33%)' }}>
+          Puppy Placement Map
+        </h3>
         <p className="text-sm text-muted-foreground">
           {placedPuppies.length} {placedPuppies.length === 1 ? 'puppy' : 'puppies'} in {locations.length} {locations.length === 1 ? 'location' : 'locations'}
         </p>
@@ -190,8 +246,13 @@ export default function SimplePuppyMap({ puppies }: PuppyPlacementMapProps) {
       
       <div 
         ref={mapRef}
-        className="h-96 rounded-lg border bg-muted/20"
-        style={{ height: '384px', minHeight: '384px' }}
+        className="h-96 rounded-lg bg-muted/20"
+        style={{ 
+          height: '384px', 
+          minHeight: '384px',
+          border: '2px solid hsl(147 26% 33%)',
+          boxShadow: '0 4px 12px rgba(147, 84, 84, 0.1)'
+        }}
       />
       
       {isMapReady && (
