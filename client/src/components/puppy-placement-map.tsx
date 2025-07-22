@@ -5,19 +5,12 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Fix for default markers in React Leaflet
-import markerIconPng from "leaflet/dist/images/marker-icon.png";
-import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
-
-const DefaultIcon = L.icon({
-  iconUrl: markerIconPng,
-  shadowUrl: markerShadowPng,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
-
-L.Marker.prototype.options.icon = DefaultIcon;
 
 interface PuppyPlacementMapProps {
   puppies: Dog[];
@@ -31,6 +24,26 @@ interface PlacementLocation {
   puppies: Dog[];
 }
 
+// Common US city coordinates lookup
+const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  'Denver, CO': { lat: 39.7392, lng: -104.9903 },
+  'Grand Rapids, MI': { lat: 42.9634, lng: -85.6681 },
+  'Austin, TX': { lat: 30.2672, lng: -97.7431 },
+  'Portland, OR': { lat: 45.5152, lng: -122.6784 },
+  'Nashville, TN': { lat: 36.1627, lng: -86.7816 },
+  'Atlanta, GA': { lat: 33.7490, lng: -84.3880 },
+  'Seattle, WA': { lat: 47.6062, lng: -122.3321 },
+  'Chicago, IL': { lat: 41.8781, lng: -87.6298 },
+  'New York, NY': { lat: 40.7128, lng: -74.0060 },
+  'Los Angeles, CA': { lat: 34.0522, lng: -118.2437 },
+  'Phoenix, AZ': { lat: 33.4484, lng: -112.0740 },
+  'Philadelphia, PA': { lat: 39.9526, lng: -75.1652 },
+  'San Antonio, TX': { lat: 29.4241, lng: -98.4936 },
+  'San Diego, CA': { lat: 32.7157, lng: -117.1611 },
+  'Dallas, TX': { lat: 32.7767, lng: -96.7970 },
+  'Houston, TX': { lat: 29.7604, lng: -95.3698 },
+};
+
 export default function PuppyPlacementMap({ puppies }: PuppyPlacementMapProps) {
   const [locations, setLocations] = useState<PlacementLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +54,7 @@ export default function PuppyPlacementMap({ puppies }: PuppyPlacementMapProps) {
   );
 
   useEffect(() => {
-    const fetchCoordinates = async () => {
+    const processLocations = () => {
       setIsLoading(true);
       
       // Group puppies by city/state
@@ -58,41 +71,33 @@ export default function PuppyPlacementMap({ puppies }: PuppyPlacementMapProps) {
         return acc;
       }, {} as Record<string, { city: string; state: string; puppies: Dog[] }>);
 
-      // Fetch coordinates for each unique location
-      const locationPromises = Object.values(locationGroups).map(async (group) => {
-        try {
-          // Use Nominatim (OpenStreetMap) for geocoding - free and no API key required
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-              `${group.city}, ${group.state}, USA`
-            )}&limit=1`
-          );
-          const data = await response.json();
-          
-          if (data.length > 0) {
-            return {
-              city: group.city,
-              state: group.state,
-              lat: parseFloat(data[0].lat),
-              lng: parseFloat(data[0].lon),
-              puppies: group.puppies
-            };
-          }
-        } catch (error) {
-          console.warn(`Failed to geocode ${group.city}, ${group.state}:`, error);
-        }
-        return null;
-      });
-
-      const resolvedLocations = await Promise.all(locationPromises);
-      const validLocations = resolvedLocations.filter((loc): loc is PlacementLocation => loc !== null);
+      // Convert to locations with coordinates
+      const processedLocations: PlacementLocation[] = [];
       
-      setLocations(validLocations);
+      Object.values(locationGroups).forEach((group) => {
+        const key = `${group.city}, ${group.state}`;
+        const coords = CITY_COORDINATES[key];
+        
+        if (coords) {
+          processedLocations.push({
+            city: group.city,
+            state: group.state,
+            lat: coords.lat,
+            lng: coords.lng,
+            puppies: group.puppies
+          });
+        } else {
+          // For cities not in our lookup, try to approximate based on state
+          console.warn(`No coordinates found for ${key}`);
+        }
+      });
+      
+      setLocations(processedLocations);
       setIsLoading(false);
     };
 
     if (placedPuppies.length > 0) {
-      fetchCoordinates();
+      processLocations();
     } else {
       setIsLoading(false);
     }
@@ -136,11 +141,12 @@ export default function PuppyPlacementMap({ puppies }: PuppyPlacementMapProps) {
         </p>
       </div>
       
-      <div className="h-96 rounded-lg overflow-hidden border">
+      <div className="h-96 rounded-lg overflow-hidden border" style={{ minHeight: '384px' }}>
         <MapContainer
           center={[centerLat, centerLng]}
           zoom={4}
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "384px", width: "100%", minHeight: "384px" }}
+          className="z-0"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

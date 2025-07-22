@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
-import PuppyPlacementMap from "@/components/puppy-placement-map";
+import SimplePuppyMap from "@/components/simple-puppy-map";
 
 interface PastLitter extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -72,7 +72,7 @@ export default function PastLitters() {
       
       {/* Puppy Placement Map */}
       <div className="mb-12">
-        <PuppyPlacementMap puppies={allPuppies} />
+        <SimplePuppyMap puppies={allPuppies} />
       </div>
       
       <div className="grid gap-8">
