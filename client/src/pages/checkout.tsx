@@ -14,11 +14,13 @@ import { ShoppingCart, MapPin, User, CreditCard, ArrowLeft } from 'lucide-react'
 import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+// Use live public key for production
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY_LIVE || import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+if (!stripePublicKey) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY_LIVE or VITE_STRIPE_PUBLIC_KEY');
 }
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(stripePublicKey);
 
 interface MarketSchedule {
   id: number;
