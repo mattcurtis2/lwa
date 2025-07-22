@@ -2569,6 +2569,16 @@ app.get("/api/litters/list/current", async (req, res) => {
         cartItems 
       } = req.body;
 
+      // Check if order with this payment intent already exists
+      const existingOrder = await db.query.orders.findFirst({
+        where: eq(orders.stripePaymentIntentId, stripePaymentIntentId)
+      });
+
+      if (existingOrder) {
+        console.log(`Order already exists for payment intent ${stripePaymentIntentId}, returning existing order ID: ${existingOrder.id}`);
+        return res.json({ success: true, orderId: existingOrder.id });
+      }
+
       // Create the order
       const newOrder = await db.insert(orders).values({
         siteId,
@@ -2597,6 +2607,7 @@ app.get("/api/litters/list/current", async (req, res) => {
         });
       }
 
+      console.log(`Successfully created new order ${orderId} for payment intent ${stripePaymentIntentId}`);
       res.json({ success: true, orderId });
     } catch (error) {
       console.error("Error creating order:", error);

@@ -205,7 +205,8 @@ export default function OrdersManagement() {
             </select>
           </div>
           <Button variant="outline" size="sm" onClick={() => refetch()} className="text-xs">
-            Refresh
+            <Calendar className="w-3 h-3 mr-1" />
+            Refresh Orders
           </Button>
         </div>
       </div>
