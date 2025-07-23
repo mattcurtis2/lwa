@@ -1,116 +1,340 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
+import { Sheep, SheepMedia } from "@db/schema";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Heart, Calendar, Ruler, Weight, Palette, Scissors } from "lucide-react";
-import { formatDisplayDate, parseISO } from "@/lib/date-utils";
-import type { Sheep } from "@db/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ChevronLeft,
+  ChevronRight,
+  File,
+  FileText,
+  FileImage,
+  FileVideo,
+  ExternalLink,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/date-utils";
+import { parseISO } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-type SheepWithMedia = Sheep & {
-  media?: Array<{
-    url: string;
-    type: string;
-    order: number;
-  }>;
-};
+interface Document {
+  id?: number;
+  type: string;
+  url: string;
+  name: string;
+  mimeType: string;
+}
 
 interface SheepDetailsProps {
-  sheep: SheepWithMedia;
+  sheep: Sheep & {
+    media?: SheepMedia[];
+    documents?: Document[];
+  };
   showPrice?: boolean;
 }
 
-export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsProps) {
-  const genderSymbol = sheep.gender === 'male' ? '♂' : '♀';
-  const genderClass = sheep.gender === 'male' ? 'text-blue-600' : 'text-pink-600';
+function DocumentLink({ document }: { document: Document }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const { url, type } = document;
 
-  // Get the image to display - prioritize media, then profileImageUrl
-  const displayImage = sheep.media?.length > 0 ? sheep.media[0].url : sheep.profileImageUrl;
+  const isPdf = url.toLowerCase().endsWith(".pdf");
+  const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url);
+  const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+
+  const getIcon = () => {
+    if (isPdf) return <FileText className="h-5 w-5" />;
+    if (isImage) return <FileImage className="h-5 w-5" />;
+    if (isVideo) return <FileVideo className="h-5 w-5" />;
+    return <File className="h-5 w-5" />;
+  };
 
   return (
-    <div id={sheep.name.toLowerCase().replace(/\s+/g, '-')} className="scroll-mt-24">
-      <Card className="overflow-hidden shadow-lg">
-        {/* Image Section */}
-        {displayImage && (
-          <div className="aspect-[4/3] overflow-hidden">
-            <img
-              src={displayImage}
-              alt={sheep.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
+    <div className="mt-2 w-full">
+      <div className="border rounded-lg p-3 overflow-hidden">
+        <div className="flex w-full items-center">
+          <div className="flex flex-1 min-w-0 overflow-hidden text-primary">
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="flex items-start mr-2 max-w-full overflow-hidden"
+            >
+              <div className="mr-2 flex-shrink-0 mt-1">{getIcon()}</div>
+              <div className="break-words">
+                {document.name || url.split("/").pop()}
+              </div>
+            </button>
           </div>
-        )}
+        </div>
+      </div>
 
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <CardTitle className="text-2xl font-bold text-stone-800 mb-1">
-                {sheep.name}
-              </CardTitle>
-              {sheep.registrationName && (
-                <p className="text-stone-600 text-sm">
-                  Registration: {sheep.registrationName}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant={sheep.available ? "default" : "secondary"} className="text-sm">
-                {sheep.available ? (sheep.sold ? "Sold" : "Available") : (sheep.lamb ? "Lamb" : sheep.gender === 'male' ? "Ram" : "Ewe")}
-              </Badge>
-              {showPrice && sheep.price && !sheep.sold && (
-                <Badge variant="outline" className="text-sm bg-green-50 text-green-700 border-green-200">
-                  ${sheep.price}
-                </Badge>
-              )}
-            </div>
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl w-[90vw]">
+          <DialogHeader>
+            <DialogTitle className="max-w-full break-words">
+              {document.name || url.split("/").pop()}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-2">
+            {isPdf && (
+              <iframe
+                src={url}
+                className="w-full h-[80vh]"
+                title={document.name || "PDF document"}
+              />
+            )}
+            {isImage && (
+              <img
+                src={url}
+                alt={document.name || "Image"}
+                className="w-full h-auto"
+              />
+            )}
+            {isVideo && <video src={url} controls className="w-full h-auto" />}
           </div>
-        </CardHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
-        <CardContent className="pt-0">
-          {sheep.description && (
-            <div className="mb-6">
-              <p className="text-stone-700 leading-relaxed">{sheep.description}</p>
+export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsProps) {
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const healthDocuments =
+    sheep.documents?.filter((doc) => doc.type === "health") || [];
+  const pedigreeDocuments =
+    sheep.documents?.filter((doc) => doc.type === "pedigree") || [];
+  const imageMedia = sheep.media?.filter((m) => m.type === "image") || [];
+
+  const genderSymbol =
+    sheep.gender === "male" ? (
+      <span className="text-blue-500">♂</span>
+    ) : (
+      <span className="text-pink-500">♀</span>
+    );
+
+  const handleNextImage = () => {
+    setActiveMediaIndex((prev) =>
+      prev === imageMedia.length - 1 ? 0 : prev + 1,
+    );
+  };
+
+  const handlePrevImage = () => {
+    setActiveMediaIndex((prev) =>
+      prev === 0 ? imageMedia.length - 1 : prev - 1,
+    );
+  };
+
+  // Determine which tabs to show based on content availability
+  const hasStory = !!(sheep.narrativeDescription || sheep.description);
+  const hasPhysical = !!(sheep.color || sheep.weight || sheep.height || sheep.fleeceType || sheep.fleeceWeight);
+  const hasHealth = !!(sheep.healthData || healthDocuments.length > 0);
+  const hasPedigree = !!(sheep.pedigree || pedigreeDocuments.length > 0 || sheep.sireName || sheep.damName);
+
+  // Always default to basic tab
+  const getDefaultTab = () => {
+    return "basic";
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isMediaDialogOpen) {
+        if (e.key === "ArrowLeft") {
+          handlePrevImage();
+        } else if (e.key === "ArrowRight") {
+          handleNextImage();
+        } else if (e.key === "Escape") {
+          setIsMediaDialogOpen(false);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [isMediaDialogOpen]);
+
+  if (isMobile) {
+    return (
+      <div className="space-y-6">
+        <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
+          <img
+            src={
+              imageMedia[activeMediaIndex]?.url ||
+              sheep.profileImageUrl ||
+              (sheep.media && sheep.media[0]?.url)
+            }
+            alt={sheep.name}
+            className="w-full h-full object-cover"
+          />
+          {imageMedia.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            {sheep.name} {genderSymbol}
+          </h1>
+          {sheep.registrationName && (
+            <p className="text-xl text-muted-foreground">
+              {sheep.registrationName}
+            </p>
+          )}
+          {sheep.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : showPrice && sheep.available && (
+            <div className="flex flex-col gap-4 mt-2">
+              {sheep.price && !isNaN(parseInt(sheep.price)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Available: ${parseInt(sheep.price).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {sheep.gender === "male" && sheep.ramPrice && !isNaN(parseInt(sheep.ramPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    As Ram: ${parseInt(sheep.ramPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+
+              {sheep.gender === "male" && sheep.wetherPrice && !isNaN(parseInt(sheep.wetherPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    As Wether: ${parseInt(sheep.wetherPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
             </div>
           )}
+        </div>
 
-          <div className="space-y-6">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Breed</h3>
+                <p>{sheep.breed}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {sheep.gender.charAt(0).toUpperCase() + sheep.gender.slice(1)}{" "}
+                  {genderSymbol}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(sheep.birthDate))}</p>
+              </div>
+              {sheep.sireName && (
+                <div>
+                  <h3 className="font-semibold mb-1">Sire</h3>
+                  <p>{sheep.sireName}</p>
+                </div>
+              )}
+              {sheep.damName && (
+                <div>
+                  <h3 className="font-semibold mb-1">Dam</h3>
+                  <p>{sheep.damName}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {hasStory && (
             <Card>
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+                <CardTitle>Story</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-1">Breed</h3>
-                  <p>{sheep.breed}</p>
+              <CardContent>
+                <div className="text-base leading-relaxed space-y-6">
+                  {sheep.description && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Basic Information</h3>
+                      <div>
+                        {sheep.description.split("\n\n").map((paragraph, index) => (
+                          <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {sheep.narrativeDescription && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Story</h3>
+                      <div>
+                        {sheep.narrativeDescription.split("\n\n").map((paragraph, index) => (
+                          <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Gender</h3>
-                  <p className="flex items-center gap-1">
-                    {sheep.gender.charAt(0).toUpperCase() + sheep.gender.slice(1)}{" "}
-                    <span className={genderClass}>{genderSymbol}</span>
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Birth Date</h3>
-                  <p className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {formatDisplayDate(parseISO(sheep.birthDate))}
-                  </p>
-                </div>
-                {sheep.sireName && (
-                  <div>
-                    <h3 className="font-semibold mb-1">Sire</h3>
-                    <p>{sheep.sireName}</p>
-                  </div>
-                )}
-                {sheep.damName && (
-                  <div>
-                    <h3 className="font-semibold mb-1">Dam</h3>
-                    <p>{sheep.damName}</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
+          )}
 
-            {/* Physical Characteristics */}
+          {hasPhysical && (
             <Card>
               <CardHeader>
                 <CardTitle>Physical Characteristics</CardTitle>
@@ -118,42 +342,28 @@ export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsP
               <CardContent className="space-y-4">
                 {sheep.color && (
                   <div>
-                    <h3 className="font-semibold mb-1 flex items-center gap-2">
-                      <Palette className="h-4 w-4" />
-                      Color
-                    </h3>
+                    <h3 className="font-semibold mb-1">Color</h3>
                     <p>{sheep.color}</p>
                   </div>
                 )}
                 {sheep.fleeceType && (
                   <div>
-                    <h3 className="font-semibold mb-1 flex items-center gap-2">
-                      <Scissors className="h-4 w-4" />
-                      Fleece Type
-                    </h3>
+                    <h3 className="font-semibold mb-1">Fleece Type</h3>
                     <p>{sheep.fleeceType}</p>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {sheep.height && (
-                    <div>
-                      <h3 className="font-semibold mb-1 flex items-center gap-2">
-                        <Ruler className="h-4 w-4" />
-                        Height
-                      </h3>
-                      <p>{sheep.height} inches</p>
-                    </div>
-                  )}
-                  {sheep.weight && (
-                    <div>
-                      <h3 className="font-semibold mb-1 flex items-center gap-2">
-                        <Weight className="h-4 w-4" />
-                        Weight
-                      </h3>
-                      <p>{sheep.weight} lbs</p>
-                    </div>
-                  )}
-                </div>
+                {sheep.weight && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Weight</h3>
+                    <p>{sheep.weight} lbs</p>
+                  </div>
+                )}
+                {sheep.height && !isNaN(parseFloat(sheep.height as string)) && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Height</h3>
+                    <p>{sheep.height} inches</p>
+                  </div>
+                )}
                 {sheep.fleeceWeight && (
                   <div>
                     <h3 className="font-semibold mb-1">Fleece Weight</h3>
@@ -162,87 +372,422 @@ export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsP
                 )}
               </CardContent>
             </Card>
+          )}
 
-            {/* Health Information */}
-            {sheep.healthData && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
-                    Health Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+          {hasHealth && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="break-words">Health Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {sheep.healthData && (
+                    <div className="prose prose-stone max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: sheep.healthData }} />
+                    </div>
+                  )}
+                  {healthDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold mb-2">Health Documents</h3>
+                      <div className="grid gap-4">
+                        {healthDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {hasPedigree && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="break-words">
+                  Pedigree Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {(sheep.sireName || sheep.damName) && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold mb-1">Lineage</h3>
+                      {sheep.sireName && (
+                        <div className="ml-4">
+                          <h4 className="font-medium">Sire:</h4>
+                          <p>{sheep.sireName}</p>
+                        </div>
+                      )}
+                      {sheep.damName && (
+                        <div className="ml-4">
+                          <h4 className="font-medium">Dam:</h4>
+                          <p>{sheep.damName}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {sheep.pedigree && (
+                    <div className="prose prose-stone max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: sheep.pedigree }} />
+                    </div>
+                  )}
+                  {pedigreeDocuments.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold mb-2">Pedigree Documents</h3>
+                      <div className="grid gap-4">
+                        {pedigreeDocuments.map((doc, index) => (
+                          <DocumentLink key={index} document={doc} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid md:grid-cols-3 gap-8">
+      <div className="space-y-6">
+        <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+          <img
+            src={
+              imageMedia[activeMediaIndex]?.url ||
+              sheep.profileImageUrl ||
+              (sheep.media && sheep.media[0]?.url)
+            }
+            alt={sheep.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {imageMedia.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {imageMedia.map((media, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveMediaIndex(index)}
+                className={cn(
+                  "relative aspect-square rounded-md overflow-hidden transition-transform hover:scale-105",
+                  activeMediaIndex === index &&
+                    "ring-2 ring-primary ring-offset-2",
+                )}
+              >
+                <img
+                  src={media.url}
+                  alt={`${sheep.name} - photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="md:col-span-2 space-y-8">
+        <div>
+          <h1 className="text-4xl font-bold flex items-center gap-2">
+            {sheep.name} {genderSymbol}
+          </h1>
+          {sheep.registrationName && (
+            <p className="text-xl text-muted-foreground">
+              {sheep.registrationName}
+            </p>
+          )}
+          {sheep.sold ? (
+            <div className="mt-2 bg-red-500 py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                SOLD
+              </p>
+            </div>
+          ) : showPrice && sheep.available && (
+            <div className="flex flex-col gap-4 mt-2">
+              {sheep.price && !isNaN(parseInt(sheep.price)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    Available: ${parseInt(sheep.price).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+              
+              {sheep.gender === "male" && sheep.ramPrice && !isNaN(parseInt(sheep.ramPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-blue-700 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    As Ram: ${parseInt(sheep.ramPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+
+              {sheep.gender === "male" && sheep.wetherPrice && !isNaN(parseInt(sheep.wetherPrice)) && (
+                <a 
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-600 py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-green-700 transition-colors w-fit"
+                >
+                  <p className="text-lg font-semibold text-white">
+                    As Wether: ${parseInt(sheep.wetherPrice).toLocaleString()}
+                  </p>
+                  <ExternalLink className="h-4 w-4 text-white" />
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
+          <DialogContent className="max-w-4xl w-full h-[70vh] p-4">
+            <DialogHeader className="mb-2">
+              <DialogTitle>{sheep.name}'s Gallery</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex items-center justify-center h-[calc(100%-3rem)] w-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 z-10"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+
+              <div className="w-full h-full flex items-center justify-center p-4">
+                <img
+                  src={imageMedia[activeMediaIndex]?.url}
+                  alt={`${sheep.name} - photo ${activeMediaIndex + 1}`}
+                  className="max-h-[50vh] max-w-[600px] w-auto h-auto object-contain rounded-lg"
+                />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 z-10"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {imageMedia.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveMediaIndex(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all",
+                      activeMediaIndex === index
+                        ? "bg-primary scale-125"
+                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Tabs defaultValue={getDefaultTab()}>
+          <TabsList className="mb-4 w-full">
+            <TabsTrigger value="basic" className="flex-1">
+              Basic Information
+            </TabsTrigger>
+            {hasStory && (
+              <TabsTrigger value="story" className="flex-1">
+                Story
+              </TabsTrigger>
+            )}
+            {hasPhysical && (
+              <TabsTrigger value="physical" className="flex-1">
+                Physical
+              </TabsTrigger>
+            )}
+            {hasHealth && (
+              <TabsTrigger value="health" className="flex-1">
+                Health
+              </TabsTrigger>
+            )}
+            {hasPedigree && (
+              <TabsTrigger value="pedigree" className="flex-1">
+                Pedigree
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="basic" className="space-y-6 pt-4">
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-lg">Breed</h3>
+                <p>{sheep.breed}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Gender</h3>
+                <p className="flex items-center gap-1">
+                  {sheep.gender.charAt(0).toUpperCase() + sheep.gender.slice(1)}{" "}
+                  {genderSymbol}
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">Birth Date</h3>
+                <p>{formatDisplayDate(parseISO(sheep.birthDate))}</p>
+              </div>
+              {sheep.sireName && (
+                <div>
+                  <h3 className="font-medium text-lg">Sire</h3>
+                  <p>{sheep.sireName}</p>
+                </div>
+              )}
+              {sheep.damName && (
+                <div>
+                  <h3 className="font-medium text-lg">Dam</h3>
+                  <p>{sheep.damName}</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {hasStory && (
+            <TabsContent value="story" className="space-y-6 pt-4">
+              <div className="text-base leading-relaxed space-y-6">
+                {sheep.description && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-2">Basic Information</h3>
+                    <div>
+                      {sheep.description.split("\n\n").map((paragraph, index) => (
+                        <p key={`desc-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {sheep.narrativeDescription && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-2">Story</h3>
+                    <div>
+                      {sheep.narrativeDescription.split("\n\n").map((paragraph, index) => (
+                        <p key={`narr-${index}`} className="mb-4 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
+
+          {hasPhysical && (
+            <TabsContent value="physical" className="space-y-6 pt-4">
+              <div className="space-y-4">
+                {sheep.color && (
+                  <div>
+                    <h3 className="font-medium text-lg">Color</h3>
+                    <p>{sheep.color}</p>
+                  </div>
+                )}
+                {sheep.fleeceType && (
+                  <div>
+                    <h3 className="font-medium text-lg">Fleece Type</h3>
+                    <p>{sheep.fleeceType}</p>
+                  </div>
+                )}
+                {sheep.weight && (
+                  <div>
+                    <h3 className="font-medium text-lg">Weight</h3>
+                    <p>{sheep.weight} lbs</p>
+                  </div>
+                )}
+                {sheep.height && !isNaN(parseFloat(sheep.height as string)) && (
+                  <div>
+                    <h3 className="font-medium text-lg">Height</h3>
+                    <p>{sheep.height} inches</p>
+                  </div>
+                )}
+                {sheep.fleeceWeight && (
+                  <div>
+                    <h3 className="font-medium text-lg">Fleece Weight</h3>
+                    <p>{sheep.fleeceWeight} lbs</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
+
+          {hasHealth && (
+            <TabsContent value="health" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {sheep.healthData && (
                   <div className="prose prose-stone max-w-none">
                     <div dangerouslySetInnerHTML={{ __html: sheep.healthData }} />
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Additional Details */}
-            {sheep.narrativeDescription && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>About {sheep.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-stone max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: sheep.narrativeDescription }} />
+                )}
+                {healthDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg mb-2">Health Documents</h3>
+                    <div className="grid gap-4">
+                      {healthDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </div>
+            </TabsContent>
+          )}
 
-            {/* Additional Media */}
-            {sheep.media && sheep.media.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gallery</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {sheep.media.map((mediaItem, index) => (
-                      <div key={index} className="aspect-square overflow-hidden rounded-lg">
-                        <img
-                          src={mediaItem.url}
-                          alt={`${sheep.name} - Image ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
+          {hasPedigree && (
+            <TabsContent value="pedigree" className="space-y-6 pt-4">
+              <div className="space-y-6">
+                {(sheep.sireName || sheep.damName) && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg">Lineage</h3>
+                    {sheep.sireName && (
+                      <div className="ml-4">
+                        <h4 className="font-semibold">Sire:</h4>
+                        <p>{sheep.sireName}</p>
                       </div>
-                    ))}
+                    )}
+                    {sheep.damName && (
+                      <div className="ml-4">
+                        <h4 className="font-semibold">Dam:</h4>
+                        <p>{sheep.damName}</p>
+                      </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Documents */}
-            {sheep.documents && sheep.documents.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Documents</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {sheep.documents.map((doc, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        className="justify-start"
-                        asChild
-                      >
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                          {doc.name}
-                        </a>
-                      </Button>
-                    ))}
+                )}
+                {sheep.pedigree && (
+                  <div className="prose prose-stone max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: sheep.pedigree }} />
                   </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                )}
+                {pedigreeDocuments.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-lg mb-2">Pedigree Documents</h3>
+                    <div className="grid gap-4">
+                      {pedigreeDocuments.map((doc, index) => (
+                        <DocumentLink key={index} document={doc} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
+        </Tabs>
+      </div>
     </div>
   );
 }
