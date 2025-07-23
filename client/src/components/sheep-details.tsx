@@ -5,8 +5,16 @@ import { Heart, Calendar, Ruler, Weight, Palette, Scissors } from "lucide-react"
 import { formatDisplayDate, parseISO } from "@/lib/date-utils";
 import type { Sheep } from "@db/schema";
 
+type SheepWithMedia = Sheep & {
+  media?: Array<{
+    url: string;
+    type: string;
+    order: number;
+  }>;
+};
+
 interface SheepDetailsProps {
-  sheep: Sheep;
+  sheep: SheepWithMedia;
   showPrice?: boolean;
 }
 
@@ -14,14 +22,17 @@ export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsP
   const genderSymbol = sheep.gender === 'male' ? '♂' : '♀';
   const genderClass = sheep.gender === 'male' ? 'text-blue-600' : 'text-pink-600';
 
+  // Get the image to display - prioritize media, then profileImageUrl
+  const displayImage = sheep.media?.length > 0 ? sheep.media[0].url : sheep.profileImageUrl;
+
   return (
     <div id={sheep.name.toLowerCase().replace(/\s+/g, '-')} className="scroll-mt-24">
       <Card className="overflow-hidden shadow-lg">
         {/* Image Section */}
-        {sheep.profileImageUrl && (
+        {displayImage && (
           <div className="aspect-[4/3] overflow-hidden">
             <img
-              src={sheep.profileImageUrl}
+              src={displayImage}
               alt={sheep.name}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             />

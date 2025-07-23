@@ -4,11 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash2 } from "lucide-react";
 import { Sheep } from "@db/schema";
 
+type SheepWithMedia = Sheep & {
+  media?: Array<{
+    url: string;
+    type: string;
+    order: number;
+  }>;
+};
+
 interface SheepCardProps {
-  sheep: Sheep;
+  sheep: SheepWithMedia;
   isAdmin?: boolean;
-  onEdit?: (sheep: Sheep) => void;
-  onDelete?: (sheep: Sheep) => void;
+  onEdit?: (sheep: SheepWithMedia) => void;
+  onDelete?: (sheep: SheepWithMedia) => void;
 }
 
 export default function SheepCard({ sheep, isAdmin = false, onEdit, onDelete }: SheepCardProps) {
@@ -25,6 +33,9 @@ export default function SheepCard({ sheep, isAdmin = false, onEdit, onDelete }: 
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Get the image to display - prioritize media, then profileImageUrl
+  const displayImage = sheep.media?.length > 0 ? sheep.media[0].url : sheep.profileImageUrl;
 
   return (
     <Card 
@@ -69,9 +80,9 @@ export default function SheepCard({ sheep, isAdmin = false, onEdit, onDelete }: 
       </CardHeader>
       
       <CardContent className="p-4 pt-0">
-        {sheep.profileImageUrl && (
+        {displayImage && (
           <img
-            src={sheep.profileImageUrl}
+            src={displayImage}
             alt={sheep.name}
             className="w-full h-48 object-cover rounded-md mb-4"
           />

@@ -210,17 +210,25 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         data.profileImageUrl = profileImageUrl;
       }
 
+      // Process media
+      const validMedia = mediaInputs
+        .filter(media => media && media.url)
+        .map(media => ({
+          url: media.url,
+          type: media.type || 'image',
+          fileName: media.fileName || ''
+        }));
+
       // Add media to the data
       const processedData = {
         ...data,
-        media: mediaInputs
-          .filter(media => media && media.url)
-          .map(media => ({
-            url: media.url,
-            type: media.type || 'image',
-            fileName: media.fileName || ''
-          })),
+        media: validMedia,
       };
+
+      // If no explicit profile image but we have media, use the first media item as profile
+      if (!processedData.profileImageUrl && validMedia.length > 0) {
+        processedData.profileImageUrl = validMedia[0].url;
+      }
 
       if (mode === 'create') {
         await createMutation.mutateAsync(processedData);
