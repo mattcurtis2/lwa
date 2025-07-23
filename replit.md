@@ -220,3 +220,12 @@ Changelog:
   - Enhanced keyboard navigation support for image galleries
   - Improved accessibility with proper dialog titles and descriptions
   - All three animal types (dogs, goats, sheep) now have identical user interface structure
+- January 23, 2025. Implemented Thursday noon Eastern time pre-order deadline for farmers market orders:
+  - Added comprehensive deadline checking utilities in date-utils.ts including timezone conversion to Eastern time
+  - Created deadline validation functions: isBeforeThursdayNoonEastern(), getUpcomingThursdayNoon(), getTimeUntilDeadline(), formatDeadline()
+  - Updated product cards to show green deadline warnings when deadline approaches and red warning when passed
+  - Added deadline validation throughout checkout process with automatic redirect when deadline passed
+  - Disabled "Add to Cart" functionality after Thursday noon deadline with clear messaging
+  - Added prominent deadline warning banners on main market page and checkout page
+  - Implemented real-time countdown showing time remaining until Thursday noon deadline
+  - Users can only place orders before Thursday at noon EST - system prevents ordering after deadline

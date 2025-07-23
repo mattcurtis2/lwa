@@ -54,3 +54,75 @@ export function formatAge(birthDate: Date): string {
   // Otherwise display days
   return `${days} ${days === 1 ? 'day' : 'days'} old`;
 }
+
+// Check if the current time is before Thursday at noon Eastern
+export function isBeforeThursdayNoonEastern(): boolean {
+  const now = new Date();
+  
+  // Convert current time to Eastern Time
+  const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  // Find the upcoming Thursday at noon
+  const upcomingThursday = getUpcomingThursdayNoon();
+  
+  return easternTime < upcomingThursday;
+}
+
+// Get the upcoming Thursday at noon Eastern time
+export function getUpcomingThursdayNoon(): Date {
+  const now = new Date();
+  const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  // Find the next Thursday
+  const daysUntilThursday = (4 - easternTime.getDay() + 7) % 7;
+  const nextThursday = new Date(easternTime);
+  
+  if (daysUntilThursday === 0) {
+    // If today is Thursday, check if it's before noon
+    if (easternTime.getHours() < 12) {
+      // Use today's Thursday at noon
+      nextThursday.setHours(12, 0, 0, 0);
+    } else {
+      // Use next Thursday at noon
+      nextThursday.setDate(easternTime.getDate() + 7);
+      nextThursday.setHours(12, 0, 0, 0);
+    }
+  } else {
+    // Use upcoming Thursday at noon
+    nextThursday.setDate(easternTime.getDate() + daysUntilThursday);
+    nextThursday.setHours(12, 0, 0, 0);
+  }
+  
+  return nextThursday;
+}
+
+// Get time remaining until Thursday noon deadline
+export function getTimeUntilDeadline(): string {
+  const deadline = getUpcomingThursdayNoon();
+  const now = new Date();
+  const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  const timeDiff = deadline.getTime() - easternTime.getTime();
+  
+  if (timeDiff <= 0) {
+    return "Deadline passed";
+  }
+  
+  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (days > 0) {
+    return `${days} day${days === 1 ? '' : 's'}, ${hours} hour${hours === 1 ? '' : 's'}`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours === 1 ? '' : 's'}, ${minutes} minute${minutes === 1 ? '' : 's'}`;
+  } else {
+    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  }
+}
+
+// Format the deadline for display
+export function formatDeadline(): string {
+  const deadline = getUpcomingThursdayNoon();
+  return format(deadline, 'EEEE, MMMM d \'at\' h:mm a \'EST\'');
+}

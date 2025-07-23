@@ -7,9 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/cart-context";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Clock, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { isBeforeThursdayNoonEastern, getTimeUntilDeadline, formatDeadline } from "@/lib/date-utils";
 
 interface ProductCardProps {
   product: Product;
@@ -71,7 +72,31 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           Category: {product.category}
         </p>
         <p className="text-stone-600 mb-2 flex-grow">{product.description}</p>
-        <p className="font-bold">{product.price || '$0.00'}</p>
+        <p className="font-bold mb-2">{product.price || '$0.00'}</p>
+        
+        {/* Deadline warning for farmers market orders */}
+        {product.availableForPurchase && (
+          <div className="mt-2">
+            {isBeforeThursdayNoonEastern() ? (
+              <div className="bg-green-50 border border-green-200 rounded-md p-2 mb-2">
+                <div className="flex items-center text-green-700 text-xs">
+                  <Clock className="w-3 h-3 mr-1" />
+                  <span className="font-medium">Pre-order deadline:</span>
+                </div>
+                <p className="text-green-600 text-xs mt-1">{formatDeadline()}</p>
+                <p className="text-green-600 text-xs">Time left: {getTimeUntilDeadline()}</p>
+              </div>
+            ) : (
+              <div className="bg-red-50 border border-red-200 rounded-md p-2 mb-2">
+                <div className="flex items-center text-red-700 text-xs">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  <span className="font-medium">Pre-order deadline passed</span>
+                </div>
+                <p className="text-red-600 text-xs mt-1">Orders must be placed by Thursday at noon EST</p>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex gap-2 mt-auto">
         {isAdmin ? (
@@ -86,36 +111,43 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
           </>
         ) : (
           product.availableForPurchase ? (
-            <div className="w-full space-y-2">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => handleQuantityChange(e.target.value)}
-                  className="w-16 text-center"
-                  min="1"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setQuantity(quantity + 1)}
-                >
-                  <Plus className="h-4 w-4" />
+            isBeforeThursdayNoonEastern() ? (
+              <div className="w-full space-y-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => handleQuantityChange(e.target.value)}
+                    className="w-16 text-center"
+                    min="1"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button className="w-full" onClick={handleAddToCart}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Add to Cart
                 </Button>
               </div>
-              <Button className="w-full" onClick={handleAddToCart}>
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
+            ) : (
+              <Button variant="outline" className="w-full text-gray-500" disabled>
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Pre-order Deadline Passed
               </Button>
-            </div>
+            )
           ) : (
             <Button variant="outline" className="w-full text-gray-500" disabled>
               Currently Unavailable

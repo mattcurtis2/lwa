@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { MarketSection, Product, MarketSchedule, SiteContent } from "@db/schema";
 import ProductCard from "@/components/cards/product-card";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, AlertTriangle } from "lucide-react";
+import { isBeforeThursdayNoonEastern, formatDeadline, getTimeUntilDeadline } from "@/lib/date-utils";
 
 export default function Market() {
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
@@ -49,6 +50,37 @@ export default function Market() {
           </div>
         </div>
       )}
+
+      {/* Pre-order Deadline Banner */}
+      <div className="bg-primary/5 border-y border-primary/20 py-6">
+        <div className="container mx-auto px-4">
+          {isBeforeThursdayNoonEastern() ? (
+            <div className="bg-white rounded-lg border border-green-200 p-4 shadow-sm">
+              <div className="flex items-center text-green-700">
+                <Clock className="w-5 h-5 mr-3" />
+                <div>
+                  <p className="font-semibold">Pre-order deadline: {formatDeadline()}</p>
+                  <p className="text-sm text-green-600 mt-1">
+                    Complete your farmers market order before the deadline. Time remaining: {getTimeUntilDeadline()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg border border-red-200 p-4 shadow-sm">
+              <div className="flex items-center text-red-700">
+                <AlertTriangle className="w-5 h-5 mr-3" />
+                <div>
+                  <p className="font-semibold">Pre-order deadline has passed</p>
+                  <p className="text-sm text-red-600 mt-1">
+                    Orders must be placed by Thursday at noon EST. New orders will open next week.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Market Schedule Section */}
       <div className="bg-stone-50 py-12">

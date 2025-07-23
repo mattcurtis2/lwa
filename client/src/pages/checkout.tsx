@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, MapPin, User, CreditCard, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, MapPin, User, CreditCard, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
+import { isBeforeThursdayNoonEastern, formatDeadline } from '@/lib/date-utils';
 
 // Use live public key for production
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY_LIVE || import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -91,7 +92,30 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
 
   const availableSaturdays = getNextSaturdays();
 
+  // Redirect to market if deadline has passed
+  useEffect(() => {
+    if (!isBeforeThursdayNoonEastern()) {
+      toast({
+        title: "Pre-order Deadline Passed",
+        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        variant: "destructive",
+      });
+      navigate('/market');
+    }
+  }, [navigate, toast]);
+
   const handleStepNext = async () => {
+    // Check deadline before allowing any step progression
+    if (!isBeforeThursdayNoonEastern()) {
+      toast({
+        title: "Pre-order Deadline Passed",
+        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        variant: "destructive",
+      });
+      navigate('/market');
+      return;
+    }
+
     if (currentStep === 1 && (!formData.pickupLocation || !formData.pickupDate)) {
       toast({
         title: "Pickup Information Required",
@@ -147,6 +171,18 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+
+    // Final deadline check before payment
+    if (!isBeforeThursdayNoonEastern()) {
+      toast({
+        title: "Pre-order Deadline Passed",
+        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      navigate('/market');
+      return;
+    }
 
     if (!stripe || !elements) {
       setIsProcessing(false);
@@ -246,6 +282,29 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
           </div>
         ))}
       </div>
+
+      {/* Deadline Warning Banner */}
+      {isBeforeThursdayNoonEastern() ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center text-green-700">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            <div>
+              <p className="font-medium">Pre-order deadline: {formatDeadline()}</p>
+              <p className="text-sm text-green-600 mt-1">Complete your order before Thursday at noon EST for farmers market pickup</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center text-red-700">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            <div>
+              <p className="font-medium">Pre-order deadline has passed</p>
+              <p className="text-sm text-red-600 mt-1">Orders must be placed by Thursday at noon EST. Please check back next week.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
