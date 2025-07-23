@@ -68,32 +68,28 @@ export function isBeforeThursdayNoonEastern(): boolean {
   return easternTime < upcomingThursday;
 }
 
-// Get the upcoming Thursday at noon Eastern time
+// Get the Thursday at noon Eastern time for the current week's Saturday pickup
 export function getUpcomingThursdayNoon(): Date {
   const now = new Date();
   const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
   
-  // Find the next Thursday
-  const daysUntilThursday = (4 - easternTime.getDay() + 7) % 7;
-  const nextThursday = new Date(easternTime);
+  // Find this week's Thursday
+  const currentDay = easternTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const daysUntilThursday = 4 - currentDay; // Thursday is day 4
   
-  if (daysUntilThursday === 0) {
-    // If today is Thursday, check if it's before noon
-    if (easternTime.getHours() < 12) {
-      // Use today's Thursday at noon
-      nextThursday.setHours(12, 0, 0, 0);
-    } else {
-      // Use next Thursday at noon
-      nextThursday.setDate(easternTime.getDate() + 7);
-      nextThursday.setHours(12, 0, 0, 0);
-    }
-  } else {
-    // Use upcoming Thursday at noon
-    nextThursday.setDate(easternTime.getDate() + daysUntilThursday);
-    nextThursday.setHours(12, 0, 0, 0);
+  const thisWeekThursday = new Date(easternTime);
+  thisWeekThursday.setDate(easternTime.getDate() + daysUntilThursday);
+  thisWeekThursday.setHours(12, 0, 0, 0);
+  
+  // If it's already past Thursday noon, or it's Saturday/Sunday after the market
+  if (currentDay === 0 || currentDay === 6 || 
+      (currentDay === 4 && easternTime.getHours() >= 12) || 
+      currentDay === 5) {
+    // Move to next week's Thursday
+    thisWeekThursday.setDate(thisWeekThursday.getDate() + 7);
   }
   
-  return nextThursday;
+  return thisWeekThursday;
 }
 
 // Get time remaining until Thursday noon deadline

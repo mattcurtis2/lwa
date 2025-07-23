@@ -97,7 +97,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
     if (!isBeforeThursdayNoonEastern()) {
       toast({
         title: "Pre-order Deadline Passed",
-        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        description: "Order deadline passed for this week's Saturday pickup. Please check back next week.",
         variant: "destructive",
       });
       navigate('/market');
@@ -109,7 +109,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
     if (!isBeforeThursdayNoonEastern()) {
       toast({
         title: "Pre-order Deadline Passed",
-        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        description: "Order deadline passed for this week's Saturday pickup. Please check back next week.",
         variant: "destructive",
       });
       navigate('/market');
@@ -176,7 +176,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
     if (!isBeforeThursdayNoonEastern()) {
       toast({
         title: "Pre-order Deadline Passed",
-        description: "Orders must be placed by Thursday at noon Eastern time. Please try again next week.",
+        description: "Order deadline passed for this week's Saturday pickup. Please check back next week.",
         variant: "destructive",
       });
       setIsProcessing(false);
@@ -290,7 +290,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
             <AlertTriangle className="w-5 h-5 mr-2" />
             <div>
               <p className="font-medium">Pre-order deadline: {formatDeadline()}</p>
-              <p className="text-sm text-green-600 mt-1">Complete your order before Thursday at noon EST for farmers market pickup</p>
+              <p className="text-sm text-green-600 mt-1">Complete your order by the deadline for this week's Saturday pickup</p>
             </div>
           </div>
         </div>
@@ -300,7 +300,7 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
             <AlertTriangle className="w-5 h-5 mr-2" />
             <div>
               <p className="font-medium">Pre-order deadline has passed</p>
-              <p className="text-sm text-red-600 mt-1">Orders must be placed by Thursday at noon EST. Please check back next week.</p>
+              <p className="text-sm text-red-600 mt-1">Order deadline passed for this week's Saturday pickup. Please check back next week.</p>
             </div>
           </div>
         </div>

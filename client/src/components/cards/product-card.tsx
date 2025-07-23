@@ -83,7 +83,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
                   <Clock className="w-3 h-3 mr-1" />
                   <span className="font-medium">Pre-order deadline:</span>
                 </div>
-                <p className="text-green-600 text-xs mt-1">{formatDeadline()}</p>
+                <p className="text-green-600 text-xs mt-1">Order by {formatDeadline()} for this week's Saturday pickup</p>
                 <p className="text-green-600 text-xs">Time left: {getTimeUntilDeadline()}</p>
               </div>
             ) : (
@@ -92,7 +92,7 @@ export default function ProductCard({ product, isAdmin, onEdit }: ProductCardPro
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   <span className="font-medium">Pre-order deadline passed</span>
                 </div>
-                <p className="text-red-600 text-xs mt-1">Orders must be placed by Thursday at noon EST</p>
+                <p className="text-red-600 text-xs mt-1">Order deadline passed for this week's Saturday pickup</p>
               </div>
             )}
           </div>

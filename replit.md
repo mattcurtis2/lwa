@@ -228,4 +228,6 @@ Changelog:
   - Disabled "Add to Cart" functionality after Thursday noon deadline with clear messaging
   - Added prominent deadline warning banners on main market page and checkout page
   - Implemented real-time countdown showing time remaining until Thursday noon deadline
-  - Users can only place orders before Thursday at noon EST - system prevents ordering after deadline
+  - Deadline logic: Users must order before Thursday noon EST to receive items at that week's Saturday farmers market
+  - After Thursday noon, system shows "deadline passed for this week" and users must wait for next week's ordering window
+  - Clear messaging throughout system specifies "this week's Saturday pickup" to avoid confusion

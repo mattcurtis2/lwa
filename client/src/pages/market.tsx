@@ -61,7 +61,7 @@ export default function Market() {
                 <div>
                   <p className="font-semibold">Pre-order deadline: {formatDeadline()}</p>
                   <p className="text-sm text-green-600 mt-1">
-                    Complete your farmers market order before the deadline. Time remaining: {getTimeUntilDeadline()}
+                    Complete your order before the deadline for this week's Saturday pickup. Time remaining: {getTimeUntilDeadline()}
                   </p>
                 </div>
               </div>
@@ -73,7 +73,7 @@ export default function Market() {
                 <div>
                   <p className="font-semibold">Pre-order deadline has passed</p>
                   <p className="text-sm text-red-600 mt-1">
-                    Orders must be placed by Thursday at noon EST. New orders will open next week.
+                    Order deadline passed for this week's Saturday pickup. New orders open next week.
                   </p>
                 </div>
               </div>
