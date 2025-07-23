@@ -136,8 +136,8 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     // Start a transaction
     const result = await db.transaction(async (tx) => {
       // Create the sheep
-      const result = await tx.insert(sheep).values(processedData).returning();
-      const newSheep = result[0];
+      const insertResult = await tx.insert(sheep).values(processedData).returning();
+      const newSheep = insertResult[0] as typeof processedData & { id: number };
       
       // Insert media if there are any
       if (media.length > 0) {
