@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../../db/connection";
 import { sheep, sheepMedia, sheepDocuments } from "@db/schema";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, and } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
@@ -31,7 +31,16 @@ const upload = multer({
 // Get all sheep with their relations
 router.get('/api/sheep', async (req, res) => {
   try {
+    const isAdmin = req.query.admin === 'true';
+    
+    // Define the where condition based on whether this is an admin request
+    // For admin, show all sheep; for public pages, only show sheep with display=true and died=false
+    const whereCondition = isAdmin
+      ? undefined
+      : and(eq(sheep.display, true), eq(sheep.died, false));
+    
     const result = await db.query.sheep.findMany({
+      where: whereCondition,
       orderBy: [asc(sheep.order), desc(sheep.createdAt)],
       with: {
         media: {
@@ -76,8 +85,15 @@ router.get('/api/sheep/admin', async (req, res) => {
 router.get('/api/sheep/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    const isAdmin = req.query.admin === 'true';
+    
+    // For public pages, only show sheep with display=true and died=false
+    const whereCondition = isAdmin
+      ? eq(sheep.id, id)
+      : and(eq(sheep.id, id), eq(sheep.display, true), eq(sheep.died, false));
+    
     const result = await db.query.sheep.findFirst({
-      where: eq(sheep.id, id),
+      where: whereCondition,
       with: {
         media: {
           orderBy: [asc(sheepMedia.order)]

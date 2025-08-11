@@ -11,10 +11,10 @@ router.get('/api/goats', async (req, res) => {
     const isAdmin = req.query.admin === 'true';
     
     // Define the where condition based on whether this is an admin request
-    // For admin, show all goats; for public pages, only show goats with display=true
+    // For admin, show all goats; for public pages, only show goats with display=true and died=false
     const whereCondition = isAdmin
       ? undefined
-      : eq(goats.display, true);
+      : and(eq(goats.display, true), eq(goats.died, false));
     
     const allGoats = await db.query.goats.findMany({
       where: whereCondition,
@@ -40,8 +40,15 @@ router.get('/api/goats', async (req, res) => {
 router.get('/api/goats/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    const isAdmin = req.query.admin === 'true';
+    
+    // For public pages, only show goats with display=true and died=false
+    const whereCondition = isAdmin
+      ? eq(goats.id, id)
+      : and(eq(goats.id, id), eq(goats.display, true), eq(goats.died, false));
+    
     const goat = await db.query.goats.findFirst({
-      where: eq(goats.id, id),
+      where: whereCondition,
       with: {
         media: true,
         documents: true,
