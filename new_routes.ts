@@ -1205,7 +1205,10 @@ export function registerRoutes(app: Express): Server {
 
       // Fetch puppies separately since they're not directly related in the schema
       const puppies = await db.query.dogs.findMany({
-        where: eq(dogs.litterId, litterId),
+        where: and(
+          eq(dogs.litterId, litterId),
+          eq(dogs.died, false)
+        ),
         with: {
           media: {
             orderBy: (media, { asc }) => [asc(media.order)],
@@ -1252,7 +1255,10 @@ export function registerRoutes(app: Express): Server {
       // For each litter, find puppies (dogs with litterId matching the litter's id)
       const littersWithPuppies = await Promise.all(allLitters.map(async (litter) => {
         const puppies = await db.query.dogs.findMany({
-          where: eq(dogs.litterId, litter.id),
+          where: and(
+            eq(dogs.litterId, litter.id),
+            eq(dogs.died, false)
+          ),
           with: {
             media: true
           }
@@ -1302,7 +1308,10 @@ export function registerRoutes(app: Express): Server {
       const littersWithPuppies = await Promise.all(
         allLitters.map(async (litter) => {
           const puppies = await db.query.dogs.findMany({
-            where: eq(dogs.litterId, litter.id),
+            where: and(
+              eq(dogs.litterId, litter.id),
+              eq(dogs.died, false)
+            ),
             with: {
               media: {
                 orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],

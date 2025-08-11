@@ -32,7 +32,10 @@ router.get('/api/goat-litters/list/current', async (req, res) => {
     // For each litter, find kids (kid goats with litterId matching the litter's id)
     const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
       const kids = await db.query.goats.findMany({
-        where: eq(goats.litterId, litter.id),
+        where: and(
+          eq(goats.litterId, litter.id),
+          eq(goats.died, false)
+        ),
         with: {
           media: true
         }
@@ -80,7 +83,10 @@ router.get('/api/goat-litters/list/past', async (req, res) => {
     // For each litter, find kids (goats with litterId matching the litter's id)
     const littersWithKids = await Promise.all(pastLitters.map(async (litter) => {
       const kids = await db.query.goats.findMany({
-        where: eq(goats.litterId, litter.id),
+        where: and(
+          eq(goats.litterId, litter.id),
+          eq(goats.died, false)
+        ),
         with: {
           media: true
         }
@@ -124,7 +130,10 @@ router.get('/api/goat-litters', async (req, res) => {
     // For each litter, find kids (goats with litterId matching the litter's id)
     const littersWithKids = await Promise.all(allLitters.map(async (litter) => {
       const kids = await db.query.goats.findMany({
-        where: eq(goats.litterId, litter.id),
+        where: and(
+          eq(goats.litterId, litter.id),
+          eq(goats.died, false)
+        ),
         with: {
           media: true,
           documents: true
@@ -223,7 +232,10 @@ router.get('/api/goat-litters/:id', async (req, res) => {
     
     // Find kids (goats with litterId matching this litter's id)
     const kids = await db.query.goats.findMany({
-      where: eq(goats.litterId, id),
+      where: and(
+        eq(goats.litterId, id),
+        eq(goats.died, false)
+      ),
       with: {
         media: true,
         documents: true
