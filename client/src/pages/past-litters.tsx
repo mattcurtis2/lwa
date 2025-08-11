@@ -201,7 +201,6 @@ export default function PastLitters() {
                                     {puppy.gender === 'female' ? '♀' : '♂'}
                                   </span>
                                 </div>
-                                <div className="text-sm text-stone-600 font-medium">Previous Litter</div>
                               </div>
                             </div>
                           ))}
