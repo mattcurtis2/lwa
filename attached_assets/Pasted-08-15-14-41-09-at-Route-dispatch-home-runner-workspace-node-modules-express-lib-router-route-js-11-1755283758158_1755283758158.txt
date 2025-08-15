@@ -1,0 +1,54 @@
+08-15 14:41:09
+at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+08-15 14:41:09
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:09
+at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+08-15 14:41:17
+Error creating sheep: SyntaxError: "[object Object]" is not valid JSON
+08-15 14:41:17
+at JSON.parse ()
+08-15 14:41:17
+at file:///home/runner/workspace/dist/index.js:1202:37
+08-15 14:41:17
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:17
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+08-15 14:41:17
+at multerMiddleware (/home/runner/workspace/node_modules/multer/lib/make-middleware.js:13:41)
+08-15 14:41:17
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:17
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+08-15 14:41:17
+at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+08-15 14:41:17
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:17
+at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+08-15 14:41:31
+Error creating sheep: SyntaxError: "[object Object]" is not valid JSON
+08-15 14:41:31
+at JSON.parse ()
+08-15 14:41:31
+at file:///home/runner/workspace/dist/index.js:1202:37
+08-15 14:41:31
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:31
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+08-15 14:41:31
+at multerMiddleware (/home/runner/workspace/node_modules/multer/lib/make-middleware.js:13:41)
+08-15 14:41:31
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:31
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+08-15 14:41:31
+at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+08-15 14:41:31
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+08-15 14:41:31
+at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+
+Wrap
+
+Colors

@@ -128,9 +128,11 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
       profileImageUrl = s3Result;
     }
     
-    // Parse media and documents from JSON strings
-    const media = data.media ? JSON.parse(data.media) : [];
-    const documents = data.documents ? JSON.parse(data.documents) : [];
+    // Parse media and documents (handle both JSON strings and objects)
+    const media = data.media ? 
+      (typeof data.media === 'string' ? JSON.parse(data.media) : data.media) : [];
+    const documents = data.documents ? 
+      (typeof data.documents === 'string' ? JSON.parse(data.documents) : data.documents) : [];
     
     // Process boolean fields
     const processedData: Record<string, any> = {};
