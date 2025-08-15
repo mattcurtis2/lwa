@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, sheep, sheepMedia, sheepDocuments, sheepLitters, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { getCurrentSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
@@ -11,6 +11,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
+import sheepRoutes from './routes/sheep';
 import Stripe from "stripe";
 
 
@@ -2651,6 +2652,9 @@ app.get("/api/litters/list/current", async (req, res) => {
       res.status(500).json({ message: "Failed to create order" });
     }
   });
+
+  // Register sheep routes
+  app.use(sheepRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -418,10 +418,7 @@ export const goatLitterRelations = relations(goatLitters, ({ one, many }) => ({
     fields: [goatLitters.fatherId],
     references: [goats.id],
   }),
-  puppies: many(goats, {
-    fields: [goatLitters.id],
-    references: [goats.litterId],
-  }),
+  kids: many(goats),
 }));
 
 export const goatDocumentsRelations = relations(goatDocuments, ({ one }) => ({
@@ -640,10 +637,7 @@ export const sheepLitterRelations = relations(sheepLitters, ({ one, many }) => (
     fields: [sheepLitters.fatherId],
     references: [sheep.id],
   }),
-  lambs: many(sheep, {
-    fields: [sheepLitters.id],
-    references: [sheep.litterId],
-  }),
+  lambs: many(sheep),
 }));
 
 export const sheepDocumentsRelations = relations(sheepDocuments, ({ one }) => ({
