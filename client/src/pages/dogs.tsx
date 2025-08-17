@@ -1,14 +1,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { Dog, DogMedia, Litter } from "@db/schema";
+import { Dog, DogMedia } from "@db/schema";
 import DogDetails from "@/components/dog-details";
 import { useLocation, Link } from "wouter";
-import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { DogHero } from "@/components/sections/dog-hero";
 import { SiteContent } from "@/lib/types";
+import LitterBanner from "@/components/sections/litter-banner";
 
 interface DogsProps {
   genderFilter?: 'male' | 'female';
@@ -38,18 +37,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     }
   });
 
-  const { data: litters } = useQuery<(Litter & {
-    mother: Dog & { media?: DogMedia[] },
-    father: Dog & { media?: DogMedia[] }
-  })[]>({
-    queryKey: ["/api/litters"],
-  });
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const visibleLitter = litters?.find(litter => litter.isVisible && litter.isCurrentLitter);
 
   // Filter dogs based on gender, display setting, and filter out puppies, outside breeders, and available dogs
   // Available dogs should only be shown in the available section
@@ -94,9 +84,6 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   // If we're on a filtered page, only show that specific gender
   const shouldShowFemales = genderFilter === 'female' || !genderFilter;
   const shouldShowMales = genderFilter === 'male' || !genderFilter;
-
-  const motherDog = dogs?.find(dog => dog.id === visibleLitter?.mother?.id);
-  const fatherDog = dogs?.find(dog => dog.id === visibleLitter?.father?.id);
 
   return (
     <div className="w-full">
@@ -156,84 +143,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         </div>
       )}
 
-      {!showAvailable && !genderFilter && visibleLitter && motherDog && fatherDog && (
-        <div
-          onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
-          className="bg-gradient-to-br from-amber-100 via-amber-200 to-amber-100 border-y border-amber-200 cursor-pointer hover:bg-gradient-to-br hover:from-amber-50 hover:via-amber-100 hover:to-amber-50 transition-colors"
-        >
-          <div className="container mx-auto px-4">
-            <div className="min-h-[100px] py-4 flex items-center">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12">
-                  <div>
-                    <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2 inline-block">
-                      {visibleLitter.isPlannedLitter ? "New Litter Coming Soon!" : "New Litter Available!"}
-                    </div>
-                    <p className="text-amber-800">
-                      {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">
-                        {visibleLitter.isPlannedLitter && visibleLitter.expectedBreedingDate 
-                          ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
-                          : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
-                        }
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
-                        {motherDog.profileImageUrl ? (
-                          <img
-                            src={motherDog.profileImageUrl}
-                            alt={motherDog.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : motherDog.media && motherDog.media.length > 0 ? (
-                          <img
-                            src={motherDog.media[0].url}
-                            alt={motherDog.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-3xl text-pink-500">♀</span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-amber-900">{motherDog.name}</p>
-                        <p className="text-sm text-amber-700/80">Mother</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center border-2 border-amber-200">
-                        {fatherDog.profileImageUrl ? (
-                          <img
-                            src={fatherDog.profileImageUrl}
-                            alt={fatherDog.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : fatherDog.media && fatherDog.media.length > 0 ? (
-                          <img
-                            src={fatherDog.media[0].url}
-                            alt={fatherDog.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-3xl text-blue-500">♂</span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-amber-900">{fatherDog.name}</p>
-                        <p className="text-sm text-amber-700/80">Father</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {!showAvailable && !genderFilter && <LitterBanner />}
 
       <div className="container mx-auto px-4 py-16 space-y-16">
         {/* Available Dogs Section */}
