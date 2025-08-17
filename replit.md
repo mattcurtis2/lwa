@@ -6,6 +6,13 @@ This full-stack web application manages a small family farm specializing in Colo
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+### January 17, 2025 - Litter Banner Date Fix
+- Fixed timezone offset issue causing dates to display one day earlier than selected in admin panel
+- Updated `parseApiDate` utility function to handle date-only strings (YYYY-MM-DD) at local midnight
+- Applied fix to both homepage `LitterBanner` component and `/dogs` page banner
+- Ensured banner logic consistency between homepage and dogs page for "New Litter Coming Soon!" vs "New Litter Available!" text
+
 ## System Architecture
 ### Frontend
 - **Framework:** React with TypeScript, using Vite for builds.
