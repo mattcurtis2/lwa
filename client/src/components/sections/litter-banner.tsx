@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 
 interface PastLitter extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -13,14 +13,21 @@ interface PastLitter extends Litter {
 export default function LitterBanner() {
   const [_, navigate] = useLocation();
   
-  const { data: litters } = useQuery<PastLitter[]>({
+  const { data: currentLitters } = useQuery<PastLitter[]>({
     queryKey: ["/api/litters/list/current"],
   });
 
-  // If no litters with available puppies, don't show banner
-  if (!litters?.length) return null;
+  const { data: futureLitters } = useQuery<PastLitter[]>({
+    queryKey: ["/api/litters/list/future"],
+  });
 
-  const visibleLitter = litters[0];
+  // Combine and prioritize future litters first (planned litters), then current litters
+  const allLitters = [...(futureLitters || []), ...(currentLitters || [])];
+  
+  // If no litters, don't show banner
+  if (!allLitters?.length) return null;
+
+  const visibleLitter = allLitters[0];
 
   return (
     <div
@@ -38,8 +45,8 @@ export default function LitterBanner() {
                 <p className="text-amber-800">
                   {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">
                     {visibleLitter.isPlannedLitter && visibleLitter.expectedBreedingDate 
-                      ? format(new Date(visibleLitter.expectedBreedingDate), 'MMM yyyy')
-                      : formatDisplayDate(new Date(visibleLitter.dueDate))
+                      ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
+                      : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
                     }
                   </span>
                 </p>

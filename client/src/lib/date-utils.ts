@@ -22,10 +22,14 @@ export function formatApiDate(dateStr: string): string {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-// Parse API date string to local Date object
+// Parse API date string to local Date object without timezone offset
 export function parseApiDate(dateStr: string): Date {
-  const date = new Date(dateStr);
-  return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  // For date-only strings (YYYY-MM-DD), create date at local midnight to avoid timezone issues
+  if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(dateStr);
 }
 
 export function formatAge(birthDate: Date): string {
