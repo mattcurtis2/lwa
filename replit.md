@@ -7,11 +7,13 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
-### January 17, 2025 - Litter Banner Date Fix
-- Fixed timezone offset issue causing dates to display one day earlier than selected in admin panel
-- Updated `parseApiDate` utility function to handle date-only strings (YYYY-MM-DD) at local midnight
-- Applied fix to both homepage `LitterBanner` component and `/dogs` page banner
-- Ensured banner logic consistency between homepage and dogs page for "New Litter Coming Soon!" vs "New Litter Available!" text
+### January 17, 2025 - Litter Banner Logic Fix
+- Fixed litter banner logic to properly check for puppy availability instead of planned litter status
+- Updated API to include `puppyCount` field for each litter to determine correct banner message
+- Refactored duplicate banner code into a shared `LitterBanner` component used on both homepage and /dogs page
+- Banner now correctly shows "New Litter Coming Soon!" when no puppies are added to the litter
+- Banner now correctly shows "New Litter Available!" when puppies have been added to the litter
+- Ensured consistent behavior across both homepage and dogs page
 
 ## System Architecture
 ### Frontend
