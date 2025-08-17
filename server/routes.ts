@@ -1168,7 +1168,25 @@ export function registerRoutes(app: Express): Server {
         },
       },
     });
-    res.json(allLitters);
+
+    // Get puppy counts for each litter
+    const littersWithPuppies = await Promise.all(
+      allLitters.map(async (litter) => {
+        const puppyCount = await db.query.dogs.findMany({
+          where: and(
+            eq(dogs.litterId, litter.id),
+            eq(dogs.puppy, true)
+          ),
+        });
+        
+        return {
+          ...litter,
+          puppyCount: puppyCount.length,
+        };
+      })
+    );
+
+    res.json(littersWithPuppies);
   });
 
   app.post("/api/litters", async (req, res) => {
