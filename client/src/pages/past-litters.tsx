@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
@@ -54,8 +54,8 @@ export default function PastLitters() {
 
   // Sort litters by due date (most recent first)
   const sortedLitters = [...litters].sort((a, b) => {
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
+    const dateA = parseApiDate(a.dueDate);
+    const dateB = parseApiDate(b.dueDate);
     return dateB.getTime() - dateA.getTime();
   });
 
@@ -85,7 +85,7 @@ export default function PastLitters() {
                   {litter.puppies.length} {litter.puppies.length === 1 ? "Puppy" : "Puppies"}
                 </h3>
                 <p className="text-muted-foreground">
-                  Born: {format(new Date(litter.dueDate), 'MMM d, yyyy')}
+                  Born: {format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}
                 </p>
               </div>
               

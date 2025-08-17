@@ -4,6 +4,7 @@ import type { Litter, Dog, DogMedia } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { parseApiDate } from "@/lib/date-utils";
 
 interface LitterWithRelations extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -47,8 +48,8 @@ export default function DogFutureLitters() {
   
   // Sort litters by due date (soonest first)
   const sortedLitters = [...litters].sort((a, b) => {
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
+    const dateA = parseApiDate(a.dueDate);
+    const dateB = parseApiDate(b.dueDate);
     return dateA.getTime() - dateB.getTime();
   });
 
@@ -77,12 +78,12 @@ export default function DogFutureLitters() {
                 </h3>
                 <p className="text-muted-foreground">
                   Expected: {litter.expectedBreedingDate 
-                    ? format(new Date(litter.expectedBreedingDate), 'MMM yyyy')
-                    : format(new Date(litter.dueDate), 'MMM d, yyyy')}
+                    ? format(parseApiDate(litter.expectedBreedingDate), 'MMM yyyy')
+                    : format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}
                 </p>
                 {litter.expectedPickupDate && (
                   <p className="text-muted-foreground text-sm">
-                    Expected pickup: {format(new Date(litter.expectedPickupDate), 'MMM yyyy')}
+                    Expected pickup: {format(parseApiDate(litter.expectedPickupDate), 'MMM yyyy')}
                   </p>
                 )}
               </div>

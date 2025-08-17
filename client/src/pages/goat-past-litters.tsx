@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { GoatLitter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function GoatPastLitters() {
@@ -70,7 +70,7 @@ export default function GoatPastLitters() {
               <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                 <div>
                   <div className="bg-stone-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-stone-800 text-sm font-semibold mb-3 inline-block">
-                    Born {litter.dueDate ? formatDisplayDate(new Date(litter.dueDate)) : "N/A"}
+                    Born {litter.dueDate ? formatDisplayDate(parseApiDate(litter.dueDate)) : "N/A"}
                   </div>
                   <p className="text-muted-foreground text-sm">
                     {litter.puppies?.length} {litter.puppies?.length === 1 ? "kid" : "kids"} from this litter

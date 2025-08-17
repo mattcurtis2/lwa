@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { parseApiDate } from "@/lib/date-utils";
 
 interface LitterWithRelations extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -101,11 +102,11 @@ export default function DogCurrentLitters() {
                       Planned Litter
                     </span>
                     <h3 className="text-xl font-semibold mt-2">
-                      Due: {format(new Date(litter.dueDate), 'MMM d, yyyy')}
+                      Due: {format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}
                     </h3>
                     {litter.waitlistLink && (
                       <Button 
-                        onClick={() => window.open(litter.waitlistLink, '_blank')}
+                        onClick={() => litter.waitlistLink && window.open(litter.waitlistLink, '_blank')}
                         size="sm"
                         className="mt-2"
                       >
@@ -202,8 +203,8 @@ export default function DogCurrentLitters() {
     if (a.puppies.length === 0 && b.puppies.length > 0) return 1;
     
     // Then sort by due date (most recent first)
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
+    const dateA = parseApiDate(a.dueDate);
+    const dateB = parseApiDate(b.dueDate);
     return dateB.getTime() - dateA.getTime();
   });
 
@@ -230,8 +231,8 @@ export default function DogCurrentLitters() {
                 </h3>
                 <p className="text-muted-foreground">
                   {litter.puppies.length > 0 
-                    ? `Born: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}` 
-                    : `Due: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}`}
+                    ? `Born: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}` 
+                    : `Due: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}`}
                 </p>
               </div>
               <CardContent className="p-6">

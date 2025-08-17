@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogDetails from "@/components/dog-details";
 
@@ -53,7 +53,7 @@ export default function LitterDetail() {
     );
   }
 
-  const isPastDueDate = new Date(litter.dueDate) < new Date();
+  const isPastDueDate = parseApiDate(litter.dueDate) < new Date();
   const isPlannedLitter = litter.isPlannedLitter;
   const puppyCount = litter.puppies?.length || 0;
   const maleCount = litter.puppies?.filter(puppy => puppy.gender === 'male').length || 0;
@@ -71,10 +71,10 @@ export default function LitterDetail() {
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-amber-900">
                 {isPlannedLitter && litter.expectedBreedingDate
-                  ? `Expected ${format(new Date(litter.expectedBreedingDate), 'MMM yyyy')}`
+                  ? `Expected ${format(parseApiDate(litter.expectedBreedingDate), 'MMM yyyy')}`
                   : (isPastDueDate
-                    ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
-                    : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`)}
+                    ? `Born ${formatDisplayDate(parseApiDate(litter.dueDate))}`
+                    : `Expected ${formatDisplayDate(parseApiDate(litter.dueDate))}`)}
               </h1>
               {(!isPastDueDate || isPlannedLitter) && litter.waitlistLink && (
                 <div className="mt-4">

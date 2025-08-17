@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { GoatLitter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function GoatUpcomingLitters() {
@@ -13,7 +13,7 @@ export default function GoatUpcomingLitters() {
   });
 
   const upcomingLitters = litters?.filter(litter => {
-    const dueDate = new Date(litter.dueDate);
+    const dueDate = parseApiDate(litter.dueDate);
     return dueDate > new Date() && litter.isVisible;
   });
 
