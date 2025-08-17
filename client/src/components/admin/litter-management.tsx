@@ -488,6 +488,21 @@ export default function LitterManagement() {
                   </div>
                 </div>
 
+                {/* Waitlist Sign-up Link - Always available for all litters */}
+                <div className="space-y-2 pt-4 border-t">
+                  <Label>Waitlist Sign-up Link</Label>
+                  <Input
+                    type="url"
+                    placeholder="https://docs.google.com/forms/..."
+                    value={editLitter?.waitlistLink || ""}
+                    onChange={(e) => setEditLitter(prev => ({
+                      ...prev!,
+                      waitlistLink: e.target.value || null,
+                    }))}
+                  />
+                  <p className="text-xs text-muted-foreground">Link where visitors can sign up for the litter waitlist</p>
+                </div>
+
                 {editLitter?.isPlannedLitter && (
                   <div className="space-y-4 pt-4 border-t">
                     <h4 className="text-sm font-medium">Planned Litter Details</h4>
@@ -503,20 +518,6 @@ export default function LitterManagement() {
                         }))}
                       />
                       <p className="text-xs text-muted-foreground">This will be used for both breeding and expected puppy availability</p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Waitlist Sign-up Link</Label>
-                      <Input
-                        type="url"
-                        placeholder="https://docs.google.com/forms/..."
-                        value={editLitter?.waitlistLink || ""}
-                        onChange={(e) => setEditLitter(prev => ({
-                          ...prev!,
-                          waitlistLink: e.target.value || null,
-                        }))}
-                      />
-                      <p className="text-xs text-muted-foreground">Link where visitors can sign up for the litter waitlist</p>
                     </div>
                   </div>
                 )}
