@@ -7,6 +7,23 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+### January 17, 2025 - Date Parsing Bug Fix
+- Fixed off-by-one day error on litter pages and animal detail pages caused by timezone issues
+- Replaced all instances of `new Date()` and `parseISO()` with the custom `parseApiDate()` utility for date-only strings
+- Updated the following files:
+  - `client/src/pages/litter-detail.tsx`
+  - `client/src/pages/dog-current-litters.tsx`
+  - `client/src/pages/dog-future-litters.tsx`
+  - `client/src/pages/past-litters.tsx`
+  - `client/src/pages/goat-detail.tsx`
+  - `client/src/pages/goat-past-litters.tsx`
+  - `client/src/pages/goat-upcoming-litters.tsx`
+  - `client/src/components/dog-details.tsx`
+  - `client/src/components/goat-details.tsx`
+  - `client/src/components/sheep-details.tsx`
+  - `client/src/components/sheep-card.tsx`
+- The `parseApiDate()` function creates dates at local midnight to avoid timezone offsets that can cause off-by-one day errors
+
 ### January 17, 2025 - Litter Banner Logic Fix
 - Fixed litter banner logic to properly check for puppy availability instead of planned litter status
 - Updated API to include `puppyCount` field for each litter to determine correct banner message

@@ -25,8 +25,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDisplayDate } from "@/lib/date-utils";
-import { parseISO } from "date-fns";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Document {
@@ -240,7 +239,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Birth Date</h3>
-                <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+                <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
               </div>
             </CardContent>
           </Card>
@@ -507,7 +506,7 @@ export default function DogDetails({ dog }: DogDetailsProps) {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Birth Date</h3>
-                    <p>{formatDisplayDate(parseISO(dog.birthDate))}</p>
+                    <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
                   </div>
                 </div>
               </CardContent>

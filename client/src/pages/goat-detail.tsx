@@ -5,6 +5,7 @@ import { GoatCard } from "@/components/cards/goat-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 
 export default function GoatDetail() {
   const [, params] = useRoute("/goats/:id");
@@ -55,7 +56,7 @@ export default function GoatDetail() {
                   <div>
                     <h4 className="font-medium">Birth Date</h4>
                     <p className="text-muted-foreground">
-                      {new Date(goat.birthDate).toLocaleDateString()}
+                      {formatDisplayDate(parseApiDate(goat.birthDate))}
                     </p>
                   </div>
                 )}

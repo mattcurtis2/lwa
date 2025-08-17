@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash2 } from "lucide-react";
 import { Sheep } from "@db/schema";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 
 type SheepWithMedia = Sheep & {
   media?: Array<{
@@ -108,7 +109,7 @@ export default function SheepCard({ sheep, isAdmin = false, onEdit, onDelete }: 
           
           {sheep.birthDate && (
             <p className="text-sm text-muted-foreground">
-              Born: {new Date(sheep.birthDate).toLocaleDateString()}
+              Born: {formatDisplayDate(parseApiDate(sheep.birthDate))}
             </p>
           )}
           

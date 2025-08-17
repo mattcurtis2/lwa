@@ -25,8 +25,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDisplayDate } from "@/lib/date-utils";
-import { parseISO } from "date-fns";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Document {
@@ -278,7 +277,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Birth Date</h3>
-                <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+                <p>{formatDisplayDate(parseApiDate(goat.birthDate))}</p>
               </div>
               {goat.sireName && (
                 <div>
@@ -611,7 +610,7 @@ export default function GoatDetails({ goat, showPrice = false }: GoatDetailsProp
               </div>
               <div>
                 <h3 className="font-medium text-lg">Birth Date</h3>
-                <p>{formatDisplayDate(parseISO(goat.birthDate))}</p>
+                <p>{formatDisplayDate(parseApiDate(goat.birthDate))}</p>
               </div>
               {goat.sireName && (
                 <div>
