@@ -13,21 +13,15 @@ interface PastLitter extends Litter {
 export default function LitterBanner() {
   const [_, navigate] = useLocation();
   
-  const { data: currentLitters } = useQuery<PastLitter[]>({
-    queryKey: ["/api/litters/list/current"],
+  const { data: litters } = useQuery<PastLitter[]>({
+    queryKey: ["/api/litters"],
   });
 
-  const { data: futureLitters } = useQuery<PastLitter[]>({
-    queryKey: ["/api/litters/list/future"],
-  });
-
-  // Combine and prioritize future litters first (planned litters), then current litters
-  const allLitters = [...(futureLitters || []), ...(currentLitters || [])];
+  // Find the visible litter (prioritize current litters that are visible)
+  const visibleLitter = litters?.find(litter => litter.isVisible && litter.isCurrentLitter);
   
-  // If no litters, don't show banner
-  if (!allLitters?.length) return null;
-
-  const visibleLitter = allLitters[0];
+  // If no visible current litter, don't show banner
+  if (!visibleLitter) return null;
 
   return (
     <div
@@ -61,6 +55,12 @@ export default function LitterBanner() {
                         alt={visibleLitter.mother.name}
                         className="w-full h-full object-cover"
                       />
+                    ) : visibleLitter.mother.media && visibleLitter.mother.media.length > 0 ? (
+                      <img
+                        src={visibleLitter.mother.media[0].url}
+                        alt={visibleLitter.mother.name}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="text-3xl text-pink-500">♀</span>
                     )}
@@ -76,6 +76,12 @@ export default function LitterBanner() {
                     {visibleLitter.father.profileImageUrl ? (
                       <img
                         src={visibleLitter.father.profileImageUrl}
+                        alt={visibleLitter.father.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : visibleLitter.father.media && visibleLitter.father.media.length > 0 ? (
+                      <img
+                        src={visibleLitter.father.media[0].url}
                         alt={visibleLitter.father.name}
                         className="w-full h-full object-cover"
                       />
