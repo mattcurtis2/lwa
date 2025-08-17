@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import DogDetails from "@/components/dog-details";
 import { useLocation, Link } from "wouter";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { DogHero } from "@/components/sections/dog-hero";
 import { SiteContent } from "@/lib/types";
@@ -172,8 +172,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <p className="text-amber-800">
                       {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">
                         {visibleLitter.isPlannedLitter && visibleLitter.expectedBreedingDate 
-                          ? format(new Date(visibleLitter.expectedBreedingDate), 'MMM yyyy')
-                          : formatDisplayDate(new Date(visibleLitter.dueDate))
+                          ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
+                          : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
                         }
                       </span>
                     </p>
