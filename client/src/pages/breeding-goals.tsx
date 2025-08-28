@@ -27,19 +27,150 @@ export default function BreedingGoals() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Update page title and meta description for SEO
+    // Comprehensive SEO optimization
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
-    document.title = 'Colorado Mountain Dog Breeding Goals | Little Way Acres CMDR Philosophy';
-    updateMetaDescription('Learn about Little Way Acres Colorado Mountain Dog breeding goals. We breed for temperament, loyalty, calm guardian instincts, and close family bonds in our CMDR program.');
-    
+    document.title = 'Colorado Mountain Dog Breeding Goals | Little Way Acres Michigan CMDR';
+    updateMetaDescription('Discover our Colorado Mountain Dog breeding philosophy at Little Way Acres Michigan. We breed for gentle temperament, intelligence, and small farm guardian abilities. Health-tested parents, purposeful breeding.');
+
+    // Add keywords meta tag
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'Colorado Mountain Dog breeding, livestock guardian dog, small farm dogs, Michigan dog breeder, CMDR breeding goals, guardian dog temperament, farm dog breeding, Little Way Acres');
+
+    // Add Open Graph tags for social sharing
+    const ogTags = [
+      { property: 'og:title', content: 'Colorado Mountain Dog Breeding Goals | Little Way Acres' },
+      { property: 'og:description', content: 'Our breeding philosophy focuses on gentle temperament, intelligence, and small farm guardian abilities for Colorado Mountain Dogs.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: window.location.href },
+      { property: 'og:site_name', content: 'Little Way Acres' },
+      { property: 'og:image', content: 'https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg' }
+    ];
+
+    ogTags.forEach(tag => {
+      let ogTag = document.querySelector(`meta[property="${tag.property}"]`);
+      if (!ogTag) {
+        ogTag = document.createElement('meta');
+        ogTag.setAttribute('property', tag.property);
+        document.head.appendChild(ogTag);
+      }
+      ogTag.setAttribute('content', tag.content);
+    });
+
+    // Add structured data (JSON-LD) for search engines
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Colorado Mountain Dog Breeding Goals",
+          "description": "Our comprehensive breeding philosophy for Colorado Mountain Dogs focused on temperament, intelligence, and farm work capabilities.",
+          "author": {
+            "@type": "Organization",
+            "name": "Little Way Acres"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Little Way Acres",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "Michigan",
+              "addressCountry": "US"
+            },
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "616-502-7631",
+              "contactType": "customer service"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": window.location.href
+          },
+          "image": "https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg"
+        },
+        {
+          "@type": "Organization",
+          "name": "Little Way Acres",
+          "url": window.location.origin,
+          "description": "Small family farm specializing in Colorado Mountain Dogs and Nigerian Dwarf Goats in Michigan",
+          "address": {
+            "@type": "PostalAddress",
+            "addressRegion": "Michigan",
+            "addressCountry": "US"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "616-502-7631",
+            "contactType": "customer service"
+          },
+          "sameAs": []
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What are the main Colorado Mountain Dog breeding goals at Little Way Acres?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Our breeding goals focus on six key traits: bonding with family, staying close to home, calm steady presence, reliable guardian instincts, affection and companionship, and health-tested parents. We prioritize gentle temperament above all else."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Why do you focus on temperament in Colorado Mountain Dog breeding?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision, ensuring dogs that are trustworthy around all family members while maintaining guardian instincts."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are Colorado Mountain Dogs good for small farms?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, our Colorado Mountain Dogs are specifically bred for small farm operations where every animal must earn their place through both performance and personality. They adapt well to different farm animals and operations while staying close to home."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do you health test your Colorado Mountain Dog breeding dogs?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Absolutely. Every breeding decision includes thorough health testing to ensure our puppies inherit the strength and longevity needed for a lifetime of faithful service and companionship."
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    let jsonLd = document.querySelector('#breeding-goals-structured-data');
+    if (!jsonLd) {
+      jsonLd = document.createElement('script');
+      jsonLd.id = 'breeding-goals-structured-data';
+      jsonLd.type = 'application/ld+json';
+      document.head.appendChild(jsonLd);
+    }
+    jsonLd.textContent = JSON.stringify(structuredData);
+
     // Cleanup on unmount
     return () => {
       document.title = originalTitle;
       if (originalDescription) {
         updateMetaDescription(originalDescription);
       }
+      
+      // Clean up added SEO elements
+      const addedElements = document.querySelectorAll('meta[name="keywords"], meta[property^="og:"], #breeding-goals-structured-data');
+      addedElements.forEach(element => element.remove());
     };
   }, []);
   
