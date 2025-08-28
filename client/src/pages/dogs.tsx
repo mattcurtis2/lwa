@@ -368,7 +368,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         )}
 
         {/* Females Section */}
-        {!showAvailable && shouldShowFemales && females.length > 0 && (
+        {!showAvailable && shouldShowFemales && genderFilter && females.length > 0 && (
           <div>
             <div className="relative mb-12">
               <div className="absolute inset-0 flex items-center">
@@ -389,7 +389,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         )}
 
         {/* Males Section */}
-        {!showAvailable && shouldShowMales && males.length > 0 && (
+        {!showAvailable && shouldShowMales && genderFilter && males.length > 0 && (
           <div>
             <div className="relative mb-12">
               <div className="absolute inset-0 flex items-center">
