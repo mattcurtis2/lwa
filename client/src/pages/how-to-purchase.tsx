@@ -3,11 +3,29 @@ import { useEffect } from "react";
 import { ContactInfo } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, MapPin, Phone, Mail } from "lucide-react";
+import { Link } from "wouter";
+
+interface Litter {
+  id: number;
+  motherName: string;
+  fatherName: string;
+  dueDate: string;
+  status: string;
+}
 
 export default function HowToPurchase() {
   const { data: contactInfo } = useQuery<ContactInfo>({
     queryKey: ["/api/contact-info"],
   });
+
+  const { data: litters } = useQuery<Litter[]>({
+    queryKey: ["/api/litters"],
+  });
+
+  // Find the most recent current or planned litter
+  const mostRecentLitter = litters?.find(litter => 
+    litter.status === 'current' || litter.status === 'planned'
+  ) || litters?.[0];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -133,11 +151,47 @@ export default function HowToPurchase() {
               </div>
             </div>
 
-            {/* Step 3: Pickup or Delivery */}
+            {/* Step 3: Dog Selection Process */}
             <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
               <div className="flex items-start space-x-6">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-amber-600 font-bold text-2xl">3</span>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold text-stone-800 mb-4">Dog Selection Process</h2>
+                  <p className="text-stone-700 leading-relaxed text-lg mb-6">
+                    For families that submit a deposit for dogs, we work to identify the best traits of our litters that fit your individual needs. These traits start to show themselves in weeks 4-6. After we have identified top candidates for your farms, we work through reservations in order of deposit to find the best fit for CMDRs.
+                  </p>
+                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-stone-800 mb-3">Our Selection Timeline:</h3>
+                    <ul className="space-y-2 text-stone-700">
+                      <li className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span>Weeks 1-3: Early observation and temperament notes</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span>Weeks 4-6: Individual personalities and traits emerge</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span>Week 7: Matching process begins with deposit holders</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span>Week 8: Final selections and preparation for pickup</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 4: Pickup or Personal Delivery */}
+            <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
+              <div className="flex items-start space-x-6">
+                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-amber-600 font-bold text-2xl">4</span>
                 </div>
                 <div className="flex-1">
                   <h2 className="text-3xl font-bold text-stone-800 mb-4">Pickup or Personal Delivery</h2>
@@ -241,18 +295,31 @@ export default function HowToPurchase() {
               <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 text-center">
                 <h3 className="text-xl font-bold text-stone-800 mb-4">Start Your Journey</h3>
                 <p className="text-stone-700 mb-6">
-                  Ready to welcome a Colorado Mountain Dog into your family? Reach out to us today to begin the placement process.
+                  Ready to welcome a Colorado Mountain Dog into your family? Check out our current litter or reach out to us to begin the placement process.
                 </p>
-                {contactInfo?.email && (
-                  <Button 
-                    asChild
-                    className="bg-amber-600 hover:bg-amber-700 text-white"
-                  >
-                    <a href={`mailto:${contactInfo.email}?subject=Interest in Colorado Mountain Dog Puppy`}>
-                      Send Interest Email
-                    </a>
-                  </Button>
-                )}
+                <div className="space-y-3">
+                  {mostRecentLitter && (
+                    <Button 
+                      asChild
+                      className="bg-amber-600 hover:bg-amber-700 text-white w-full"
+                    >
+                      <Link href={`/dogs/litters/${mostRecentLitter.id}`}>
+                        View Current Litter
+                      </Link>
+                    </Button>
+                  )}
+                  {contactInfo?.email && (
+                    <Button 
+                      asChild
+                      variant="outline"
+                      className="border-amber-200 text-amber-700 hover:bg-amber-50 w-full"
+                    >
+                      <a href={`mailto:${contactInfo.email}?subject=Interest in Colorado Mountain Dog Puppy`}>
+                        Send Interest Email
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
