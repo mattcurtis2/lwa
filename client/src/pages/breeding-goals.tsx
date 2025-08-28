@@ -9,7 +9,9 @@ interface Litter {
   motherName: string;
   fatherName: string;
   dueDate: string;
-  status: string;
+  isCurrentLitter: boolean;
+  isPlannedLitter: boolean;
+  isPastLitter: boolean;
 }
 
 export default function BreedingGoals() {
@@ -19,9 +21,9 @@ export default function BreedingGoals() {
 
   // Find the most recent upcoming/planned litter first, then current litter
   const mostRecentLitter = litters?.find(litter => 
-    litter.status === 'planned'
+    litter.isPlannedLitter === true
   ) || litters?.find(litter => 
-    litter.status === 'current'
+    litter.isCurrentLitter === true
   ) || litters?.[0];
 
   useEffect(() => {
