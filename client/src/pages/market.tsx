@@ -34,8 +34,8 @@ export default function Market() {
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
-    document.title = 'Sourdough Bakery & Farm Fresh Honey | Muskegon Farmers Market | Little Way Acres';
-    updateMetaDescription('Fresh sourdough bread and raw honey available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan artisan bakery featuring farm-fresh products in Ottawa County.');
+    document.title = 'Fresh Croissants & Sourdough Bakery | Muskegon Farmers Market | Little Way Acres';
+    updateMetaDescription('Fresh croissants, artisan sourdough bread, and raw honey available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan bakery specializing in croissants and farm-fresh products in Ottawa County.');
     
     // Cleanup on unmount
     return () => {

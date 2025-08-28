@@ -43,8 +43,8 @@ export default function MarketSectionPage() {
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
     if (currentSection === 'bakery') {
-      document.title = 'Artisan Sourdough Bakery | Fresh Bread | Muskegon Farmers Market | Ottawa County';
-      updateMetaDescription('Artisan sourdough bread, fresh baked goods, and specialty breads available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan bakery in Ottawa County.');
+      document.title = 'Fresh Croissants & Artisan Bakery | Sourdough Bread | Muskegon Farmers Market';
+      updateMetaDescription('Fresh croissants, artisan sourdough bread, and specialty baked goods available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan bakery specializing in croissants in Ottawa County.');
     } else if (currentSection === 'animal-products') {
       document.title = 'Raw Honey & Farm Fresh Products | Michigan Honey | Little Way Acres Farmstand';
       updateMetaDescription('Raw honey, farm-fresh eggs, and natural animal products available at Little Way Acres farmstand and Muskegon Farmers Market. Local Michigan farm products in Ottawa County.');
