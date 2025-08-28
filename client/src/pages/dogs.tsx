@@ -290,7 +290,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const shouldShowMales = genderFilter === 'male' || !genderFilter;
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full">
       {!showAvailable && !genderFilter && <DogHero />}
       {!showAvailable && !genderFilter && <LitterBanner />}
       {!showAvailable && !genderFilter && (

@@ -195,7 +195,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full">
       <Hero />
       <LitterBanner />
       <Principles />
