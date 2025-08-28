@@ -22,7 +22,7 @@ export default function HowToPurchase() {
     queryKey: ["/api/litters"],
   });
 
-  // Find the most recent current or planned litter
+  // Find the most recent litter (current, planned, or any upcoming litter)
   const mostRecentLitter = litters?.find(litter => 
     litter.status === 'current' || litter.status === 'planned'
   ) || litters?.[0];
@@ -297,29 +297,16 @@ export default function HowToPurchase() {
                 <p className="text-stone-700 mb-6">
                   Ready to welcome a Colorado Mountain Dog into your family? Check out our current litter or reach out to us to begin the placement process.
                 </p>
-                <div className="space-y-3">
-                  {mostRecentLitter && (
-                    <Button 
-                      asChild
-                      className="bg-amber-600 hover:bg-amber-700 text-white w-full"
-                    >
-                      <Link href={`/dogs/litters/${mostRecentLitter.id}`}>
-                        View Current Litter
-                      </Link>
-                    </Button>
-                  )}
-                  {contactInfo?.email && (
-                    <Button 
-                      asChild
-                      variant="outline"
-                      className="border-amber-200 text-amber-700 hover:bg-amber-50 w-full"
-                    >
-                      <a href={`mailto:${contactInfo.email}?subject=Interest in Colorado Mountain Dog Puppy`}>
-                        Send Interest Email
-                      </a>
-                    </Button>
-                  )}
-                </div>
+                {mostRecentLitter && (
+                  <Button 
+                    asChild
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    <Link href={`/dogs/litters/${mostRecentLitter.id}`}>
+                      View Current Litter
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
