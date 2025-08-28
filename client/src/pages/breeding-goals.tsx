@@ -17,9 +17,11 @@ export default function BreedingGoals() {
     queryKey: ["/api/litters"],
   });
 
-  // Find the most recent current or planned litter
+  // Find the most recent upcoming/planned litter first, then current litter
   const mostRecentLitter = litters?.find(litter => 
-    litter.status === 'current' || litter.status === 'planned'
+    litter.status === 'planned'
+  ) || litters?.find(litter => 
+    litter.status === 'current'
   ) || litters?.[0];
 
   useEffect(() => {
