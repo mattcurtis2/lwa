@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import type { Metadata } from "@/lib/types";
 import { GoatHero } from "@/components/sections/goat-hero";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,41 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     pageTitle = "Available Goats";
     pageDescription = "Browse our currently available Nigerian Dwarf goats. Each goat is raised with care and attention.";
   }
+
+  // SEO optimization - update page title and meta description focusing on Nigerian Dwarf Goats
+  useEffect(() => {
+    const originalTitle = document.title;
+    const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    
+    if (genderFilter === 'female') {
+      document.title = 'Nigerian Dwarf Goat Does | Premium Dairy Goat Breeding | Little Way Acres';
+      updateMetaDescription('Meet our Nigerian Dwarf Goat does - exceptional dairy goats known for their friendly personalities, high-quality milk production, and perfect size for small farms.');
+    } else if (genderFilter === 'male') {
+      document.title = 'Nigerian Dwarf Goat Bucks | Quality Breeding Stock | Little Way Acres';
+      updateMetaDescription('Meet our Nigerian Dwarf Goat bucks - outstanding breeding stock with proven genetics, gentle temperaments, and excellent conformation for dairy goat programs.');
+    } else if (showAvailable) {
+      document.title = 'Available Nigerian Dwarf Goats | Dairy Goats for Sale | Little Way Acres';
+      updateMetaDescription('Nigerian Dwarf Goats available now - friendly dairy goats perfect for small farms, homesteads, and families. Known for rich milk and gentle personalities.');
+    } else {
+      document.title = 'Nigerian Dwarf Goats | Premium Dairy Goats for Small Farms | Little Way Acres';
+      updateMetaDescription('Discover Nigerian Dwarf Goats - the perfect dairy goats for small farms and homesteads. Learn about our breeding program featuring friendly, productive miniature dairy goats.');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = originalTitle;
+      if (originalDescription) {
+        updateMetaDescription(originalDescription);
+      }
+    };
+  }, [genderFilter, showAvailable]);
+  
+  const updateMetaDescription = (description: string) => {
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', description);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">

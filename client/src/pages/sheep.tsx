@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import type { Metadata } from "@/lib/types";
 import { SheepHero } from "@/components/sections/sheep-hero";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,41 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
     pageDescription = siteContent.find(c => c.key === 'sheep_available_message')?.value || 
       "Browse our currently available Katahdin sheep. Each animal is raised with care and attention.";
   }
+
+  // SEO optimization - update page title and meta description focusing on Katahdin Sheep
+  useEffect(() => {
+    const originalTitle = document.title;
+    const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    
+    if (genderFilter === 'female') {
+      document.title = 'Katahdin Sheep Ewes | Hair Sheep Breeding Stock | Little Way Acres';
+      updateMetaDescription('Meet our Katahdin Sheep ewes - exceptional hair sheep known for excellent mothering abilities, easy lambing, and hardy nature perfect for sustainable farming.');
+    } else if (genderFilter === 'male') {
+      document.title = 'Katahdin Sheep Rams | Quality Hair Sheep Breeding | Little Way Acres';
+      updateMetaDescription('Meet our Katahdin Sheep rams - superior breeding stock with proven genetics, excellent conformation, and strong performance for hair sheep operations.');
+    } else if (showAvailable) {
+      document.title = 'Available Katahdin Sheep | Hair Sheep for Sale | Little Way Acres';
+      updateMetaDescription('Katahdin Sheep available now - hardy hair sheep that shed naturally, require minimal care, and produce lean meat. Perfect for sustainable farming operations.');
+    } else {
+      document.title = 'Katahdin Sheep | Hair Sheep for Sustainable Farms | Little Way Acres';
+      updateMetaDescription('Learn about Katahdin Sheep - hardy hair sheep that naturally shed, require minimal care, and excel in sustainable farming. Discover our breeding program.');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = originalTitle;
+      if (originalDescription) {
+        updateMetaDescription(originalDescription);
+      }
+    };
+  }, [genderFilter, showAvailable]);
+  
+  const updateMetaDescription = (description: string) => {
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', description);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
