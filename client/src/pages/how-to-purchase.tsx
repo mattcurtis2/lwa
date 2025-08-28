@@ -95,19 +95,19 @@ export default function HowToPurchase() {
                     <ul className="space-y-2 text-stone-700">
                       <li className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span>Your farm setup and livestock</span>
+                        <span>Your farm setup, land size, livestock, and predator challenges</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span>Family composition and children's ages</span>
+                        <span>What type of dog you need (livestock guardian, companion, all-around farm dog)</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span>Previous experience with guardian breeds</span>
+                        <span>Previous experience with guardian dogs and current animals on your farm</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span>What you're looking for in a Colorado Mountain Dog</span>
+                        <span>Training plans, housing arrangements, and specific puppy preparation needs</span>
                       </li>
                     </ul>
                   </div>
