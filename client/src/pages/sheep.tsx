@@ -108,17 +108,17 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
     if (genderFilter === 'female') {
-      document.title = 'Katahdin Sheep Ewes | Hair Sheep Breeding Stock | Little Way Acres';
-      updateMetaDescription('Meet our Katahdin Sheep ewes - exceptional hair sheep known for excellent mothering abilities, easy lambing, and hardy nature perfect for sustainable farming.');
+      document.title = 'Katahdin Sheep Ewes | Michigan Hair Sheep Breeding | Ottawa County';
+      updateMetaDescription('Meet our Katahdin Sheep ewes in Ottawa County, Michigan - exceptional hair sheep known for excellent mothering abilities, easy lambing, and hardy nature perfect for Michigan sustainable farming.');
     } else if (genderFilter === 'male') {
-      document.title = 'Katahdin Sheep Rams | Quality Hair Sheep Breeding | Little Way Acres';
-      updateMetaDescription('Meet our Katahdin Sheep rams - superior breeding stock with proven genetics, excellent conformation, and strong performance for hair sheep operations.');
+      document.title = 'Katahdin Sheep Rams | Michigan Hair Sheep Breeding | Ottawa County';
+      updateMetaDescription('Meet our Katahdin Sheep rams in Ottawa County, Michigan - superior breeding stock with proven genetics, excellent conformation, and strong performance for Michigan hair sheep operations.');
     } else if (showAvailable) {
-      document.title = 'Available Katahdin Sheep | Hair Sheep for Sale | Little Way Acres';
-      updateMetaDescription('Katahdin Sheep available now - hardy hair sheep that shed naturally, require minimal care, and produce lean meat. Perfect for sustainable farming operations.');
+      document.title = 'Available Katahdin Sheep | Michigan Hair Sheep for Sale | Ottawa County';
+      updateMetaDescription('Katahdin Sheep available now in Ottawa County, Michigan - hardy hair sheep that shed naturally, require minimal care, and produce lean meat. Perfect for Michigan sustainable farming operations.');
     } else {
-      document.title = 'Katahdin Sheep | Hair Sheep for Sustainable Farms | Little Way Acres';
-      updateMetaDescription('Learn about Katahdin Sheep - hardy hair sheep that naturally shed, require minimal care, and excel in sustainable farming. Discover our breeding program.');
+      document.title = 'Katahdin Sheep | Michigan Hair Sheep | Ottawa County Sustainable Farms';
+      updateMetaDescription('Learn about Katahdin Sheep in Ottawa County, Michigan - hardy hair sheep that naturally shed, require minimal care, and excel in Michigan sustainable farming. Discover our local breeding program.');
     }
     
     // Cleanup on unmount

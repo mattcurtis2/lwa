@@ -105,17 +105,17 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
     if (genderFilter === 'female') {
-      document.title = 'Nigerian Dwarf Goat Does | Premium Dairy Goat Breeding | Little Way Acres';
-      updateMetaDescription('Meet our Nigerian Dwarf Goat does - exceptional dairy goats known for their friendly personalities, high-quality milk production, and perfect size for small farms.');
+      document.title = 'Nigerian Dwarf Goat Does | Michigan Dairy Goat Breeding | Ottawa County';
+      updateMetaDescription('Meet our Nigerian Dwarf Goat does in Ottawa County, Michigan - exceptional dairy goats known for their friendly personalities, high-quality milk production, and perfect size for Michigan small farms.');
     } else if (genderFilter === 'male') {
-      document.title = 'Nigerian Dwarf Goat Bucks | Quality Breeding Stock | Little Way Acres';
-      updateMetaDescription('Meet our Nigerian Dwarf Goat bucks - outstanding breeding stock with proven genetics, gentle temperaments, and excellent conformation for dairy goat programs.');
+      document.title = 'Nigerian Dwarf Goat Bucks | Michigan Breeding Stock | Ottawa County';
+      updateMetaDescription('Meet our Nigerian Dwarf Goat bucks in Ottawa County, Michigan - outstanding breeding stock with proven genetics, gentle temperaments, and excellent conformation for Michigan dairy goat programs.');
     } else if (showAvailable) {
-      document.title = 'Available Nigerian Dwarf Goats | Dairy Goats for Sale | Little Way Acres';
-      updateMetaDescription('Nigerian Dwarf Goats available now - friendly dairy goats perfect for small farms, homesteads, and families. Known for rich milk and gentle personalities.');
+      document.title = 'Available Nigerian Dwarf Goats | Michigan Dairy Goats for Sale | Ottawa County';
+      updateMetaDescription('Nigerian Dwarf Goats available now in Ottawa County, Michigan - friendly dairy goats perfect for Michigan small farms, homesteads, and families. Known for rich milk and gentle personalities.');
     } else {
-      document.title = 'Nigerian Dwarf Goats | Premium Dairy Goats for Small Farms | Little Way Acres';
-      updateMetaDescription('Discover Nigerian Dwarf Goats - the perfect dairy goats for small farms and homesteads. Learn about our breeding program featuring friendly, productive miniature dairy goats.');
+      document.title = 'Nigerian Dwarf Goats | Michigan Dairy Goats | Ottawa County Small Farms';
+      updateMetaDescription('Discover Nigerian Dwarf Goats in Ottawa County, Michigan - the perfect dairy goats for Michigan small farms and homesteads. Learn about our local breeding program featuring friendly, productive miniature dairy goats.');
     }
     
     // Cleanup on unmount
