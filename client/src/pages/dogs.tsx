@@ -221,50 +221,6 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   </div>
                 </div>
               </section>
-
-              {/* FAQ Section */}
-              <section>
-                <div className="text-center mb-12">
-                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                    Frequently Asked Questions
-                  </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
-                </div>
-                
-                <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
-                  <div className="space-y-8">
-                    <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How big do Colorado Mountain Dogs get?</h3>
-                      <p className="text-stone-700">CMDRs typically stand 26-34 inches at the shoulder and weigh 80-140 pounds. They have a tall, lean build that's athletic and agile, perfect for navigating rugged terrain while maintaining endurance.</p>
-                    </div>
-                    
-                    <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are CMDs good with children?</h3>
-                      <p className="text-stone-700">Absolutely! Colorado Mountain Dogs are exceptionally good with children. They're bred to be gentle, patient, and protective family guardians. Their natural instinct is to watch over and protect their "flock," which includes children. Many CMD owners report that their dogs are incredibly tolerant of children's behavior and form deep, protective bonds with kids in the family.</p>
-                    </div>
-                    
-                    <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are they good with other pets?</h3>
-                      <p className="text-stone-700">Yes! CMDRs are specifically bred to be gentle with family members, including other pets. They form strong bonds with their "flock" - whether that's livestock, family pets, or both. Their guardian instincts extend to protecting all members of their household.</p>
-                    </div>
-                    
-                    <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Do they bark a lot?</h3>
-                      <p className="text-stone-700">Unlike some traditional livestock guardian breeds, CMDRs are bred for minimal unnecessary barking. They're discerning protectors - alert and vocal when there's a real threat, but generally quiet during normal daily activities.</p>
-                    </div>
-                    
-                    <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How much exercise do they need?</h3>
-                      <p className="text-stone-700">CMDRs are working dogs that thrive with regular activity and mental stimulation. They do best with access to space to patrol and explore, but don't require intense exercise like some high-energy breeds. A job to do is more important than miles of running.</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">What's their grooming requirements?</h3>
-                      <p className="text-stone-700">CMDRs have medium-length, weather-resistant white coats that are surprisingly low-maintenance. Regular brushing helps manage seasonal shedding, but their coats are designed to be self-cleaning and don't require frequent baths.</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
               
               {/* Navigation Section */}
               <section>
@@ -338,6 +294,50 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       </div>
                     </div>
                   </Link>
+                </div>
+              </section>
+
+              {/* FAQ Section */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Frequently Asked Questions
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                </div>
+                
+                <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
+                  <div className="space-y-8">
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How big do Colorado Mountain Dogs get?</h3>
+                      <p className="text-stone-700">CMDRs typically stand 26-34 inches at the shoulder and weigh 80-140 pounds. They have a tall, lean build that's athletic and agile, perfect for navigating rugged terrain while maintaining endurance.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are CMDs good with children?</h3>
+                      <p className="text-stone-700">Absolutely! Colorado Mountain Dogs are exceptionally good with children. They're bred to be gentle, patient, and protective family guardians. Their natural instinct is to watch over and protect their "flock," which includes children. Many CMD owners report that their dogs are incredibly tolerant of children's behavior and form deep, protective bonds with kids in the family.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are they good with other pets?</h3>
+                      <p className="text-stone-700">Yes! CMDRs are specifically bred to be gentle with family members, including other pets. They form strong bonds with their "flock" - whether that's livestock, family pets, or both. Their guardian instincts extend to protecting all members of their household.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Do they bark a lot?</h3>
+                      <p className="text-stone-700">Unlike some traditional livestock guardian breeds, CMDRs are bred for minimal unnecessary barking. They're discerning protectors - alert and vocal when there's a real threat, but generally quiet during normal daily activities.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How much exercise do they need?</h3>
+                      <p className="text-stone-700">CMDRs are working dogs that thrive with regular activity and mental stimulation. They do best with access to space to patrol and explore, but don't require intense exercise like some high-energy breeds. A job to do is more important than miles of running.</p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">What's their grooming requirements?</h3>
+                      <p className="text-stone-700">CMDRs have medium-length, weather-resistant white coats that are surprisingly low-maintenance. Regular brushing helps manage seasonal shedding, but their coats are designed to be self-cleaning and don't require frequent baths.</p>
+                    </div>
+                  </div>
                 </div>
               </section>
             </div>
