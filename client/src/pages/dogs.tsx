@@ -198,72 +198,74 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-2">
-                        <span className="text-amber-600 font-bold text-xl">1</span>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-stone-800 mb-3">Temperament Above Everything Else</h3>
-                        <p className="text-stone-700 leading-relaxed text-lg">
-                          We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-                      <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg" 
-                        alt="Colorado Mountain Dog" 
-                        className="w-full aspect-square object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-                      <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/0cc5f5da-f5d0-4579-99cf-d3cb1f71c0b7-1000004913-jpg.jpg" 
-                        alt="Colorado Mountain Dog" 
-                        className="w-full aspect-square object-cover"
-                      />
-                    </div>
-                    
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-2">
-                        <span className="text-amber-600 font-bold text-xl">2</span>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-stone-800 mb-3">Teachable</h3>
-                        <p className="text-stone-700 leading-relaxed text-lg">
-                          We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-2">
-                        <span className="text-amber-600 font-bold text-xl">3</span>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-stone-800 mb-3">Seamless Adoption of New Animals</h3>
-                        <p className="text-stone-700 leading-relaxed text-lg">
-                          As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
-                        </p>
+                  <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">1</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Temperament Above Everything Else</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">2</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Teachable</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">3</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Seamless Adoption of New Animals</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">4</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Beautifully Athletic</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-2">
-                        <span className="text-amber-600 font-bold text-xl">4</span>
+                    <div className="space-y-4">
+                      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                        <img 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg" 
+                          alt="Colorado Mountain Dog" 
+                          className="w-full aspect-square object-cover"
+                        />
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-stone-800 mb-3">Beautifully Athletic</h3>
-                        <p className="text-stone-700 leading-relaxed text-lg">
-                          Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
-                        </p>
+                      
+                      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                        <img 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/0cc5f5da-f5d0-4579-99cf-d3cb1f71c0b7-1000004913-jpg.jpg" 
+                          alt="Colorado Mountain Dog" 
+                          className="w-full aspect-square object-cover"
+                        />
                       </div>
                     </div>
                   </div>
