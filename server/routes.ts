@@ -2674,6 +2674,75 @@ app.get("/api/litters/list/current", async (req, res) => {
   // Register sheep routes
   app.use(sheepRoutes);
 
+  // SEO Routes for indexing
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`User-agent: *
+Allow: /
+
+Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
+  });
+
+  app.get('/sitemap.xml', async (req, res) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    
+    const staticPages = [
+      '',
+      '/dogs',
+      '/dogs/breeding-goals',
+      '/dogs/how-to-purchase',
+      '/dogs/males',
+      '/dogs/females', 
+      '/dogs/available',
+      '/dogs/litters/current',
+      '/dogs/litters/future',
+      '/dogs/litters/past',
+      '/goats',
+      '/goats/males',
+      '/goats/females',
+      '/goats/available',
+      '/goats/litters/current',
+      '/goats/litters/upcoming',
+      '/goats/litters/past',
+      '/sheep',
+      '/sheep/males',
+      '/sheep/females',
+      '/sheep/available',
+      '/market',
+      '/market/bakery',
+      '/market/animal-products',
+      '/market/apparel',
+      '/gallery'
+    ];
+
+    // Get dynamic litter pages
+    try {
+      const siteId = getCurrentSiteId(req);
+      const allLitters = await db.query.litters.findMany({
+        where: and(eq(litters.siteId, siteId), eq(litters.isVisible, true))
+      });
+
+      const dynamicPages = allLitters.map(litter => `/dogs/litters/${litter.id}`);
+      const allPages = [...staticPages, ...dynamicPages];
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allPages.map(page => `  <url>
+    <loc>${baseUrl}${page}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${page === '' ? '1.0' : page.includes('/breeding-goals') || page.includes('/how-to-purchase') ? '0.9' : '0.8'}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+      res.type('application/xml');
+      res.send(xml);
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
