@@ -35,7 +35,54 @@ export default function HowToPurchase() {
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
     document.title = 'How to Purchase a Colorado Mountain Dog Puppy | Little Way Acres Process';
-    updateMetaDescription('Learn how to purchase a Colorado Mountain Dog puppy from Little Way Acres. Our placement process includes interest form, phone conversation, and personal pickup or delivery.');
+    updateMetaDescription('Learn how to purchase a Colorado Mountain Dog puppy from Little Way Acres. Our placement process includes interest form, phone conversation, dog selection, and personal pickup or delivery in Michigan.');
+    
+    // Add structured data for SEO
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "How to Purchase a Colorado Mountain Dog Puppy",
+      "description": "Complete guide to purchasing a Colorado Mountain Dog puppy from Little Way Acres, including our placement process and breeding philosophy.",
+      "author": {
+        "@type": "Organization",
+        "name": "Little Way Acres"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Little Way Acres",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "Michigan",
+          "addressCountry": "US"
+        }
+      },
+      "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I purchase a Colorado Mountain Dog puppy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our process includes filling out an interest form, having a phone conversation, going through our dog selection process, and arranging personal pickup or delivery."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you ship Colorado Mountain Dog puppies?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No, we don't use carrier or shipping services. We arrange direct pickup at the farm or personal delivery to ensure we meet families face-to-face."
+            }
+          }
+        ]
+      }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
     
     // Cleanup on unmount
     return () => {
@@ -307,6 +354,174 @@ export default function HowToPurchase() {
                     </Link>
                   </Button>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Links Section */}
+          <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mt-16">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-stone-800 mb-4">Explore Our Farm</h2>
+              <p className="text-stone-700 text-lg">
+                Learn more about our animals and farm operations at Little Way Acres.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Dogs Section */}
+              <div className="bg-amber-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-stone-800 mb-4 flex items-center">
+                  <span className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                    🐕
+                  </span>
+                  Colorado Mountain Dogs
+                </h3>
+                <ul className="space-y-2 text-stone-700">
+                  <li>
+                    <a href="/dogs" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Our Dogs
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/breeding-goals" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Breeding Goals
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/males" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Males
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/females" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Females
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/available" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Available Dogs
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/litters/current" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Current Litters
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/litters/future" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Future Litters
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/dogs/litters/past" className="text-amber-700 hover:text-amber-800 transition-colors">
+                      Past Litters
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Goats Section */}
+              <div className="bg-green-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-stone-800 mb-4 flex items-center">
+                  <span className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                    🐐
+                  </span>
+                  Nigerian Dwarf Goats
+                </h3>
+                <ul className="space-y-2 text-stone-700">
+                  <li>
+                    <a href="/goats" className="text-green-700 hover:text-green-800 transition-colors">
+                      Our Goats
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/males" className="text-green-700 hover:text-green-800 transition-colors">
+                      Males
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/females" className="text-green-700 hover:text-green-800 transition-colors">
+                      Females
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/available" className="text-green-700 hover:text-green-800 transition-colors">
+                      Available Goats
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/litters/current" className="text-green-700 hover:text-green-800 transition-colors">
+                      Current Litters
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/litters/upcoming" className="text-green-700 hover:text-green-800 transition-colors">
+                      Upcoming Litters
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/goats/litters/past" className="text-green-700 hover:text-green-800 transition-colors">
+                      Past Litters
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Sheep & Market Section */}
+              <div className="bg-blue-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-stone-800 mb-4 flex items-center">
+                  <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    🐑
+                  </span>
+                  Katahdin Sheep & Market
+                </h3>
+                <ul className="space-y-2 text-stone-700">
+                  <li>
+                    <a href="/sheep" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Our Sheep
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/sheep/males" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Males
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/sheep/females" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Females
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/sheep/available" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Available Sheep
+                    </a>
+                  </li>
+                  <li className="pt-2 border-t border-blue-200">
+                    <a href="/market" className="text-blue-700 hover:text-blue-800 transition-colors font-semibold">
+                      Farmers Market
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/market/bakery" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Bakery Items
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/market/animal-products" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Animal Products
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/market/apparel" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Apparel
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/gallery" className="text-blue-700 hover:text-blue-800 transition-colors">
+                      Gallery
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
