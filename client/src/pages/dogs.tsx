@@ -40,23 +40,142 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Update page title and meta description for SEO - focusing on Colorado Mountain Dogs
+    // Enhanced SEO with structured data and comprehensive meta tags
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
+    let pageTitle = '';
+    let pageDescription = '';
+    let pageKeywords = '';
+    let structuredData: any = {};
+    
     if (genderFilter === 'female') {
-      document.title = 'Colorado Mountain Dog Females | CMDR Breeding Dogs | Little Way Acres';
-      updateMetaDescription('Meet our Colorado Mountain Dog females - exceptional CMDR breeding dogs known for their gentle temperament, intelligence, and livestock guardian abilities. View our breeding females.');
+      pageTitle = 'Colorado Mountain Dog Females | CMDR Breeding Dogs | Little Way Acres, MI';
+      pageDescription = 'Meet our exceptional Colorado Mountain Dog females at Little Way Acres in Hudsonville, Michigan. Champion CMDR breeding dogs known for gentle temperament, intelligence, and superior livestock guardian abilities. Perfect for family farms.';
+      pageKeywords = 'Colorado Mountain Dog females, CMDR breeding dogs, female CMDR, livestock guardian dogs, Hudsonville Michigan, dog breeding, family farm dogs, gentle temperament dogs';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Colorado Mountain Dog Females",
+        "description": pageDescription,
+        "url": `${window.location.origin}/dogs/females`,
+        "mainEntity": {
+          "@type": "ItemList",
+          "name": "Female Colorado Mountain Dogs",
+          "description": "Our breeding female Colorado Mountain Dogs",
+          "numberOfItems": dogs?.filter(dog => dog.gender === 'female' && dog.display).length || 0
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin},
+            {"@type": "ListItem", "position": 2, "name": "Dogs", "item": `${window.location.origin}/dogs`},
+            {"@type": "ListItem", "position": 3, "name": "Females", "item": `${window.location.origin}/dogs/females`}
+          ]
+        }
+      };
     } else if (genderFilter === 'male') {
-      document.title = 'Colorado Mountain Dog Males | CMDR Breeding Dogs | Little Way Acres';
-      updateMetaDescription('Meet our Colorado Mountain Dog males - outstanding CMDR breeding dogs with proven bloodlines, gentle nature, and guardian instincts. View our breeding males.');
+      pageTitle = 'Colorado Mountain Dog Males | CMDR Breeding Dogs | Little Way Acres, MI';
+      pageDescription = 'Meet our outstanding Colorado Mountain Dog males at Little Way Acres in Hudsonville, Michigan. Premier CMDR breeding dogs with proven bloodlines, gentle nature, and exceptional guardian instincts. Ideal for livestock protection.';
+      pageKeywords = 'Colorado Mountain Dog males, CMDR breeding dogs, male CMDR, livestock guardian dogs, Hudsonville Michigan, dog breeding, family farm dogs, proven bloodlines';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Colorado Mountain Dog Males",
+        "description": pageDescription,
+        "url": `${window.location.origin}/dogs/males`,
+        "mainEntity": {
+          "@type": "ItemList",
+          "name": "Male Colorado Mountain Dogs",
+          "description": "Our breeding male Colorado Mountain Dogs",
+          "numberOfItems": dogs?.filter(dog => dog.gender === 'male' && dog.display).length || 0
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin},
+            {"@type": "ListItem", "position": 2, "name": "Dogs", "item": `${window.location.origin}/dogs`},
+            {"@type": "ListItem", "position": 3, "name": "Males", "item": `${window.location.origin}/dogs/males`}
+          ]
+        }
+      };
     } else if (showAvailable) {
-      document.title = 'Available Colorado Mountain Dogs | CMDR Puppies & Dogs for Sale | Little Way Acres';
-      updateMetaDescription('Colorado Mountain Dog puppies and dogs available now. CMDR breed known for gentle temperament, intelligence, and livestock guardian abilities. Contact us about available dogs.');
+      pageTitle = 'Available Colorado Mountain Dogs | CMDR Puppies & Dogs for Sale | Little Way Acres, MI';
+      pageDescription = 'Colorado Mountain Dog puppies and dogs available now at Little Way Acres in Hudsonville, Michigan. CMDR breed known for gentle temperament, intelligence, and livestock guardian abilities. Contact us about available dogs today.';
+      pageKeywords = 'available Colorado Mountain Dogs, CMDR puppies for sale, Colorado Mountain Dog puppies, Hudsonville Michigan, livestock guardian puppies, family farm dogs for sale, CMDR breed';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Available Colorado Mountain Dogs",
+        "description": pageDescription,
+        "url": `${window.location.origin}/dogs/available`,
+        "mainEntity": {
+          "@type": "ItemList",
+          "name": "Available Colorado Mountain Dogs",
+          "description": "Colorado Mountain Dogs currently available for purchase",
+          "numberOfItems": dogs?.filter(dog => dog.display && dog.isAvailable).length || 0
+        },
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      };
     } else {
-      document.title = 'Colorado Mountain Dogs | CMDR Breed Info & Our Dogs | Little Way Acres';
-      updateMetaDescription('Learn about Colorado Mountain Dogs (CMDR) - gentle giants perfect for livestock guardians and family companions. Meet our breeding dogs and learn why CMDRs are ideal for small farms.');
+      pageTitle = 'Colorado Mountain Dogs | CMDR Breed Info & Our Dogs | Little Way Acres, MI';
+      pageDescription = 'Learn about Colorado Mountain Dogs (CMDR) at Little Way Acres in Hudsonville, Michigan. Gentle giants perfect for livestock guardians and family companions. Meet our breeding dogs and discover why CMDRs are ideal for small farms and families.';
+      pageKeywords = 'Colorado Mountain Dogs, CMDR breed, livestock guardian dogs, family farm dogs, Hudsonville Michigan, dog breeding, gentle temperament, livestock protection, family companions';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Colorado Mountain Dogs",
+        "description": pageDescription,
+        "url": `${window.location.origin}/dogs`,
+        "mainEntity": {
+          "@type": "ItemList",
+          "name": "Our Colorado Mountain Dogs",
+          "description": "Our breeding Colorado Mountain Dogs at Little Way Acres",
+          "numberOfItems": dogs?.filter(dog => dog.display).length || 0
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Colorado Mountain Dog Breed",
+          "description": "A gentle, intelligent livestock guardian dog breed ideal for family farms"
+        }
+      };
     }
+    
+    document.title = pageTitle;
+    updateMetaDescription(pageDescription);
+    updateMetaKeywords(pageKeywords);
+    
+    // Update Open Graph and Twitter meta tags
+    updateOrCreateMetaTag('og:title', pageTitle);
+    updateOrCreateMetaTag('og:description', pageDescription);
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
+    updateOrCreateTwitterTag('twitter:title', pageTitle);
+    updateOrCreateTwitterTag('twitter:description', pageDescription);
+    updateOrCreateTwitterTag('twitter:image', '/logo.png');
+    
+    // Add structured data
+    const existingScript = document.querySelector('script[data-page="dogs"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'dogs');
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
     
     // Cleanup on unmount
     return () => {
@@ -64,14 +183,48 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       if (originalDescription) {
         updateMetaDescription(originalDescription);
       }
+      const scriptToRemove = document.querySelector('script[data-page="dogs"]');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
     };
-  }, [genderFilter, showAvailable]);
+  }, [genderFilter, showAvailable, dogs]);
   
   const updateMetaDescription = (description: string) => {
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', description);
     }
+  };
+
+  const updateMetaKeywords = (keywords: string) => {
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords);
+  };
+
+  const updateOrCreateMetaTag = (property: string, content: string) => {
+    let metaTag = document.querySelector(`meta[property="${property}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('property', property);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
+  };
+
+  const updateOrCreateTwitterTag = (name: string, content: string) => {
+    let metaTag = document.querySelector(`meta[name="${name}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('name', name);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
   };
 
   // Filter dogs based on gender, display setting, and filter out puppies, outside breeders, and available dogs

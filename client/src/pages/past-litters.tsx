@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +20,77 @@ export default function PastLitters() {
   const { data: litters, isLoading } = useQuery<PastLitter[]>({
     queryKey: ["/api/litters/list/past"],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // SEO optimization for past litters page
+    document.title = 'Past Colorado Mountain Dog Litters | CMDR Breeding History | Little Way Acres, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Past Colorado Mountain Dog litters from Little Way Acres in Hudsonville, Michigan. See our CMDR breeding history and success stories. Quality livestock guardian dogs placed in loving homes across the region.');
+    }
+    
+    // Add keywords meta tag
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'past CMDR litters, Colorado Mountain Dog history, breeding success, Hudsonville Michigan, livestock guardian dogs, CMDR breeding program, family farm dogs');
+    
+    // Open Graph meta tags
+    const updateOrCreateMetaTag = (property: string, content: string) => {
+      let metaTag = document.querySelector(`meta[property="${property}"]`);
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('property', property);
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute('content', content);
+    };
+    
+    updateOrCreateMetaTag('og:title', 'Past Colorado Mountain Dog Litters | CMDR Breeding History');
+    updateOrCreateMetaTag('og:description', 'Past Colorado Mountain Dog litters from Little Way Acres in Hudsonville, Michigan. See our CMDR breeding history and success stories.');
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    // Structured data for past litters
+    const existingScript = document.querySelector('script[data-page="past-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'past-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Past Colorado Mountain Dog Litters",
+      "description": "Past Colorado Mountain Dog litters from Little Way Acres breeding program",
+      "url": `${window.location.origin}/dogs/litters/past`,
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Past CMDR Litters",
+        "description": "Colorado Mountain Dog litters from our breeding history",
+        "numberOfItems": litters?.length || 0
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin},
+          {"@type": "ListItem", "position": 2, "name": "Dogs", "item": `${window.location.origin}/dogs`},
+          {"@type": "ListItem", "position": 3, "name": "Past Litters", "item": `${window.location.origin}/dogs/litters/past`}
+        ]
+      }
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
 
   // Show loading skeleton
   if (isLoading) {

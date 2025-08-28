@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import type { Litter, Dog, DogMedia } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,77 @@ export default function DogFutureLitters() {
   const { data: litters, isLoading } = useQuery<LitterWithRelations[]>({
     queryKey: ['/api/litters/list/future'],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // SEO optimization for future litters page
+    document.title = 'Planned Colorado Mountain Dog Litters | Future CMDR Puppies | Little Way Acres, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Planned Colorado Mountain Dog litters at Little Way Acres in Hudsonville, Michigan. Join our waitlist for future CMDR puppies. Exceptional breeding pairs producing gentle, intelligent livestock guardian dogs.');
+    }
+    
+    // Add keywords meta tag
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'planned CMDR litters, future Colorado Mountain Dog puppies, puppy waitlist, Hudsonville Michigan, upcoming litters, CMDR breeding, livestock guardian dogs');
+    
+    // Open Graph meta tags
+    const updateOrCreateMetaTag = (property: string, content: string) => {
+      let metaTag = document.querySelector(`meta[property="${property}"]`);
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('property', property);
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute('content', content);
+    };
+    
+    updateOrCreateMetaTag('og:title', 'Planned Colorado Mountain Dog Litters | Future CMDR Puppies');
+    updateOrCreateMetaTag('og:description', 'Planned Colorado Mountain Dog litters at Little Way Acres in Hudsonville, Michigan. Join our waitlist for future CMDR puppies.');
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    // Structured data for future litters
+    const existingScript = document.querySelector('script[data-page="future-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'future-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Planned Colorado Mountain Dog Litters",
+      "description": "Planned Colorado Mountain Dog litters at Little Way Acres",
+      "url": `${window.location.origin}/dogs/litters/future`,
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Future CMDR Litters",
+        "description": "Colorado Mountain Dog litters planned for the future",
+        "numberOfItems": litters?.length || 0
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin},
+          {"@type": "ListItem", "position": 2, "name": "Dogs", "item": `${window.location.origin}/dogs`},
+          {"@type": "ListItem", "position": 3, "name": "Future Litters", "item": `${window.location.origin}/dogs/litters/future`}
+        ]
+      }
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
 
   if (isLoading) {
     return (

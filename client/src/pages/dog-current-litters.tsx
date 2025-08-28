@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import type { Litter, Dog, DogMedia } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +19,82 @@ export default function DogCurrentLitters() {
   const { data: litters, isLoading } = useQuery<LitterWithRelations[]>({
     queryKey: ['/api/litters/list/current'],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // SEO optimization for current litters page
+    document.title = 'Current Colorado Mountain Dog Litters | Available CMDR Puppies | Little Way Acres, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Current Colorado Mountain Dog litters available at Little Way Acres in Hudsonville, Michigan. View our CMDR puppies ready for loving homes. Gentle, intelligent livestock guardian dogs perfect for families and farms.');
+    }
+    
+    // Add keywords meta tag
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'current CMDR litters, Colorado Mountain Dog puppies, available puppies, Hudsonville Michigan, livestock guardian puppies, CMDR breed, family farm dogs');
+    
+    // Open Graph meta tags
+    const updateOrCreateMetaTag = (property: string, content: string) => {
+      let metaTag = document.querySelector(`meta[property="${property}"]`);
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('property', property);
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute('content', content);
+    };
+    
+    updateOrCreateMetaTag('og:title', 'Current Colorado Mountain Dog Litters | Available CMDR Puppies');
+    updateOrCreateMetaTag('og:description', 'Current Colorado Mountain Dog litters available at Little Way Acres in Hudsonville, Michigan. View our CMDR puppies ready for loving homes.');
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    // Structured data for current litters
+    const existingScript = document.querySelector('script[data-page="current-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'current-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Current Colorado Mountain Dog Litters",
+      "description": "Current Colorado Mountain Dog litters available at Little Way Acres",
+      "url": `${window.location.origin}/dogs/litters/current`,
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Current CMDR Litters",
+        "description": "Colorado Mountain Dog litters currently available",
+        "numberOfItems": litters?.length || 0
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Home", "item": window.location.origin},
+          {"@type": "ListItem", "position": 2, "name": "Dogs", "item": `${window.location.origin}/dogs`},
+          {"@type": "ListItem", "position": 3, "name": "Current Litters", "item": `${window.location.origin}/dogs/litters/current`}
+        ]
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
 
   const { data: futureLitters, isLoading: futureLittersLoading } = useQuery<LitterWithRelations[]>({
     queryKey: ['/api/litters/list/future'],
