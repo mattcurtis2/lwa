@@ -165,6 +165,24 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     updateOrCreateTwitterTag('twitter:description', pageDescription);
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
+    // Add canonical URL
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    
+    if (genderFilter === 'female') {
+      canonicalLink.setAttribute('href', `${window.location.origin}/dogs/females`);
+    } else if (genderFilter === 'male') {
+      canonicalLink.setAttribute('href', `${window.location.origin}/dogs/males`);
+    } else if (showAvailable) {
+      canonicalLink.setAttribute('href', `${window.location.origin}/dogs/available`);
+    } else {
+      canonicalLink.setAttribute('href', `${window.location.origin}/dogs`);
+    }
+    
     // Add structured data
     const existingScript = document.querySelector('script[data-page="dogs"]');
     if (existingScript) {
