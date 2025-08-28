@@ -124,14 +124,113 @@ export default function MarketSectionPage() {
         }
       };
     } else if (currentSection === 'apparel') {
-      pageTitle = 'St. Thérèse Apparel & Colorado Mountain Dog Clothing | Little Way Inspired | Michigan';
-      pageDescription = 'St. Thérèse inspired apparel and Colorado Mountain Dog themed clothing available at Muskegon Farmers Market and Little Way Acres. Faith-based and dog lover apparel from our Michigan farm.';
-      pageKeywords = 'St Therese apparel Michigan, Colorado Mountain Dog clothing, faith based apparel, Muskegon farmers market clothing, Michigan farm apparel';
+      pageTitle = 'St. Thérèse Little Way Apparel & Colorado Mountain Dog Clothing | Faith-Based & CMDR Gear | Michigan';
+      pageDescription = 'St. Thérèse of Lisieux Little Way inspired apparel and authentic Colorado Mountain Dog (CMDR) breed clothing. Faith-based Catholic apparel and rare dog breed merchandise available at Muskegon Farmers Market and Little Way Acres farm in Hudsonville, Michigan. Custom designs celebrating St. Thérèse spirituality and Colorado Mountain Dog heritage.';
+      pageKeywords = 'St Therese Little Way apparel, Colorado Mountain Dog CMDR clothing, Catholic faith apparel Michigan, rare dog breed merchandise, St Therese of Lisieux clothing, CMDR breed apparel, faith based shirts Michigan, Colorado Mountain Dog gifts, Catholic spirituality apparel, dog breed clothing Michigan, Muskegon farmers market apparel, Hudsonville faith clothing';
       
       structuredData = {
         "@context": "https://schema.org",
         "@type": "ClothingStore",
-        "name": "Little Way Inspired Apparel"
+        "name": "Little Way Inspired Apparel & CMDR Clothing",
+        "description": pageDescription,
+        "url": `${window.location.origin}/market/apparel`,
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Faith & Dog Breed Apparel",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "St. Thérèse Little Way Apparel",
+                "category": "Faith-Based Clothing",
+                "description": "Catholic apparel inspired by St. Thérèse of Lisieux and her Little Way spirituality",
+                "brand": {
+                  "@type": "Brand",
+                  "name": "Little Way Acres"
+                }
+              },
+              "availableAtOrFrom": [
+                {
+                  "@type": "Place",
+                  "name": "Muskegon Farmers Market",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Muskegon",
+                    "addressRegion": "MI"
+                  }
+                },
+                {
+                  "@type": "Place",
+                  "name": "Little Way Acres Farm",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Hudsonville", 
+                    "addressRegion": "MI"
+                  }
+                }
+              ]
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Colorado Mountain Dog Breed Clothing",
+                "category": "Dog Breed Apparel",
+                "description": "Authentic Colorado Mountain Dog (CMDR) breed merchandise and clothing for dog lovers",
+                "brand": {
+                  "@type": "Brand",
+                  "name": "Little Way Acres"
+                }
+              }
+            }
+          ]
+        },
+        "location": [
+          {
+            "@type": "Place",
+            "name": "Muskegon Farmers Market",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Muskegon",
+              "addressRegion": "MI",
+              "addressCountry": "US"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "43.2342",
+              "longitude": "-86.2484"
+            }
+          },
+          {
+            "@type": "Place",
+            "name": "Little Way Acres Farm",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Hudsonville",
+              "addressRegion": "MI", 
+              "addressCountry": "US",
+              "postalCode": "49426"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "42.8736",
+              "longitude": "-85.8681"
+            }
+          }
+        ],
+        "audience": {
+          "@type": "Audience",
+          "audienceType": ["Catholic faithful", "Dog lovers", "Colorado Mountain Dog owners", "Faith-based apparel customers"]
+        },
+        "servedBy": {
+          "@type": "Organization",
+          "name": "Little Way Acres",
+          "description": "Colorado Mountain Dog breeders and Catholic farm family"
+        },
+        "priceRange": "$$",
+        "paymentAccepted": ["Cash", "Venmo", "Online Payment"],
+        "currenciesAccepted": "USD"
       };
     } else {
       pageTitle = `${section?.title || 'Farm Products'} | Muskegon Farmers Market & Hudsonville | Little Way Acres`;
