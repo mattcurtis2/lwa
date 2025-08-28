@@ -50,7 +50,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     let structuredData: any = {};
     
     if (genderFilter === 'female') {
-      pageTitle = 'Colorado Mountain Dog Females | CMDR Breeding Dogs | Little Way Acres, MI';
+      pageTitle = 'Colorado Mountain Dog Females | CMDR Breeding Dogs';
       pageDescription = 'Meet our exceptional Colorado Mountain Dog females at Little Way Acres in Hudsonville, Michigan. Champion CMDR breeding dogs known for gentle temperament, intelligence, and superior livestock guardian abilities. Perfect for family farms.';
       pageKeywords = 'Colorado Mountain Dog females, CMDR breeding dogs, female CMDR, livestock guardian dogs, Hudsonville Michigan, dog breeding, family farm dogs, gentle temperament dogs';
       
@@ -76,7 +76,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         }
       };
     } else if (genderFilter === 'male') {
-      pageTitle = 'Colorado Mountain Dog Males | CMDR Breeding Dogs | Little Way Acres, MI';
+      pageTitle = 'Colorado Mountain Dog Males | CMDR Breeding Dogs';
       pageDescription = 'Meet our outstanding Colorado Mountain Dog males at Little Way Acres in Hudsonville, Michigan. Premier CMDR breeding dogs with proven bloodlines, gentle nature, and exceptional guardian instincts. Ideal for livestock protection.';
       pageKeywords = 'Colorado Mountain Dog males, CMDR breeding dogs, male CMDR, livestock guardian dogs, Hudsonville Michigan, dog breeding, family farm dogs, proven bloodlines';
       
@@ -102,7 +102,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         }
       };
     } else if (showAvailable) {
-      pageTitle = 'Available Colorado Mountain Dogs | CMDR Puppies & Dogs for Sale | Little Way Acres, MI';
+      pageTitle = 'Available Colorado Mountain Dogs | CMDR Puppies & Dogs';
       pageDescription = 'Colorado Mountain Dog puppies and dogs available now at Little Way Acres in Hudsonville, Michigan. CMDR breed known for gentle temperament, intelligence, and livestock guardian abilities. Contact us about available dogs today.';
       pageKeywords = 'available Colorado Mountain Dogs, CMDR puppies for sale, Colorado Mountain Dog puppies, Hudsonville Michigan, livestock guardian puppies, family farm dogs for sale, CMDR breed';
       
@@ -125,7 +125,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         }
       };
     } else {
-      pageTitle = 'Colorado Mountain Dogs | CMDR Breed Info & Our Dogs | Little Way Acres, MI';
+      pageTitle = 'Colorado Mountain Dogs | CMDR Breed Info & Our Dogs';
       pageDescription = 'Learn about Colorado Mountain Dogs (CMDR) at Little Way Acres in Hudsonville, Michigan. Gentle giants perfect for livestock guardians and family companions. Meet our breeding dogs and discover why CMDRs are ideal for small farms and families.';
       pageKeywords = 'Colorado Mountain Dogs, CMDR breed, livestock guardian dogs, family farm dogs, Hudsonville Michigan, dog breeding, gentle temperament, livestock protection, family companions';
       

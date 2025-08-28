@@ -48,7 +48,7 @@ export default function MarketSectionPage() {
     let structuredData: any = {};
     
     if (currentSection === 'bakery') {
-      pageTitle = 'Fresh Croissants & Bakery | Muskegon Market | Michigan';
+      pageTitle = 'Fresh Croissants & Bakery | Muskegon Market';
       pageDescription = 'Fresh croissants, sourdough bread & pastries at Muskegon Farmers Market Saturdays. Little Way Acres bakery in Hudsonville, Michigan.';
       pageKeywords = 'fresh croissants Muskegon Michigan, artisan sourdough Muskegon farmers market, European pastries Michigan, bakery Hudsonville pickup, Saturday farmers market croissants, West Michigan bakery, French croissants Michigan';
       
