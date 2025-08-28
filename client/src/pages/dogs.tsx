@@ -188,6 +188,72 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 </div>
               </section>
 
+              {/* Little Way Acres Breeding Goals */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Little Way Acres Breeding Goals
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                </div>
+                
+                <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">1</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">Temperament Above Everything Else</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">2</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">Teachable</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">3</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">Seamless Adoption of New Animals</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">4</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">Beautifully Athletic</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               {/* Who is a Good Fit */}
               <section>
                 <div className="text-center mb-12">
