@@ -40,7 +40,7 @@ export default function LitterBanner() {
                 <p className="text-amber-800">
                   {visibleLitter.isCurrentLitter && visibleLitter.isPlannedLitter ? (
                     <span>Due: <span className="font-semibold">
-                      {format(parseApiDate(visibleLitter.dueDate), 'MMM d')}
+                      {format(parseApiDate(visibleLitter.dueDate), 'MMMM d, yyyy')}
                     </span></span>
                   ) : visibleLitter.puppyCount > 0 ? (
                     <span>Born: <span className="font-semibold">
