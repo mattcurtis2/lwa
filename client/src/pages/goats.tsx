@@ -99,24 +99,168 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     pageDescription = "Browse our currently available Nigerian Dwarf goats. Each goat is raised with care and attention.";
   }
 
-  // SEO optimization - update page title and meta description focusing on Nigerian Dwarf Goats
+  // Enhanced SEO with hyper-local targeting for 50-mile radius from Hudsonville
   useEffect(() => {
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
+    let pageTitle = '';
+    let pageDescription = '';
+    let pageKeywords = '';
+    let structuredData: any = {};
+    
     if (genderFilter === 'female') {
-      document.title = 'Nigerian Dwarf Goat Does | Michigan Dairy Goat Breeding | Ottawa County';
-      updateMetaDescription('Meet our Nigerian Dwarf Goat does in Ottawa County, Michigan - exceptional dairy goats known for their friendly personalities, high-quality milk production, and perfect size for Michigan small farms.');
+      pageTitle = 'Nigerian Dwarf Goat Does for Sale | Female Goats | Hudsonville, Grand Rapids, MI';
+      pageDescription = 'Nigerian Dwarf goat does (female goats) for sale at Little Way Acres in Hudsonville, Michigan. High-quality milk goats perfect for small farms in Grand Rapids, Holland, Zeeland, Byron Center, and surrounding West Michigan communities within 50 miles. Excellent mothers with sweet temperaments.';
+      pageKeywords = 'Nigerian Dwarf goat does for sale, female goats Hudsonville Michigan, milk goats Grand Rapids, West Michigan dairy goats, Holland Zeeland goats, Byron Center livestock, Ottawa County goats';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Nigerian Dwarf Goat Does for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/goats/females`,
+        "areaServed": [
+          {"@type": "City", "name": "Hudsonville", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Grand Rapids", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Holland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Zeeland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Byron Center", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Georgetown", "containedInPlace": {"@type": "State", "name": "Michigan"}}
+        ]
+      };
     } else if (genderFilter === 'male') {
-      document.title = 'Nigerian Dwarf Goat Bucks | Michigan Breeding Stock | Ottawa County';
-      updateMetaDescription('Meet our Nigerian Dwarf Goat bucks in Ottawa County, Michigan - outstanding breeding stock with proven genetics, gentle temperaments, and excellent conformation for Michigan dairy goat programs.');
+      pageTitle = 'Nigerian Dwarf Goat Bucks for Sale | Male Goats | Hudsonville, Grand Rapids, MI';
+      pageDescription = 'Nigerian Dwarf goat bucks (male goats) for sale at Little Way Acres in Hudsonville, Michigan. Quality breeding bucks for dairy herds in Grand Rapids, Holland, Zeeland, Byron Center, and West Michigan area within 50 miles. Proven genetics and gentle temperaments.';
+      pageKeywords = 'Nigerian Dwarf goat bucks for sale, male goats Hudsonville Michigan, breeding bucks Grand Rapids, West Michigan dairy goats, Holland Zeeland livestock, Ottawa County goat breeders';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Nigerian Dwarf Goat Bucks for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/goats/males`
+      };
     } else if (showAvailable) {
-      document.title = 'Available Nigerian Dwarf Goats | Michigan Dairy Goats for Sale | Ottawa County';
-      updateMetaDescription('Nigerian Dwarf Goats available now in Ottawa County, Michigan - friendly dairy goats perfect for Michigan small farms, homesteads, and families. Known for rich milk and gentle personalities.');
+      pageTitle = 'Nigerian Dwarf Goats for Sale | Available Kids & Adults | Hudsonville, MI';
+      pageDescription = 'Nigerian Dwarf goats for sale now at Little Way Acres in Hudsonville, Michigan. Available kids and adult goats ready for pickup. Serving Grand Rapids, Holland, Zeeland, Byron Center, Wyoming, Kentwood, and all West Michigan communities within 50 miles.';
+      pageKeywords = 'Nigerian Dwarf goats for sale, goat kids available Hudsonville, Grand Rapids goats, West Michigan livestock, Holland Zeeland goats for sale, Ottawa County dairy goats';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Available Nigerian Dwarf Goats for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/goats/available`,
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "areaServed": {
+          "@type": "Place",
+          "name": "West Michigan - 50 Mile Radius",
+          "geo": {
+            "@type": "GeoCircle",
+            "geoMidpoint": {
+              "@type": "GeoCoordinates",
+              "latitude": "42.8736",
+              "longitude": "-85.8681"
+            },
+            "geoRadius": "50"
+          }
+        }
+      };
     } else {
-      document.title = 'Nigerian Dwarf Goats | Michigan Dairy Goats | Ottawa County Small Farms';
-      updateMetaDescription('Discover Nigerian Dwarf Goats in Ottawa County, Michigan - the perfect dairy goats for Michigan small farms and homesteads. Learn about our local breeding program featuring friendly, productive miniature dairy goats.');
+      pageTitle = 'Nigerian Dwarf Goats | Dairy Goats | Hudsonville, Grand Rapids, Holland, MI';
+      pageDescription = 'Nigerian Dwarf goats at Little Way Acres in Hudsonville, Michigan. Premium dairy goats perfect for small farms and homesteads in Grand Rapids, Holland, Zeeland, Byron Center, Georgetown, Wyoming, and surrounding West Michigan area. Excellent milk producers with friendly personalities - ideal for families within 50 miles.';
+      pageKeywords = 'Nigerian Dwarf goats, dairy goats Hudsonville Michigan, milk goats Grand Rapids, small farm goats West Michigan, Holland Zeeland dairy goats, homestead livestock Ottawa County';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Little Way Acres - Nigerian Dwarf Goats",
+        "description": pageDescription,
+        "url": `${window.location.origin}/goats`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Hudsonville",
+          "addressRegion": "MI",
+          "addressCountry": "US",
+          "postalCode": "49426"
+        },
+        "areaServed": [
+          {"@type": "City", "name": "Hudsonville", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Grand Rapids", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Holland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Zeeland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Byron Center", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Georgetown", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Wyoming", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Kentwood", "containedInPlace": {"@type": "State", "name": "Michigan"}}
+        ],
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "42.8736",
+          "longitude": "-85.8681"
+        },
+        "priceRange": "$$",
+        "paymentAccepted": ["Cash", "Venmo"],
+        "currenciesAccepted": "USD",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Nigerian Dwarf Goat Services",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Nigerian Dwarf Goat Does",
+                "category": "Livestock",
+                "description": "High-quality dairy goat does for milk production and breeding"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Nigerian Dwarf Goat Bucks", 
+                "category": "Livestock",
+                "description": "Quality breeding bucks for dairy herd improvement"
+              }
+            }
+          ]
+        }
+      };
     }
+    
+    document.title = pageTitle;
+    updateMetaDescription(pageDescription);
+    updateMetaKeywords(pageKeywords);
+    
+    // Open Graph and Twitter meta tags
+    updateOrCreateMetaTag('og:title', pageTitle);
+    updateOrCreateMetaTag('og:description', pageDescription);
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
+    updateOrCreateTwitterTag('twitter:title', pageTitle);
+    updateOrCreateTwitterTag('twitter:description', pageDescription);
+    updateOrCreateTwitterTag('twitter:image', '/logo.png');
+    
+    // Add structured data
+    const existingScript = document.querySelector('script[data-page="goats"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'goats');
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
     
     // Cleanup on unmount
     return () => {
@@ -124,14 +268,48 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
       if (originalDescription) {
         updateMetaDescription(originalDescription);
       }
+      const scriptToRemove = document.querySelector('script[data-page="goats"]');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
     };
-  }, [genderFilter, showAvailable]);
+  }, [genderFilter, showAvailable, goats]);
   
   const updateMetaDescription = (description: string) => {
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', description);
     }
+  };
+
+  const updateMetaKeywords = (keywords: string) => {
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords);
+  };
+
+  const updateOrCreateMetaTag = (property: string, content: string) => {
+    let metaTag = document.querySelector(`meta[property="${property}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('property', property);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
+  };
+
+  const updateOrCreateTwitterTag = (name: string, content: string) => {
+    let metaTag = document.querySelector(`meta[name="${name}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('name', name);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
   };
 
   return (

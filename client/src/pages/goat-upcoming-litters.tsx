@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { GoatLitter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +12,53 @@ export default function GoatUpcomingLitters() {
   const { data: litters, isLoading } = useQuery<GoatLitter[]>({
     queryKey: ["/api/goat-litters"],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // Hyper-local SEO for upcoming Nigerian Dwarf goat litters
+    document.title = 'Upcoming Nigerian Dwarf Goat Litters | Future Kids | Hudsonville, Grand Rapids, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Upcoming Nigerian Dwarf goat litters at Little Way Acres in Hudsonville, Michigan. Future kids expected for families in Grand Rapids, Holland, Zeeland, Byron Center, and West Michigan area within 50 miles. Reserve your kids now.');
+    }
+    
+    // Local SEO keywords  
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'upcoming goat litters Hudsonville, future Nigerian Dwarf kids Grand Rapids, planned goat litters Holland Zeeland, West Michigan dairy goats, Byron Center goat breeding');
+    
+    // Structured data
+    const existingScript = document.querySelector('script[data-page="goat-upcoming-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'goat-upcoming-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Upcoming Nigerian Dwarf Goat Litters",
+      "description": "Upcoming Nigerian Dwarf goat litters in Hudsonville, Michigan area",
+      "url": `${window.location.origin}/goats/litters/upcoming`,
+      "areaServed": [
+        {"@type": "City", "name": "Hudsonville", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+        {"@type": "City", "name": "Grand Rapids", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+        {"@type": "City", "name": "Holland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+        {"@type": "City", "name": "Zeeland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+        {"@type": "City", "name": "Byron Center", "containedInPlace": {"@type": "State", "name": "Michigan"}}
+      ]
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
 
   const upcomingLitters = litters?.filter(litter => {
     const dueDate = parseApiDate(litter.dueDate);

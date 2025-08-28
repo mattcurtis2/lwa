@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { GoatLitter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +12,59 @@ export default function GoatPastLitters() {
   const { data: litters, isLoading } = useQuery<GoatLitter[]>({
     queryKey: ["/api/goat-litters/list/past"],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // Hyper-local SEO for past Nigerian Dwarf goat litters 
+    document.title = 'Past Nigerian Dwarf Goat Litters | Breeding History | Hudsonville, Grand Rapids, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Past Nigerian Dwarf goat litters from Little Way Acres in Hudsonville, Michigan. Our breeding history and successful kids placed in homes throughout Grand Rapids, Holland, Zeeland, Byron Center, and West Michigan area.');
+    }
+    
+    // Local SEO keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'past goat litters Hudsonville, Nigerian Dwarf breeding history Grand Rapids, goat breeding success Holland Zeeland, West Michigan dairy goat program, Ottawa County goat breeders');
+    
+    // Structured data
+    const existingScript = document.querySelector('script[data-page="goat-past-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'goat-past-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Past Nigerian Dwarf Goat Litters",
+      "description": "Past Nigerian Dwarf goat litters and breeding history in Hudsonville, Michigan area",
+      "url": `${window.location.origin}/goats/litters/past`,
+      "areaServed": {
+        "@type": "Place",
+        "name": "West Michigan - Hudsonville Area",
+        "geo": {
+          "@type": "GeoCircle",
+          "geoMidpoint": {
+            "@type": "GeoCoordinates",
+            "latitude": "42.8736",
+            "longitude": "-85.8681"
+          },
+          "geoRadius": "50"
+        }
+      }
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
 
   if (isLoading) {
     return (

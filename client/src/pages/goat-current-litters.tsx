@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import type { GoatLitter, Goat, GoatMedia } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -17,6 +18,64 @@ export default function GoatCurrentLitters() {
   const { data: litters, isLoading } = useQuery<LitterWithRelations[]>({
     queryKey: ['/api/goat-litters/list/current'],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    // Hyper-local SEO for current Nigerian Dwarf goat litters (50-mile radius)
+    document.title = 'Current Nigerian Dwarf Goat Litters | Kids Available | Hudsonville, Grand Rapids, MI';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Current Nigerian Dwarf goat litters available at Little Way Acres in Hudsonville, Michigan. Kids ready for pickup in Grand Rapids, Holland, Zeeland, Byron Center, and surrounding West Michigan communities within 50 miles. Perfect for small farms and homesteads.');
+    }
+    
+    // Local SEO keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'current goat litters Hudsonville, Nigerian Dwarf kids Grand Rapids, goat kids Holland Zeeland, West Michigan goats, Byron Center livestock, dairy goat kids Ottawa County');
+    
+    // Structured data for local goat litters
+    const existingScript = document.querySelector('script[data-page="goat-current-litters"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'goat-current-litters');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Current Nigerian Dwarf Goat Litters",
+      "description": "Current Nigerian Dwarf goat litters available in Hudsonville, Michigan area",
+      "url": `${window.location.origin}/goats/litters/current`,
+      "areaServed": {
+        "@type": "Place",
+        "name": "West Michigan - 50 Mile Radius from Hudsonville",
+        "geo": {
+          "@type": "GeoCircle",
+          "geoMidpoint": {
+            "@type": "GeoCoordinates",
+            "latitude": "42.8736",
+            "longitude": "-85.8681"
+          },
+          "geoRadius": "50"
+        }
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    });
+    
+    document.head.appendChild(script);
+  }, [litters]);
   
   // Function to get a suitable image for a litter
   const getLitterImage = (litter: LitterWithRelations): string | null => {
