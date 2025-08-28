@@ -133,23 +133,21 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/899bf35a-3b9c-41b2-8ad9-8ac8da890c9f-cropped-image-jpg.jpg" 
-                        alt="Max - Colorado Mountain Dog" 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
+                        alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
                       <div className="p-4">
-                        <h4 className="font-semibold text-stone-800">Max</h4>
                         <p className="text-sm text-stone-600">Guardian & Family Companion</p>
                       </div>
                     </div>
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/14376075-4e44-4748-b223-0a46e8bcf14f-cropped-image-jpg.jpg" 
-                        alt="Reba - Colorado Mountain Dog" 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
+                        alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
                       <div className="p-4">
-                        <h4 className="font-semibold text-stone-800">Reba</h4>
                         <p className="text-sm text-stone-600">Livestock Protection Expert</p>
                       </div>
                     </div>
@@ -212,12 +210,11 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/a3ca8c47-6768-4e09-a145-17d978eda27f-cropped-image-jpg.jpg" 
-                        alt="Cash - Colorado Mountain Dog on farm" 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/d0dffa6d-f0e3-4c6d-bbfe-03f9f54ecdb5-cropped-image-jpg.jpg" 
+                        alt="Colorado Mountain Dog on farm" 
                         className="w-full h-64 object-cover"
                       />
                       <div className="p-4">
-                        <h4 className="font-semibold text-stone-800">Cash</h4>
                         <p className="text-sm text-stone-600">Protecting our small farm operation</p>
                       </div>
                     </div>
