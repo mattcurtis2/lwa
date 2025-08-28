@@ -29,19 +29,155 @@ export default function Market() {
   const aboutSection = sections.find(s => s.name === 'about');
   const productSections = sections.filter(s => s.name !== 'about');
 
-  // SEO optimization - focusing on sourdough bakery and honey with local market locations
+  // Enhanced SEO with local targeting for Muskegon Farmers Market and Hudsonville pickup
   useEffect(() => {
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
-    document.title = 'Fresh Croissants & Sourdough Bakery | Muskegon Farmers Market | Little Way Acres';
-    updateMetaDescription('Fresh croissants, artisan sourdough bread, and raw honey available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan bakery specializing in croissants and farm-fresh products in Ottawa County.');
+    const pageTitle = 'Fresh Croissants & Artisan Bakery | Muskegon Farmers Market & Hudsonville Pickup | Little Way Acres';
+    const pageDescription = 'Fresh croissants, artisan sourdough bread, raw honey, and farm products available at Muskegon Farmers Market every Saturday and pickup at Little Way Acres in Hudsonville, Michigan. Award-winning bakery specializing in European-style croissants, sourdough, and local honey from West Michigan.';
+    const pageKeywords = 'fresh croissants Muskegon, artisan bakery Michigan, sourdough bread Muskegon farmers market, raw honey Hudsonville, farm pickup Michigan, Little Way Acres bakery, West Michigan croissants, Saturday farmers market';
+    
+    document.title = pageTitle;
+    updateMetaDescription(pageDescription);
+    updateMetaKeywords(pageKeywords);
+    
+    // Open Graph and Twitter meta tags
+    updateOrCreateMetaTag('og:title', pageTitle);
+    updateOrCreateMetaTag('og:description', pageDescription);
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
+    updateOrCreateTwitterTag('twitter:title', pageTitle);
+    updateOrCreateTwitterTag('twitter:description', pageDescription);
+    updateOrCreateTwitterTag('twitter:image', '/logo.png');
+    
+    // Structured data for farmers market and bakery
+    const existingScript = document.querySelector('script[data-page="market"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'market');
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Little Way Acres Farmers Market & Bakery",
+      "description": pageDescription,
+      "url": `${window.location.origin}/market`,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Hudsonville",
+        "addressRegion": "MI",
+        "addressCountry": "US",
+        "postalCode": "49426"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Farm Products & Bakery",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Fresh Croissants",
+              "category": "Bakery",
+              "description": "European-style artisan croissants baked fresh"
+            },
+            "availableAtOrFrom": [
+              {
+                "@type": "Place",
+                "name": "Muskegon Farmers Market",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Muskegon",
+                  "addressRegion": "MI"
+                }
+              },
+              {
+                "@type": "Place", 
+                "name": "Little Way Acres Farm Pickup",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Hudsonville",
+                  "addressRegion": "MI"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Artisan Sourdough Bread",
+              "category": "Bakery",
+              "description": "Traditional sourdough bread with natural fermentation"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Raw Honey",
+              "category": "Farm Products",
+              "description": "Pure, unprocessed honey from our farm"
+            }
+          }
+        ]
+      },
+      "openingHours": "Sa 09:00-14:00",
+      "location": [
+        {
+          "@type": "Place",
+          "name": "Muskegon Farmers Market",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Muskegon",
+            "addressRegion": "MI",
+            "addressCountry": "US"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "43.2342",
+            "longitude": "-86.2484"
+          }
+        },
+        {
+          "@type": "Place",
+          "name": "Little Way Acres Farm Pickup", 
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Hudsonville",
+            "addressRegion": "MI",
+            "addressCountry": "US"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "42.8736",
+            "longitude": "-85.8681"
+          }
+        }
+      ],
+      "priceRange": "$$",
+      "paymentAccepted": ["Cash", "Venmo"],
+      "currenciesAccepted": "USD"
+    });
+    
+    document.head.appendChild(script);
     
     // Cleanup on unmount
     return () => {
       document.title = originalTitle;
       if (originalDescription) {
         updateMetaDescription(originalDescription);
+      }
+      const scriptToRemove = document.querySelector('script[data-page="market"]');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
       }
     };
   }, []);
@@ -51,6 +187,36 @@ export default function Market() {
     if (metaDescription) {
       metaDescription.setAttribute('content', description);
     }
+  };
+
+  const updateMetaKeywords = (keywords: string) => {
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords);
+  };
+
+  const updateOrCreateMetaTag = (property: string, content: string) => {
+    let metaTag = document.querySelector(`meta[property="${property}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('property', property);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
+  };
+
+  const updateOrCreateTwitterTag = (name: string, content: string) => {
+    let metaTag = document.querySelector(`meta[name="${name}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('name', name);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
   };
 
   return (
