@@ -254,24 +254,18 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <div className="space-y-4">
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/4a3ced11-0b75-4853-b7a0-2af84a8c0885.jpg" 
-                          alt="Colorado Mountain Dog demonstrating gentle temperament" 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
+                          alt="Colorado Mountain Dog" 
                           className="w-full h-48 object-cover"
                         />
-                        <div className="p-3">
-                          <p className="text-sm text-stone-600">Gentle & Calm Disposition</p>
-                        </div>
                       </div>
                       
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/e9928e16-e9a7-49a5-89e5-3c6f8b4ca11b.jpg" 
-                          alt="Colorado Mountain Dog showing intelligence and trainability" 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
+                          alt="Colorado Mountain Dog" 
                           className="w-full h-48 object-cover"
                         />
-                        <div className="p-3">
-                          <p className="text-sm text-stone-600">Athletic & Intelligent</p>
-                        </div>
                       </div>
                     </div>
                   </div>
