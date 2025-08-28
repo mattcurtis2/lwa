@@ -239,8 +239,13 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     </div>
                     
                     <div className="border-b border-stone-200 pb-6">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are they good with children and other pets?</h3>
-                      <p className="text-stone-700">Yes! CMDRs are specifically bred to be gentle with family members, including children and other pets. They form strong bonds with their "flock" - whether that's livestock, family, or both.</p>
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are CMDs good with children?</h3>
+                      <p className="text-stone-700">Absolutely! Colorado Mountain Dogs are exceptionally good with children. They're bred to be gentle, patient, and protective family guardians. Their natural instinct is to watch over and protect their "flock," which includes children. Many CMD owners report that their dogs are incredibly tolerant of children's behavior and form deep, protective bonds with kids in the family.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are they good with other pets?</h3>
+                      <p className="text-stone-700">Yes! CMDRs are specifically bred to be gentle with family members, including other pets. They form strong bonds with their "flock" - whether that's livestock, family pets, or both. Their guardian instincts extend to protecting all members of their household.</p>
                     </div>
                     
                     <div className="border-b border-stone-200 pb-6">
@@ -260,46 +265,82 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   </div>
                 </div>
               </section>
+              
+              {/* Navigation Section */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Explore Our Dogs
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <p className="text-stone-600 mt-4 max-w-2xl mx-auto">
+                    Discover our breeding program and meet our Colorado Mountain Dogs
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-6">
+                  <Link href="/dogs/males" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
+                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Males</h3>
+                      <p className="text-stone-600 mb-6">
+                        Meet our breeding males and learn about their lineage and characteristics
+                      </p>
+                      <div className="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
+                        View Males
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                  
+                  <Link href="/dogs/females" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-200 transition-colors">
+                        <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Females</h3>
+                      <p className="text-stone-600 mb-6">
+                        Discover our breeding females and their contributions to our program
+                      </p>
+                      <div className="inline-flex items-center text-pink-600 font-semibold group-hover:text-pink-700">
+                        View Females
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                  
+                  <Link href="/dogs/litters/future" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-amber-200 transition-colors">
+                        <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Upcoming Litters</h3>
+                      <p className="text-stone-600 mb-6">
+                        See planned litters and reserve your future guardian companion
+                      </p>
+                      <div className="inline-flex items-center text-amber-600 font-semibold group-hover:text-amber-700">
+                        View Litters
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </section>
             </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Navigation buttons - only show on main dogs page */}
-      {!genderFilter && !showAvailable && (
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/dogs/males">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Males</span>
-                <span className="text-sm text-stone-500">View our male dogs</span>
-              </Button>
-            </Link>
-
-            <Link href="/dogs/females">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Females</span>
-                <span className="text-sm text-stone-500">View our female dogs</span>
-              </Button>
-            </Link>
-
-            <Link href="/dogs/available">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Available</span>
-                <span className="text-sm text-stone-500">
-                  View dogs available for adoption
-                </span>
-              </Button>
-            </Link>
           </div>
         </div>
       )}
