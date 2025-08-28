@@ -77,6 +77,29 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add caching headers for static assets (images, fonts, etc.)
+app.use((req, res, next) => {
+  const url = req.url;
+  
+  // Cache images and fonts for 1 year
+  if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+    res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString()); // 1 year
+  }
+  // Cache CSS and JS for 1 month
+  else if (url.match(/\.(css|js)$/i)) {
+    res.setHeader('Cache-Control', 'public, max-age=2592000'); // 1 month
+    res.setHeader('Expires', new Date(Date.now() + 2592000000).toUTCString()); // 1 month
+  }
+  // Cache other static files for 1 hour
+  else if (!url.startsWith('/api') && url.match(/\.(html|json|xml|txt)$/i)) {
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+    res.setHeader('Expires', new Date(Date.now() + 3600000).toUTCString()); // 1 hour
+  }
+  
+  next();
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
