@@ -102,24 +102,168 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
       "Browse our currently available Katahdin sheep. Each animal is raised with care and attention.";
   }
 
-  // SEO optimization - update page title and meta description focusing on Katahdin Sheep
+  // Enhanced SEO with hyper-local targeting for 50-mile radius from Hudsonville
   useEffect(() => {
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
+    let pageTitle = '';
+    let pageDescription = '';
+    let pageKeywords = '';
+    let structuredData: any = {};
+    
     if (genderFilter === 'female') {
-      document.title = 'Katahdin Sheep Ewes | Michigan Hair Sheep Breeding | Ottawa County';
-      updateMetaDescription('Meet our Katahdin Sheep ewes in Ottawa County, Michigan - exceptional hair sheep known for excellent mothering abilities, easy lambing, and hardy nature perfect for Michigan sustainable farming.');
+      pageTitle = 'Katahdin Sheep Ewes for Sale | Female Hair Sheep | Hudsonville, Grand Rapids, MI';
+      pageDescription = 'Katahdin sheep ewes (female hair sheep) for sale at Little Way Acres in Hudsonville, Michigan. Hardy, naturally-shedding sheep perfect for small farms in Grand Rapids, Holland, Zeeland, Byron Center, and surrounding West Michigan communities within 50 miles. Excellent mothers with easy lambing.';
+      pageKeywords = 'Katahdin sheep ewes for sale, female hair sheep Hudsonville Michigan, naturally shedding sheep Grand Rapids, West Michigan livestock, Holland Zeeland sheep, Byron Center sustainable farming, Ottawa County hair sheep';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Katahdin Sheep Ewes for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/sheep/females`,
+        "areaServed": [
+          {"@type": "City", "name": "Hudsonville", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Grand Rapids", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Holland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Zeeland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Byron Center", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Georgetown", "containedInPlace": {"@type": "State", "name": "Michigan"}}
+        ]
+      };
     } else if (genderFilter === 'male') {
-      document.title = 'Katahdin Sheep Rams | Michigan Hair Sheep Breeding | Ottawa County';
-      updateMetaDescription('Meet our Katahdin Sheep rams in Ottawa County, Michigan - superior breeding stock with proven genetics, excellent conformation, and strong performance for Michigan hair sheep operations.');
+      pageTitle = 'Katahdin Sheep Rams for Sale | Male Hair Sheep | Hudsonville, Grand Rapids, MI';
+      pageDescription = 'Katahdin sheep rams (male hair sheep) for sale at Little Way Acres in Hudsonville, Michigan. Quality breeding rams for sustainable farming in Grand Rapids, Holland, Zeeland, Byron Center, and West Michigan area within 50 miles. Hardy, naturally-shedding sheep with excellent genetics.';
+      pageKeywords = 'Katahdin sheep rams for sale, male hair sheep Hudsonville Michigan, breeding rams Grand Rapids, West Michigan sustainable farming, Holland Zeeland livestock, Ottawa County sheep breeders';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Katahdin Sheep Rams for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/sheep/males`
+      };
     } else if (showAvailable) {
-      document.title = 'Available Katahdin Sheep | Michigan Hair Sheep for Sale | Ottawa County';
-      updateMetaDescription('Katahdin Sheep available now in Ottawa County, Michigan - hardy hair sheep that shed naturally, require minimal care, and produce lean meat. Perfect for Michigan sustainable farming operations.');
+      pageTitle = 'Katahdin Sheep for Sale | Available Hair Sheep | Hudsonville, MI';
+      pageDescription = 'Katahdin sheep for sale now at Little Way Acres in Hudsonville, Michigan. Available hair sheep ready for pickup. Serving Grand Rapids, Holland, Zeeland, Byron Center, Wyoming, Kentwood, and all West Michigan communities within 50 miles. Hardy, low-maintenance sheep perfect for sustainable farming.';
+      pageKeywords = 'Katahdin sheep for sale, hair sheep available Hudsonville, Grand Rapids livestock, West Michigan sustainable farming, Holland Zeeland sheep for sale, Ottawa County Katahdin breeders';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Available Katahdin Sheep for Sale",
+        "description": pageDescription,
+        "url": `${window.location.origin}/sheep/available`,
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "areaServed": {
+          "@type": "Place",
+          "name": "West Michigan - 50 Mile Radius from Hudsonville",
+          "geo": {
+            "@type": "GeoCircle",
+            "geoMidpoint": {
+              "@type": "GeoCoordinates",
+              "latitude": "42.8736",
+              "longitude": "-85.8681"
+            },
+            "geoRadius": "50"
+          }
+        }
+      };
     } else {
-      document.title = 'Katahdin Sheep | Michigan Hair Sheep | Ottawa County Sustainable Farms';
-      updateMetaDescription('Learn about Katahdin Sheep in Ottawa County, Michigan - hardy hair sheep that naturally shed, require minimal care, and excel in Michigan sustainable farming. Discover our local breeding program.');
+      pageTitle = 'Katahdin Hair Sheep | Natural Shedding Sheep | Hudsonville, Grand Rapids, Holland, MI';
+      pageDescription = 'Katahdin hair sheep at Little Way Acres in Hudsonville, Michigan. Hardy, naturally-shedding sheep perfect for sustainable farming and homesteads in Grand Rapids, Holland, Zeeland, Byron Center, Georgetown, Wyoming, and surrounding West Michigan area. Low-maintenance livestock ideal for families within 50 miles - no shearing required!';
+      pageKeywords = 'Katahdin hair sheep, naturally shedding sheep Hudsonville Michigan, sustainable farming Grand Rapids, small farm sheep West Michigan, Holland Zeeland livestock, homestead sheep Ottawa County, no shear sheep';
+      
+      structuredData = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Little Way Acres - Katahdin Hair Sheep",
+        "description": pageDescription,
+        "url": `${window.location.origin}/sheep`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Hudsonville",
+          "addressRegion": "MI",
+          "addressCountry": "US",
+          "postalCode": "49426"
+        },
+        "areaServed": [
+          {"@type": "City", "name": "Hudsonville", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Grand Rapids", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Holland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Zeeland", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Byron Center", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Georgetown", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Wyoming", "containedInPlace": {"@type": "State", "name": "Michigan"}},
+          {"@type": "City", "name": "Kentwood", "containedInPlace": {"@type": "State", "name": "Michigan"}}
+        ],
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "42.8736",
+          "longitude": "-85.8681"
+        },
+        "priceRange": "$$",
+        "paymentAccepted": ["Cash", "Venmo"],
+        "currenciesAccepted": "USD",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Katahdin Sheep Services",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Katahdin Sheep Ewes",
+                "category": "Livestock",
+                "description": "Hardy ewes for sustainable farming and meat production"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Katahdin Sheep Rams",
+                "category": "Livestock",
+                "description": "Quality breeding rams for flock improvement"
+              }
+            }
+          ]
+        }
+      };
     }
+    
+    document.title = pageTitle;
+    updateMetaDescription(pageDescription);
+    updateMetaKeywords(pageKeywords);
+    
+    // Open Graph and Twitter meta tags
+    updateOrCreateMetaTag('og:title', pageTitle);
+    updateOrCreateMetaTag('og:description', pageDescription);
+    updateOrCreateMetaTag('og:type', 'website');
+    updateOrCreateMetaTag('og:url', window.location.href);
+    updateOrCreateMetaTag('og:image', '/logo.png');
+    
+    updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
+    updateOrCreateTwitterTag('twitter:title', pageTitle);
+    updateOrCreateTwitterTag('twitter:description', pageDescription);
+    updateOrCreateTwitterTag('twitter:image', '/logo.png');
+    
+    // Add structured data
+    const existingScript = document.querySelector('script[data-page="sheep"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'sheep');
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
     
     // Cleanup on unmount
     return () => {
@@ -127,14 +271,48 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
       if (originalDescription) {
         updateMetaDescription(originalDescription);
       }
+      const scriptToRemove = document.querySelector('script[data-page="sheep"]');
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
     };
-  }, [genderFilter, showAvailable]);
+  }, [genderFilter, showAvailable, sheep]);
   
   const updateMetaDescription = (description: string) => {
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', description);
     }
+  };
+
+  const updateMetaKeywords = (keywords: string) => {
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords);
+  };
+
+  const updateOrCreateMetaTag = (property: string, content: string) => {
+    let metaTag = document.querySelector(`meta[property="${property}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('property', property);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
+  };
+
+  const updateOrCreateTwitterTag = (name: string, content: string) => {
+    let metaTag = document.querySelector(`meta[name="${name}"]`);
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.setAttribute('name', name);
+      document.head.appendChild(metaTag);
+    }
+    metaTag.setAttribute('content', content);
   };
 
   return (
