@@ -1,7 +1,27 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Heart, Home, Shield, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+
+interface Litter {
+  id: number;
+  motherName: string;
+  fatherName: string;
+  dueDate: string;
+  status: string;
+}
 
 export default function BreedingGoals() {
+  const { data: litters } = useQuery<Litter[]>({
+    queryKey: ["/api/litters"],
+  });
+
+  // Find the most recent current or planned litter
+  const mostRecentLitter = litters?.find(litter => 
+    litter.status === 'current' || litter.status === 'planned'
+  ) || litters?.[0];
+
   useEffect(() => {
     window.scrollTo(0, 0);
     
@@ -249,6 +269,35 @@ export default function BreedingGoals() {
               </p>
             </div>
           </div>
+
+          {/* Latest Litter Promo */}
+          {mostRecentLitter && (
+            <div className="bg-white rounded-2xl shadow-lg border border-amber-200 p-8 mt-16 text-center">
+              <h2 className="text-3xl font-bold text-stone-800 mb-6">Interested in our next litter?</h2>
+              <p className="text-stone-700 text-lg leading-relaxed mb-6 max-w-3xl mx-auto">
+                Experience the Colorado Mountain Dog difference with our upcoming litter from {mostRecentLitter.motherName} and {mostRecentLitter.fatherName}. These puppies will embody all the breeding goals we've shared above - gentle temperament, intelligence, loyalty, and the perfect balance of guardian instincts with family companionship.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  asChild
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3"
+                >
+                  <Link href={`/dogs/litters/${mostRecentLitter.id}`}>
+                    View Current Litter
+                  </Link>
+                </Button>
+                <Button 
+                  asChild
+                  variant="outline"
+                  className="border-amber-200 text-amber-700 hover:bg-amber-50 px-8 py-3"
+                >
+                  <Link href="/dogs/how-to-purchase">
+                    Learn Purchase Process
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
