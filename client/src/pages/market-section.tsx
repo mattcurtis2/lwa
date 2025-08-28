@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { MarketSection, Product } from "@db/schema";
 import ProductCard from "@/components/cards/product-card";
 import PrintifyProductCard from "@/components/cards/printify-product-card";
@@ -48,8 +48,8 @@ export default function MarketSectionPage() {
     let structuredData: any = {};
     
     if (currentSection === 'bakery') {
-      pageTitle = 'Fresh Croissants & Artisan Bakery | Muskegon Farmers Market & Hudsonville Pickup | Michigan Sourdough';
-      pageDescription = 'Award-winning fresh croissants, artisan sourdough bread, and European-style pastries available at Muskegon Farmers Market every Saturday and pickup at Little Way Acres in Hudsonville, Michigan. Authentic French bakery techniques with Michigan ingredients - pre-order for guaranteed availability.';
+      pageTitle = 'Fresh Croissants & Bakery | Muskegon Market | Michigan';
+      pageDescription = 'Fresh croissants, sourdough bread & pastries at Muskegon Farmers Market Saturdays. Little Way Acres bakery in Hudsonville, Michigan.';
       pageKeywords = 'fresh croissants Muskegon Michigan, artisan sourdough Muskegon farmers market, European pastries Michigan, bakery Hudsonville pickup, Saturday farmers market croissants, West Michigan bakery, French croissants Michigan';
       
       structuredData = {
@@ -98,8 +98,8 @@ export default function MarketSectionPage() {
         "priceRange": "$$"
       };
     } else if (currentSection === 'animal-products') {
-      pageTitle = 'Raw Honey & Farm Fresh Products | Muskegon Market & Hudsonville Pickup | Michigan Honey';
-      pageDescription = 'Pure raw honey, farm-fresh eggs, and natural animal products from Little Way Acres. Available at Muskegon Farmers Market every Saturday and farm pickup in Hudsonville, Michigan. Unprocessed honey and farm products from our West Michigan homestead.';
+      pageTitle = 'Raw Honey & Farm Products | Muskegon Market | Michigan';
+      pageDescription = 'Raw honey, farm eggs & natural products at Muskegon Farmers Market Saturdays. Little Way Acres farm in Hudsonville, Michigan.';
       pageKeywords = 'raw honey Muskegon Michigan, farm fresh eggs Hudsonville, Michigan honey farmers market, natural farm products, West Michigan honey, Saturday farmers market, Little Way Acres honey';
       
       structuredData = {
@@ -124,8 +124,8 @@ export default function MarketSectionPage() {
         }
       };
     } else if (currentSection === 'apparel') {
-      pageTitle = 'St. Thérèse Little Way Apparel & Colorado Mountain Dog Clothing | Faith-Based & CMDR Gear | Michigan';
-      pageDescription = 'St. Thérèse of Lisieux Little Way inspired apparel and authentic Colorado Mountain Dog (CMDR) breed clothing. Faith-based Catholic apparel and rare dog breed merchandise available at Muskegon Farmers Market and Little Way Acres farm in Hudsonville, Michigan. Custom designs celebrating St. Thérèse spirituality and Colorado Mountain Dog heritage.';
+      pageTitle = 'St. Thérèse Apparel & CMDR Dog Clothing | Michigan';
+      pageDescription = 'St. Thérèse Catholic apparel & Colorado Mountain Dog clothing at Muskegon Farmers Market. Faith-based shirts & CMDR breed merchandise.';
       pageKeywords = 'St Therese Little Way apparel, Colorado Mountain Dog CMDR clothing, Catholic faith apparel Michigan, rare dog breed merchandise, St Therese of Lisieux clothing, CMDR breed apparel, faith based shirts Michigan, Colorado Mountain Dog gifts, Catholic spirituality apparel, dog breed clothing Michigan, Muskegon farmers market apparel, Hudsonville faith clothing';
       
       structuredData = {
@@ -339,6 +339,28 @@ export default function MarketSectionPage() {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Navigation Links for Internal SEO */}
+          <div className="bg-white p-6 rounded-lg border shadow-sm mb-8">
+            <h2 className="text-lg font-semibold mb-4">Explore Our Farm</h2>
+            <nav className="flex flex-wrap gap-4">
+              <Link href="/dogs" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                Colorado Mountain Dogs
+              </Link>
+              <Link href="/goats" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                Nigerian Dwarf Goats
+              </Link>
+              <Link href="/sheep" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                Katahdin Sheep
+              </Link>
+              <Link href="/market" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                All Market Products
+              </Link>
+              <Link href="/about" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                About Our Farm
+              </Link>
+            </nav>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">

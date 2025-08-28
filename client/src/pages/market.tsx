@@ -34,8 +34,8 @@ export default function Market() {
     const originalTitle = document.title;
     const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
     
-    const pageTitle = 'Fresh Croissants & Artisan Bakery | Muskegon Farmers Market & Hudsonville Pickup | Little Way Acres';
-    const pageDescription = 'Fresh croissants, artisan sourdough bread, raw honey, and farm products available at Muskegon Farmers Market every Saturday and pickup at Little Way Acres in Hudsonville, Michigan. Award-winning bakery specializing in European-style croissants, sourdough, and local honey from West Michigan.';
+    const pageTitle = 'Fresh Croissants & Bakery | Muskegon Market | Little Way';
+    const pageDescription = 'Fresh croissants, artisan sourdough & raw honey at Muskegon Farmers Market Saturdays. Little Way Acres bakery in Hudsonville, Michigan.';
     const pageKeywords = 'fresh croissants Muskegon, artisan bakery Michigan, sourdough bread Muskegon farmers market, raw honey Hudsonville, farm pickup Michigan, Little Way Acres bakery, West Michigan croissants, Saturday farmers market';
     
     document.title = pageTitle;
@@ -306,6 +306,26 @@ export default function Market() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Navigation Links for Internal SEO */}
+      <div className="bg-white py-8 border-b">
+        <div className="container mx-auto px-4">
+          <nav className="flex flex-wrap gap-4 justify-center">
+            <Link href="/dogs" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              Colorado Mountain Dogs
+            </Link>
+            <Link href="/goats" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              Nigerian Dwarf Goats
+            </Link>
+            <Link href="/sheep" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              Katahdin Sheep
+            </Link>
+            <Link href="/about" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              About Our Farm
+            </Link>
+          </nav>
         </div>
       </div>
 
