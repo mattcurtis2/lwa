@@ -11,6 +11,7 @@ import Login from "@/pages/login";
 import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
 import HowToPurchase from "@/pages/how-to-purchase";
+import BreedingGoals from "@/pages/breeding-goals";
 import LitterDetail from "@/pages/litter-detail";
 import UpcomingLitters from "@/pages/upcoming-litters";
 import PastLitters from "@/pages/past-litters";
@@ -74,6 +75,7 @@ function Router() {
           <Route path="/dogs/litters/past" component={PastLitters} />
           <Route path="/dogs/litters/:id" component={LitterDetail} />
           <Route path="/dogs/how-to-purchase" component={HowToPurchase} />
+          <Route path="/dogs/breeding-goals" component={BreedingGoals} />
           <Route path="/dogs/:id" component={DogDetail} />
           {/* Goat Routes */}
           <Route path="/goats">
