@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { MarketSection, Product, MarketSchedule, SiteContent } from "@db/schema";
 import ProductCard from "@/components/cards/product-card";
@@ -27,6 +28,30 @@ export default function Market() {
 
   const aboutSection = sections.find(s => s.name === 'about');
   const productSections = sections.filter(s => s.name !== 'about');
+
+  // SEO optimization - focusing on sourdough bakery and honey with local market locations
+  useEffect(() => {
+    const originalTitle = document.title;
+    const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    
+    document.title = 'Sourdough Bakery & Farm Fresh Honey | Muskegon Farmers Market | Little Way Acres';
+    updateMetaDescription('Fresh sourdough bread and raw honey available at Muskegon Farmers Market and Little Way Acres farmstand. Michigan artisan bakery featuring farm-fresh products in Ottawa County.');
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = originalTitle;
+      if (originalDescription) {
+        updateMetaDescription(originalDescription);
+      }
+    };
+  }, []);
+  
+  const updateMetaDescription = (description: string) => {
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', description);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
