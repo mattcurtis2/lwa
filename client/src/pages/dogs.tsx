@@ -88,6 +88,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   return (
     <div className="w-full">
       {!showAvailable && !genderFilter && <DogHero />}
+      {!showAvailable && !genderFilter && <LitterBanner />}
       {!showAvailable && !genderFilter && (
         <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
           <div className="container mx-auto px-4 py-16">
@@ -191,8 +192,6 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
           </div>
         </div>
       )}
-
-      {!showAvailable && !genderFilter && <LitterBanner />}
 
       <div className="container mx-auto px-4 py-16 space-y-16">
         {/* Available Dogs Section */}
