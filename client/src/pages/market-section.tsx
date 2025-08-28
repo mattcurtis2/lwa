@@ -49,8 +49,8 @@ export default function MarketSectionPage() {
       document.title = 'Raw Honey & Farm Fresh Products | Michigan Honey | Little Way Acres Farmstand';
       updateMetaDescription('Raw honey, farm-fresh eggs, and natural animal products available at Little Way Acres farmstand and Muskegon Farmers Market. Local Michigan farm products in Ottawa County.');
     } else if (currentSection === 'apparel') {
-      document.title = 'Farm Apparel & Merchandise | Little Way Acres | Michigan Farm Store';
-      updateMetaDescription('Farm-themed apparel and merchandise from Little Way Acres. Support local Michigan agriculture with quality farm clothing and accessories.');
+      document.title = 'St. Thérèse Apparel & Colorado Mountain Dog Clothing | Little Way Inspired | Michigan';
+      updateMetaDescription('St. Thérèse apparel and Colorado Mountain Dog clothing inspired by St. Thérèse of Lisieux\'s Little Way. Faith-based and CMDR breed apparel from Little Way Acres in Michigan.');
     } else {
       document.title = `${section?.title || 'Farm Products'} | Little Way Acres | Muskegon Farmers Market`;
       updateMetaDescription(`${section?.description || 'Quality farm products'} available at Little Way Acres farmstand and Muskegon Farmers Market in Ottawa County, Michigan.`);
