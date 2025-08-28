@@ -198,55 +198,79 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
-                  <div className="grid lg:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">1</span>
+                  <div className="grid lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">1</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Temperament Above Everything Else</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-stone-800 mb-2">Temperament Above Everything Else</h3>
-                          <p className="text-stone-700 leading-relaxed">
-                            We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
-                          </p>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">2</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Teachable</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">2</span>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">3</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Seamless Adoption of New Animals</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-stone-800 mb-2">Teachable</h3>
-                          <p className="text-stone-700 leading-relaxed">
-                            We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
-                          </p>
+                        
+                        <div className="flex items-start space-x-4">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-amber-600 font-bold text-lg">4</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">Beautifully Athletic</h3>
+                            <p className="text-stone-700 leading-relaxed">
+                              Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="space-y-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">3</span>
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-stone-800 mb-2">Seamless Adoption of New Animals</h3>
-                          <p className="text-stone-700 leading-relaxed">
-                            As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
-                          </p>
+                    <div className="space-y-4">
+                      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                        <img 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/4a3ced11-0b75-4853-b7a0-2af84a8c0885.jpg" 
+                          alt="Colorado Mountain Dog demonstrating gentle temperament" 
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-3">
+                          <p className="text-sm text-stone-600">Gentle & Calm Disposition</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">4</span>
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-stone-800 mb-2">Beautifully Athletic</h3>
-                          <p className="text-stone-700 leading-relaxed">
-                            Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
-                          </p>
+                      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                        <img 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/e9928e16-e9a7-49a5-89e5-3c6f8b4ca11b.jpg" 
+                          alt="Colorado Mountain Dog showing intelligence and trainability" 
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-3">
+                          <p className="text-sm text-stone-600">Athletic & Intelligent</p>
                         </div>
                       </div>
                     </div>
