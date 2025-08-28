@@ -11,7 +11,7 @@ export default function Home() {
     window.scrollTo(0, 0);
     
     // Set page-specific SEO meta tags
-    document.title = "Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres";
+    document.title = "Colorado Mountain Dogs & Sourdough | Little Way Acres";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
