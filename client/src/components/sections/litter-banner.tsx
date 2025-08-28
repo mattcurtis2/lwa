@@ -19,9 +19,9 @@ export default function LitterBanner() {
   });
 
   // Find the visible litter (prioritize current litters that are visible)
-  const visibleLitter = litters?.find(litter => litter.isVisible && litter.isCurrentLitter);
+  const visibleLitter = litters?.find(litter => litter.isVisible && (litter.isCurrentLitter || litter.isPlannedLitter));
   
-  // If no visible current litter, don't show banner
+  // If no visible current or planned litter, don't show banner
   if (!visibleLitter) return null;
 
   return (
@@ -35,15 +35,25 @@ export default function LitterBanner() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12">
               <div>
                 <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-2 inline-block">
-                  {visibleLitter.puppyCount === 0 ? "New Litter Coming Soon!" : "New Litter Available!"}
+                  {visibleLitter.puppyCount > 0 ? "New Litter Available!" : "New Litter Coming Soon!"}
                 </div>
                 <p className="text-amber-800">
-                  {visibleLitter.isPlannedLitter ? "Expected" : "Born"}: <span className="font-semibold">
-                    {visibleLitter.isPlannedLitter && visibleLitter.expectedBreedingDate 
-                      ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
-                      : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
-                    }
-                  </span>
+                  {visibleLitter.isCurrentLitter && visibleLitter.isPlannedLitter ? (
+                    <span>Due: <span className="font-semibold">
+                      {format(parseApiDate(visibleLitter.dueDate), 'MMM d')}
+                    </span></span>
+                  ) : visibleLitter.puppyCount > 0 ? (
+                    <span>Born: <span className="font-semibold">
+                      {formatDisplayDate(parseApiDate(visibleLitter.dueDate))}
+                    </span></span>
+                  ) : (
+                    <span>Expected: <span className="font-semibold">
+                      {visibleLitter.expectedBreedingDate 
+                        ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
+                        : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
+                      }
+                    </span></span>
+                  )}
                 </p>
               </div>
 
