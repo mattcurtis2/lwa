@@ -254,7 +254,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <div className="space-y-4">
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/d0dffa6d-f0e3-4c6d-bbfe-03f9f54ecdb5-cropped-image-jpg.jpg" 
                           alt="Colorado Mountain Dog" 
                           className="w-full h-48 object-cover"
                         />
@@ -262,7 +262,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
+                          src="https://lwacontent.s3.us-east-2.amazonaws.com/e9a05e33-6c3b-4ac7-af0c-5d9b62b81bc0.jpg" 
                           alt="Colorado Mountain Dog" 
                           className="w-full h-48 object-cover"
                         />
