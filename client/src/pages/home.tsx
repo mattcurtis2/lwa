@@ -11,18 +11,18 @@ export default function Home() {
     window.scrollTo(0, 0);
     
     // Set page-specific SEO meta tags
-    document.title = "Little Way Acres | Colorado Mountain Dogs & Nigerian Dwarf Goats | Hudsonville, MI";
+    document.title = "Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Little Way Acres - Premium Colorado Mountain Dogs, Nigerian Dwarf Goats, and farm-fresh bakery products in Hudsonville, Michigan. Family farm specializing in ethical breeding, artisanal croissants, sourdough bread, and local honey. Visit our farmers market for the finest farm-to-table experience.');
+      metaDescription.setAttribute('content', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants at Little Way Acres farm.');
     }
     
     // Update meta keywords
     const metaKeywords = document.querySelector('meta[name="keywords"]');
     if (metaKeywords) {
-      metaKeywords.setAttribute('content', 'Little Way Acres, Colorado Mountain Dogs, Nigerian Dwarf Goats, Hudsonville Michigan farm, croissants, sourdough bread, local honey, farmers market, family farm, ethical dog breeding, goat breeding, farm fresh products, Michigan bakery, Grand Rapids area farm');
+      metaKeywords.setAttribute('content', 'Colorado Mountain Dogs Michigan, CMDR puppies, sourdough bakery Michigan, artisan croissants, dog breeders Michigan, sourdough bread, Little Way Acres, Hudsonville farm');
     }
     
     // Open Graph meta tags for social sharing
@@ -36,8 +36,8 @@ export default function Home() {
       metaTag.setAttribute('content', content);
     };
     
-    updateOrCreateMetaTag('og:title', 'Little Way Acres | Colorado Mountain Dogs & Goats Farm | Hudsonville, MI');
-    updateOrCreateMetaTag('og:description', 'Premium Colorado Mountain Dogs, Nigerian Dwarf Goats, and artisanal bakery products from our family farm in Hudsonville, Michigan. Farm-fresh croissants, sourdough, and honey.');
+    updateOrCreateMetaTag('og:title', 'Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres');
+    updateOrCreateMetaTag('og:description', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants from our family farm.');
     updateOrCreateMetaTag('og:type', 'website');
     updateOrCreateMetaTag('og:url', window.location.href);
     updateOrCreateMetaTag('og:image', '/logo.png');
@@ -56,8 +56,8 @@ export default function Home() {
     };
     
     updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
-    updateOrCreateTwitterTag('twitter:title', 'Little Way Acres | Colorado Mountain Dogs & Goats Farm');
-    updateOrCreateTwitterTag('twitter:description', 'Premium Colorado Mountain Dogs, Nigerian Dwarf Goats, and artisanal bakery products from our family farm in Hudsonville, Michigan.');
+    updateOrCreateTwitterTag('twitter:title', 'Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres');
+    updateOrCreateTwitterTag('twitter:description', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants.');
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
     // Structured Data (JSON-LD) for better search engine understanding
@@ -73,7 +73,7 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "name": "Little Way Acres",
-      "description": "Family farm specializing in Colorado Mountain Dogs, Nigerian Dwarf Goats, and artisanal bakery products",
+      "description": "Premier Colorado Mountain Dog breeders and artisan sourdough bakery in Michigan",
       "url": window.location.origin,
       "logo": `${window.location.origin}/logo.png`,
       "image": `${window.location.origin}/logo.png`,
@@ -110,9 +110,26 @@ export default function Home() {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Product",
-              "name": "Colorado Mountain Dogs",
+              "name": "Colorado Mountain Dogs (CMDR)",
               "category": "Pet Animals",
-              "description": "Ethically bred Colorado Mountain Dogs from champion bloodlines"
+              "description": "Premium Colorado Mountain Dog puppies from champion bloodlines. Ethical CMDR breeders in Michigan.",
+              "brand": {
+                "@type": "Brand",
+                "name": "Little Way Acres"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Artisan Sourdough Bakery",
+              "category": "Food",
+              "description": "Fresh croissants, sourdough bread, and European-style pastries made with traditional techniques.",
+              "brand": {
+                "@type": "Brand",
+                "name": "Little Way Acres Bakery"
+              }
             }
           },
           {
@@ -121,25 +138,16 @@ export default function Home() {
               "@type": "Product",
               "name": "Nigerian Dwarf Goats",
               "category": "Livestock",
-              "description": "High-quality Nigerian Dwarf Goats for milk production and companionship"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Product",
-              "name": "Artisanal Bakery Products",
-              "category": "Food",
-              "description": "Fresh croissants, sourdough bread, and baked goods made with farm-fresh ingredients"
+              "description": "High-quality Nigerian Dwarf Goats for milk production"
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Product", 
-              "name": "Local Honey",
+              "name": "Raw Farm Honey",
               "category": "Food",
-              "description": "Raw, unfiltered honey produced on our farm"
+              "description": "Pure, unprocessed honey from our farm"
             }
           }
         ]
@@ -163,12 +171,13 @@ export default function Home() {
       },
       "foundingDate": "2020",
       "knowsAbout": [
-        "Colorado Mountain Dogs",
-        "Nigerian Dwarf Goats", 
-        "Sustainable Farming",
-        "Artisanal Baking",
-        "Local Honey Production",
-        "Ethical Animal Breeding"
+        "Colorado Mountain Dogs (CMDR)",
+        "Sourdough Bread Making",
+        "Artisan Croissants", 
+        "Dog Breeding",
+        "European Baking Techniques",
+        "Nigerian Dwarf Goats",
+        "Farm Fresh Products"
       ],
       "slogan": "Living out God's great plan in small ways, daily"
     });
