@@ -345,72 +345,79 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-16 space-y-16">
-        {/* Available Dogs Section */}
-        {availableDogs.length > 0 && !showAvailable && (
-          <div>
-            <div className="relative mb-12">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-center">
-                <div className="bg-background px-6">
-                  <h2 className="text-3xl font-bold text-stone-800">Meet Our Available Dogs</h2>
+      {/* Only show container if there are dogs to display */}
+      {((availableDogs.length > 0 && !showAvailable) || 
+        (!showAvailable && shouldShowFemales && genderFilter && females.length > 0) || 
+        (!showAvailable && shouldShowMales && genderFilter && males.length > 0)) ? (
+        <div className="container mx-auto px-4 py-16 space-y-16">
+          {/* Available Dogs Section */}
+          {availableDogs.length > 0 && !showAvailable && (
+            <div>
+              <div className="relative mb-12">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t"></div>
+                </div>
+                <div className="relative flex justify-center text-center">
+                  <div className="bg-background px-6">
+                    <h2 className="text-3xl font-bold text-stone-800">Meet Our Available Dogs</h2>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="space-y-16">
-              {availableDogs.map((dog) => (
-                <DogDetails key={dog.id} dog={dog} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Females Section */}
-        {!showAvailable && shouldShowFemales && genderFilter && females.length > 0 && (
-          <div>
-            <div className="relative mb-12">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
+              <div className="space-y-16">
+                {availableDogs.map((dog) => (
+                  <DogDetails key={dog.id} dog={dog} />
+                ))}
               </div>
-              <div className="relative flex justify-center text-center">
-                <div className="bg-background px-6">
-                  <h2 className="text-3xl font-bold text-stone-800">Meet Our Females</h2>
+            </div>
+          )}
+
+          {/* Females Section */}
+          {!showAvailable && shouldShowFemales && genderFilter && females.length > 0 && (
+            <div>
+              <div className="relative mb-12">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t"></div>
+                </div>
+                <div className="relative flex justify-center text-center">
+                  <div className="bg-background px-6">
+                    <h2 className="text-3xl font-bold text-stone-800">Meet Our Females</h2>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 gap-8">
-              {females.map((dog) => (
-                <DogDetails key={dog.id} dog={dog} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Males Section */}
-        {!showAvailable && shouldShowMales && genderFilter && males.length > 0 && (
-          <div>
-            <div className="relative mb-12">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
+              <div className="grid grid-cols-1 gap-8">
+                {females.map((dog) => (
+                  <DogDetails key={dog.id} dog={dog} />
+                ))}
               </div>
-              <div className="relative flex justify-center text-center">
-                <div className="bg-background px-6">
-                  <h2 className="text-3xl font-bold text-stone-800">Meet Our Males</h2>
+            </div>
+          )}
+
+          {/* Males Section */}
+          {!showAvailable && shouldShowMales && genderFilter && males.length > 0 && (
+            <div>
+              <div className="relative mb-12">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t"></div>
+                </div>
+                <div className="relative flex justify-center text-center">
+                  <div className="bg-background px-6">
+                    <h2 className="text-3xl font-bold text-stone-800">Meet Our Males</h2>
+                  </div>
                 </div>
               </div>
+              <div className="space-y-16">
+                {males.map((dog) => (
+                  <DogDetails key={dog.id} dog={dog} />
+                ))}
+              </div>
             </div>
-            <div className="space-y-16">
-              {males.map((dog) => (
-                <DogDetails key={dog.id} dog={dog} />
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+      ) : null}
 
-        {/* Available Dogs Page Content */}
-        {showAvailable && (
+      {/* Available Dogs Page Content */}
+      {showAvailable && (
+        <div className="container mx-auto px-4 py-16">
           <div>
             <h2 className="text-3xl font-bold mb-8 text-stone-800">Available Dogs</h2>
             {availableDogs.length > 0 ? (
@@ -458,8 +465,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
