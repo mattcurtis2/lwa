@@ -246,20 +246,12 @@ export default function BreedingGoals() {
                 </div>
               </div>
 
-              {/* Right Column - Photos */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+              {/* Right Column - Photo */}
+              <div className="flex items-center justify-center">
+                <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-md">
                   <img 
                     src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
                     alt="Colorado Mountain Dog demonstrating calm guardian presence" 
-                    className="w-full aspect-square object-cover"
-                  />
-                </div>
-                
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-                  <img 
-                    src="https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg" 
-                    alt="Colorado Mountain Dog showing family bond" 
                     className="w-full aspect-square object-cover"
                   />
                 </div>
@@ -270,20 +262,12 @@ export default function BreedingGoals() {
           {/* Additional Traits */}
           <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-16">
             <div className="grid lg:grid-cols-2 gap-12">
-              {/* Left Column - Photos */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+              {/* Left Column - Photo */}
+              <div className="flex items-center justify-center">
+                <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-md">
                   <img 
                     src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
                     alt="Colorado Mountain Dog showing reliable guardian instincts" 
-                    className="w-full aspect-square object-cover"
-                  />
-                </div>
-                
-                <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-                  <img 
-                    src="https://lwacontent.s3.us-east-2.amazonaws.com/0cc5f5da-f5d0-4579-99cf-d3cb1f71c0b7-1000004913-jpg.jpg" 
-                    alt="Colorado Mountain Dog displaying warmth and companionship" 
                     className="w-full aspect-square object-cover"
                   />
                 </div>
