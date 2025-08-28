@@ -259,14 +259,6 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                           className="w-full aspect-square object-cover"
                         />
                       </div>
-                      
-                      <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-                        <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/0cc5f5da-f5d0-4579-99cf-d3cb1f71c0b7-1000004913-jpg.jpg" 
-                          alt="Colorado Mountain Dog" 
-                          className="w-full aspect-square object-cover"
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
