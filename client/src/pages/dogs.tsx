@@ -89,16 +89,65 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     <div className="w-full">
       {!showAvailable && !genderFilter && <DogHero />}
       {!showAvailable && !genderFilter && (
-        <div className="bg-stone-50 border-y border-stone-200">
-          <div className="container mx-auto px-4 py-12">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-stone-800 mb-4">
-                {getContent("dogs_page_title") || "Colorado Mountain Dogs"}
-              </h2>
-              <p className="text-stone-600 whitespace-pre-wrap">
-                {getContent("dogs_page_description") || 
-                  "Meet our Colorado Mountain Dogs, a breed dedicated to protecting livestock with unwavering loyalty and gentle temperament."}
-              </p>
+        <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
+          <div className="container mx-auto px-4 py-16">
+            <div className="max-w-4xl mx-auto">
+              {/* Main title with emphasis */}
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                  {getContent("dogs_page_title") || "Colorado Mountain Dogs"}
+                </h2>
+                <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+              </div>
+              
+              {/* Featured description with visual enhancement */}
+              <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
+                <div className="prose prose-lg mx-auto text-center">
+                  <p className="text-stone-700 leading-relaxed text-lg">
+                    {getContent("dogs_page_description") || 
+                      "Meet our Colorado Mountain Dogs, a breed dedicated to protecting livestock with unwavering loyalty and gentle temperament."}
+                  </p>
+                </div>
+              </div>
+              
+              {/* What We're Doing - Mission highlights */}
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Selective Breeding</h3>
+                  <p className="text-stone-600 text-sm">
+                    Carefully selecting breeding pairs to enhance protective instincts and gentle family temperament
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Early Socialization</h3>
+                  <p className="text-stone-600 text-sm">
+                    Comprehensive training and socialization from birth to ensure well-rounded guardians
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Health Testing</h3>
+                  <p className="text-stone-600 text-sm">
+                    Rigorous health screening and genetic testing to maintain breed health and longevity
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
