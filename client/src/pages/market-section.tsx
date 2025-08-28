@@ -260,6 +260,15 @@ export default function MarketSectionPage() {
     updateOrCreateTwitterTag('twitter:description', pageDescription);
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
+    // Add canonical URL
+    let canonicalLink = document.querySelector('link[rel=\"canonical\"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', window.location.href);
+    
     // Add structured data
     const existingScript = document.querySelector('script[data-page="market-section"]');
     if (existingScript) {

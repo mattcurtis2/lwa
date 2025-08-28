@@ -60,6 +60,15 @@ export default function Home() {
     updateOrCreateTwitterTag('twitter:description', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants.');
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
+    // Add canonical URL
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', window.location.origin);
+    
     // Structured Data (JSON-LD) for better search engine understanding
     const existingScript = document.querySelector('script[data-page="home"]');
     if (existingScript) {

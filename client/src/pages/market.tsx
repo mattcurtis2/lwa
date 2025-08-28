@@ -54,6 +54,15 @@ export default function Market() {
     updateOrCreateTwitterTag('twitter:description', pageDescription);
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
+    // Add canonical URL
+    let canonicalLink = document.querySelector('link[rel=\"canonical\"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', `${window.location.origin}/market`);
+    
     // Structured data for farmers market and bakery
     const existingScript = document.querySelector('script[data-page="market"]');
     if (existingScript) {
