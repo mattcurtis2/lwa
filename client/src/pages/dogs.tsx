@@ -92,63 +92,177 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       {!showAvailable && !genderFilter && (
         <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
           <div className="container mx-auto px-4 py-16">
-            <div className="max-w-4xl mx-auto">
-              {/* Main title with emphasis */}
-              <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                  {getContent("dogs_page_title") || "Colorado Mountain Dogs"}
-                </h2>
-                <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
-              </div>
+            <div className="max-w-6xl mx-auto space-y-16">
               
-              {/* Featured description with visual enhancement */}
-              <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
-                <div className="prose prose-lg mx-auto text-center">
-                  <p className="text-stone-700 leading-relaxed text-lg">
-                    {getContent("dogs_page_description") || 
-                      "Meet our Colorado Mountain Dogs, a breed dedicated to protecting livestock with unwavering loyalty and gentle temperament."}
-                  </p>
-                </div>
-              </div>
-              
-              {/* What We're Doing - Mission highlights */}
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
-                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Selective Breeding</h3>
-                  <p className="text-stone-600 text-sm">
-                    Carefully selecting breeding pairs to enhance protective instincts and gentle family temperament
-                  </p>
+              {/* Why We Love Our Colorado Mountain Dogs */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Why We Love Our Colorado Mountain Dogs
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                 </div>
                 
-                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
-                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
+                      <p className="text-stone-700 leading-relaxed text-lg mb-6">
+                        Colorado Mountain Dogs represent the perfect balance of guardian instincts and family companionship. These remarkable dogs are gentle with children and livestock, yet fierce protectors when needed.
+                      </p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-stone-600">Loyal and devoted to family</span>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-stone-600">Excellent with children</span>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-stone-600">Natural livestock guardians</span>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-stone-600">Athletic and agile</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Early Socialization</h3>
-                  <p className="text-stone-600 text-sm">
-                    Comprehensive training and socialization from birth to ensure well-rounded guardians
-                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                      <img 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/899bf35a-3b9c-41b2-8ad9-8ac8da890c9f-cropped-image-jpg.jpg" 
+                        alt="Max - Colorado Mountain Dog" 
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h4 className="font-semibold text-stone-800">Max</h4>
+                        <p className="text-sm text-stone-600">Guardian & Family Companion</p>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                      <img 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/14376075-4e44-4748-b223-0a46e8bcf14f-cropped-image-jpg.jpg" 
+                        alt="Reba - Colorado Mountain Dog" 
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h4 className="font-semibold text-stone-800">Reba</h4>
+                        <p className="text-sm text-stone-600">Livestock Protection Expert</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Who is a Good Fit */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Who is a Good Fit for a CMDR?
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                 </div>
                 
-                <div className="bg-white rounded-xl p-6 shadow-md border border-stone-200 text-center">
-                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
+                  <div className="grid lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-6">Perfect for Small Farms</h3>
+                      <p className="text-stone-700 leading-relaxed mb-6">
+                        Colorado Mountain Dogs were specifically developed for small farm operations where traditional livestock guardians might be too large, loud, or roaming. They excel in environments where close family bonds and selective protection are essential.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-stone-700">Small to medium-sized farms (1-20 acres)</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-stone-700">Families with children</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-stone-700">Goat, sheep, or poultry operations</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-stone-700">Active rural or suburban households</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                      <img 
+                        src="https://lwacontent.s3.us-east-2.amazonaws.com/a3ca8c47-6768-4e09-a145-17d978eda27f-cropped-image-jpg.jpg" 
+                        alt="Cash - Colorado Mountain Dog on farm" 
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="p-4">
+                        <h4 className="font-semibold text-stone-800">Cash</h4>
+                        <p className="text-sm text-stone-600">Protecting our small farm operation</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-stone-800 mb-2">Health Testing</h3>
-                  <p className="text-stone-600 text-sm">
-                    Rigorous health screening and genetic testing to maintain breed health and longevity
-                  </p>
                 </div>
-              </div>
+              </section>
+
+              {/* FAQ Section */}
+              <section>
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    Frequently Asked Questions
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                </div>
+                
+                <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
+                  <div className="space-y-8">
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How big do Colorado Mountain Dogs get?</h3>
+                      <p className="text-stone-700">CMDRs typically stand 26-34 inches at the shoulder and weigh 80-140 pounds. They have a tall, lean build that's athletic and agile, perfect for navigating rugged terrain while maintaining endurance.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Are they good with children and other pets?</h3>
+                      <p className="text-stone-700">Yes! CMDRs are specifically bred to be gentle with family members, including children and other pets. They form strong bonds with their "flock" - whether that's livestock, family, or both.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">Do they bark a lot?</h3>
+                      <p className="text-stone-700">Unlike some traditional livestock guardian breeds, CMDRs are bred for minimal unnecessary barking. They're discerning protectors - alert and vocal when there's a real threat, but generally quiet during normal daily activities.</p>
+                    </div>
+                    
+                    <div className="border-b border-stone-200 pb-6">
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">How much exercise do they need?</h3>
+                      <p className="text-stone-700">CMDRs are working dogs that thrive with regular activity and mental stimulation. They do best with access to space to patrol and explore, but don't require intense exercise like some high-energy breeds. A job to do is more important than miles of running.</p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-xl font-semibold text-stone-800 mb-3">What's their grooming requirements?</h3>
+                      <p className="text-stone-700">CMDRs have medium-length, weather-resistant white coats that are surprisingly low-maintenance. Regular brushing helps manage seasonal shedding, but their coats are designed to be self-cleaning and don't require frequent baths.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>
