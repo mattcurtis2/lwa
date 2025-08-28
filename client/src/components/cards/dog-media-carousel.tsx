@@ -71,6 +71,7 @@ export default function DogMediaCarousel({
           loop
           muted
           playsInline
+          preload="metadata"
           onClick={handleMediaClick}
         />
       ) : (
@@ -78,6 +79,8 @@ export default function DogMediaCarousel({
           src={currentMedia.url}
           alt="Dog media"
           className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+          loading="lazy"
+          decoding="async"
         />
       )}
 

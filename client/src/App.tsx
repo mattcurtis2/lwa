@@ -4,9 +4,10 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/providers/auth-provider";
 import { SiteProvider } from "@/providers/site-provider";
+import { Suspense } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import Admin from "@/pages/admin";
+import { LazyAdmin } from "@/components/lazy-loaded";
 import Login from "@/pages/login";
 import Dogs from "@/pages/dogs";
 import DogDetail from "@/pages/dog-detail";
@@ -55,7 +56,13 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
-          <Route path="/admin" component={Admin} />
+          <Route path="/admin">
+            {() => (
+              <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading Admin...</div>}>
+                <LazyAdmin />
+              </Suspense>
+            )}
+          </Route>
           {/* Dog Routes */}
           <Route path="/dogs">
             {() => <Dogs />}

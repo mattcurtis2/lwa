@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import dotenv from "dotenv";
+import compression from "compression";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
 import goatLittersRouter from "./routes/goat-litters";
@@ -51,6 +52,19 @@ console.log('AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME || process.env.S3_BU
 console.log('==========================================');
 
 const app = express();
+
+// Enable text compression (gzip/brotli) - addresses 11.33s savings
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  threshold: 1024, // Only compress responses > 1KB
+  level: 6, // Compression level (1-9, 6 is good balance)
+  memLevel: 8
+}));
 
 // Trust proxy for Replit deployments (important for proper HTTPS handling)
 app.set('trust proxy', true);

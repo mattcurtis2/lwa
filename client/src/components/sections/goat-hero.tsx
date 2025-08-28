@@ -9,19 +9,18 @@ export function GoatHero() {
     return siteContent.find((item: any) => item.key === key)?.value || "";
   };
 
+  const heroImage = getContentValue("goat_hero_image") || "https://images.unsplash.com/photo-1533318087102-b3ad366ed041";
+
   return (
     <div className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${
-            getContentValue("goat_hero_image") ||
-            "https://images.unsplash.com/photo-1533318087102-b3ad366ed041"
-          })`,
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
-      </div>
+      <img
+        src={heroImage}
+        alt="Nigerian Dwarf Goats at Little Way Acres"
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
           {getContentValue("goats_hero_title") || "Nigerian Dwarf Goats"}
