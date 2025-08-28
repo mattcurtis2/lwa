@@ -46,7 +46,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/">
-            <span className="text-xl font-semibold text-[#3F6A52] hover:text-stone-900 transition-colors">Little Way Acres</span>
+            <span className="text-xl font-semibold text-[#3F6A52] hover:text-stone-900 transition-colors">Little Way Acres - Farm, Bakery, Colorado Mountain Dogs</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">

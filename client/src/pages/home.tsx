@@ -11,7 +11,7 @@ export default function Home() {
     window.scrollTo(0, 0);
     
     // Set page-specific SEO meta tags
-    document.title = "Colorado Mountain Dogs & Sourdough | Little Way Acres";
+    document.title = "Little Way Acres - Farm, Bakery, Colorado Mountain Dogs";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -36,12 +36,12 @@ export default function Home() {
       metaTag.setAttribute('content', content);
     };
     
-    updateOrCreateMetaTag('og:title', 'Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres');
+    updateOrCreateMetaTag('og:title', 'Little Way Acres - Farm, Bakery, Colorado Mountain Dogs');
     updateOrCreateMetaTag('og:description', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants from our family farm.');
     updateOrCreateMetaTag('og:type', 'website');
     updateOrCreateMetaTag('og:url', window.location.href);
     updateOrCreateMetaTag('og:image', '/logo.png');
-    updateOrCreateMetaTag('og:site_name', 'Little Way Acres');
+    updateOrCreateMetaTag('og:site_name', 'Little Way Acres - Farm, Bakery, Colorado Mountain Dogs');
     updateOrCreateMetaTag('og:locale', 'en_US');
     
     // Twitter Card meta tags
@@ -56,7 +56,7 @@ export default function Home() {
     };
     
     updateOrCreateTwitterTag('twitter:card', 'summary_large_image');
-    updateOrCreateTwitterTag('twitter:title', 'Colorado Mountain Dogs & Sourdough Bakery | Little Way Acres');
+    updateOrCreateTwitterTag('twitter:title', 'Little Way Acres - Farm, Bakery, Colorado Mountain Dogs');
     updateOrCreateTwitterTag('twitter:description', 'Colorado Mountain Dog breeders & artisan sourdough bakery in Michigan. Premium CMDR puppies & fresh croissants.');
     updateOrCreateTwitterTag('twitter:image', '/logo.png');
     
@@ -81,7 +81,7 @@ export default function Home() {
     script.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "name": "Little Way Acres",
+      "name": "Little Way Acres - Farm, Bakery, Colorado Mountain Dogs",
       "description": "Premier Colorado Mountain Dog breeders and artisan sourdough bakery in Michigan",
       "url": window.location.origin,
       "logo": `${window.location.origin}/logo.png`,

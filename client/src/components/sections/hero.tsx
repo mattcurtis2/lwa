@@ -31,7 +31,7 @@ export default function Hero() {
       <div className="relative container mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
           <h1 className="text-5xl font-bold mb-6 drop-shadow-lg">
-            {heroText?.value || "Welcome to Little Way Acres"}
+            {heroText?.value || "Welcome to Little Way Acres - Farm, Bakery, Colorado Mountain Dogs"}
           </h1>
           <p className="text-xl mb-8 drop-shadow-md">
             {heroSubtext?.value || "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market."}
