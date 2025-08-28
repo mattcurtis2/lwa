@@ -39,7 +39,40 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Update page title and meta description for SEO - focusing on Colorado Mountain Dogs
+    const originalTitle = document.title;
+    const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    
+    if (genderFilter === 'female') {
+      document.title = 'Colorado Mountain Dog Females | CMDR Breeding Dogs | Little Way Acres';
+      updateMetaDescription('Meet our Colorado Mountain Dog females - exceptional CMDR breeding dogs known for their gentle temperament, intelligence, and livestock guardian abilities. View our breeding females.');
+    } else if (genderFilter === 'male') {
+      document.title = 'Colorado Mountain Dog Males | CMDR Breeding Dogs | Little Way Acres';
+      updateMetaDescription('Meet our Colorado Mountain Dog males - outstanding CMDR breeding dogs with proven bloodlines, gentle nature, and guardian instincts. View our breeding males.');
+    } else if (showAvailable) {
+      document.title = 'Available Colorado Mountain Dogs | CMDR Puppies & Dogs for Sale | Little Way Acres';
+      updateMetaDescription('Colorado Mountain Dog puppies and dogs available now. CMDR breed known for gentle temperament, intelligence, and livestock guardian abilities. Contact us about available dogs.');
+    } else {
+      document.title = 'Colorado Mountain Dogs | CMDR Breed Info & Our Dogs | Little Way Acres';
+      updateMetaDescription('Learn about Colorado Mountain Dogs (CMDR) - gentle giants perfect for livestock guardians and family companions. Meet our breeding dogs and learn why CMDRs are ideal for small farms.');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = originalTitle;
+      if (originalDescription) {
+        updateMetaDescription(originalDescription);
+      }
+    };
+  }, [genderFilter, showAvailable]);
+  
+  const updateMetaDescription = (description: string) => {
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', description);
+    }
+  };
 
   // Filter dogs based on gender, display setting, and filter out puppies, outside breeders, and available dogs
   // Available dogs should only be shown in the available section
