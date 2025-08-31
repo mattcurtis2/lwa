@@ -543,6 +543,7 @@ export default function ContentSection() {
             <TabsTrigger value="goats">Goats</TabsTrigger>
             <TabsTrigger value="sheep">Sheep</TabsTrigger>
             <TabsTrigger value="bees">Bees</TabsTrigger>
+            <TabsTrigger value="chickens">Chickens</TabsTrigger>
             <TabsTrigger value="market">Market</TabsTrigger>
           </TabsList>
         </div>
@@ -1880,6 +1881,623 @@ export default function ContentSection() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="chickens">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Chickens Page Content</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Hero Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Hero Section</h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_hero_title">Hero Title</Label>
+                      <Input
+                        id="chickens_hero_title"
+                        value={pendingContent.chickens_hero_title || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_hero_title", e.target.value)
+                        }
+                        placeholder="Premium Heritage Chickens"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_hero_subtitle">Hero Subtitle</Label>
+                      <Input
+                        id="chickens_hero_subtitle"
+                        value={pendingContent.chickens_hero_subtitle || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_hero_subtitle", e.target.value)
+                        }
+                        placeholder="Raising colorful heritage breeds..."
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_hero_description">Hero Description</Label>
+                    <Textarea
+                      id="chickens_hero_description"
+                      value={pendingContent.chickens_hero_description || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_hero_description", e.target.value)
+                      }
+                      placeholder="Discover our carefully selected heritage chicken breeds..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_hero_image">Hero Image</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="chickens_hero_image"
+                        value={pendingContent.chickens_hero_image || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_hero_image", e.target.value)
+                        }
+                        placeholder="Image URL"
+                      />
+                      <div className="min-w-fit">
+                        <FileUpload
+                          onFileUpload={(url) =>
+                            handleContentChange("chickens_hero_image", url)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Our Purpose Section */}
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="text-lg font-semibold">Our Purpose Section</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_purpose_title">Purpose Title</Label>
+                    <Input
+                      id="chickens_purpose_title"
+                      value={pendingContent.chickens_purpose_title || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_purpose_title", e.target.value)
+                      }
+                      placeholder="Our Purpose"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_purpose_text">Purpose Text</Label>
+                    <Textarea
+                      id="chickens_purpose_text"
+                      value={pendingContent.chickens_purpose_text || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_purpose_text", e.target.value)
+                      }
+                      placeholder="Our chicken breeding program focuses on..."
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_purpose_image">Purpose Section Image</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="chickens_purpose_image"
+                        value={pendingContent.chickens_purpose_image || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_purpose_image", e.target.value)
+                        }
+                        placeholder="Purpose section image URL"
+                      />
+                      <div className="min-w-fit">
+                        <FileUpload
+                          onFileUpload={(url) =>
+                            handleContentChange("chickens_purpose_image", url)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Breeding Goals Section */}
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="text-lg font-semibold">Breeding Goals Section</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_goals_title">Goals Title</Label>
+                    <Input
+                      id="chickens_goals_title"
+                      value={pendingContent.chickens_goals_title || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_goals_title", e.target.value)
+                      }
+                      placeholder="Our Breeding Goals"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_goals_subtitle">Goals Subtitle</Label>
+                    <Input
+                      id="chickens_goals_subtitle"
+                      value={pendingContent.chickens_goals_subtitle || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_goals_subtitle", e.target.value)
+                      }
+                      placeholder="We prioritize health, productivity, and genetic diversity"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_goals_description">Goals Description</Label>
+                    <Textarea
+                      id="chickens_goals_description"
+                      value={pendingContent.chickens_goals_description || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_goals_description", e.target.value)
+                      }
+                      placeholder="Through careful breeding practices..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  {/* Breeding Goal Cards */}
+                  <div className="space-y-6 border-t pt-4">
+                    <h4 className="font-medium text-green-800">Breeding Goal Cards</h4>
+                    
+                    {/* Goal 1 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Goal 1 - Heritage Breed Preservation</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal1_title">Goal 1 Title</Label>
+                          <Input
+                            id="chickens_goal1_title"
+                            value={pendingContent.chickens_goal1_title || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal1_title", e.target.value)
+                            }
+                            placeholder="Heritage Breed Preservation"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal1_subtitle">Goal 1 Subtitle</Label>
+                          <Input
+                            id="chickens_goal1_subtitle"
+                            value={pendingContent.chickens_goal1_subtitle || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal1_subtitle", e.target.value)
+                            }
+                            placeholder="Genetic Conservation"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal1_description">Goal 1 Description</Label>
+                        <Textarea
+                          id="chickens_goal1_description"
+                          value={pendingContent.chickens_goal1_description || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_goal1_description", e.target.value)
+                          }
+                          placeholder="Maintain and expand our collection..."
+                          rows={3}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal1_image">Goal 1 Image</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="chickens_goal1_image"
+                            value={pendingContent.chickens_goal1_image || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal1_image", e.target.value)
+                            }
+                            placeholder="Goal 1 image URL"
+                          />
+                          <div className="min-w-fit">
+                            <FileUpload
+                              onFileUpload={(url) =>
+                                handleContentChange("chickens_goal1_image", url)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Goal 2 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Goal 2 - Rainbow Egg Collection</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal2_title">Goal 2 Title</Label>
+                          <Input
+                            id="chickens_goal2_title"
+                            value={pendingContent.chickens_goal2_title || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal2_title", e.target.value)
+                            }
+                            placeholder="Rainbow Egg Collection"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal2_subtitle">Goal 2 Subtitle</Label>
+                          <Input
+                            id="chickens_goal2_subtitle"
+                            value={pendingContent.chickens_goal2_subtitle || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal2_subtitle", e.target.value)
+                            }
+                            placeholder="Color Diversity"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal2_description">Goal 2 Description</Label>
+                        <Textarea
+                          id="chickens_goal2_description"
+                          value={pendingContent.chickens_goal2_description || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_goal2_description", e.target.value)
+                          }
+                          placeholder="Develop flocks that produce eggs in a stunning array..."
+                          rows={3}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal2_image">Goal 2 Image</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="chickens_goal2_image"
+                            value={pendingContent.chickens_goal2_image || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal2_image", e.target.value)
+                            }
+                            placeholder="Goal 2 image URL"
+                          />
+                          <div className="min-w-fit">
+                            <FileUpload
+                              onFileUpload={(url) =>
+                                handleContentChange("chickens_goal2_image", url)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Goal 3 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Goal 3 - Sustainable Production</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal3_title">Goal 3 Title</Label>
+                          <Input
+                            id="chickens_goal3_title"
+                            value={pendingContent.chickens_goal3_title || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal3_title", e.target.value)
+                            }
+                            placeholder="Sustainable Production"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_goal3_subtitle">Goal 3 Subtitle</Label>
+                          <Input
+                            id="chickens_goal3_subtitle"
+                            value={pendingContent.chickens_goal3_subtitle || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal3_subtitle", e.target.value)
+                            }
+                            placeholder="Productivity & Welfare"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal3_description">Goal 3 Description</Label>
+                        <Textarea
+                          id="chickens_goal3_description"
+                          value={pendingContent.chickens_goal3_description || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_goal3_description", e.target.value)
+                          }
+                          placeholder="Breed for consistent, high-volume egg production..."
+                          rows={3}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_goal3_image">Goal 3 Image</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="chickens_goal3_image"
+                            value={pendingContent.chickens_goal3_image || ""}
+                            onChange={(e) =>
+                              handleContentChange("chickens_goal3_image", e.target.value)
+                            }
+                            placeholder="Goal 3 image URL"
+                          />
+                          <div className="min-w-fit">
+                            <FileUpload
+                              onFileUpload={(url) =>
+                                handleContentChange("chickens_goal3_image", url)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Products Section */}
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="text-lg font-semibold">Products Section</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_products_title">Products Title</Label>
+                    <Input
+                      id="chickens_products_title"
+                      value={pendingContent.chickens_products_title || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_products_title", e.target.value)
+                      }
+                      placeholder="What We Offer"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_products_subtitle">Products Subtitle</Label>
+                    <Input
+                      id="chickens_products_subtitle"
+                      value={pendingContent.chickens_products_subtitle || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_products_subtitle", e.target.value)
+                      }
+                      placeholder="From our chicken program, we provide"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_products_description">Products Description</Label>
+                    <Textarea
+                      id="chickens_products_description"
+                      value={pendingContent.chickens_products_description || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_products_description", e.target.value)
+                      }
+                      placeholder="Our heritage chickens provide fresh eggs daily..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chickens_products_footer">Products Footer</Label>
+                    <Input
+                      id="chickens_products_footer"
+                      value={pendingContent.chickens_products_footer || ""}
+                      onChange={(e) =>
+                        handleContentChange("chickens_products_footer", e.target.value)
+                      }
+                      placeholder="Contact us for availability..."
+                    />
+                  </div>
+                  
+                  {/* Product Badges */}
+                  <div className="space-y-4 border-t pt-4">
+                    <h4 className="font-medium text-green-800">Product Badges</h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_product_badge1">Product Badge 1</Label>
+                        <Input
+                          id="chickens_product_badge1"
+                          value={pendingContent.chickens_product_badge1 || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_product_badge1", e.target.value)
+                          }
+                          placeholder="Fresh Eggs"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_product_badge2">Product Badge 2</Label>
+                        <Input
+                          id="chickens_product_badge2"
+                          value={pendingContent.chickens_product_badge2 || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_product_badge2", e.target.value)
+                          }
+                          placeholder="Heritage Chicks"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_product_badge3">Product Badge 3</Label>
+                        <Input
+                          id="chickens_product_badge3"
+                          value={pendingContent.chickens_product_badge3 || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_product_badge3", e.target.value)
+                          }
+                          placeholder="Breeding Stock"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_product_badge4">Product Badge 4</Label>
+                        <Input
+                          id="chickens_product_badge4"
+                          value={pendingContent.chickens_product_badge4 || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_product_badge4", e.target.value)
+                          }
+                          placeholder="Hatching Eggs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product Cards */}
+                <div className="space-y-6 border-t pt-4">
+                  <h3 className="text-lg font-semibold">Product Cards</h3>
+                  
+                  {/* Fresh Eggs Card */}
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-green-800">Fresh Eggs</h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_eggs_title">Eggs Title</Label>
+                        <Input
+                          id="chickens_eggs_title"
+                          value={pendingContent.chickens_eggs_title || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_eggs_title", e.target.value)
+                          }
+                          placeholder="Fresh Eggs"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_eggs_icon">Eggs Icon (Emoji)</Label>
+                        <Input
+                          id="chickens_eggs_icon"
+                          value={pendingContent.chickens_eggs_icon || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_eggs_icon", e.target.value)
+                          }
+                          placeholder="🥚"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_eggs_description">Eggs Description</Label>
+                      <Textarea
+                        id="chickens_eggs_description"
+                        value={pendingContent.chickens_eggs_description || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_eggs_description", e.target.value)
+                        }
+                        placeholder="Farm-fresh eggs collected daily..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Heritage Chicks Card */}
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-green-800">Heritage Chicks</h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_chicks_title">Chicks Title</Label>
+                        <Input
+                          id="chickens_chicks_title"
+                          value={pendingContent.chickens_chicks_title || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_chicks_title", e.target.value)
+                          }
+                          placeholder="Heritage Chicks"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_chicks_icon">Chicks Icon (Emoji)</Label>
+                        <Input
+                          id="chickens_chicks_icon"
+                          value={pendingContent.chickens_chicks_icon || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_chicks_icon", e.target.value)
+                          }
+                          placeholder="🐣"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_chicks_description">Chicks Description</Label>
+                      <Textarea
+                        id="chickens_chicks_description"
+                        value={pendingContent.chickens_chicks_description || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_chicks_description", e.target.value)
+                        }
+                        placeholder="Day-old heritage breed chicks..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Breeding Stock Card */}
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-green-800">Breeding Stock</h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_breeding_title">Breeding Title</Label>
+                        <Input
+                          id="chickens_breeding_title"
+                          value={pendingContent.chickens_breeding_title || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_breeding_title", e.target.value)
+                          }
+                          placeholder="Breeding Stock"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_breeding_icon">Breeding Icon (Emoji)</Label>
+                        <Input
+                          id="chickens_breeding_icon"
+                          value={pendingContent.chickens_breeding_icon || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_breeding_icon", e.target.value)
+                          }
+                          placeholder="🐓"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_breeding_description">Breeding Description</Label>
+                      <Textarea
+                        id="chickens_breeding_description"
+                        value={pendingContent.chickens_breeding_description || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_breeding_description", e.target.value)
+                        }
+                        placeholder="Carefully selected adult birds..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Hatching Eggs Card */}
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-green-800">Hatching Eggs</h4>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_hatching_title">Hatching Title</Label>
+                        <Input
+                          id="chickens_hatching_title"
+                          value={pendingContent.chickens_hatching_title || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_hatching_title", e.target.value)
+                          }
+                          placeholder="Hatching Eggs"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_hatching_icon">Hatching Icon (Emoji)</Label>
+                        <Input
+                          id="chickens_hatching_icon"
+                          value={pendingContent.chickens_hatching_icon || ""}
+                          onChange={(e) =>
+                            handleContentChange("chickens_hatching_icon", e.target.value)
+                          }
+                          placeholder="🪺"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="chickens_hatching_description">Hatching Description</Label>
+                      <Textarea
+                        id="chickens_hatching_description"
+                        value={pendingContent.chickens_hatching_description || ""}
+                        onChange={(e) =>
+                          handleContentChange("chickens_hatching_description", e.target.value)
+                        }
+                        placeholder="Fertile eggs from our breeding program..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
 
