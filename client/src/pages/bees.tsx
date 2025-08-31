@@ -52,17 +52,15 @@ export default function BeesPage() {
       </section>
 
       {/* Content Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          
-          {/* Purpose Section */}
-          <div className="mb-16 py-16 -mx-4" style={{ backgroundColor: '#FDF7EB' }}>
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">Our Purpose</h2>
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
+      <section className="py-0" style={{ backgroundColor: '#FDF7EB' }}>
+        {/* Purpose Section */}
+        <div className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">Our Purpose</h2>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Left Side - Content */}
                 <div className="p-8 md:p-12 flex flex-col justify-center">
@@ -115,11 +113,14 @@ export default function BeesPage() {
                   <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/10"></div>
                 </div>
               </div>
-              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Goals Section */}
+      {/* Goals Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
           <div className="mb-16">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
@@ -191,31 +192,32 @@ export default function BeesPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-          </div>
-
-          {/* Products Coming Soon Section */}
-          <div className="mt-16">
-            <div className="rounded-lg p-8 text-center" style={{ backgroundColor: '#FDF7EB' }}>
-              <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">🍯</span>
-              </div>
-              <h2 className="text-3xl font-bold text-stone-800 mb-4">Honey & Bee Products Coming Soon!</h2>
-              <p className="text-lg text-stone-600 mb-6 max-w-2xl mx-auto">
-                We're currently establishing our hives and working toward our first honey harvest. Our raw, unfiltered honey and other bee products will be available at our farmers market soon.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2 mb-4">
-                <Badge variant="secondary" className="text-sm">Raw Honey</Badge>
-                <Badge variant="secondary" className="text-sm">Beeswax</Badge>
-                <Badge variant="secondary" className="text-sm">Propolis</Badge>
-                <Badge variant="secondary" className="text-sm">Honey Comb</Badge>
-              </div>
-              <div className="text-sm text-stone-500">
-                Check back soon or contact us for updates on our honey availability.
-              </div>
             </div>
           </div>
+        </div>
+      </section>
 
+      {/* Products Coming Soon Section */}
+      <section className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-3xl">🍯</span>
+            </div>
+            <h2 className="text-3xl font-bold text-stone-800 mb-4">Honey & Bee Products Coming Soon!</h2>
+            <p className="text-lg text-stone-600 mb-6 max-w-2xl mx-auto">
+              We're currently establishing our hives and working toward our first honey harvest. Our raw, unfiltered honey and other bee products will be available at our farmers market soon.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
+              <Badge variant="secondary" className="text-sm">Raw Honey</Badge>
+              <Badge variant="secondary" className="text-sm">Beeswax</Badge>
+              <Badge variant="secondary" className="text-sm">Propolis</Badge>
+              <Badge variant="secondary" className="text-sm">Honey Comb</Badge>
+            </div>
+            <div className="text-sm text-stone-500">
+              Check back soon or contact us for updates on our honey availability.
+            </div>
+          </div>
         </div>
       </section>
     </div>
