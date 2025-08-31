@@ -57,72 +57,63 @@ export default function BeesPage() {
           
           {/* Purpose Section */}
           <div className="mb-16">
-            <div className="relative flex py-5 items-center mb-8">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Purpose</h2>
-              <div className="flex-grow border-t border-gray-200"></div>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">Our Purpose</h2>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="bg-amber-50 border-amber-200 overflow-hidden">
-                <div className="relative h-32">
+            <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Left Side - Content */}
+                <div className="p-8 md:p-12 flex flex-col justify-center">
+                  <div className="space-y-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">🍯</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">Honey Production</h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          To produce pure, raw honey that captures the essence of our local flora and provides natural sweetness for our community.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">🌸</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">Pollination Support</h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          To pollinate our fruit trees and garden, increasing yields and supporting the biodiversity of our farm ecosystem.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">🐝</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">Bee Beautiful</h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          To maintain healthy, thriving bee colonies that add beauty and wonder to our farm while contributing to environmental health.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side - Image */}
+                <div className="relative h-80 md:h-auto">
                   <img
                     src="https://images.unsplash.com/photo-1471943311424-646960669fbc"
-                    alt="Honey production"
+                    alt="Beekeeper working with hives"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-amber-600/20"></div>
+                  <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/10"></div>
                 </div>
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🍯</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-stone-800 mb-3">Honey Production</h3>
-                  <p className="text-stone-700 leading-relaxed">
-                    To produce pure, raw honey that captures the essence of our local flora and provides natural sweetness for our community.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-green-50 border-green-200 overflow-hidden">
-                <div className="relative h-32">
-                  <img
-                    src="https://images.unsplash.com/photo-1595131057938-30b1f04c4d95"
-                    alt="Bee pollinating flowers"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-green-600/20"></div>
-                </div>
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🌸</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-stone-800 mb-3">Pollination</h3>
-                  <p className="text-stone-700 leading-relaxed">
-                    To pollinate our fruit trees and garden, increasing yields and supporting the biodiversity of our farm ecosystem.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-blue-50 border-blue-200 overflow-hidden">
-                <div className="relative h-32">
-                  <img
-                    src="https://images.unsplash.com/photo-1558618047-b2571ee45b4d"
-                    alt="Beautiful bee hives"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-blue-600/20"></div>
-                </div>
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🐝</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-stone-800 mb-3">Bee Beautiful</h3>
-                  <p className="text-stone-700 leading-relaxed">
-                    To maintain healthy, thriving bee colonies that add beauty and wonder to our farm while contributing to environmental health.
-                  </p>
-                </CardContent>
-              </Card>
+              </div>
             </div>
           </div>
 
