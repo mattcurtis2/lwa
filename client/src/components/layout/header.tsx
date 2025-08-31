@@ -15,9 +15,9 @@ export default function Header() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            {/* CMDs */}
+            {/* Colorado Mountain Dogs */}
             <Link href="/dogs" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
-              CMDs
+              Colorado Mountain Dogs
             </Link>
 
             {/* Goats */}
