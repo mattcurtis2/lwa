@@ -2708,6 +2708,7 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       '/sheep/males',
       '/sheep/females',
       '/sheep/available',
+      '/bees',
       '/market',
       '/market/bakery',
       '/market/animal-products',

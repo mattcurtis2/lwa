@@ -35,6 +35,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { CartProvider } from "@/contexts/cart-context";
 import { useEffect } from "react";
+import BeesPage from "./pages/bees";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -131,6 +132,8 @@ function Router() {
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/order-confirmation" component={OrderConfirmation} />
+          {/* Bees Route */}
+          <Route path="/bees" component={BeesPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

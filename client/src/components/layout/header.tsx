@@ -276,6 +276,11 @@ export default function Header() {
               </div>
             </div>
 
+            {/* Bees Link */}
+            <Link href="/bees" className="text-stone-700 hover:text-stone-900 font-medium transition-colors">
+              Bees
+            </Link>
+
             {/* Apparel Link */}
             <Link href="/market/apparel">
               <span className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium cursor-pointer">

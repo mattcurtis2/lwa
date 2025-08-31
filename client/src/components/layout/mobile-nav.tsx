@@ -1,4 +1,3 @@
-
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -186,6 +185,30 @@ export default function MobileNav() {
                 </a>
               </Link>
             )}
+          </div>
+
+          {/* Bees */}
+          <div className="flex flex-col gap-2">
+            <Link href="/bees">
+              <a onClick={handleSelect} className="block px-2 py-1 text-lg font-medium text-stone-600 hover:text-stone-900">
+                Bees
+              </a>
+            </Link>
+            <Link href="/bees">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Purpose
+              </a>
+            </Link>
+            <Link href="/bees">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Goals
+              </a>
+            </Link>
+            <Link href="/bees">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Products
+              </a>
+            </Link>
           </div>
 
           {/* Farmers Market */}
