@@ -229,6 +229,11 @@ export default function Header() {
               Bakery
             </Link>
 
+            {/* Chickens */}
+            <Link href="/chickens" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+              Chickens
+            </Link>
+
             {/* Bees */}
             <Link href="/bees" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
               Bees
