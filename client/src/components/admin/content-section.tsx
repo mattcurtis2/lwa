@@ -542,6 +542,7 @@ export default function ContentSection() {
             <TabsTrigger value="dogs">Dogs</TabsTrigger>
             <TabsTrigger value="goats">Goats</TabsTrigger>
             <TabsTrigger value="sheep">Sheep</TabsTrigger>
+            <TabsTrigger value="bees">Bees</TabsTrigger>
             <TabsTrigger value="market">Market</TabsTrigger>
           </TabsList>
         </div>
@@ -1327,6 +1328,406 @@ export default function ContentSection() {
                       placeholder="Enter ewes description"
                     />
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="bees" className="space-y-6">
+          <div className="space-y-6">
+            {/* Hero Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Bees Hero Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Hero Title</Label>
+                  <Input
+                    value={getContentValue("bees_hero_title") || "Our Bees"}
+                    onChange={(e) => handleContentChange("bees_hero_title", e.target.value)}
+                    placeholder="Enter hero title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Description</Label>
+                  <Textarea
+                    value={getContentValue("bees_page_description") || "Our beekeeping program focuses on developing mite-resistant, winter-hardy Michigan bees while producing high-quality honey and supporting our farm's pollination needs."}
+                    onChange={(e) => handleContentChange("bees_page_description", e.target.value)}
+                    placeholder="Enter hero description"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Background Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("bees_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("bees_image")}
+                  />
+                  {getContentValue("bees_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("bees_image")}
+                        alt="Bees Hero Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue("bees_image"));
+                          setShowCropper(true);
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Purpose Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Purpose Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Purpose Section Title</Label>
+                  <Input
+                    value={getContentValue("bees_purpose_title") || "Our Purpose"}
+                    onChange={(e) => handleContentChange("bees_purpose_title", e.target.value)}
+                    placeholder="Enter purpose section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Purpose Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("bees_purpose_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("bees_purpose_image")}
+                  />
+                  {getContentValue("bees_purpose_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("bees_purpose_image")}
+                        alt="Purpose Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue("bees_purpose_image"));
+                          setShowCropper(true);
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                    </div>
+                  )}
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Honey Production - Title</Label>
+                    <Input
+                      value={getContentValue("bees_honey_title") || "Honey Production"}
+                      onChange={(e) => handleContentChange("bees_honey_title", e.target.value)}
+                      placeholder="Enter honey production title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Honey Production - Icon</Label>
+                    <Input
+                      value={getContentValue("bees_honey_icon") || "🍯"}
+                      onChange={(e) => handleContentChange("bees_honey_icon", e.target.value)}
+                      placeholder="Enter emoji icon"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Honey Production - Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_honey_description") || "To produce pure, raw honey that captures the essence of our local flora and provides natural sweetness for our community."}
+                      onChange={(e) => handleContentChange("bees_honey_description", e.target.value)}
+                      placeholder="Enter honey production description"
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Pollination Support - Title</Label>
+                    <Input
+                      value={getContentValue("bees_pollination_title") || "Pollination Support"}
+                      onChange={(e) => handleContentChange("bees_pollination_title", e.target.value)}
+                      placeholder="Enter pollination title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Pollination Support - Icon</Label>
+                    <Input
+                      value={getContentValue("bees_pollination_icon") || "🌸"}
+                      onChange={(e) => handleContentChange("bees_pollination_icon", e.target.value)}
+                      placeholder="Enter emoji icon"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Pollination Support - Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_pollination_description") || "To pollinate our fruit trees and garden, increasing yields and supporting the biodiversity of our farm ecosystem."}
+                      onChange={(e) => handleContentChange("bees_pollination_description", e.target.value)}
+                      placeholder="Enter pollination description"
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Bee Beautiful - Title</Label>
+                    <Input
+                      value={getContentValue("bees_beautiful_title") || "Bee Beautiful"}
+                      onChange={(e) => handleContentChange("bees_beautiful_title", e.target.value)}
+                      placeholder="Enter bee beautiful title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bee Beautiful - Icon</Label>
+                    <Input
+                      value={getContentValue("bees_beautiful_icon") || "🐝"}
+                      onChange={(e) => handleContentChange("bees_beautiful_icon", e.target.value)}
+                      placeholder="Enter emoji icon"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bee Beautiful - Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_beautiful_description") || "To maintain healthy, thriving bee colonies that add beauty and wonder to our farm while contributing to environmental health."}
+                      onChange={(e) => handleContentChange("bees_beautiful_description", e.target.value)}
+                      placeholder="Enter bee beautiful description"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Goals Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Beekeeping Goals Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Goals Section Title</Label>
+                  <Input
+                    value={getContentValue("bees_goals_title") || "Our Beekeeping Goals"}
+                    onChange={(e) => handleContentChange("bees_goals_title", e.target.value)}
+                    placeholder="Enter goals section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Goals Section Description</Label>
+                  <Textarea
+                    value={getContentValue("bees_goals_description") || "We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate."}
+                    onChange={(e) => handleContentChange("bees_goals_description", e.target.value)}
+                    placeholder="Enter goals section description"
+                  />
+                </div>
+                
+                {/* Goal 1: Mite Resistance */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h4 className="font-semibold">Goal 1: Mite Resistance Development</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Goal 1 Title</Label>
+                      <Input
+                        value={getContentValue("bees_goal1_title") || "Mite Resistance Development"}
+                        onChange={(e) => handleContentChange("bees_goal1_title", e.target.value)}
+                        placeholder="Enter goal 1 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 1 Subtitle</Label>
+                      <Input
+                        value={getContentValue("bees_goal1_subtitle") || "Building Natural Immunity"}
+                        onChange={(e) => handleContentChange("bees_goal1_subtitle", e.target.value)}
+                        placeholder="Enter goal 1 subtitle"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_goal1_description") || "Develop and introduce mite-resistant genetics to create stronger, healthier bee colonies that can naturally defend against varroa mites and other pests."}
+                      onChange={(e) => handleContentChange("bees_goal1_description", e.target.value)}
+                      placeholder="Enter goal 1 description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("bees_goal1_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("bees_goal1_image")}
+                    />
+                  </div>
+                </div>
+
+                {/* Goal 2: Winter Hardy */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h4 className="font-semibold">Goal 2: Winter Hardy Michigan Bees</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Goal 2 Title</Label>
+                      <Input
+                        value={getContentValue("bees_goal2_title") || "Winter Hardy Michigan Bees"}
+                        onChange={(e) => handleContentChange("bees_goal2_title", e.target.value)}
+                        placeholder="Enter goal 2 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 2 Subtitle</Label>
+                      <Input
+                        value={getContentValue("bees_goal2_subtitle") || "Cold Climate Adaptation"}
+                        onChange={(e) => handleContentChange("bees_goal2_subtitle", e.target.value)}
+                        placeholder="Enter goal 2 subtitle"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_goal2_description") || "Select for winter-hardy traits that allow our bees to thrive in Michigan's harsh winters, reducing losses and building sustainable colonies."}
+                      onChange={(e) => handleContentChange("bees_goal2_description", e.target.value)}
+                      placeholder="Enter goal 2 description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("bees_goal2_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("bees_goal2_image")}
+                    />
+                  </div>
+                </div>
+
+                {/* Goal 3: Honey Production */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h4 className="font-semibold">Goal 3: Honey Production Excellence</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Goal 3 Title</Label>
+                      <Input
+                        value={getContentValue("bees_goal3_title") || "Honey Production Excellence"}
+                        onChange={(e) => handleContentChange("bees_goal3_title", e.target.value)}
+                        placeholder="Enter goal 3 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 3 Subtitle</Label>
+                      <Input
+                        value={getContentValue("bees_goal3_subtitle") || "Premium Quality Focus"}
+                        onChange={(e) => handleContentChange("bees_goal3_subtitle", e.target.value)}
+                        placeholder="Enter goal 3 subtitle"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Description</Label>
+                    <Textarea
+                      value={getContentValue("bees_goal3_description") || "Produce hives that love building honey, focusing on genetics that promote strong honey production and efficient comb building."}
+                      onChange={(e) => handleContentChange("bees_goal3_description", e.target.value)}
+                      placeholder="Enter goal 3 description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("bees_goal3_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("bees_goal3_image")}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Products Coming Soon Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Products Coming Soon Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Products Section Title</Label>
+                  <Input
+                    value={getContentValue("bees_products_title") || "Honey & Bee Products Coming Soon!"}
+                    onChange={(e) => handleContentChange("bees_products_title", e.target.value)}
+                    placeholder="Enter products section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Products Section Description</Label>
+                  <Textarea
+                    value={getContentValue("bees_products_description") || "We're currently establishing our hives and working toward our first honey harvest. Our raw, unfiltered honey and other bee products will be available at our farmers market soon."}
+                    onChange={(e) => handleContentChange("bees_products_description", e.target.value)}
+                    placeholder="Enter products section description"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Products Footer Message</Label>
+                  <Input
+                    value={getContentValue("bees_products_footer") || "Check back soon or contact us for updates on our honey availability."}
+                    onChange={(e) => handleContentChange("bees_products_footer", e.target.value)}
+                    placeholder="Enter products footer message"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Product Badge 1</Label>
+                  <Input
+                    value={getContentValue("bees_product_badge_1") || "Raw Honey"}
+                    onChange={(e) => handleContentChange("bees_product_badge_1", e.target.value)}
+                    placeholder="Enter first product badge"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Product Badge 2</Label>
+                  <Input
+                    value={getContentValue("bees_product_badge_2") || "Beeswax"}
+                    onChange={(e) => handleContentChange("bees_product_badge_2", e.target.value)}
+                    placeholder="Enter second product badge"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Product Badge 3</Label>
+                  <Input
+                    value={getContentValue("bees_product_badge_3") || "Propolis"}
+                    onChange={(e) => handleContentChange("bees_product_badge_3", e.target.value)}
+                    placeholder="Enter third product badge"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Product Badge 4</Label>
+                  <Input
+                    value={getContentValue("bees_product_badge_4") || "Honey Comb"}
+                    onChange={(e) => handleContentChange("bees_product_badge_4", e.target.value)}
+                    placeholder="Enter fourth product badge"
+                  />
                 </div>
               </CardContent>
             </Card>
