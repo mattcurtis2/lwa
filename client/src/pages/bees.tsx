@@ -118,77 +118,79 @@ export default function BeesPage() {
           </div>
 
           {/* Goals Section */}
-          <div className="mb-16">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
-              <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-                We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate.
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
-                <div className="relative h-40 overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1558618047-b0c8cdda7b9b"
-                    alt="Healthy bee colony"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Mite Resistance Development</h3>
-                  <p className="text-stone-700 leading-relaxed mb-4">
-                    Develop and introduce mite-resistant genetics to create stronger, healthier bee colonies that can naturally defend against varroa mites and other pests.
-                  </p>
-                  <div className="flex items-center text-[#3F6A52] font-medium">
-                    <span className="text-sm">Building Natural Immunity</span>
-                    <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+          <div className="mb-16 py-16 -mx-4" style={{ backgroundColor: '#FDF7EB' }}>
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
+                <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+                  We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1558618047-b0c8cdda7b9b"
+                      alt="Healthy bee colony"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Mite Resistance Development</h3>
+                    <p className="text-stone-700 leading-relaxed mb-4">
+                      Develop and introduce mite-resistant genetics to create stronger, healthier bee colonies that can naturally defend against varroa mites and other pests.
+                    </p>
+                    <div className="flex items-center text-[#3F6A52] font-medium">
+                      <span className="text-sm">Building Natural Immunity</span>
+                      <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
-                <div className="relative h-40 overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1547036967-23d11aacaee0"
-                    alt="Winter beehive in snow"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Winter Hardy Michigan Bees</h3>
-                  <p className="text-stone-700 leading-relaxed mb-4">
-                    Select for winter-hardy traits that allow our bees to thrive in Michigan's harsh winters, reducing losses and building sustainable colonies.
-                  </p>
-                  <div className="flex items-center text-[#3F6A52] font-medium">
-                    <span className="text-sm">Cold Climate Adaptation</span>
-                    <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1547036967-23d11aacaee0"
+                      alt="Winter beehive in snow"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Winter Hardy Michigan Bees</h3>
+                    <p className="text-stone-700 leading-relaxed mb-4">
+                      Select for winter-hardy traits that allow our bees to thrive in Michigan's harsh winters, reducing losses and building sustainable colonies.
+                    </p>
+                    <div className="flex items-center text-[#3F6A52] font-medium">
+                      <span className="text-sm">Cold Climate Adaptation</span>
+                      <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
-                <div className="relative h-40 overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1587049352846-4a222e784d38"
-                    alt="Honeycomb construction"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Honey Production Excellence</h3>
-                  <p className="text-stone-700 leading-relaxed mb-4">
-                    Produce hives that love building honey, focusing on genetics that promote strong honey production and efficient comb building.
-                  </p>
-                  <div className="flex items-center text-[#3F6A52] font-medium">
-                    <span className="text-sm">Premium Quality Focus</span>
-                    <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1587049352846-4a222e784d38"
+                      alt="Honeycomb construction"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Honey Production Excellence</h3>
+                    <p className="text-stone-700 leading-relaxed mb-4">
+                      Produce hives that love building honey, focusing on genetics that promote strong honey production and efficient comb building.
+                    </p>
+                    <div className="flex items-center text-[#3F6A52] font-medium">
+                      <span className="text-sm">Premium Quality Focus</span>
+                      <div className="ml-2 w-2 h-2 bg-[#3F6A52] rounded-full animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
 
