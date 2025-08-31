@@ -1964,24 +1964,31 @@ export default function ContentSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="chickens_hero_image">Hero Image</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="chickens_hero_image"
-                        value={pendingContent.chickens_hero_image || ""}
-                        onChange={(e) =>
-                          handleContentChange("chickens_hero_image", e.target.value)
+                    <Label>Hero Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("chickens_hero_image", imageUrl);
+                          });
                         }
-                        placeholder="Image URL"
-                      />
-                      <div className="min-w-fit">
-                        <FileUpload
-                          onFileUpload={(url) =>
-                            handleContentChange("chickens_hero_image", url)
-                          }
+                      }}
+                      currentImageUrl={getContentValue("chickens_hero_image")}
+                    />
+                    {getContentValue("chickens_hero_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("chickens_hero_image")}
+                          alt="Chickens Hero Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("chickens_hero_image"));
+                            setShowCropper(true);
+                          }}
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
@@ -2012,24 +2019,26 @@ export default function ContentSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="chickens_purpose_image">Purpose Section Image</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="chickens_purpose_image"
-                        value={pendingContent.chickens_purpose_image || ""}
-                        onChange={(e) =>
-                          handleContentChange("chickens_purpose_image", e.target.value)
+                    <Label>Purpose Section Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("chickens_purpose_image", imageUrl);
+                          });
                         }
-                        placeholder="Purpose section image URL"
-                      />
-                      <div className="min-w-fit">
-                        <FileUpload
-                          onFileUpload={(url) =>
-                            handleContentChange("chickens_purpose_image", url)
-                          }
+                      }}
+                      currentImageUrl={getContentValue("chickens_purpose_image")}
+                    />
+                    {getContentValue("chickens_purpose_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("chickens_purpose_image")}
+                          alt="Chickens Purpose Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover"
                         />
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
@@ -2115,24 +2124,26 @@ export default function ContentSection() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="chickens_goal1_image">Goal 1 Image</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="chickens_goal1_image"
-                            value={pendingContent.chickens_goal1_image || ""}
-                            onChange={(e) =>
-                              handleContentChange("chickens_goal1_image", e.target.value)
+                        <Label>Goal 1 Image</Label>
+                        <PrincipleDropzone
+                          onDrop={(files) => {
+                            if (files[0]) {
+                              handleFileUpload(files[0]).then(imageUrl => {
+                                handleContentChange("chickens_goal1_image", imageUrl);
+                              });
                             }
-                            placeholder="Goal 1 image URL"
-                          />
-                          <div className="min-w-fit">
-                            <FileUpload
-                              onFileUpload={(url) =>
-                                handleContentChange("chickens_goal1_image", url)
-                              }
+                          }}
+                          currentImageUrl={getContentValue("chickens_goal1_image")}
+                        />
+                        {getContentValue("chickens_goal1_image") && (
+                          <div className="relative group">
+                            <img
+                              src={getContentValue("chickens_goal1_image")}
+                              alt="Goal 1 Preview"
+                              className="mt-4 rounded-lg max-h-48 object-cover"
                             />
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
 
@@ -2176,24 +2187,26 @@ export default function ContentSection() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="chickens_goal2_image">Goal 2 Image</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="chickens_goal2_image"
-                            value={pendingContent.chickens_goal2_image || ""}
-                            onChange={(e) =>
-                              handleContentChange("chickens_goal2_image", e.target.value)
+                        <Label>Goal 2 Image</Label>
+                        <PrincipleDropzone
+                          onDrop={(files) => {
+                            if (files[0]) {
+                              handleFileUpload(files[0]).then(imageUrl => {
+                                handleContentChange("chickens_goal2_image", imageUrl);
+                              });
                             }
-                            placeholder="Goal 2 image URL"
-                          />
-                          <div className="min-w-fit">
-                            <FileUpload
-                              onFileUpload={(url) =>
-                                handleContentChange("chickens_goal2_image", url)
-                              }
+                          }}
+                          currentImageUrl={getContentValue("chickens_goal2_image")}
+                        />
+                        {getContentValue("chickens_goal2_image") && (
+                          <div className="relative group">
+                            <img
+                              src={getContentValue("chickens_goal2_image")}
+                              alt="Goal 2 Preview"
+                              className="mt-4 rounded-lg max-h-48 object-cover"
                             />
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
 
@@ -2237,24 +2250,26 @@ export default function ContentSection() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="chickens_goal3_image">Goal 3 Image</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="chickens_goal3_image"
-                            value={pendingContent.chickens_goal3_image || ""}
-                            onChange={(e) =>
-                              handleContentChange("chickens_goal3_image", e.target.value)
+                        <Label>Goal 3 Image</Label>
+                        <PrincipleDropzone
+                          onDrop={(files) => {
+                            if (files[0]) {
+                              handleFileUpload(files[0]).then(imageUrl => {
+                                handleContentChange("chickens_goal3_image", imageUrl);
+                              });
                             }
-                            placeholder="Goal 3 image URL"
-                          />
-                          <div className="min-w-fit">
-                            <FileUpload
-                              onFileUpload={(url) =>
-                                handleContentChange("chickens_goal3_image", url)
-                              }
+                          }}
+                          currentImageUrl={getContentValue("chickens_goal3_image")}
+                        />
+                        {getContentValue("chickens_goal3_image") && (
+                          <div className="relative group">
+                            <img
+                              src={getContentValue("chickens_goal3_image")}
+                              alt="Goal 3 Preview"
+                              className="mt-4 rounded-lg max-h-48 object-cover"
                             />
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
