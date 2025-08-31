@@ -145,19 +145,9 @@ export default function BeesPage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <div className="w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-[#3F6A52] font-bold text-lg">01</span>
-                    </div>
-                  </div>
                 </div>
-                <CardContent className="p-6 relative">
-                  <div className="absolute -top-6 right-6">
-                    <div className="w-12 h-12 bg-[#3F6A52] rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-2xl">🛡️</span>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3 pr-16">Mite Resistance Development</h3>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Mite Resistance Development</h3>
                   <p className="text-stone-700 leading-relaxed mb-4">
                     Develop and introduce mite-resistant genetics to create stronger, healthier bee colonies that can naturally defend against varroa mites and other pests.
                   </p>
@@ -176,19 +166,9 @@ export default function BeesPage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <div className="w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-[#3F6A52] font-bold text-lg">02</span>
-                    </div>
-                  </div>
                 </div>
-                <CardContent className="p-6 relative">
-                  <div className="absolute -top-6 right-6">
-                    <div className="w-12 h-12 bg-[#3F6A52] rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-2xl">❄️</span>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3 pr-16">Winter Hardy Michigan Bees</h3>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Winter Hardy Michigan Bees</h3>
                   <p className="text-stone-700 leading-relaxed mb-4">
                     Select for winter-hardy traits that allow our bees to thrive in Michigan's harsh winters, reducing losses and building sustainable colonies.
                   </p>
@@ -207,19 +187,9 @@ export default function BeesPage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <div className="w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-[#3F6A52] font-bold text-lg">03</span>
-                    </div>
-                  </div>
                 </div>
-                <CardContent className="p-6 relative">
-                  <div className="absolute -top-6 right-6">
-                    <div className="w-12 h-12 bg-[#3F6A52] rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-2xl">🍯</span>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3 pr-16">Honey Production Excellence</h3>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">Honey Production Excellence</h3>
                   <p className="text-stone-700 leading-relaxed mb-4">
                     Produce hives that love building honey, focusing on genetics that promote strong honey production and efficient comb building.
                   </p>
