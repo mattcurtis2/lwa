@@ -10,7 +10,6 @@ export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
   const [isGoatDropdownOpen, setIsGoatDropdownOpen] = useState(false);
   const [isSheepDropdownOpen, setIsSheepDropdownOpen] = useState(false);
-  const [isBakeryDropdownOpen, setIsBakeryDropdownOpen] = useState(false);
   const { getTotalItems } = useCart();
 
   // Fetch sheep data to determine what links to show
@@ -225,40 +224,10 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Bakery Dropdown */}
-            <div className="relative">
-              <Link href="/market/bakery">
-                <button
-                  onMouseEnter={() => setIsBakeryDropdownOpen(true)}
-                  onMouseLeave={() => setIsBakeryDropdownOpen(false)}
-                  className="text-stone-600 hover:text-stone-900 transition-colors duration-75 font-medium py-2 px-1 cursor-pointer"
-                >
-                  Bakery
-                </button>
-              </Link>
-              <div 
-                className={`absolute bg-white/95 backdrop-blur-sm border border-stone-200 shadow-xl w-56 py-2 mt-2 right-0 transition-opacity duration-75 ${
-                  isBakeryDropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                }`}
-                onMouseEnter={() => setIsBakeryDropdownOpen(true)}
-                onMouseLeave={() => setIsBakeryDropdownOpen(false)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsBakeryDropdownOpen(false);
-                }}
-              >
-                <Link href="/market/bakery">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    About
-                  </a>
-                </Link>
-                <Link href="/market/animal-products">
-                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Animal Products
-                  </a>
-                </Link>
-              </div>
-            </div>
+            {/* Bakery */}
+            <Link href="/bakery" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+              Bakery
+            </Link>
 
             {/* Bees */}
             <Link href="/bees" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
