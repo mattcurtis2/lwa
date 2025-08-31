@@ -65,7 +65,7 @@ export default function BeesPage() {
             
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="bg-amber-50 border-amber-200 overflow-hidden">
-                <div className="relative h-48">
+                <div className="relative h-32">
                   <img
                     src="https://images.unsplash.com/photo-1471943311424-646960669fbc"
                     alt="Honey production"
@@ -85,7 +85,7 @@ export default function BeesPage() {
               </Card>
 
               <Card className="bg-green-50 border-green-200 overflow-hidden">
-                <div className="relative h-48">
+                <div className="relative h-32">
                   <img
                     src="https://images.unsplash.com/photo-1595131057938-30b1f04c4d95"
                     alt="Bee pollinating flowers"
@@ -105,7 +105,7 @@ export default function BeesPage() {
               </Card>
 
               <Card className="bg-blue-50 border-blue-200 overflow-hidden">
-                <div className="relative h-48">
+                <div className="relative h-32">
                   <img
                     src="https://images.unsplash.com/photo-1558618047-b2571ee45b4d"
                     alt="Beautiful bee hives"
@@ -136,7 +136,7 @@ export default function BeesPage() {
             
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <Card className="bg-amber-50 border-amber-200 overflow-hidden">
-                <div className="relative h-32">
+                <div className="relative h-24">
                   <img
                     src="https://images.unsplash.com/photo-1558618047-b0c8cdda7b9b"
                     alt="Healthy bee colony"
@@ -160,7 +160,7 @@ export default function BeesPage() {
               </Card>
 
               <Card className="bg-blue-50 border-blue-200 overflow-hidden">
-                <div className="relative h-32">
+                <div className="relative h-24">
                   <img
                     src="https://images.unsplash.com/photo-1547036967-23d11aacaee0"
                     alt="Winter beehive in snow"
@@ -185,7 +185,7 @@ export default function BeesPage() {
 
               <div className="md:col-span-2 flex justify-center">
                 <Card className="bg-green-50 border-green-200 overflow-hidden max-w-md">
-                  <div className="relative h-32">
+                  <div className="relative h-24">
                     <img
                       src="https://images.unsplash.com/photo-1587049352846-4a222e784d38"
                       alt="Honeycomb construction"
