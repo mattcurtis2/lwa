@@ -185,6 +185,40 @@ const HeroDropzone = ({ onDrop }: { onDrop: (file: File) => void }) => {
   );
 };
 
+const FileUpload = ({ onFileUpload }: { onFileUpload: (url: string) => void }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: async (files) => {
+      const file = files[0];
+      if (!file) return;
+      try {
+        const url = await uploadFileToS3(file);
+        onFileUpload(url);
+      } catch (error) {
+        console.error('Upload failed:', error);
+      }
+    },
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+    },
+    multiple: false,
+  });
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className={cn(
+        "relative overflow-hidden",
+        isDragActive && "bg-accent"
+      )}
+      {...getRootProps()}
+    >
+      <input {...getInputProps()} />
+      <Upload className="h-4 w-4 mr-2" />
+      Upload
+    </Button>
+  );
+};
+
 export default function ContentSection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
