@@ -29,7 +29,7 @@ export default function LitterBanner() {
       onClick={() => navigate(`/dogs/litters/${visibleLitter.id}`)}
       className="bg-gradient-to-br from-amber-100 via-amber-200 to-amber-100 border-y border-amber-200 cursor-pointer hover:bg-gradient-to-br hover:from-amber-50 hover:via-amber-100 hover:to-amber-50 transition-colors"
     >
-      <div className="container mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto px-4">
         <div className="min-h-[100px] py-4 flex items-center">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-12">

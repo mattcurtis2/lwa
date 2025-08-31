@@ -28,7 +28,7 @@ export default function Hero() {
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
-      <div className="relative container mx-auto px-4 h-full flex items-center">
+      <div className="relative w-full max-w-7xl mx-auto px-4 h-full flex items-center">
         <div className="max-w-2xl text-white">
           <h1 className="text-5xl font-bold mb-6 drop-shadow-lg">
             {heroText?.value || "Welcome to Little Way Acres"}

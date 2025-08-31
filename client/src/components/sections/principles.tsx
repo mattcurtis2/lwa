@@ -59,7 +59,7 @@ export default function Principles() {
         </svg>
       </div>
 
-      <div className="container mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto px-4">
         <motion.div 
           className="text-center mb-12"
           initial="initial"

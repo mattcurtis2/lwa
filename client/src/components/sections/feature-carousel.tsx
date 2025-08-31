@@ -69,13 +69,15 @@ export default function FeatureCarousel() {
               >
                 <div className="absolute inset-0 bg-black/50" />
                 <div className="absolute inset-0 flex items-center justify-center text-center p-4 md:p-6">
-                  <div className="max-w-2xl">
-                    <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-white mb-2 md:mb-4">
-                      {slide.title}
-                    </h2>
-                    <p className="text-sm md:text-lg lg:text-xl text-white/90 max-w-lg mx-auto">
-                      {slide.description}
-                    </p>
+                  <div className="w-full max-w-7xl mx-auto px-4">
+                    <div className="max-w-2xl mx-auto">
+                      <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-white mb-2 md:mb-4">
+                        {slide.title}
+                      </h2>
+                      <p className="text-sm md:text-lg lg:text-xl text-white/90 max-w-lg mx-auto">
+                        {slide.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
