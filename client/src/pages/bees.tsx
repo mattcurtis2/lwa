@@ -56,12 +56,13 @@ export default function BeesPage() {
         <div className="max-w-6xl mx-auto">
           
           {/* Purpose Section */}
-          <div className="mb-16">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">Our Purpose</h2>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
+          <div className="mb-16 py-16 -mx-4" style={{ backgroundColor: '#FDF7EB' }}>
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">Our Purpose</h2>
+              </div>
+              
+              <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Left Side - Content */}
                 <div className="p-8 md:p-12 flex flex-col justify-center">
@@ -114,21 +115,21 @@ export default function BeesPage() {
                   <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/10"></div>
                 </div>
               </div>
+              </div>
             </div>
           </div>
 
           {/* Goals Section */}
-          <div className="mb-16 py-16 -mx-4" style={{ backgroundColor: '#FDF7EB' }}>
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
-                <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-                  We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+          <div className="mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
+              <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+                We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src="https://images.unsplash.com/photo-1558618047-b0c8cdda7b9b"
@@ -149,7 +150,7 @@ export default function BeesPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src="https://images.unsplash.com/photo-1547036967-23d11aacaee0"
@@ -170,7 +171,7 @@ export default function BeesPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg bg-white">
+                <Card className="group hover:shadow-xl transition-all duration-300 border border-stone-200 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src="https://images.unsplash.com/photo-1587049352846-4a222e784d38"
@@ -191,7 +192,6 @@ export default function BeesPage() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
           </div>
 
           {/* Products Coming Soon Section */}
