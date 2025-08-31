@@ -119,34 +119,11 @@ export default function BeesPage() {
 
           {/* Goals Section */}
           <div className="mb-16">
-            <div className="relative mb-16">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="w-full h-full" style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                  backgroundSize: '60px 60px'
-                }}></div>
-              </div>
-              
-              {/* Content */}
-              <div className="relative text-center py-16">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 shadow-lg" style={{ backgroundColor: '#3F6A52' }}>
-                  <span className="text-3xl">🎯</span>
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-[#3F6A52] mb-6 leading-tight">
-                  Our Beekeeping Goals
-                </h2>
-                <div className="max-w-4xl mx-auto">
-                  <p className="text-xl text-stone-600 leading-relaxed mb-8">
-                    Building a sustainable future through innovative beekeeping practices, one hive at a time.
-                  </p>
-                  <div className="flex justify-center items-center space-x-4">
-                    <div className="h-px bg-[#3F6A52] w-16"></div>
-                    <div className="w-3 h-3 bg-[#3F6A52] rounded-full"></div>
-                    <div className="h-px bg-[#3F6A52] w-16"></div>
-                  </div>
-                </div>
-              </div>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">Our Beekeeping Goals</h2>
+              <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+                We're committed to developing sustainable, resilient bee colonies that thrive in Michigan's climate.
+              </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
