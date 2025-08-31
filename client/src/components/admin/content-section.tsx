@@ -1932,7 +1932,7 @@ export default function ContentSection() {
                       <Label htmlFor="chickens_hero_title">Hero Title</Label>
                       <Input
                         id="chickens_hero_title"
-                        value={pendingContent.chickens_hero_title || ""}
+                        value={getContentValue("chickens_hero_title")}
                         onChange={(e) =>
                           handleContentChange("chickens_hero_title", e.target.value)
                         }
@@ -1943,7 +1943,7 @@ export default function ContentSection() {
                       <Label htmlFor="chickens_hero_subtitle">Hero Subtitle</Label>
                       <Input
                         id="chickens_hero_subtitle"
-                        value={pendingContent.chickens_hero_subtitle || ""}
+                        value={getContentValue("chickens_hero_subtitle")}
                         onChange={(e) =>
                           handleContentChange("chickens_hero_subtitle", e.target.value)
                         }
@@ -1955,7 +1955,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_hero_description">Hero Description</Label>
                     <Textarea
                       id="chickens_hero_description"
-                      value={pendingContent.chickens_hero_description || ""}
+                      value={getContentValue("chickens_hero_description")}
                       onChange={(e) =>
                         handleContentChange("chickens_hero_description", e.target.value)
                       }
@@ -1999,7 +1999,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_purpose_title">Purpose Title</Label>
                     <Input
                       id="chickens_purpose_title"
-                      value={pendingContent.chickens_purpose_title || ""}
+                      value={getContentValue("chickens_purpose_title")}
                       onChange={(e) =>
                         handleContentChange("chickens_purpose_title", e.target.value)
                       }
@@ -2010,7 +2010,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_purpose_text">Purpose Text</Label>
                     <Textarea
                       id="chickens_purpose_text"
-                      value={pendingContent.chickens_purpose_text || ""}
+                      value={getContentValue("chickens_purpose_text")}
                       onChange={(e) =>
                         handleContentChange("chickens_purpose_text", e.target.value)
                       }
@@ -2049,7 +2049,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_goals_title">Goals Title</Label>
                     <Input
                       id="chickens_goals_title"
-                      value={pendingContent.chickens_goals_title || ""}
+                      value={getContentValue("chickens_goals_title")}
                       onChange={(e) =>
                         handleContentChange("chickens_goals_title", e.target.value)
                       }
@@ -2060,7 +2060,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_goals_subtitle">Goals Subtitle</Label>
                     <Input
                       id="chickens_goals_subtitle"
-                      value={pendingContent.chickens_goals_subtitle || ""}
+                      value={getContentValue("chickens_goals_subtitle")}
                       onChange={(e) =>
                         handleContentChange("chickens_goals_subtitle", e.target.value)
                       }
@@ -2071,7 +2071,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_goals_description">Goals Description</Label>
                     <Textarea
                       id="chickens_goals_description"
-                      value={pendingContent.chickens_goals_description || ""}
+                      value={getContentValue("chickens_goals_description")}
                       onChange={(e) =>
                         handleContentChange("chickens_goals_description", e.target.value)
                       }
@@ -2092,7 +2092,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal1_title">Goal 1 Title</Label>
                           <Input
                             id="chickens_goal1_title"
-                            value={pendingContent.chickens_goal1_title || ""}
+                            value={getContentValue("chickens_goal1_title")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal1_title", e.target.value)
                             }
@@ -2103,7 +2103,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal1_subtitle">Goal 1 Subtitle</Label>
                           <Input
                             id="chickens_goal1_subtitle"
-                            value={pendingContent.chickens_goal1_subtitle || ""}
+                            value={getContentValue("chickens_goal1_subtitle")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal1_subtitle", e.target.value)
                             }
@@ -2115,7 +2115,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_goal1_description">Goal 1 Description</Label>
                         <Textarea
                           id="chickens_goal1_description"
-                          value={pendingContent.chickens_goal1_description || ""}
+                          value={getContentValue("chickens_goal1_description")}
                           onChange={(e) =>
                             handleContentChange("chickens_goal1_description", e.target.value)
                           }
@@ -2155,7 +2155,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal2_title">Goal 2 Title</Label>
                           <Input
                             id="chickens_goal2_title"
-                            value={pendingContent.chickens_goal2_title || ""}
+                            value={getContentValue("chickens_goal2_title")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal2_title", e.target.value)
                             }
@@ -2166,7 +2166,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal2_subtitle">Goal 2 Subtitle</Label>
                           <Input
                             id="chickens_goal2_subtitle"
-                            value={pendingContent.chickens_goal2_subtitle || ""}
+                            value={getContentValue("chickens_goal2_subtitle")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal2_subtitle", e.target.value)
                             }
@@ -2178,7 +2178,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_goal2_description">Goal 2 Description</Label>
                         <Textarea
                           id="chickens_goal2_description"
-                          value={pendingContent.chickens_goal2_description || ""}
+                          value={getContentValue("chickens_goal2_description")}
                           onChange={(e) =>
                             handleContentChange("chickens_goal2_description", e.target.value)
                           }
@@ -2218,7 +2218,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal3_title">Goal 3 Title</Label>
                           <Input
                             id="chickens_goal3_title"
-                            value={pendingContent.chickens_goal3_title || ""}
+                            value={getContentValue("chickens_goal3_title")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal3_title", e.target.value)
                             }
@@ -2229,7 +2229,7 @@ export default function ContentSection() {
                           <Label htmlFor="chickens_goal3_subtitle">Goal 3 Subtitle</Label>
                           <Input
                             id="chickens_goal3_subtitle"
-                            value={pendingContent.chickens_goal3_subtitle || ""}
+                            value={getContentValue("chickens_goal3_subtitle")}
                             onChange={(e) =>
                               handleContentChange("chickens_goal3_subtitle", e.target.value)
                             }
@@ -2241,7 +2241,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_goal3_description">Goal 3 Description</Label>
                         <Textarea
                           id="chickens_goal3_description"
-                          value={pendingContent.chickens_goal3_description || ""}
+                          value={getContentValue("chickens_goal3_description")}
                           onChange={(e) =>
                             handleContentChange("chickens_goal3_description", e.target.value)
                           }
@@ -2282,7 +2282,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_products_title">Products Title</Label>
                     <Input
                       id="chickens_products_title"
-                      value={pendingContent.chickens_products_title || ""}
+                      value={getContentValue("chickens_products_title")}
                       onChange={(e) =>
                         handleContentChange("chickens_products_title", e.target.value)
                       }
@@ -2293,7 +2293,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_products_subtitle">Products Subtitle</Label>
                     <Input
                       id="chickens_products_subtitle"
-                      value={pendingContent.chickens_products_subtitle || ""}
+                      value={getContentValue("chickens_products_subtitle")}
                       onChange={(e) =>
                         handleContentChange("chickens_products_subtitle", e.target.value)
                       }
@@ -2304,7 +2304,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_products_description">Products Description</Label>
                     <Textarea
                       id="chickens_products_description"
-                      value={pendingContent.chickens_products_description || ""}
+                      value={getContentValue("chickens_products_description")}
                       onChange={(e) =>
                         handleContentChange("chickens_products_description", e.target.value)
                       }
@@ -2316,7 +2316,7 @@ export default function ContentSection() {
                     <Label htmlFor="chickens_products_footer">Products Footer</Label>
                     <Input
                       id="chickens_products_footer"
-                      value={pendingContent.chickens_products_footer || ""}
+                      value={getContentValue("chickens_products_footer")}
                       onChange={(e) =>
                         handleContentChange("chickens_products_footer", e.target.value)
                       }
@@ -2332,7 +2332,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_product_badge1">Product Badge 1</Label>
                         <Input
                           id="chickens_product_badge1"
-                          value={pendingContent.chickens_product_badge1 || ""}
+                          value={getContentValue("chickens_product_badge1")}
                           onChange={(e) =>
                             handleContentChange("chickens_product_badge1", e.target.value)
                           }
@@ -2343,7 +2343,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_product_badge2">Product Badge 2</Label>
                         <Input
                           id="chickens_product_badge2"
-                          value={pendingContent.chickens_product_badge2 || ""}
+                          value={getContentValue("chickens_product_badge2")}
                           onChange={(e) =>
                             handleContentChange("chickens_product_badge2", e.target.value)
                           }
@@ -2354,7 +2354,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_product_badge3">Product Badge 3</Label>
                         <Input
                           id="chickens_product_badge3"
-                          value={pendingContent.chickens_product_badge3 || ""}
+                          value={getContentValue("chickens_product_badge3")}
                           onChange={(e) =>
                             handleContentChange("chickens_product_badge3", e.target.value)
                           }
@@ -2365,7 +2365,7 @@ export default function ContentSection() {
                         <Label htmlFor="chickens_product_badge4">Product Badge 4</Label>
                         <Input
                           id="chickens_product_badge4"
-                          value={pendingContent.chickens_product_badge4 || ""}
+                          value={getContentValue("chickens_product_badge4")}
                           onChange={(e) =>
                             handleContentChange("chickens_product_badge4", e.target.value)
                           }
