@@ -133,12 +133,12 @@ export default function Header() {
                 </Link>
                 <Link href="/goats/males">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Males
+                    Bucks
                   </a>
                 </Link>
                 <Link href="/goats/females">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                    Females
+                    Does
                   </a>
                 </Link>
                 <Link href="/goats/litters/current">
