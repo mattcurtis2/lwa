@@ -224,11 +224,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Bakery */}
-            <Link href="/bakery" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
-              Bakery
-            </Link>
-
             {/* Chickens */}
             <Link href="/chickens" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
               Chickens
@@ -237,6 +232,11 @@ export default function Header() {
             {/* Bees */}
             <Link href="/bees" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
               Bees
+            </Link>
+
+            {/* Bakery */}
+            <Link href="/bakery" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+              Bakery
             </Link>
 
             {/* Apparel */}
