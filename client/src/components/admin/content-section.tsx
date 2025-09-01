@@ -1734,6 +1734,337 @@ export default function ContentSection() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Our Nigerian Dwarf Goats Program Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Nigerian Dwarf Goats Program Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Program Section Title</Label>
+                  <Input
+                    value={getContentValue("goats_program_title") || "Our Nigerian Dwarf Goats Program"}
+                    onChange={(e) => handleContentChange("goats_program_title", e.target.value)}
+                    placeholder="Enter program section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Program Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("goats_program_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("goats_program_image")}
+                  />
+                  {getContentValue("goats_program_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("goats_program_image")}
+                        alt="Program Image Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue("goats_program_image"));
+                          setShowCropper(true);
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Program Card 1 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Program Card 1: Premium Milk Production</h4>
+                  <div className="space-y-2">
+                    <Label>Card 1 Icon</Label>
+                    <Input
+                      value={getContentValue("goats_program_card1_icon") || "🥛"}
+                      onChange={(e) => handleContentChange("goats_program_card1_icon", e.target.value)}
+                      placeholder="Enter icon (emoji)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 1 Title</Label>
+                    <Input
+                      value={getContentValue("goats_program_card1_title") || "Premium Milk Production"}
+                      onChange={(e) => handleContentChange("goats_program_card1_title", e.target.value)}
+                      placeholder="Enter card title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 1 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_program_card1_description") || "Nigerian Dwarf goats produce rich, creamy milk perfect for drinking, cheese making, and soap production with high butterfat content."}
+                      onChange={(e) => handleContentChange("goats_program_card1_description", e.target.value)}
+                      placeholder="Enter card description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Program Card 2 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Program Card 2: Gentle Companions</h4>
+                  <div className="space-y-2">
+                    <Label>Card 2 Icon</Label>
+                    <Input
+                      value={getContentValue("goats_program_card2_icon") || "💚"}
+                      onChange={(e) => handleContentChange("goats_program_card2_icon", e.target.value)}
+                      placeholder="Enter icon (emoji)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 2 Title</Label>
+                    <Input
+                      value={getContentValue("goats_program_card2_title") || "Gentle Companions"}
+                      onChange={(e) => handleContentChange("goats_program_card2_title", e.target.value)}
+                      placeholder="Enter card title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 2 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_program_card2_description") || "Known for their friendly, docile temperaments, Nigerian Dwarf goats make excellent family pets and therapy animals."}
+                      onChange={(e) => handleContentChange("goats_program_card2_description", e.target.value)}
+                      placeholder="Enter card description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Program Card 3 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Program Card 3: Small Space Friendly</h4>
+                  <div className="space-y-2">
+                    <Label>Card 3 Icon</Label>
+                    <Input
+                      value={getContentValue("goats_program_card3_icon") || "🏠"}
+                      onChange={(e) => handleContentChange("goats_program_card3_icon", e.target.value)}
+                      placeholder="Enter icon (emoji)"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 3 Title</Label>
+                    <Input
+                      value={getContentValue("goats_program_card3_title") || "Small Space Friendly"}
+                      onChange={(e) => handleContentChange("goats_program_card3_title", e.target.value)}
+                      placeholder="Enter card title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Card 3 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_program_card3_description") || "Their compact size makes them perfect for small farms and homesteads, requiring less space while still providing excellent milk production."}
+                      onChange={(e) => handleContentChange("goats_program_card3_description", e.target.value)}
+                      placeholder="Enter card description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Our Breeding Goals Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Breeding Goals Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Goals Section Title</Label>
+                  <Input
+                    value={getContentValue("goats_goals_title") || "Our Breeding Goals"}
+                    onChange={(e) => handleContentChange("goats_goals_title", e.target.value)}
+                    placeholder="Enter goals section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Goals Section Description</Label>
+                  <Textarea
+                    value={getContentValue("goats_goals_description") || "We're developing a sustainable goat breeding program that prioritizes health, milk production, and gentle temperaments."}
+                    onChange={(e) => handleContentChange("goats_goals_description", e.target.value)}
+                    placeholder="Enter goals section description"
+                    className="min-h-[80px]"
+                  />
+                </div>
+
+                {/* Goal 1 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Goal 1: Superior Milk Quality</h4>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("goats_goal1_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("goats_goal1_image")}
+                    />
+                    {getContentValue("goats_goal1_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("goats_goal1_image")}
+                          alt="Goal 1 Image Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("goats_goal1_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Title</Label>
+                    <Input
+                      value={getContentValue("goats_goal1_title") || "Superior Milk Quality"}
+                      onChange={(e) => handleContentChange("goats_goal1_title", e.target.value)}
+                      placeholder="Enter goal title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_goal1_description") || "Breeding for goats that produce high-butterfat milk with excellent taste and nutritional value, perfect for artisan cheese and soap making."}
+                      onChange={(e) => handleContentChange("goats_goal1_description", e.target.value)}
+                      placeholder="Enter goal description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 1 Subtitle</Label>
+                    <Input
+                      value={getContentValue("goats_goal1_subtitle") || "Quality Genetics"}
+                      onChange={(e) => handleContentChange("goats_goal1_subtitle", e.target.value)}
+                      placeholder="Enter goal subtitle"
+                    />
+                  </div>
+                </div>
+
+                {/* Goal 2 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Goal 2: Health & Longevity</h4>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("goats_goal2_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("goats_goal2_image")}
+                    />
+                    {getContentValue("goats_goal2_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("goats_goal2_image")}
+                          alt="Goal 2 Image Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("goats_goal2_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Title</Label>
+                    <Input
+                      value={getContentValue("goats_goal2_title") || "Health & Longevity"}
+                      onChange={(e) => handleContentChange("goats_goal2_title", e.target.value)}
+                      placeholder="Enter goal title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_goal2_description") || "Selecting for robust health, disease resistance, and longevity to ensure our goats live happy, productive lives for many years."}
+                      onChange={(e) => handleContentChange("goats_goal2_description", e.target.value)}
+                      placeholder="Enter goal description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 2 Subtitle</Label>
+                    <Input
+                      value={getContentValue("goats_goal2_subtitle") || "Vitality & Wellness"}
+                      onChange={(e) => handleContentChange("goats_goal2_subtitle", e.target.value)}
+                      placeholder="Enter goal subtitle"
+                    />
+                  </div>
+                </div>
+
+                {/* Goal 3 */}
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <h4 className="font-semibold">Goal 3: Gentle Temperaments</h4>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Image</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("goats_goal3_image", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("goats_goal3_image")}
+                    />
+                    {getContentValue("goats_goal3_image") && (
+                      <div className="relative group">
+                        <img
+                          src={getContentValue("goats_goal3_image")}
+                          alt="Goal 3 Image Preview"
+                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                          onClick={() => {
+                            setCropImageUrl(getContentValue("goats_goal3_image"));
+                            setShowCropper(true);
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Title</Label>
+                    <Input
+                      value={getContentValue("goats_goal3_title") || "Gentle Temperaments"}
+                      onChange={(e) => handleContentChange("goats_goal3_title", e.target.value)}
+                      placeholder="Enter goal title"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Description</Label>
+                    <Textarea
+                      value={getContentValue("goats_goal3_description") || "Breeding for calm, friendly personalities that make our goats wonderful family companions and easy to handle for milking and care."}
+                      onChange={(e) => handleContentChange("goats_goal3_description", e.target.value)}
+                      placeholder="Enter goal description"
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Goal 3 Subtitle</Label>
+                    <Input
+                      value={getContentValue("goats_goal3_subtitle") || "Family Friendly"}
+                      onChange={(e) => handleContentChange("goats_goal3_subtitle", e.target.value)}
+                      placeholder="Enter goal subtitle"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
