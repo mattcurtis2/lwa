@@ -2065,6 +2065,32 @@ export default function ContentSection() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Explore Our Goats Navigation Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Explore Our Goats Navigation Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Explore Section Title</Label>
+                  <Input
+                    value={getContentValue("goats_explore_title") || "Explore Our Goats"}
+                    onChange={(e) => handleContentChange("goats_explore_title", e.target.value)}
+                    placeholder="Enter explore section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Explore Section Description</Label>
+                  <Textarea
+                    value={getContentValue("goats_explore_description") || "Discover our Nigerian Dwarf goat breeding program and meet our herd"}
+                    onChange={(e) => handleContentChange("goats_explore_description", e.target.value)}
+                    placeholder="Enter explore section description"
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 

@@ -497,40 +497,84 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
           </div>
         </div>
 
-        {/* Only show navigation buttons on main goats page */}
+        {/* Explore Our Goats Navigation Section - Only show on main goats page */}
         {!genderFilter && !showAvailable && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-            <Link href="/goats/males">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Males</span>
-                <span className="text-sm text-stone-500">View our bucks</span>
-              </Button>
-            </Link>
-
-            <Link href="/goats/females">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Females</span>
-                <span className="text-sm text-stone-500">View our does</span>
-              </Button>
-            </Link>
-
-            <Link href="/goats/available">
-              <Button
-                variant="outline"
-                className="w-full h-auto py-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-xl">Available</span>
-                <span className="text-sm text-stone-500">
-                  View goats available for sale
-                </span>
-              </Button>
-            </Link>
+          <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 py-16">
+            <div className="container mx-auto px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                    {siteContent.find(c => c.key === "goats_explore_title")?.value || "Explore Our Goats"}
+                  </h2>
+                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <p className="text-stone-600 mt-4 max-w-2xl mx-auto">
+                    {siteContent.find(c => c.key === "goats_explore_description")?.value || "Discover our Nigerian Dwarf goat breeding program and meet our herd"}
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-6">
+                  <Link href="/goats/males" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
+                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Bucks</h3>
+                      <p className="text-stone-600 mb-6">
+                        Meet our breeding bucks and learn about their genetics and characteristics
+                      </p>
+                      <div className="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
+                        View Bucks
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                  
+                  <Link href="/goats/females" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-200 transition-colors">
+                        <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Does</h3>
+                      <p className="text-stone-600 mb-6">
+                        Discover our breeding does and their contributions to our program
+                      </p>
+                      <div className="inline-flex items-center text-pink-600 font-semibold group-hover:text-pink-700">
+                        View Does
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                  
+                  <Link href="/goats/available" className="group">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
+                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Available Goats</h3>
+                      <p className="text-stone-600 mb-6">
+                        See our currently available goats ready for their new homes
+                      </p>
+                      <div className="inline-flex items-center text-green-600 font-semibold group-hover:text-green-700">
+                        View Available
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
