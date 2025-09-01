@@ -1489,6 +1489,157 @@ export default function ContentSection() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* FAQ Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Frequently Asked Questions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>FAQ Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_faq_title") || "Frequently Asked Questions"}
+                    onChange={(e) => handleContentChange("dogs_faq_title", e.target.value)}
+                    placeholder="FAQ section title"
+                  />
+                </div>
+                
+                <div className="grid gap-6">
+                  {/* FAQ 1 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 1: Size</h4>
+                    <div className="space-y-2">
+                      <Label>Question 1</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_1_question") || "How big do Colorado Mountain Dogs get?"}
+                        onChange={(e) => handleContentChange("dogs_faq_1_question", e.target.value)}
+                        placeholder="FAQ question 1"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 1</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_1_answer") || "CMDRs typically stand 26-34 inches at the shoulder and weigh 80-140 pounds. They have a tall, lean build that's athletic and agile, perfect for navigating rugged terrain while maintaining endurance."}
+                        onChange={(e) => handleContentChange("dogs_faq_1_answer", e.target.value)}
+                        placeholder="FAQ answer 1"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* FAQ 2 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 2: Children</h4>
+                    <div className="space-y-2">
+                      <Label>Question 2</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_2_question") || "Are CMDs good with children?"}
+                        onChange={(e) => handleContentChange("dogs_faq_2_question", e.target.value)}
+                        placeholder="FAQ question 2"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 2</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_2_answer") || "Absolutely! Colorado Mountain Dogs are exceptionally good with children. They're bred to be gentle, patient, and protective family guardians. Their natural instinct is to watch over and protect their \"flock,\" which includes children. Many CMD owners report that their dogs are incredibly tolerant of children's behavior and form deep, protective bonds with kids in the family."}
+                        onChange={(e) => handleContentChange("dogs_faq_2_answer", e.target.value)}
+                        placeholder="FAQ answer 2"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* FAQ 3 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 3: Other Pets</h4>
+                    <div className="space-y-2">
+                      <Label>Question 3</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_3_question") || "Are they good with other pets?"}
+                        onChange={(e) => handleContentChange("dogs_faq_3_question", e.target.value)}
+                        placeholder="FAQ question 3"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 3</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_3_answer") || "Yes! CMDRs are specifically bred to be gentle with family members, including other pets. They form strong bonds with their \"flock\" - whether that's livestock, family pets, or both. Their guardian instincts extend to protecting all members of their household."}
+                        onChange={(e) => handleContentChange("dogs_faq_3_answer", e.target.value)}
+                        placeholder="FAQ answer 3"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* FAQ 4 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 4: Barking</h4>
+                    <div className="space-y-2">
+                      <Label>Question 4</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_4_question") || "Do they bark a lot?"}
+                        onChange={(e) => handleContentChange("dogs_faq_4_question", e.target.value)}
+                        placeholder="FAQ question 4"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 4</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_4_answer") || "Unlike some traditional livestock guardian breeds, CMDRs are bred for minimal unnecessary barking. They're discerning protectors - alert and vocal when there's a real threat, but generally quiet during normal daily activities."}
+                        onChange={(e) => handleContentChange("dogs_faq_4_answer", e.target.value)}
+                        placeholder="FAQ answer 4"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* FAQ 5 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 5: Exercise</h4>
+                    <div className="space-y-2">
+                      <Label>Question 5</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_5_question") || "How much exercise do they need?"}
+                        onChange={(e) => handleContentChange("dogs_faq_5_question", e.target.value)}
+                        placeholder="FAQ question 5"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 5</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_5_answer") || "CMDRs are working dogs that thrive with regular activity and mental stimulation. They do best with access to space to patrol and explore, but don't require intense exercise like some high-energy breeds. A job to do is more important than miles of running."}
+                        onChange={(e) => handleContentChange("dogs_faq_5_answer", e.target.value)}
+                        placeholder="FAQ answer 5"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* FAQ 6 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">FAQ 6: Grooming</h4>
+                    <div className="space-y-2">
+                      <Label>Question 6</Label>
+                      <Input
+                        value={getContentValue("dogs_faq_6_question") || "What's their grooming requirements?"}
+                        onChange={(e) => handleContentChange("dogs_faq_6_question", e.target.value)}
+                        placeholder="FAQ question 6"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Answer 6</Label>
+                      <Textarea
+                        value={getContentValue("dogs_faq_6_answer") || "CMDRs have medium-length, weather-resistant white coats that are surprisingly low-maintenance. Regular brushing helps manage seasonal shedding, but their coats are designed to be self-cleaning and don't require frequent baths."}
+                        onChange={(e) => handleContentChange("dogs_faq_6_answer", e.target.value)}
+                        placeholder="FAQ answer 6"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
