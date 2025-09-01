@@ -302,7 +302,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               <section>
                 <div className="text-center mb-12">
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                    Why We Love Our Colorado Mountain Dogs
+                    {getContent("dogs_why_love_title") || "Why We Love Our Colorado Mountain Dogs"}
                   </h2>
                   <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                 </div>
@@ -311,24 +311,24 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <div className="space-y-6">
                     <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">
                       <p className="text-stone-700 leading-relaxed text-lg mb-6">
-                        Colorado Mountain Dogs represent the perfect balance of guardian instincts and family companionship. These remarkable dogs are gentle with children and livestock, yet fierce protectors when needed.
+                        {getContent("dogs_why_love_description") || "Colorado Mountain Dogs represent the perfect balance of guardian instincts and family companionship. These remarkable dogs are gentle with children and livestock, yet fierce protectors when needed."}
                       </p>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-stone-600">Loyal and devoted to family</span>
+                          <span className="text-stone-600">{getContent("dogs_trait_1") || "Loyal and devoted to family"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-stone-600">Excellent with children</span>
+                          <span className="text-stone-600">{getContent("dogs_trait_2") || "Excellent with children"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-stone-600">Natural livestock guardians</span>
+                          <span className="text-stone-600">{getContent("dogs_trait_3") || "Natural livestock guardians"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
                           <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-stone-600">Athletic and agile</span>
+                          <span className="text-stone-600">{getContent("dogs_trait_4") || "Athletic and agile"}</span>
                         </div>
                       </div>
                     </div>
@@ -337,22 +337,22 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
+                        src={getContent("dogs_why_love_image_1") || "https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg"}
                         alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
                       <div className="p-4">
-                        <p className="text-sm text-stone-600">Guardian & Family Companion</p>
+                        <p className="text-sm text-stone-600">{getContent("dogs_why_love_caption_1") || "Guardian & Family Companion"}</p>
                       </div>
                     </div>
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
+                        src={getContent("dogs_why_love_image_2") || "https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg"}
                         alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
                       <div className="p-4">
-                        <p className="text-sm text-stone-600">Livestock Protection Expert</p>
+                        <p className="text-sm text-stone-600">{getContent("dogs_why_love_caption_2") || "Livestock Protection Expert"}</p>
                       </div>
                     </div>
                   </div>
@@ -363,7 +363,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               <section>
                 <div className="text-center mb-12">
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                    Little Way Acres Breeding Goals
+                    {getContent("dogs_breeding_goals_title") || "Little Way Acres Breeding Goals"}
                   </h2>
                   <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                 </div>
@@ -377,9 +377,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             <span className="text-amber-600 font-bold text-lg">1</span>
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-stone-800 mb-2">Temperament Above Everything Else</h3>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_1_title") || "Temperament Above Everything Else"}</h3>
                             <p className="text-stone-700 leading-relaxed">
-                              We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision.
+                              {getContent("dogs_goal_1_description") || "We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision."}
                             </p>
                           </div>
                         </div>
@@ -389,9 +389,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             <span className="text-amber-600 font-bold text-lg">2</span>
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-stone-800 mb-2">Teachable</h3>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_2_title") || "Teachable"}</h3>
                             <p className="text-stone-700 leading-relaxed">
-                              We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits.
+                              {getContent("dogs_goal_2_description") || "We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits."}
                             </p>
                           </div>
                         </div>
@@ -401,9 +401,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             <span className="text-amber-600 font-bold text-lg">3</span>
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-stone-800 mb-2">Seamless Adoption of New Animals</h3>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_3_title") || "Seamless Adoption of New Animals"}</h3>
                             <p className="text-stone-700 leading-relaxed">
-                              As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm.
+                              {getContent("dogs_goal_3_description") || "As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm."}
                             </p>
                           </div>
                         </div>
@@ -413,9 +413,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                             <span className="text-amber-600 font-bold text-lg">4</span>
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-stone-800 mb-2">Beautifully Athletic</h3>
+                            <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_4_title") || "Beautifully Athletic"}</h3>
                             <p className="text-stone-700 leading-relaxed">
-                              Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program.
+                              {getContent("dogs_goal_4_description") || "Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program."}
                             </p>
                           </div>
                         </div>
@@ -425,7 +425,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <div className="space-y-4">
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src="https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg" 
+                          src={getContent("dogs_breeding_goals_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg"}
                           alt="Colorado Mountain Dog" 
                           className="w-full aspect-square object-cover"
                         />
@@ -439,7 +439,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               <section>
                 <div className="text-center mb-12">
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                    Who is a Good Fit for a CMDR?
+                    {getContent("dogs_good_fit_title") || "Who is a Good Fit for a CMDR?"}
                   </h2>
                   <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                 </div>
@@ -447,9 +447,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
                   <div className="grid lg:grid-cols-2 gap-8 items-center">
                     <div>
-                      <h3 className="text-2xl font-bold text-stone-800 mb-6">Perfect for Small Farms</h3>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-6">{getContent("dogs_good_fit_subtitle") || "Perfect for Small Farms"}</h3>
                       <p className="text-stone-700 leading-relaxed mb-6">
-                        Colorado Mountain Dogs were specifically developed for small farm operations where traditional livestock guardians might be too large, loud, or roaming. They excel in environments where close family bonds and selective protection are essential.
+                        {getContent("dogs_good_fit_description") || "Colorado Mountain Dogs were specifically developed for small farm operations where traditional livestock guardians might be too large, loud, or roaming. They excel in environments where close family bonds and selective protection are essential."}
                       </p>
                       
                       <div className="space-y-4">
@@ -459,7 +459,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <span className="text-stone-700">Small to medium-sized farms (1-20 acres)</span>
+                          <span className="text-stone-700">{getContent("dogs_good_fit_point_1") || "Small to medium-sized farms (1-20 acres)"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -467,7 +467,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <span className="text-stone-700">Families with children</span>
+                          <span className="text-stone-700">{getContent("dogs_good_fit_point_2") || "Families with children"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -475,7 +475,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <span className="text-stone-700">Goat, sheep, or poultry operations</span>
+                          <span className="text-stone-700">{getContent("dogs_good_fit_point_3") || "Goat, sheep, or poultry operations"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -483,19 +483,19 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
-                          <span className="text-stone-700">Active rural or suburban households</span>
+                          <span className="text-stone-700">{getContent("dogs_good_fit_point_4") || "Active rural or suburban households"}</span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src="https://lwacontent.s3.us-east-2.amazonaws.com/d0dffa6d-f0e3-4c6d-bbfe-03f9f54ecdb5-cropped-image-jpg.jpg" 
+                        src={getContent("dogs_good_fit_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/d0dffa6d-f0e3-4c6d-bbfe-03f9f54ecdb5-cropped-image-jpg.jpg"}
                         alt="Colorado Mountain Dog on farm" 
                         className="w-full h-64 object-cover"
                       />
                       <div className="p-4">
-                        <p className="text-sm text-stone-600">Protecting our small farm operation</p>
+                        <p className="text-sm text-stone-600">{getContent("dogs_good_fit_image_caption") || "Protecting our small farm operation"}</p>
                       </div>
                     </div>
                   </div>
@@ -506,11 +506,11 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               <section>
                 <div className="text-center mb-12">
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
-                    Explore Our Dogs
+                    {getContent("dogs_explore_title") || "Explore Our Dogs"}
                   </h2>
                   <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
                   <p className="text-stone-600 mt-4 max-w-2xl mx-auto">
-                    Discover our breeding program and meet our Colorado Mountain Dogs
+                    {getContent("dogs_explore_description") || "Discover our breeding program and meet our Colorado Mountain Dogs"}
                   </p>
                 </div>
                 

@@ -1084,97 +1084,408 @@ export default function ContentSection() {
 
         <TabsContent value="dogs" className="space-y-6">
           <div className="space-y-6">
+            {/* Hero Section */}
             <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
+              <CardHeader>
+                <CardTitle>Hero Section</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Hero Title</Label>
+                  <Input
+                    value={getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
+                    onChange={(e) => handleContentChange("dog_hero_title", e.target.value)}
+                    placeholder="Enter hero title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Subtitle</Label>
+                  <Textarea
+                    value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
+                    onChange={(e) => handleContentChange("dog_hero_subtitle", e.target.value)}
+                    placeholder="Enter hero subtitle"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hero Background Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("dog_hero_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("dog_hero_image")}
+                  />
+                  {getContentValue("dog_hero_image") && (
+                    <div className="relative group">
+                      <img
+                        src={getContentValue("dog_hero_image")}
+                        alt="Dogs Hero Preview"
+                        className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
+                        onClick={() => {
+                          setCropImageUrl(getContentValue("dog_hero_image"));
+                          setShowCropper(true);
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Why We Love Our Colorado Mountain Dogs Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Why We Love Our Colorado Mountain Dogs</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_why_love_title") || "Why We Love Our Colorado Mountain Dogs"}
+                    onChange={(e) => handleContentChange("dogs_why_love_title", e.target.value)}
+                    placeholder="Section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Main Description</Label>
+                  <Textarea
+                    value={getContentValue("dogs_why_love_description") || "Colorado Mountain Dogs represent the perfect balance of guardian instincts and family companionship. These remarkable dogs are gentle with children and livestock, yet fierce protectors when needed."}
+                    onChange={(e) => handleContentChange("dogs_why_love_description", e.target.value)}
+                    placeholder="Main description"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Hero Title</Label>
+                    <Label>Trait 1</Label>
                     <Input
-                      value={getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
-                      onChange={(e) => handleContentChange("dog_hero_title", e.target.value)}
-                      placeholder="Enter hero title"
+                      value={getContentValue("dogs_trait_1") || "Loyal and devoted to family"}
+                      onChange={(e) => handleContentChange("dogs_trait_1", e.target.value)}
+                      placeholder="First trait"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Hero Subtitle</Label>
-                    <Textarea
-                      value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
-                      onChange={(e) => handleContentChange("dog_hero_subtitle", e.target.value)}
-                      placeholder="Enter hero subtitle"
+                    <Label>Trait 2</Label>
+                    <Input
+                      value={getContentValue("dogs_trait_2") || "Excellent with children"}
+                      onChange={(e) => handleContentChange("dogs_trait_2", e.target.value)}
+                      placeholder="Second trait"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Hero Background Image</Label>
+                    <Label>Trait 3</Label>
+                    <Input
+                      value={getContentValue("dogs_trait_3") || "Natural livestock guardians"}
+                      onChange={(e) => handleContentChange("dogs_trait_3", e.target.value)}
+                      placeholder="Third trait"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Trait 4</Label>
+                    <Input
+                      value={getContentValue("dogs_trait_4") || "Athletic and agile"}
+                      onChange={(e) => handleContentChange("dogs_trait_4", e.target.value)}
+                      placeholder="Fourth trait"
+                    />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Image 1</Label>
                     <PrincipleDropzone
                       onDrop={(files) => {
                         if (files[0]) {
                           handleFileUpload(files[0]).then(imageUrl => {
-                            handleContentChange("dog_hero_image", imageUrl);
+                            handleContentChange("dogs_why_love_image_1", imageUrl);
                           });
                         }
                       }}
-                      currentImageUrl={getContentValue("dog_hero_image")}
+                      currentImageUrl={getContentValue("dogs_why_love_image_1")}
                     />
-                    {getContentValue("dog_hero_image") && (
-                      <div className="relative group">
-                        <img
-                          src={getContentValue("dog_hero_image")}
-                          alt="Dogs Hero Preview"
-                          className="mt-4 rounded-lg max-h-48 object-cover cursor-pointer"
-                          onClick={() => {
-                            setCropImageUrl(getContentValue("dog_hero_image"));
-                            setShowCropper(true);
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
-                      </div>
+                    {getContentValue("dogs_why_love_image_1") && (
+                      <img
+                        src={getContentValue("dogs_why_love_image_1")}
+                        alt="Why Love Image 1"
+                        className="mt-2 rounded-lg max-h-32 object-cover"
+                      />
                     )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Dogs Page Title</Label>
                     <Input
-                      value={getContentValue("dogs_page_title")}
-                      onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
+                      value={getContentValue("dogs_why_love_caption_1") || "Guardian & Family Companion"}
+                      onChange={(e) => handleContentChange("dogs_why_love_caption_1", e.target.value)}
+                      placeholder="Image 1 caption"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Dogs Page Description</Label>
-                    <Textarea
-                      value={getContentValue("dogs_page_description")}
-                      onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
+                    <Label>Image 2</Label>
+                    <PrincipleDropzone
+                      onDrop={(files) => {
+                        if (files[0]) {
+                          handleFileUpload(files[0]).then(imageUrl => {
+                            handleContentChange("dogs_why_love_image_2", imageUrl);
+                          });
+                        }
+                      }}
+                      currentImageUrl={getContentValue("dogs_why_love_image_2")}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Breeding Program Description</Label>
-                    <Textarea
-                      value={getContentValue("dogs_breeding_program")}
-                      onChange={(e) => handleContentChange("dogs_breeding_program", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Available Dogs Message</Label>
-                    <Textarea
-                      value={getContentValue("dogs_available_message")}
-                      onChange={(e) => handleContentChange("dogs_available_message", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Breed Description Title</Label>
+                    {getContentValue("dogs_why_love_image_2") && (
+                      <img
+                        src={getContentValue("dogs_why_love_image_2")}
+                        alt="Why Love Image 2"
+                        className="mt-2 rounded-lg max-h-32 object-cover"
+                      />
+                    )}
                     <Input
-                      value={getContentValue("dogs_page_title")}
-                      onChange={(e) => handleContentChange("dogs_page_title", e.target.value)}
-                      placeholder="Colorado Mountain Dogs"
+                      value={getContentValue("dogs_why_love_caption_2") || "Livestock Protection Expert"}
+                      onChange={(e) => handleContentChange("dogs_why_love_caption_2", e.target.value)}
+                      placeholder="Image 2 caption"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Little Way Acres Breeding Goals Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Little Way Acres Breeding Goals</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_breeding_goals_title") || "Little Way Acres Breeding Goals"}
+                    onChange={(e) => handleContentChange("dogs_breeding_goals_title", e.target.value)}
+                    placeholder="Section title"
+                  />
+                </div>
+                
+                <div className="grid gap-6">
+                  {/* Goal 1 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Goal 1: Temperament Above Everything Else</h4>
+                    <div className="space-y-2">
+                      <Label>Goal 1 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_goal_1_title") || "Temperament Above Everything Else"}
+                        onChange={(e) => handleContentChange("dogs_goal_1_title", e.target.value)}
+                        placeholder="Goal 1 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 1 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_goal_1_description") || "We want our dogs to be your children's favorite pillow. A gentle, calm disposition is our highest priority in every breeding decision."}
+                        onChange={(e) => handleContentChange("dogs_goal_1_description", e.target.value)}
+                        placeholder="Goal 1 description"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Goal 2 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Goal 2: Teachable</h4>
+                    <div className="space-y-2">
+                      <Label>Goal 2 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_goal_2_title") || "Teachable"}
+                        onChange={(e) => handleContentChange("dogs_goal_2_title", e.target.value)}
+                        placeholder="Goal 2 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 2 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_goal_2_description") || "We want smart dogs that will follow your lead in how your farm is operated. Intelligence and willingness to learn are essential traits."}
+                        onChange={(e) => handleContentChange("dogs_goal_2_description", e.target.value)}
+                        placeholder="Goal 2 description"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Goal 3 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Goal 3: Seamless Adoption of New Animals</h4>
+                    <div className="space-y-2">
+                      <Label>Goal 3 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_goal_3_title") || "Seamless Adoption of New Animals"}
+                        onChange={(e) => handleContentChange("dogs_goal_3_title", e.target.value)}
+                        placeholder="Goal 3 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 3 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_goal_3_description") || "As a small farmer, we're experimenting with different animals. Our CMDRs are bred and trained to adopt any animal you bring on your farm."}
+                        onChange={(e) => handleContentChange("dogs_goal_3_description", e.target.value)}
+                        placeholder="Goal 3 description"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Goal 4 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Goal 4: Beautifully Athletic</h4>
+                    <div className="space-y-2">
+                      <Label>Goal 4 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_goal_4_title") || "Beautifully Athletic"}
+                        onChange={(e) => handleContentChange("dogs_goal_4_title", e.target.value)}
+                        placeholder="Goal 4 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Goal 4 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_goal_4_description") || "Tall, lean, and ready to run. We prioritize physical fitness and graceful movement in our breeding program."}
+                        onChange={(e) => handleContentChange("dogs_goal_4_description", e.target.value)}
+                        placeholder="Goal 4 description"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Breeding Goals Side Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("dogs_breeding_goals_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("dogs_breeding_goals_image")}
+                  />
+                  {getContentValue("dogs_breeding_goals_image") && (
+                    <img
+                      src={getContentValue("dogs_breeding_goals_image")}
+                      alt="Breeding Goals Image"
+                      className="mt-2 rounded-lg max-h-48 object-cover"
+                    />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Who is a Good Fit Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Who is a Good Fit for a CMDR?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_good_fit_title") || "Who is a Good Fit for a CMDR?"}
+                    onChange={(e) => handleContentChange("dogs_good_fit_title", e.target.value)}
+                    placeholder="Section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Subtitle</Label>
+                  <Input
+                    value={getContentValue("dogs_good_fit_subtitle") || "Perfect for Small Farms"}
+                    onChange={(e) => handleContentChange("dogs_good_fit_subtitle", e.target.value)}
+                    placeholder="Subtitle"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Main Description</Label>
+                  <Textarea
+                    value={getContentValue("dogs_good_fit_description") || "Colorado Mountain Dogs were specifically developed for small farm operations where traditional livestock guardians might be too large, loud, or roaming. They excel in environments where close family bonds and selective protection are essential."}
+                    onChange={(e) => handleContentChange("dogs_good_fit_description", e.target.value)}
+                    placeholder="Main description"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Good Fit Point 1</Label>
+                    <Input
+                      value={getContentValue("dogs_good_fit_point_1") || "Small to medium-sized farms (1-20 acres)"}
+                      onChange={(e) => handleContentChange("dogs_good_fit_point_1", e.target.value)}
+                      placeholder="First good fit point"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Breed Description</Label>
-                    <Textarea
-                      value={getContentValue("dogs_page_description")}
-                      onChange={(e) => handleContentChange("dogs_page_description", e.target.value)}
-                      placeholder="Enter a description of the breed..."
-                      className="min-h-[150px]"
+                    <Label>Good Fit Point 2</Label>
+                    <Input
+                      value={getContentValue("dogs_good_fit_point_2") || "Families with children"}
+                      onChange={(e) => handleContentChange("dogs_good_fit_point_2", e.target.value)}
+                      placeholder="Second good fit point"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label>Good Fit Point 3</Label>
+                    <Input
+                      value={getContentValue("dogs_good_fit_point_3") || "Goat, sheep, or poultry operations"}
+                      onChange={(e) => handleContentChange("dogs_good_fit_point_3", e.target.value)}
+                      placeholder="Third good fit point"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Good Fit Point 4</Label>
+                    <Input
+                      value={getContentValue("dogs_good_fit_point_4") || "Active rural or suburban households"}
+                      onChange={(e) => handleContentChange("dogs_good_fit_point_4", e.target.value)}
+                      placeholder="Fourth good fit point"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Good Fit Section Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("dogs_good_fit_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("dogs_good_fit_image")}
+                  />
+                  {getContentValue("dogs_good_fit_image") && (
+                    <img
+                      src={getContentValue("dogs_good_fit_image")}
+                      alt="Good Fit Image"
+                      className="mt-2 rounded-lg max-h-48 object-cover"
+                    />
+                  )}
+                  <Input
+                    value={getContentValue("dogs_good_fit_image_caption") || "Protecting our small farm operation"}
+                    onChange={(e) => handleContentChange("dogs_good_fit_image_caption", e.target.value)}
+                    placeholder="Image caption"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Explore Our Dogs Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Explore Our Dogs Navigation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_explore_title") || "Explore Our Dogs"}
+                    onChange={(e) => handleContentChange("dogs_explore_title", e.target.value)}
+                    placeholder="Section title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Section Description</Label>
+                  <Textarea
+                    value={getContentValue("dogs_explore_description") || "Discover our breeding program and meet our Colorado Mountain Dogs"}
+                    onChange={(e) => handleContentChange("dogs_explore_description", e.target.value)}
+                    placeholder="Section description"
+                  />
                 </div>
               </CardContent>
             </Card>
