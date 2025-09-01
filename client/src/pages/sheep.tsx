@@ -592,7 +592,9 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
             </div>
             {filteredSheep.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-lg text-stone-600">No sheep found matching your criteria.</p>
+                <p className="text-lg text-stone-600">
+                  {showAvailable ? "Check back soon for available sheep!" : "No sheep found matching your criteria."}
+                </p>
               </div>
             )}
           </div>
