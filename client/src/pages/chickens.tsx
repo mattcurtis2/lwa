@@ -139,7 +139,7 @@ export default function Chickens() {
                 <img
                   src={getContent("chickens_goal1_image") || "https://images.unsplash.com/photo-1607205327669-0962adfd4e1d"}
                   alt="Colorful heritage chicken breeds"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-6">
@@ -164,7 +164,7 @@ export default function Chickens() {
                 <img
                   src={getContent("chickens_goal2_image") || "https://images.unsplash.com/photo-1563281577-a7be47e20db9"}
                   alt="Colorful chicken eggs in basket"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-6">
@@ -189,7 +189,7 @@ export default function Chickens() {
                 <img
                   src={getContent("chickens_goal3_image") || "https://images.unsplash.com/photo-1606978334925-5e5c7d36f3aa"}
                   alt="Free-range chickens in pasture"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-6">
