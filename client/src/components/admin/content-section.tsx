@@ -1465,6 +1465,91 @@ export default function ContentSection() {
               </CardContent>
             </Card>
 
+            {/* Our Placement Process Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Our Placement Process</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Section Title</Label>
+                  <Input
+                    value={getContentValue("dogs_placement_process_title") || "Our Placement Process"}
+                    onChange={(e) => handleContentChange("dogs_placement_process_title", e.target.value)}
+                    placeholder="Section title"
+                  />
+                </div>
+                
+                <div className="grid gap-6">
+                  {/* Step 1 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Step 1: Interest Form / Waitlist</h4>
+                    <div className="space-y-2">
+                      <Label>Step 1 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_placement_step_1_title") || "Interest Form / Waitlist"}
+                        onChange={(e) => handleContentChange("dogs_placement_step_1_title", e.target.value)}
+                        placeholder="Step 1 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Step 1 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_placement_step_1_description") || "Families begin by filling out our interest form or joining our waitlist. This helps us learn more about your needs—whether you're looking for a dedicated working guardian, a family companion, or both."}
+                        onChange={(e) => handleContentChange("dogs_placement_step_1_description", e.target.value)}
+                        placeholder="Step 1 description"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Step 2: Phone Conversation</h4>
+                    <div className="space-y-2">
+                      <Label>Step 2 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_placement_step_2_title") || "Phone Conversation"}
+                        onChange={(e) => handleContentChange("dogs_placement_step_2_title", e.target.value)}
+                        placeholder="Step 2 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Step 2 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_placement_step_2_description") || "We require a personal phone call with every prospective family. This gives us a chance to connect directly, answer questions, and make sure we're a good fit for one another."}
+                        onChange={(e) => handleContentChange("dogs_placement_step_2_description", e.target.value)}
+                        placeholder="Step 2 description"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Step 3: Pickup or Personal Delivery</h4>
+                    <div className="space-y-2">
+                      <Label>Step 3 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_placement_step_3_title") || "Pickup or Personal Delivery"}
+                        onChange={(e) => handleContentChange("dogs_placement_step_3_title", e.target.value)}
+                        placeholder="Step 3 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Step 3 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_placement_step_3_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
+                        onChange={(e) => handleContentChange("dogs_placement_step_3_description", e.target.value)}
+                        placeholder="Step 3 description"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Explore Our Dogs Section */}
             <Card>
               <CardHeader>
