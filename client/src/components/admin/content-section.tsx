@@ -2040,6 +2040,134 @@ export default function ContentSection() {
                       </div>
                     )}
                   </div>
+                  
+                  {/* Purpose Cards */}
+                  <div className="space-y-6 border-t pt-4">
+                    <h4 className="font-medium text-green-800">Purpose Cards</h4>
+                    
+                    {/* Purpose Card 1 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Card 1 - Fresh Farm Eggs</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card1_title">Card 1 Title</Label>
+                          <Input
+                            id="chickens_purpose_card1_title"
+                            value={getContentValue("chickens_purpose_card1_title")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card1_title", e.target.value)
+                            }
+                            placeholder="Fresh Farm Eggs"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card1_icon">Card 1 Icon (Emoji)</Label>
+                          <Input
+                            id="chickens_purpose_card1_icon"
+                            value={getContentValue("chickens_purpose_card1_icon")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card1_icon", e.target.value)
+                            }
+                            placeholder="🥚"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_purpose_card1_description">Card 1 Description</Label>
+                        <Textarea
+                          id="chickens_purpose_card1_description"
+                          value={getContentValue("chickens_purpose_card1_description")}
+                          onChange={(e) =>
+                            handleContentChange("chickens_purpose_card1_description", e.target.value)
+                          }
+                          placeholder="Daily collection of fresh, nutritious eggs..."
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Purpose Card 2 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Card 2 - Color Variety</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card2_title">Card 2 Title</Label>
+                          <Input
+                            id="chickens_purpose_card2_title"
+                            value={getContentValue("chickens_purpose_card2_title")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card2_title", e.target.value)
+                            }
+                            placeholder="Color Variety"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card2_icon">Card 2 Icon (Emoji)</Label>
+                          <Input
+                            id="chickens_purpose_card2_icon"
+                            value={getContentValue("chickens_purpose_card2_icon")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card2_icon", e.target.value)
+                            }
+                            placeholder="🌈"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_purpose_card2_description">Card 2 Description</Label>
+                        <Textarea
+                          id="chickens_purpose_card2_description"
+                          value={getContentValue("chickens_purpose_card2_description")}
+                          onChange={(e) =>
+                            handleContentChange("chickens_purpose_card2_description", e.target.value)
+                          }
+                          placeholder="Breeding for beautiful color diversity..."
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Purpose Card 3 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <h5 className="font-medium">Card 3 - High Production</h5>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card3_title">Card 3 Title</Label>
+                          <Input
+                            id="chickens_purpose_card3_title"
+                            value={getContentValue("chickens_purpose_card3_title")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card3_title", e.target.value)
+                            }
+                            placeholder="High Production"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chickens_purpose_card3_icon">Card 3 Icon (Emoji)</Label>
+                          <Input
+                            id="chickens_purpose_card3_icon"
+                            value={getContentValue("chickens_purpose_card3_icon")}
+                            onChange={(e) =>
+                              handleContentChange("chickens_purpose_card3_icon", e.target.value)
+                            }
+                            placeholder="📈"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chickens_purpose_card3_description">Card 3 Description</Label>
+                        <Textarea
+                          id="chickens_purpose_card3_description"
+                          value={getContentValue("chickens_purpose_card3_description")}
+                          onChange={(e) =>
+                            handleContentChange("chickens_purpose_card3_description", e.target.value)
+                          }
+                          placeholder="Selecting for hens that consistently lay..."
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Breeding Goals Section */}

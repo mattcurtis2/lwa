@@ -61,36 +61,45 @@ export default function Chickens() {
                 <div className="space-y-8">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
-                      <span className="text-2xl">🥚</span>
+                      <span className="text-2xl">{getContent("chickens_purpose_card1_icon") || "🥚"}</span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">Fresh Farm Eggs</h3>
+                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                        {getContent("chickens_purpose_card1_title") || "Fresh Farm Eggs"}
+                      </h3>
                       <p className="text-stone-600 text-sm leading-relaxed">
-                        Daily collection of fresh, nutritious eggs from our free-range hens for local families and farmers market sales.
+                        {getContent("chickens_purpose_card1_description") || 
+                          "Daily collection of fresh, nutritious eggs from our free-range hens for local families and farmers market sales."}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
-                      <span className="text-2xl">🌈</span>
+                      <span className="text-2xl">{getContent("chickens_purpose_card2_icon") || "🌈"}</span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">Color Variety</h3>
+                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                        {getContent("chickens_purpose_card2_title") || "Color Variety"}
+                      </h3>
                       <p className="text-stone-600 text-sm leading-relaxed">
-                        Breeding for beautiful color diversity in both our chickens and their eggs, from blue and green to brown and cream.
+                        {getContent("chickens_purpose_card2_description") || 
+                          "Breeding for beautiful color diversity in both our chickens and their eggs, from blue and green to brown and cream."}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
-                      <span className="text-2xl">📈</span>
+                      <span className="text-2xl">{getContent("chickens_purpose_card3_icon") || "📈"}</span>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">High Production</h3>
+                      <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                        {getContent("chickens_purpose_card3_title") || "High Production"}
+                      </h3>
                       <p className="text-stone-600 text-sm leading-relaxed">
-                        Selecting for hens that consistently lay large quantities of high-quality eggs throughout the year.
+                        {getContent("chickens_purpose_card3_description") || 
+                          "Selecting for hens that consistently lay large quantities of high-quality eggs throughout the year."}
                       </p>
                     </div>
                   </div>
