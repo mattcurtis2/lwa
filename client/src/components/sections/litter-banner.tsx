@@ -39,20 +39,13 @@ export default function LitterBanner() {
                   {visibleLitter.puppyCount > 0 ? "New Litter Available!" : "New Litter Coming Soon!"}
                 </div>
                 <p className="text-amber-800">
-                  {visibleLitter.isCurrentLitter && visibleLitter.isPlannedLitter ? (
-                    <span>Due: <span className="font-semibold">
-                      {format(parseApiDate(visibleLitter.dueDate), 'MMMM d, yyyy')}
-                    </span></span>
-                  ) : visibleLitter.puppyCount > 0 ? (
+                  {visibleLitter.puppyCount > 0 ? (
                     <span>Born: <span className="font-semibold">
-                      {formatDisplayDate(parseApiDate(visibleLitter.dueDate))}
+                      {format(parseApiDate(visibleLitter.dueDate), 'MMM d, yyyy')}
                     </span></span>
                   ) : (
-                    <span>Expected: <span className="font-semibold">
-                      {visibleLitter.expectedBreedingDate 
-                        ? format(parseApiDate(visibleLitter.expectedBreedingDate), 'MMM yyyy')
-                        : formatDisplayDate(parseApiDate(visibleLitter.dueDate))
-                      }
+                    <span>Due: <span className="font-semibold">
+                      {format(parseApiDate(visibleLitter.dueDate), 'MMM d, yyyy')}
                     </span></span>
                   )}
                 </p>
