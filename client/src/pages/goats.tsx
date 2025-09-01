@@ -634,58 +634,6 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
           </div>
         )}
 
-        {/* Show categorized sections on main page */}
-        {!genderFilter && !showAvailable && (
-          <div className="mt-16 space-y-16">
-            {/* Available Goats Section */}
-            {availableGoats.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Available Goats</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {availableGoats.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Females Section */}
-            {females.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Females</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {females.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Males Section */}
-            {males.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Males</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {males.map(goat => (
-                    <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
     </div>
   );
 }
