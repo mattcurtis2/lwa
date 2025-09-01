@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import type { Litter, Dog, DogMedia } from "@db/schema";
+import type { Litter, Dog, DogMedia, ContactInfo } from "@db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { parseApiDate } from "@/lib/date-utils";
+import { Heart, Mail } from "lucide-react";
 
 interface LitterWithRelations extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -19,6 +20,26 @@ export default function DogCurrentLitters() {
   const { data: litters, isLoading } = useQuery<LitterWithRelations[]>({
     queryKey: ['/api/litters/list/current'],
   });
+
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ['/api/contact-info'],
+  });
+
+  // Helper function to handle interest form button click
+  const handleInterestClick = (litter: LitterWithRelations, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent navigation to litter detail
+    
+    if (litter.waitlistLink) {
+      // Open existing waitlist link
+      window.open(litter.waitlistLink, '_blank');
+    } else if (contactInfo?.email) {
+      // Create email with pre-filled subject about this litter
+      const subject = `Interest in ${litter.mother?.name || "Unknown Dam"} × ${litter.father?.name || "Unknown Sire"} Litter`;
+      const body = `Hi! I'm interested in learning more about the litter from ${litter.mother?.name || "Unknown Dam"} and ${litter.father?.name || "Unknown Sire"} that's ${litter.puppies.length > 0 ? 'currently available' : 'expected on ' + format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}. Please let me know how I can get more information or join the waitlist.`;
+      const mailtoLink = `mailto:${contactInfo.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoLink;
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -298,19 +319,33 @@ export default function DogCurrentLitters() {
             >
               {/* Simple header banner */}
               <div className="bg-blue-50 p-4 border-b border-blue-100">
-                <span className="bg-blue-100 px-3 py-1 rounded-full text-blue-800 text-sm font-semibold">
-                  {litter.puppies.length > 0 ? "Current Litter" : "Upcoming Litter"}
-                </span>
-                <h3 className="text-xl font-semibold mt-2">
-                  {litter.puppies.length > 0 
-                    ? `${litter.puppies.length} ${litter.puppies.length === 1 ? "Puppy" : "Puppies"}` 
-                    : "Upcoming Litter"}
-                </h3>
-                <p className="text-muted-foreground">
-                  {litter.puppies.length > 0 
-                    ? `Born: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}` 
-                    : `Due: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}`}
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <span className="bg-blue-100 px-3 py-1 rounded-full text-blue-800 text-sm font-semibold">
+                      {litter.puppies.length > 0 ? "Current Litter" : "Upcoming Litter"}
+                    </span>
+                    <h3 className="text-xl font-semibold mt-2">
+                      {litter.puppies.length > 0 
+                        ? `${litter.puppies.length} ${litter.puppies.length === 1 ? "Puppy" : "Puppies"}` 
+                        : "Upcoming Litter"}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {litter.puppies.length > 0 
+                        ? `Born: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}` 
+                        : `Due: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}`}
+                    </p>
+                  </div>
+                  
+                  {/* Interest Form Button */}
+                  <Button
+                    onClick={(e) => handleInterestClick(litter, e)}
+                    className="bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 self-start sm:self-center"
+                    size="sm"
+                  >
+                    <Heart className="h-4 w-4" />
+                    Express Interest
+                  </Button>
+                </div>
               </div>
               <CardContent className="p-6">
                 <div className="flex flex-col gap-6">
