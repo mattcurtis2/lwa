@@ -585,100 +585,19 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
         </div>
       )}
 
-      <section className={`container mx-auto px-4 ${!genderFilter && !showAvailable ? 'py-12' : 'pt-24'}`}>
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
-          <div className="prose prose-stone mx-auto">
-            <p className="text-lg leading-relaxed text-stone-600 text-center">
-              {pageDescription}
-            </p>
-          </div>
-        </div>
-
-        {/* Coming Soon Banner when no sheep exist */}
-        {!genderFilter && !showAvailable && sheep.length === 0 && (
-          <div className="mt-16 mb-16">
-            <div className="rounded-lg p-8 text-center" style={{ backgroundColor: '#FDF7EB' }}>
-              <h2 className="text-3xl font-bold text-stone-800 mb-4">Coming Soon!</h2>
-              <p className="text-lg text-stone-600 mb-6">
-                We're currently developing our Katahdin sheep program. Our sheep will be available soon!
+      {/* Show main page title and description only on filtered pages, not main sheep page */}
+      {(genderFilter || showAvailable) && (
+        <section className="container mx-auto px-4 pt-24">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
+            <div className="prose prose-stone mx-auto">
+              <p className="text-lg leading-relaxed text-stone-600 text-center">
+                {pageDescription}
               </p>
-              <div className="text-sm text-stone-500">
-                Check back soon or contact us for updates on our sheep availability.
-              </div>
             </div>
           </div>
-        )}
 
-        {/* Show categorized sections on main page */}
-        {!genderFilter && !showAvailable && sheep.length > 0 && (
-          <div className="mt-16 space-y-16">
-            {/* Available Sheep Section */}
-            {availableSheep.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Available Sheep</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {availableSheep.map(s => (
-                    <SheepDetails key={s.id} sheep={s} showPrice={s.available} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Rams Section */}
-            {rams.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Rams</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {rams.slice(0, 3).map(s => (
-                    <SheepDetails key={s.id} sheep={s} />
-                  ))}
-                </div>
-                {rams.length > 3 && (
-                  <div className="text-center mt-8">
-                    <Button asChild>
-                      <Link href="/sheep/males">View All Rams</Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Ewes Section */}
-            {ewes.length > 0 && (
-              <div>
-                <div className="relative flex py-5 items-center mb-8">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Ewes</h2>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                  {ewes.slice(0, 3).map(s => (
-                    <SheepDetails key={s.id} sheep={s} />
-                  ))}
-                </div>
-                {ewes.length > 3 && (
-                  <div className="text-center mt-8">
-                    <Button asChild>
-                      <Link href="/sheep/females">View All Ewes</Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Show filtered sheep for specific pages */}
-        {(genderFilter || showAvailable) && (
+          {/* Show filtered sheep for specific pages */}
           <div className="mt-12">
             <div className="grid grid-cols-1 gap-8">
               {filteredSheep.map(s => (
@@ -691,8 +610,43 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
               </div>
             )}
           </div>
-        )}
-      </section>
+        </section>
+      )}
+
+      {/* Show available sheep section only on main page when sheep exist */}
+      {!genderFilter && !showAvailable && sheep.length > 0 && availableSheep.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="mt-16">
+            <div className="relative flex py-5 items-center mb-8">
+              <div className="flex-grow border-t border-gray-200"></div>
+              <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Available Sheep</h2>
+              <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+            <div className="grid grid-cols-1 gap-8">
+              {availableSheep.map(s => (
+                <SheepDetails key={s.id} sheep={s} showPrice={s.available} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Coming Soon Banner when no sheep exist on main page */}
+      {!genderFilter && !showAvailable && sheep.length === 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="mt-16 mb-16">
+            <div className="rounded-lg p-8 text-center" style={{ backgroundColor: '#FDF7EB' }}>
+              <h2 className="text-3xl font-bold text-stone-800 mb-4">Coming Soon!</h2>
+              <p className="text-lg text-stone-600 mb-6">
+                We're currently developing our Katahdin sheep program. Our sheep will be available soon!
+              </p>
+              <div className="text-sm text-stone-500">
+                Check back soon or contact us for updates on our sheep availability.
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
