@@ -417,7 +417,7 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
                   <img
                     src={siteContent.find(c => c.key === "sheep_goal1_image")?.value || "https://images.unsplash.com/photo-1572967792798-79b46a3b0c30"}
                     alt="Superior meat quality sheep"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-6">
@@ -442,7 +442,7 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
                   <img
                     src={siteContent.find(c => c.key === "sheep_goal2_image")?.value || "https://images.unsplash.com/photo-1542012258-55a8f7c0bc44"}
                     alt="Healthy sheep family"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-6">
@@ -467,7 +467,7 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
                   <img
                     src={siteContent.find(c => c.key === "sheep_goal3_image")?.value || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"}
                     alt="Hardy sheep in pasture"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-6">
