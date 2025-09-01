@@ -320,6 +320,176 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
       {/* Only show hero on main sheep page */}
       {!genderFilter && !showAvailable && <SheepHero />}
 
+      {/* Our Katahdin Sheep Program Section - Only show on main sheep page */}
+      {!genderFilter && !showAvailable && (
+        <section className="py-16" style={{ backgroundColor: '#FDF7EB' }}>
+          <div className="w-full max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-6">
+                {siteContent.find(c => c.key === "sheep_program_title")?.value || "Our Katahdin Sheep Program"}
+              </h2>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-lg border border-stone-200 overflow-hidden max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Left Side - Content */}
+                <div className="p-8 md:p-12 flex flex-col justify-center">
+                  <div className="space-y-8">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">{siteContent.find(c => c.key === "sheep_program_card1_icon")?.value || "🐑"}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                          {siteContent.find(c => c.key === "sheep_program_card1_title")?.value || "No Shearing Required"}
+                        </h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          {siteContent.find(c => c.key === "sheep_program_card1_description")?.value || 
+                            "Katahdin sheep naturally shed their coat each spring, eliminating the need for annual shearing and reducing maintenance costs."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">{siteContent.find(c => c.key === "sheep_program_card2_icon")?.value || "💪"}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                          {siteContent.find(c => c.key === "sheep_program_card2_title")?.value || "Hardy & Resilient"}
+                        </h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          {siteContent.find(c => c.key === "sheep_program_card2_description")?.value || 
+                            "Known for their exceptional hardiness and disease resistance, Katahdin sheep thrive in various climates with minimal intervention."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FDF7EB' }}>
+                        <span className="text-2xl">{siteContent.find(c => c.key === "sheep_program_card3_icon")?.value || "🥩"}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-[#3F6A52] mb-2">
+                          {siteContent.find(c => c.key === "sheep_program_card3_title")?.value || "Quality Meat Production"}
+                        </h3>
+                        <p className="text-stone-600 text-sm leading-relaxed">
+                          {siteContent.find(c => c.key === "sheep_program_card3_description")?.value || 
+                            "Katahdin sheep produce lean, flavorful meat with excellent marbling and tender texture, perfect for farm-to-table dining."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side - Image */}
+                <div className="relative">
+                  <img
+                    src={siteContent.find(c => c.key === "sheep_program_image")?.value || "https://images.unsplash.com/photo-1568454537842-d933259bb258"}
+                    alt="Katahdin sheep grazing"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Our Breeding Goals Section - Only show on main sheep page */}
+      {!genderFilter && !showAvailable && (
+        <section className="py-16 bg-white">
+          <div className="w-full max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-[#3F6A52] mb-4">
+                {siteContent.find(c => c.key === "sheep_goals_title")?.value || "Our Breeding Goals"}
+              </h2>
+              <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+                {siteContent.find(c => c.key === "sheep_goals_description")?.value || 
+                  "We're developing a sustainable sheep breeding program that prioritizes hardiness, mothering ability, and meat quality."}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Goal 1 */}
+              <div className="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={siteContent.find(c => c.key === "sheep_goal1_image")?.value || "https://images.unsplash.com/photo-1572967792798-79b46a3b0c30"}
+                    alt="Superior meat quality sheep"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">
+                    {siteContent.find(c => c.key === "sheep_goal1_title")?.value || "Superior Meat Quality"}
+                  </h3>
+                  <p className="text-stone-700 leading-relaxed mb-4">
+                    {siteContent.find(c => c.key === "sheep_goal1_description")?.value || 
+                      "Breeding for sheep that produce lean, flavorful meat with excellent marbling and feed conversion efficiency for sustainable farming."}
+                  </p>
+                  <div className="flex items-center text-[#3F6A52] font-medium">
+                    <span className="text-sm">
+                      {siteContent.find(c => c.key === "sheep_goal1_subtitle")?.value || "Premium Genetics"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Goal 2 */}
+              <div className="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={siteContent.find(c => c.key === "sheep_goal2_image")?.value || "https://images.unsplash.com/photo-1542012258-55a8f7c0bc44"}
+                    alt="Healthy sheep family"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">
+                    {siteContent.find(c => c.key === "sheep_goal2_title")?.value || "Excellent Mothering"}
+                  </h3>
+                  <p className="text-stone-700 leading-relaxed mb-4">
+                    {siteContent.find(c => c.key === "sheep_goal2_description")?.value || 
+                      "Selecting for ewes with strong maternal instincts, easy lambing, and excellent milk production to raise healthy, vigorous lambs."}
+                  </p>
+                  <div className="flex items-center text-[#3F6A52] font-medium">
+                    <span className="text-sm">
+                      {siteContent.find(c => c.key === "sheep_goal2_subtitle")?.value || "Natural Mothers"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Goal 3 */}
+              <div className="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={siteContent.find(c => c.key === "sheep_goal3_image")?.value || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"}
+                    alt="Hardy sheep in pasture"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-[#3F6A52] mb-3">
+                    {siteContent.find(c => c.key === "sheep_goal3_title")?.value || "Climate Adaptability"}
+                  </h3>
+                  <p className="text-stone-700 leading-relaxed mb-4">
+                    {siteContent.find(c => c.key === "sheep_goal3_description")?.value || 
+                      "Breeding sheep that thrive in Michigan's climate with natural parasite resistance and year-round hardiness for sustainable farming."}
+                  </p>
+                  <div className="flex items-center text-[#3F6A52] font-medium">
+                    <span className="text-sm">
+                      {siteContent.find(c => c.key === "sheep_goal3_subtitle")?.value || "Weather Resilience"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className={`container mx-auto px-4 ${!genderFilter && !showAvailable ? 'py-12' : 'pt-24'}`}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
