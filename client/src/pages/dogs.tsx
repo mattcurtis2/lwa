@@ -37,6 +37,15 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
     }
   });
 
+  // Fetch litter data to determine navigation link
+  const { data: currentLitters } = useQuery<any[]>({
+    queryKey: ["/api/litters/list/current"],
+  });
+
+  const { data: futureLitters } = useQuery<any[]>({
+    queryKey: ["/api/litters/list/future"],
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
     
@@ -288,6 +297,34 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   // If we're on a filtered page, only show that specific gender
   const shouldShowFemales = genderFilter === 'female' || !genderFilter;
   const shouldShowMales = genderFilter === 'male' || !genderFilter;
+
+  // Determine the appropriate litter navigation link and text
+  const getLitterNavigation = () => {
+    const hasCurrentLitters = currentLitters && currentLitters.length > 0;
+    const hasFutureLitters = futureLitters && futureLitters.length > 0;
+
+    if (hasCurrentLitters) {
+      return {
+        href: "/dogs/litters/current",
+        title: "Current Litters",
+        description: "Meet our available puppies ready for their new homes"
+      };
+    } else if (hasFutureLitters) {
+      return {
+        href: "/dogs/litters/future",
+        title: "Upcoming Litters",
+        description: "See planned litters and reserve your future guardian companion"
+      };
+    } else {
+      return {
+        href: "/dogs/litters/past",
+        title: "Past Litters",
+        description: "View our previous litters and their lineage"
+      };
+    }
+  };
+
+  const litterNavigation = getLitterNavigation();
 
   return (
     <div className="w-full">
@@ -555,16 +592,16 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     </div>
                   </Link>
                   
-                  <Link href="/dogs/litters/future" className="group">
+                  <Link href={litterNavigation.href} className="group">
                     <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
                       <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-amber-200 transition-colors">
                         <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
-                      <h3 className="text-2xl font-bold text-stone-800 mb-3">Upcoming Litters</h3>
+                      <h3 className="text-2xl font-bold text-stone-800 mb-3">{litterNavigation.title}</h3>
                       <p className="text-stone-600 mb-6">
-                        See planned litters and reserve your future guardian companion
+                        {litterNavigation.description}
                       </p>
                       <div className="inline-flex items-center text-amber-600 font-semibold group-hover:text-amber-700">
                         View Litters
