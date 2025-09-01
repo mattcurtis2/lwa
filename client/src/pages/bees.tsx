@@ -186,7 +186,7 @@ export default function BeesPage() {
                     <img
                       src={goal1Image}
                       alt="Healthy bee colony"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
@@ -207,7 +207,7 @@ export default function BeesPage() {
                     <img
                       src={goal2Image}
                       alt="Winter beehive in snow"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
@@ -228,7 +228,7 @@ export default function BeesPage() {
                     <img
                       src={goal3Image}
                       alt="Honeycomb construction"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 to-transparent"></div>
                   </div>
