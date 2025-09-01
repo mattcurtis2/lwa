@@ -549,40 +549,53 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
-                  <div className="space-y-8">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-amber-600 font-bold text-lg">1</span>
+                  <div className="grid lg:grid-cols-2 gap-8 items-center">
+                    <div className="space-y-8">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">1</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_1_title") || "Interest Form / Waitlist"}</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            {getContent("dogs_placement_step_1_description") || "Families begin by filling out our interest form or joining our waitlist. This helps us learn more about your needs—whether you're looking for a dedicated working guardian, a family companion, or both."}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_1_title") || "Interest Form / Waitlist"}</h3>
-                        <p className="text-stone-700 leading-relaxed">
-                          {getContent("dogs_placement_step_1_description") || "Families begin by filling out our interest form or joining our waitlist. This helps us learn more about your needs—whether you're looking for a dedicated working guardian, a family companion, or both."}
-                        </p>
+                      
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">2</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_2_title") || "Phone Conversation"}</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            {getContent("dogs_placement_step_2_description") || "We require a personal phone call with every prospective family. This gives us a chance to connect directly, answer questions, and make sure we're a good fit for one another."}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">3</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_3_title") || "Pickup or Personal Delivery"}</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            {getContent("dogs_placement_step_3_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
+                          </p>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-amber-600 font-bold text-lg">2</span>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_2_title") || "Phone Conversation"}</h3>
-                        <p className="text-stone-700 leading-relaxed">
-                          {getContent("dogs_placement_step_2_description") || "We require a personal phone call with every prospective family. This gives us a chance to connect directly, answer questions, and make sure we're a good fit for one another."}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-4">
-                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <span className="text-amber-600 font-bold text-lg">3</span>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_3_title") || "Pickup or Personal Delivery"}</h3>
-                        <p className="text-stone-700 leading-relaxed">
-                          {getContent("dogs_placement_step_3_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
-                        </p>
+                    <div className="bg-white rounded-xl overflow-hidden shadow-lg">
+                      <img 
+                        src={getContent("dogs_placement_process_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg"}
+                        alt="Colorado Mountain Dog placement process" 
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="p-4">
+                        <p className="text-sm text-stone-600">{getContent("dogs_placement_process_image_caption") || "Our placement process ensures the right match"}</p>
                       </div>
                     </div>
                   </div>

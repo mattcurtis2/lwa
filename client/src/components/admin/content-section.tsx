@@ -1547,6 +1547,32 @@ export default function ContentSection() {
                     </div>
                   </div>
                 </div>
+                
+                <div className="space-y-2">
+                  <Label>Placement Process Section Image</Label>
+                  <PrincipleDropzone
+                    onDrop={(files) => {
+                      if (files[0]) {
+                        handleFileUpload(files[0]).then(imageUrl => {
+                          handleContentChange("dogs_placement_process_image", imageUrl);
+                        });
+                      }
+                    }}
+                    currentImageUrl={getContentValue("dogs_placement_process_image")}
+                  />
+                  {getContentValue("dogs_placement_process_image") && (
+                    <img
+                      src={getContentValue("dogs_placement_process_image")}
+                      alt="Placement Process Image"
+                      className="mt-2 rounded-lg max-h-48 object-cover"
+                    />
+                  )}
+                  <Input
+                    value={getContentValue("dogs_placement_process_image_caption") || "Our placement process ensures the right match"}
+                    onChange={(e) => handleContentChange("dogs_placement_process_image_caption", e.target.value)}
+                    placeholder="Image caption"
+                  />
+                </div>
               </CardContent>
             </Card>
 
