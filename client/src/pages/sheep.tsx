@@ -490,20 +490,6 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
         </section>
       )}
 
-      {/* Only show main page title section on filtered pages, not main sheep page */}
-      {(genderFilter || showAvailable) && (
-        <section className="container mx-auto px-4 pt-24">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
-            <div className="prose prose-stone mx-auto">
-              <p className="text-lg leading-relaxed text-stone-600 text-center">
-                {pageDescription}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Explore Our Sheep Navigation Section - Only show on main sheep page */}
       {!genderFilter && !showAvailable && (
         <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 py-16">
