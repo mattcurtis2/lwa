@@ -307,7 +307,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       return {
         href: "/dogs/litters/current",
         title: "Current Litters",
-        description: "Meet our available puppies ready for their new homes"
+        description: "Meet our available litters of beautiful guardians and reserve your own today!"
       };
     } else if (hasFutureLitters) {
       return {
