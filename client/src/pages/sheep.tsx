@@ -490,6 +490,101 @@ export default function SheepPage({ genderFilter, showAvailable }: SheepPageProp
         </section>
       )}
 
+      {/* Only show main page title section on filtered pages, not main sheep page */}
+      {(genderFilter || showAvailable) && (
+        <section className="container mx-auto px-4 pt-24">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
+            <div className="prose prose-stone mx-auto">
+              <p className="text-lg leading-relaxed text-stone-600 text-center">
+                {pageDescription}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Explore Our Sheep Navigation Section - Only show on main sheep page */}
+      {!genderFilter && !showAvailable && (
+        <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50 py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold text-stone-800 mb-4">
+                  {siteContent.find(c => c.key === "sheep_explore_title")?.value || "Explore Our Sheep"}
+                </h2>
+                <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                <p className="text-stone-600 mt-4 max-w-2xl mx-auto">
+                  {siteContent.find(c => c.key === "sheep_explore_description")?.value || "Discover our Katahdin sheep breeding program and meet our flock"}
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <Link href="/sheep/males" className="group">
+                  <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
+                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Rams</h3>
+                    <p className="text-stone-600 mb-6">
+                      Meet our breeding rams and learn about their genetics and characteristics
+                    </p>
+                    <div className="inline-flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
+                      View Rams
+                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </Link>
+                
+                <Link href="/sheep/females" className="group">
+                  <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                    <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-200 transition-colors">
+                      <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-stone-800 mb-3">Our Ewes</h3>
+                    <p className="text-stone-600 mb-6">
+                      Discover our breeding ewes and their contributions to our program
+                    </p>
+                    <div className="inline-flex items-center text-pink-600 font-semibold group-hover:text-pink-700">
+                      View Ewes
+                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </Link>
+                
+                <Link href="/sheep/available" className="group">
+                  <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-stone-800 mb-3">Available Sheep</h3>
+                    <p className="text-stone-600 mb-6">
+                      See our currently available sheep ready for their new homes
+                    </p>
+                    <div className="inline-flex items-center text-green-600 font-semibold group-hover:text-green-700">
+                      View Available
+                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className={`container mx-auto px-4 ${!genderFilter && !showAvailable ? 'py-12' : 'pt-24'}`}>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-4">{pageTitle}</h1>
