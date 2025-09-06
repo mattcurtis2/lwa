@@ -545,15 +545,15 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_placement_process_title") || "Our Placement Process"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
                   <div className="grid lg:grid-cols-2 gap-8 items-center">
                     <div className="space-y-8">
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">1</span>
+                        <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-[#3F6A52] font-bold text-lg">1</span>
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_1_title") || "Interest Form / Waitlist"}</h3>
@@ -564,8 +564,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       </div>
                       
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">2</span>
+                        <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-[#3F6A52] font-bold text-lg">2</span>
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_2_title") || "Phone Conversation"}</h3>
