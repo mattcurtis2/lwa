@@ -580,9 +580,21 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                           <span className="text-amber-600 font-bold text-lg">3</span>
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_3_title") || "Pickup or Personal Delivery"}</h3>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_3_title") || "Step 3 Title"}</h3>
                           <p className="text-stone-700 leading-relaxed">
-                            {getContent("dogs_placement_step_3_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
+                            {getContent("dogs_placement_step_3_description") || "Step 3 description placeholder text."}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-4">
+                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-amber-600 font-bold text-lg">4</span>
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_4_title") || "Pickup or Personal Delivery"}</h3>
+                          <p className="text-stone-700 leading-relaxed">
+                            {getContent("dogs_placement_step_4_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
                           </p>
                         </div>
                       </div>
