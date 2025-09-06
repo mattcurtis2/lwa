@@ -1527,11 +1527,11 @@ export default function ContentSection() {
 
                   {/* Step 3 */}
                   <div className="space-y-3 p-4 border rounded-lg">
-                    <h4 className="font-semibold">Step 3: Pickup or Personal Delivery</h4>
+                    <h4 className="font-semibold">Step 3: New Step</h4>
                     <div className="space-y-2">
                       <Label>Step 3 Title</Label>
                       <Input
-                        value={getContentValue("dogs_placement_step_3_title") || "Pickup or Personal Delivery"}
+                        value={getContentValue("dogs_placement_step_3_title") || "Step 3 Title"}
                         onChange={(e) => handleContentChange("dogs_placement_step_3_title", e.target.value)}
                         placeholder="Step 3 title"
                       />
@@ -1539,9 +1539,31 @@ export default function ContentSection() {
                     <div className="space-y-2">
                       <Label>Step 3 Description</Label>
                       <Textarea
-                        value={getContentValue("dogs_placement_step_3_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
+                        value={getContentValue("dogs_placement_step_3_description") || "Step 3 description placeholder text."}
                         onChange={(e) => handleContentChange("dogs_placement_step_3_description", e.target.value)}
                         placeholder="Step 3 description"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Step 4: Pickup or Personal Delivery</h4>
+                    <div className="space-y-2">
+                      <Label>Step 4 Title</Label>
+                      <Input
+                        value={getContentValue("dogs_placement_step_4_title") || "Pickup or Personal Delivery"}
+                        onChange={(e) => handleContentChange("dogs_placement_step_4_title", e.target.value)}
+                        placeholder="Step 4 title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Step 4 Description</Label>
+                      <Textarea
+                        value={getContentValue("dogs_placement_step_4_description") || "We don't use carrier or shipping services. Instead, we arrange direct pickup at the farm or personal delivery, so we can meet you face-to-face and know our puppies are going to the right home."}
+                        onChange={(e) => handleContentChange("dogs_placement_step_4_description", e.target.value)}
+                        placeholder="Step 4 description"
                         className="min-h-[80px]"
                       />
                     </div>
