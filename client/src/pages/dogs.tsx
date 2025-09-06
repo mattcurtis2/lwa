@@ -491,32 +491,32 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       
                       <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-8 h-8 bg-[#3F6A52]/10 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-[#3F6A52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
                           <span className="text-stone-700">{getContent("dogs_good_fit_point_1") || "Small to medium-sized farms (1-20 acres)"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-8 h-8 bg-[#3F6A52]/10 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-[#3F6A52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
                           <span className="text-stone-700">{getContent("dogs_good_fit_point_2") || "Families with children"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-8 h-8 bg-[#3F6A52]/10 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-[#3F6A52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
                           <span className="text-stone-700">{getContent("dogs_good_fit_point_3") || "Goat, sheep, or poultry operations"}</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-8 h-8 bg-[#3F6A52]/10 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-[#3F6A52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
