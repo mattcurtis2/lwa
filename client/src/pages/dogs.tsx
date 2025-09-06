@@ -331,7 +331,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
       {!showAvailable && !genderFilter && <DogHero />}
       {!showAvailable && !genderFilter && <LitterBanner />}
       {!showAvailable && !genderFilter && (
-        <div className="bg-gradient-to-br from-amber-50 via-stone-50 to-amber-50">
+        <div className="bg-gradient-to-br from-green-50 via-stone-50 to-green-50">
           <div className="container mx-auto px-4 py-16">
             <div className="max-w-6xl mx-auto space-y-16">
               
@@ -341,7 +341,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_why_love_title") || "Why We Love Our Colorado Mountain Dogs"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                 </div>
                 
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -352,19 +352,19 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       </p>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-[#3F6A52] rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-stone-600">{getContent("dogs_trait_1") || "Loyal and devoted to family"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-[#3F6A52] rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-stone-600">{getContent("dogs_trait_2") || "Excellent with children"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-[#3F6A52] rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-stone-600">{getContent("dogs_trait_3") || "Natural livestock guardians"}</span>
                         </div>
                         <div className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-[#3F6A52] rounded-full mt-2 flex-shrink-0"></div>
                           <span className="text-stone-600">{getContent("dogs_trait_4") || "Athletic and agile"}</span>
                         </div>
                       </div>
@@ -402,7 +402,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_breeding_goals_title") || "Little Way Acres Breeding Goals"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
@@ -410,8 +410,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <div className="lg:col-span-2">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex items-start space-x-4">
-                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-amber-600 font-bold text-lg">1</span>
+                          <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-[#3F6A52] font-bold text-lg">1</span>
                           </div>
                           <div>
                             <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_1_title") || "Temperament Above Everything Else"}</h3>
@@ -422,8 +422,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                         </div>
                         
                         <div className="flex items-start space-x-4">
-                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-amber-600 font-bold text-lg">2</span>
+                          <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-[#3F6A52] font-bold text-lg">2</span>
                           </div>
                           <div>
                             <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_2_title") || "Teachable"}</h3>
@@ -434,8 +434,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                         </div>
                         
                         <div className="flex items-start space-x-4">
-                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-amber-600 font-bold text-lg">3</span>
+                          <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-[#3F6A52] font-bold text-lg">3</span>
                           </div>
                           <div>
                             <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_3_title") || "Seamless Adoption of New Animals"}</h3>
@@ -446,8 +446,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                         </div>
                         
                         <div className="flex items-start space-x-4">
-                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <span className="text-amber-600 font-bold text-lg">4</span>
+                          <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <span className="text-[#3F6A52] font-bold text-lg">4</span>
                           </div>
                           <div>
                             <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_goal_4_title") || "Beautifully Athletic"}</h3>
@@ -478,7 +478,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_good_fit_title") || "Who is a Good Fit for a CMDR?"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-8">
@@ -576,8 +576,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       </div>
                       
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">3</span>
+                        <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-[#3F6A52] font-bold text-lg">3</span>
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_3_title") || "Step 3 Title"}</h3>
@@ -588,8 +588,8 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       </div>
                       
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                          <span className="text-amber-600 font-bold text-lg">4</span>
+                        <div className="w-10 h-10 bg-[#3F6A52]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                          <span className="text-[#3F6A52] font-bold text-lg">4</span>
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-stone-800 mb-2">{getContent("dogs_placement_step_4_title") || "Pickup or Personal Delivery"}</h3>
@@ -620,7 +620,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_explore_title") || "Explore Our Dogs"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                   <p className="text-stone-600 mt-4 max-w-2xl mx-auto">
                     {getContent("dogs_explore_description") || "Discover our breeding program and meet our Colorado Mountain Dogs"}
                   </p>
@@ -628,7 +628,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                 
                 <div className="grid md:grid-cols-3 gap-6">
                   <Link href="/dogs/males" className="group">
-                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-[#3F6A52]/20 hover:-translate-y-1">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
                         <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -648,7 +648,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   </Link>
                   
                   <Link href="/dogs/females" className="group">
-                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-[#3F6A52]/20 hover:-translate-y-1">
                       <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-200 transition-colors">
                         <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -668,9 +668,9 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   </Link>
                   
                   <Link href={litterNavigation.href} className="group">
-                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1">
-                      <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-amber-200 transition-colors">
-                        <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 text-center transition-all duration-300 hover:shadow-xl hover:border-[#3F6A52]/20 hover:-translate-y-1">
+                      <div className="w-16 h-16 bg-[#3F6A52]/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-[#3F6A52]/20 transition-colors">
+                        <svg className="w-8 h-8 text-[#3F6A52]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
@@ -678,7 +678,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       <p className="text-stone-600 mb-6">
                         {litterNavigation.description}
                       </p>
-                      <div className="inline-flex items-center text-amber-600 font-semibold group-hover:text-amber-700">
+                      <div className="inline-flex items-center text-[#3F6A52] font-semibold group-hover:text-[#3F6A52]/80">
                         View Litters
                         <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -695,7 +695,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <h2 className="text-4xl font-bold text-stone-800 mb-4">
                     {getContent("dogs_faq_title") || "Frequently Asked Questions"}
                   </h2>
-                  <div className="w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
+                  <div className="w-24 h-1 bg-[#3F6A52] mx-auto rounded-full"></div>
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8">

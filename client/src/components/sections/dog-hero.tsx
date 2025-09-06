@@ -22,7 +22,7 @@ export function DogHero() {
         decoding="async"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#3F6A52]/30 via-[#3F6A52]/20 to-[#3F6A52]/10" />
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
           {getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
