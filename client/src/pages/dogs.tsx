@@ -604,7 +604,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       <img 
                         src={getContent("dogs_placement_process_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg"}
                         alt="Colorado Mountain Dog placement process" 
-                        className="w-full h-80 object-cover"
+                        className="w-full h-96 object-cover"
                       />
                       <div className="p-4">
                         <p className="text-sm text-stone-600">{getContent("dogs_placement_process_image_caption") || "Our placement process ensures the right match"}</p>
