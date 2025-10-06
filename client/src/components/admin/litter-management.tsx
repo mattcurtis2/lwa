@@ -135,20 +135,14 @@ export default function LitterManagement() {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
     // Filter puppies - include all puppies regardless of died status in admin view
-    // Also include puppies that match both mother and father IDs as a fallback
-    const litterPuppies = dogs.filter(d => 
-      d.litterId === litter.id || 
-      (d.motherId === litter.motherId && d.fatherId === litter.fatherId && d.puppy === true)
-    );
+    const litterPuppies = dogs.filter(d => d.litterId === litter.id);
     
     // Debug logging
     console.log(`Litter ${litter.id} (${mother?.name} x ${father?.name}):`, {
       litterId: litter.id,
       totalDogs: dogs.length,
       puppiesFound: litterPuppies.length,
-      puppyNames: litterPuppies.map(p => p.name),
-      puppiesWithLitterId: dogs.filter(d => d.litterId === litter.id).length,
-      puppiesByParents: dogs.filter(d => d.motherId === litter.motherId && d.fatherId === litter.fatherId && d.puppy === true).length
+      puppyNames: litterPuppies.map(p => p.name)
     });
 
     return (
