@@ -45,6 +45,14 @@ export default function LitterManagement() {
     queryKey: ["/api/dogs"],
     onSuccess: (data) => {
       console.log('Dogs loaded:', data);
+      // Debug: show dogs with litter associations
+      const dogsWithLitters = data.filter(d => d.litterId);
+      console.log('Dogs with litter IDs:', dogsWithLitters.map(d => ({
+        name: d.name,
+        litterId: d.litterId,
+        puppy: d.puppy,
+        died: d.died
+      })));
     },
     onError: (error) => {
       console.error('Error loading dogs:', error);
@@ -126,7 +134,16 @@ export default function LitterManagement() {
   const renderLitterCard = (litter: Litter & { mother?: Dog; father?: Dog; puppies?: Dog[] }) => {
     const mother = dogs.find(d => d.id === litter.motherId);
     const father = dogs.find(d => d.id === litter.fatherId);
+    // Filter puppies - include all puppies regardless of died status in admin view
     const litterPuppies = dogs.filter(d => d.litterId === litter.id);
+    
+    // Debug logging
+    console.log(`Litter ${litter.id} (${mother?.name} x ${father?.name}):`, {
+      litterId: litter.id,
+      totalDogs: dogs.length,
+      puppiesFound: litterPuppies.length,
+      puppyNames: litterPuppies.map(p => p.name)
+    });
 
     return (
       <Card key={litter.id} className="mb-4">
@@ -145,7 +162,7 @@ export default function LitterManagement() {
             </Button>
           </div>
           <CardDescription>
-            Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+            Due Date: {formatDisplayDate(new Date(litter.dueDate))} • {litterPuppies.length} {litterPuppies.length === 1 ? 'puppy' : 'puppies'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,14 +212,16 @@ export default function LitterManagement() {
           </div>
 
           {/* Puppies Section */}
-          {litterPuppies.length > 0 && (
-            <div className="space-y-4">
-              <h4 className="font-medium">Puppies</h4>
+          <div className="space-y-4">
+            <h4 className="font-medium">Puppies ({litterPuppies.length})</h4>
+            {litterPuppies.length > 0 ? (
               <div className="grid gap-4">
                 {litterPuppies.map((puppy) => (
                   <div
                     key={puppy.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                    className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${
+                      puppy.died ? 'opacity-60 border-gray-400' : ''
+                    }`}
                   >
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
                       {puppy.profileImageUrl ? (
@@ -224,7 +243,10 @@ export default function LitterManagement() {
                       )}
                     </div>
                     <div>
-                      <p className="font-medium">{puppy.name}</p>
+                      <p className="font-medium">
+                        {puppy.name}
+                        {puppy.died && <span className="ml-2 text-xs text-gray-500">(Deceased)</span>}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {puppy.gender} • {puppy.color || 'No color set'}
                       </p>
@@ -232,8 +254,10 @@ export default function LitterManagement() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-muted-foreground">No puppies added to this litter yet.</p>
+            )}
+          </div>
           <div className="flex justify-end gap-2 mt-4">
             <AlertDialog>
               <AlertDialogTrigger asChild>
