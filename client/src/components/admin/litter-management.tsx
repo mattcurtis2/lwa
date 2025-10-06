@@ -42,7 +42,14 @@ export default function LitterManagement() {
   } = useLitterManagement();
 
   const { data: dogs = [] } = useQuery<Dog[]>({
-    queryKey: ["/api/dogs?admin=true"],
+    queryKey: ["/api/dogs", "admin"],
+    queryFn: async () => {
+      const response = await fetch("/api/dogs?admin=true");
+      if (!response.ok) {
+        throw new Error("Failed to fetch dogs");
+      }
+      return response.json();
+    },
     onSuccess: (data) => {
       console.log('Dogs loaded:', data);
       // Debug: show dogs with litter associations
