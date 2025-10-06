@@ -42,7 +42,7 @@ export default function LitterManagement() {
   } = useLitterManagement();
 
   const { data: dogs = [] } = useQuery<Dog[]>({
-    queryKey: ["/api/dogs"],
+    queryKey: ["/api/dogs?admin=true"],
     onSuccess: (data) => {
       console.log('Dogs loaded:', data);
       // Debug: show dogs with litter associations
@@ -51,7 +51,8 @@ export default function LitterManagement() {
         name: d.name,
         litterId: d.litterId,
         puppy: d.puppy,
-        died: d.died
+        died: d.died,
+        display: d.display
       })));
     },
     onError: (error) => {
