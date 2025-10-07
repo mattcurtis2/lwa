@@ -27,7 +27,6 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
 
 interface Document {
   id?: number;
@@ -38,8 +37,10 @@ interface Document {
 }
 
 interface DogDetailsProps {
-  dog: Dog & { media?: DogMedia[]; documents?: Document[] };
-  waitlistLink?: string | null;
+  dog: Dog & {
+    media?: DogMedia[];
+    documents?: Document[];
+  };
 }
 
 function DocumentLink({ document }: { document: Document }) {
@@ -106,7 +107,7 @@ function DocumentLink({ document }: { document: Document }) {
   );
 }
 
-export default function DogDetails({ dog, waitlistLink }: DogDetailsProps) {
+export default function DogDetails({ dog }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -204,31 +205,18 @@ export default function DogDetails({ dog, waitlistLink }: DogDetailsProps) {
                 SOLD
               </p>
             </div>
-          ) : (
-            waitlistLink ? (
-              <a
-                href={waitlistLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm font-medium transition-colors inline-block"
-              >
-                Available - Apply Here
-              </a>
-            ) : (
-              dog.price && dog.available && (
-                <a
-                  href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-                >
-                  <p className="text-lg font-semibold text-white">
-                    Available: ${parseInt(dog.price).toLocaleString()}
-                  </p>
-                  <ExternalLink className="h-4 w-4 text-white" />
-                </a>
-              )
-            )
+          ) : dog.price && dog.available && (
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+            >
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+              <ExternalLink className="h-4 w-4 text-white" />
+            </a>
           )}
         </div>
 
@@ -423,29 +411,18 @@ export default function DogDetails({ dog, waitlistLink }: DogDetailsProps) {
                 SOLD
               </p>
             </div>
-          ) : waitlistLink ? (
-            <a
-              href={waitlistLink}
+          ) : dog.price && dog.available && (
+            <a 
+              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm font-medium transition-colors inline-block"
+              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
             >
-              Available - Apply Here
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+              <ExternalLink className="h-4 w-4 text-white" />
             </a>
-          ) : (
-            dog.price && dog.available && (
-              <a
-                href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-              >
-                <p className="text-lg font-semibold text-white">
-                  Available: ${parseInt(dog.price).toLocaleString()}
-                </p>
-                <ExternalLink className="h-4 w-4 text-white" />
-              </a>
-            )
           )}
         </div>
 
