@@ -86,6 +86,7 @@ export default function LitterManagement() {
     const puppyDefaults = {
       name: "",
       puppy: true,
+      siteId: 1,
       litterId: litter.id,
       motherId: litter.motherId,
       fatherId: litter.fatherId,
