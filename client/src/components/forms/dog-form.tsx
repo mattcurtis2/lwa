@@ -60,7 +60,7 @@ const mediaSchema = z.object({
 const createDogSchema = (isPuppy: boolean = false) => {
   const baseSchema = {
     name: z.string().optional(),
-    registrationName: z.string().optional(),
+    registrationName: z.string().optional().nullable(),
     birthDate: z.string().optional(),
     gender: z.enum(["male", "female"]).optional(),
     motherId: z.number().optional().nullable(),
@@ -1066,9 +1066,9 @@ export default function DogForm({
           name="registrationName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Registration Name</FormLabel>
+              <FormLabel>Registration Name (Optional)</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} placeholder="Optional registration name" />
               </FormControl>
               <FormMessage />
             </FormItem>
