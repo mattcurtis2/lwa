@@ -570,6 +570,7 @@ export default function DogForm({
       
       const processedValues = {
         ...values,
+        siteId: 1, // Explicitly set siteId to 1 for all dogs
         height: values.height ? parseFloat(values.height) : null,
         weight: values.weight ? parseFloat(values.weight) : null,
         price: values.price && values.price !== "" ? parseInt(values.price.replace(/,/g, '')) : null,
