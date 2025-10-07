@@ -41,6 +41,7 @@ interface DogDetailsProps {
     media?: DogMedia[];
     documents?: Document[];
   };
+  litterWaitlistLink?: string;
 }
 
 function DocumentLink({ document }: { document: Document }) {
@@ -107,7 +108,7 @@ function DocumentLink({ document }: { document: Document }) {
   );
 }
 
-export default function DogDetails({ dog }: DogDetailsProps) {
+export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps) {
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isMediaDialogOpen, setIsMediaDialogOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -206,8 +207,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </p>
             </div>
           ) : dog.price && dog.available && (
-            <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+            <a
+              href={litterWaitlistLink || "https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -412,8 +413,8 @@ export default function DogDetails({ dog }: DogDetailsProps) {
               </p>
             </div>
           ) : dog.price && dog.available && (
-            <a 
-              href="https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"
+            <a
+              href={litterWaitlistLink || "https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"

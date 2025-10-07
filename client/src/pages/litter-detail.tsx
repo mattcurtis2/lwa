@@ -137,7 +137,7 @@ export default function LitterDetail() {
 
             {litter.puppies?.map((puppy, index) => (
               <div key={puppy.id}>
-                <DogDetails dog={puppy} />
+                <DogDetails dog={puppy} litterWaitlistLink={litter.waitlistLink} />
               </div>
             ))}
           </div>
