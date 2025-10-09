@@ -157,6 +157,9 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
   }, [isMediaDialogOpen]);
 
   if (isMobile) {
+    const hasStory = dog.narrativeDescription?.trim() || dog.description?.trim();
+    const hasPhysicalChars = dog.color || dog.furLength || (dog.height && !isNaN(parseFloat(dog.height))) || (dog.weight && !isNaN(parseFloat(dog.weight))) || dog.dewclaws;
+
     return (
       <div className="space-y-6">
         <div className="relative w-full aspect-square bg-muted rounded-lg overflow-hidden">
@@ -221,29 +224,29 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-1">Breed</h3>
-                <p>Colorado Mountain Dog</p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Gender</h3>
-                <p className="flex items-center gap-1">
-                  {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)}{" "}
-                  {genderSymbol}
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Birth Date</h3>
-                <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
-              </div>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-1">Breed</h3>
+              <p>Colorado Mountain Dog</p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Gender</h3>
+              <p className="flex items-center gap-1">
+                {dog.gender.charAt(0).toUpperCase() + dog.gender.slice(1)}{" "}
+                {genderSymbol}
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Birth Date</h3>
+              <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
+            </div>
+          </CardContent>
+        </Card>
+        {hasStory && (
           <Card>
             <CardHeader>
               <CardTitle>Story</CardTitle>
@@ -256,6 +259,8 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </div>
             </CardContent>
           </Card>
+        )}
+        {hasPhysicalChars && (
           <Card>
             <CardHeader>
               <CardTitle>Physical Characteristics</CardTitle>
@@ -293,6 +298,8 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               )}
             </CardContent>
           </Card>
+        )}
+        {(healthDocuments.length > 0 || pedigreeDocuments.length > 0) && (
           <Card>
             <CardHeader>
               <CardTitle className="break-words">Health Information</CardTitle>
@@ -322,6 +329,8 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </div>
             </CardContent>
           </Card>
+        )}
+        {pedigreeDocuments.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="break-words">
@@ -353,6 +362,7 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </div>
             </CardContent>
           </Card>
+        )}
         </div>
       </div>
     );
