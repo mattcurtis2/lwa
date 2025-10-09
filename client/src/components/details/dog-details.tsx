@@ -58,7 +58,7 @@ function DogDetails({ dog, litterWaitlistLink }) {
           <img src={dog.profileImageUrl} alt={dog.name} className="w-full h-64 object-cover rounded-lg" />
         </div>
       )}
-      {dog.description && (
+      {dog.description && dog.description.trim() && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Description</h3>
           <p className="text-lg text-stone-600">{dog.description}</p>
@@ -79,13 +79,13 @@ function DogDetails({ dog, litterWaitlistLink }) {
           {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
         </div>
       )}
-      {dog.narrativeDescription && (
+      {dog.narrativeDescription && dog.narrativeDescription.trim() && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Story</h3>
           <p className="text-lg text-stone-600">{dog.narrativeDescription}</p>
         </div>
       )}
-      {dog.healthData && (
+      {dog.healthData && dog.healthData.trim() && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Health Information</h3>
           <p className="text-lg text-stone-600">{dog.healthData}</p>
