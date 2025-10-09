@@ -299,7 +299,7 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
             </CardContent>
           </Card>
         )}
-        {(healthDocuments.length > 0 || pedigreeDocuments.length > 0) && (
+        {(dog.healthData || healthDocuments.length > 0) && (
           <Card>
             <CardHeader>
               <CardTitle className="break-words">Health Information</CardTitle>
@@ -322,9 +322,6 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
                       ))}
                     </div>
                   </div>
-                )}
-                {!dog.healthData && healthDocuments.length === 0 && (
-                  <p>No health information available</p>
                 )}
               </div>
             </CardContent>
@@ -363,7 +360,6 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
             </CardContent>
           </Card>
         )}
-        </div>
       </div>
     );
   }
