@@ -40,7 +40,7 @@ function DogDetails({ dog, litterWaitlistLink }) {
           price: dog.price,
           available: dog.available
         })}
-        {dog.registrationName && (
+        {dog.registrationName && dog.registrationName.trim() && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
         {dog.sold ? (
@@ -66,15 +66,15 @@ function DogDetails({ dog, litterWaitlistLink }) {
       )}
       {(dog.breed || dog.gender || dog.birthDate || dog.color || dog.furLength || dog.height || dog.weight) && (
         <div className="mt-4">
-          {dog.breed && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
-          {dog.gender && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
+          {dog.breed && dog.breed.trim() && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
+          {dog.gender && dog.gender.trim() && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
           {dog.birthDate && (
             <p className="text-lg text-stone-600">
               Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
             </p>
           )}
-          {dog.color && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
-          {dog.furLength && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
+          {dog.color && dog.color.trim() && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
+          {dog.furLength && dog.furLength.trim() && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
           {dog.height && <p className="text-lg text-stone-600">Height: {dog.height} inches</p>}
           {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
         </div>
