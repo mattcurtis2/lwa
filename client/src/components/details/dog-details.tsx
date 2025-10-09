@@ -64,19 +64,21 @@ function DogDetails({ dog, litterWaitlistLink }) {
           <p className="text-lg text-stone-600">{dog.description}</p>
         </div>
       )}
-      <div className="mt-4">
-        {dog.breed && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
-        {dog.gender && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
-        {dog.birthDate && (
-          <p className="text-lg text-stone-600">
-            Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
-          </p>
-        )}
-        {dog.color && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
-        {dog.furLength && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
-        {dog.height && <p className="text-lg text-stone-600">Height: {dog.height} inches</p>}
-        {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
-      </div>
+      {(dog.breed || dog.gender || dog.birthDate || dog.color || dog.furLength || dog.height || dog.weight) && (
+        <div className="mt-4">
+          {dog.breed && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
+          {dog.gender && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
+          {dog.birthDate && (
+            <p className="text-lg text-stone-600">
+              Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
+            </p>
+          )}
+          {dog.color && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
+          {dog.furLength && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
+          {dog.height && <p className="text-lg text-stone-600">Height: {dog.height} inches</p>}
+          {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
+        </div>
+      )}
       {dog.narrativeDescription && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Story</h3>
