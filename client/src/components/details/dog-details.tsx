@@ -27,6 +27,13 @@ function DogDetails({ dog, litterWaitlistLink }) {
   });
   const genderSymbol = dog.gender === 'male' ? '♂' : '♀';
 
+  // Helper function to check if a string field has actual content
+  const hasContent = (value) => value && typeof value === 'string' && value.trim().length > 0;
+  
+  // Check if basic info section has any actual content
+  const hasBasicInfo = hasContent(dog.breed) || hasContent(dog.gender) || dog.birthDate || 
+                       hasContent(dog.color) || hasContent(dog.furLength) || dog.height || dog.weight;
+
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
       <div className="flex flex-col gap-4">
@@ -40,7 +47,7 @@ function DogDetails({ dog, litterWaitlistLink }) {
           price: dog.price,
           available: dog.available
         })}
-        {dog.registrationName && dog.registrationName.trim() && (
+        {hasContent(dog.registrationName) && (
           <p className="text-lg text-stone-600">Registration: {dog.registrationName}</p>
         )}
         {dog.sold ? (
@@ -58,34 +65,34 @@ function DogDetails({ dog, litterWaitlistLink }) {
           <img src={dog.profileImageUrl} alt={dog.name} className="w-full h-64 object-cover rounded-lg" />
         </div>
       )}
-      {dog.description && dog.description.trim() && (
+      {hasContent(dog.description) && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Description</h3>
           <p className="text-lg text-stone-600">{dog.description}</p>
         </div>
       )}
-      {(dog.breed || dog.gender || dog.birthDate || dog.color || dog.furLength || dog.height || dog.weight) && (
+      {hasBasicInfo && (
         <div className="mt-4">
-          {dog.breed && dog.breed.trim() && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
-          {dog.gender && dog.gender.trim() && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
+          {hasContent(dog.breed) && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
+          {hasContent(dog.gender) && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
           {dog.birthDate && (
             <p className="text-lg text-stone-600">
               Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
             </p>
           )}
-          {dog.color && dog.color.trim() && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
-          {dog.furLength && dog.furLength.trim() && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
+          {hasContent(dog.color) && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
+          {hasContent(dog.furLength) && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
           {dog.height && <p className="text-lg text-stone-600">Height: {dog.height} inches</p>}
           {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
         </div>
       )}
-      {dog.narrativeDescription && dog.narrativeDescription.trim() && (
+      {hasContent(dog.narrativeDescription) && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Story</h3>
           <p className="text-lg text-stone-600">{dog.narrativeDescription}</p>
         </div>
       )}
-      {dog.healthData && dog.healthData.trim() && (
+      {hasContent(dog.healthData) && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold text-stone-800 mb-2">Health Information</h3>
           <p className="text-lg text-stone-600">{dog.healthData}</p>
