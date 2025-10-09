@@ -1,6 +1,7 @@
+
 import React from 'react';
 
-function DogDetails({ dog }) {
+function DogDetails({ dog, litterWaitlistLink }) {
   if (!dog) {
     console.warn('DogDetails: No dog data provided');
     return null;
@@ -59,21 +60,45 @@ function DogDetails({ dog }) {
       )}
       {dog.description && (
         <div className="mt-4">
+          <h3 className="text-xl font-semibold text-stone-800 mb-2">Description</h3>
           <p className="text-lg text-stone-600">{dog.description}</p>
         </div>
       )}
       <div className="mt-4">
-        <p className="text-lg text-stone-600">Breed: {dog.breed}</p>
+        {dog.breed && <p className="text-lg text-stone-600">Breed: {dog.breed}</p>}
         {dog.gender && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
         {dog.birthDate && (
           <p className="text-lg text-stone-600">
             Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
           </p>
         )}
+        {dog.color && <p className="text-lg text-stone-600">Color: {dog.color}</p>}
+        {dog.furLength && <p className="text-lg text-stone-600">Fur Length: {dog.furLength}</p>}
+        {dog.height && <p className="text-lg text-stone-600">Height: {dog.height} inches</p>}
+        {dog.weight && <p className="text-lg text-stone-600">Weight: {dog.weight} lbs</p>}
       </div>
       {dog.narrativeDescription && (
         <div className="mt-4">
+          <h3 className="text-xl font-semibold text-stone-800 mb-2">Story</h3>
           <p className="text-lg text-stone-600">{dog.narrativeDescription}</p>
+        </div>
+      )}
+      {dog.healthData && (
+        <div className="mt-4">
+          <h3 className="text-xl font-semibold text-stone-800 mb-2">Health Information</h3>
+          <p className="text-lg text-stone-600">{dog.healthData}</p>
+        </div>
+      )}
+      {litterWaitlistLink && !dog.sold && (
+        <div className="mt-6">
+          <a 
+            href={litterWaitlistLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          >
+            Interested? Sign Up Here
+          </a>
         </div>
       )}
     </div>
