@@ -235,7 +235,7 @@ export default function Header() {
             </Link>
 
             {/* Bakery */}
-            <Link href="/bakery" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
+            <Link href="/market/bakery" className="text-stone-600 hover:text-stone-900 font-medium transition-colors">
               Bakery
             </Link>
 
