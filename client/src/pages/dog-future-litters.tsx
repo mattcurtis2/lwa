@@ -248,7 +248,7 @@ export default function DogFutureLitters() {
                           onClick={(e) => e.stopPropagation()}
                           className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
                         >
-                          Sign Up Here
+                          Join Waitlist
                         </a>
                       </div>
                     ) : (

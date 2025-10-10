@@ -343,7 +343,7 @@ export default function DogCurrentLitters() {
                     size="sm"
                   >
                     <Heart className="h-4 w-4" />
-                    {litter.puppies.length > 0 ? "Puppy Interest Form" : "Join Our Waitlist"}
+                    {litter.puppies.length > 0 ? "Reserve a Puppy" : "Join Our Waitlist"}
                   </Button>
                 </div>
               </div>

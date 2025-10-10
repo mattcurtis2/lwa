@@ -85,7 +85,7 @@ export default function LitterDetail() {
                     rel="noopener noreferrer"
                     className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
                   >
-                    Sign Up Here
+                    {puppyCount > 0 ? "Reserve a Puppy" : "Sign Up Here"}
                   </a>
                 </div>
               )}
@@ -169,7 +169,7 @@ export default function LitterDetail() {
                 rel="noopener noreferrer"
                 className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
               >
-                Sign Up Here
+                {puppyCount > 0 ? "Reserve a Puppy" : "Sign Up Here"}
               </a>
             </div>
           )}
