@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Sheep, SheepLitter } from "@db/schema";
 import SheepForm from "@/components/admin/sheep-form";
@@ -39,7 +38,8 @@ export default function SheepLitterManagement() {
     editLitter,
     setEditLitter,
     createLitter,
-    updateLitter
+    updateLitter,
+    deleteLitter
   } = useSheepLitterManagement();
 
   const { data: sheep = [] } = useQuery<Sheep[]>({
@@ -224,29 +224,7 @@ export default function SheepLitterManagement() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={async () => {
-                    try {
-                      await fetch(`/api/sheep-litters/${litter.id}`, {
-                        method: 'DELETE',
-                      });
-                      
-                      // Refetch data
-                      queryClient.invalidateQueries({ queryKey: ['/api/sheep-litters'] });
-                      queryClient.invalidateQueries({ queryKey: ['/api/sheep'] });
-                      
-                      toast({
-                        title: 'Success',
-                        description: 'Litter deleted successfully',
-                      });
-                    } catch (error) {
-                      console.error('Error deleting litter:', error);
-                      toast({
-                        title: 'Error',
-                        description: 'Failed to delete litter',
-                        variant: 'destructive',
-                      });
-                    }
-                  }}>Delete</AlertDialogAction>
+                  <AlertDialogAction onClick={() => deleteLitter(litter.id)}>Delete</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -47,7 +47,7 @@ export function useSheepLitterManagement() {
           motherId: editLitter.motherId,
           fatherId: editLitter.fatherId,
           dueDate: formatApiDate(editLitter.dueDate),
-          isVisible: editLitter.isVisible || true,
+          isVisible: editLitter.isVisible ?? true,
           isCurrentLitter: editLitter.isCurrentLitter || false,
           isPastLitter: editLitter.isPastLitter || false,
           isPlannedLitter: editLitter.isPlannedLitter || false,
@@ -132,6 +132,32 @@ export function useSheepLitterManagement() {
     }
   };
 
+  const deleteLitter = async (litterId: number) => {
+    try {
+      const res = await fetch(`/api/sheep-litters/${litterId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['/api/sheep-litters'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sheep'] });
+      toast({
+        title: 'Success',
+        description: 'Litter deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting litter:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete litter',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return {
     showLitterForm,
     setShowLitterForm,
@@ -140,6 +166,7 @@ export function useSheepLitterManagement() {
     editLitter,
     setEditLitter,
     createLitter,
-    updateLitter
+    updateLitter,
+    deleteLitter
   };
 }

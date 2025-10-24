@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Goat, GoatLitter } from "@db/schema";
 import GoatForm from "@/components/forms/goat-form";
@@ -39,7 +38,8 @@ export default function GoatLitterManagement() {
     editLitter,
     setEditLitter,
     createLitter,
-    updateLitter
+    updateLitter,
+    deleteLitter
   } = useGoatLitterManagement();
 
   const { data: goats = [] } = useQuery<Goat[]>({
@@ -224,29 +224,7 @@ export default function GoatLitterManagement() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={async () => {
-                    try {
-                      await fetch(`/api/goat-litters/${litter.id}`, {
-                        method: 'DELETE',
-                      });
-                      
-                      // Refetch data
-                      queryClient.invalidateQueries({ queryKey: ['/api/goat-litters'] });
-                      queryClient.invalidateQueries({ queryKey: ['/api/goats'] });
-                      
-                      toast({
-                        title: 'Success',
-                        description: 'Litter deleted successfully',
-                      });
-                    } catch (error) {
-                      console.error('Error deleting litter:', error);
-                      toast({
-                        title: 'Error',
-                        description: 'Failed to delete litter',
-                        variant: 'destructive',
-                      });
-                    }
-                  }}>Delete</AlertDialogAction>
+                  <AlertDialogAction onClick={() => deleteLitter(litter.id)}>Delete</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
