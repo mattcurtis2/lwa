@@ -7,6 +7,7 @@ import LitterManagement from "@/components/admin/litter-management";
 import GoatManagement from "@/components/admin/goat-management";
 import GoatLitterManagement from "@/components/admin/goat-litter-management";
 import SheepManagement from "@/components/admin/sheep-management";
+import SheepLitterManagement from "@/components/admin/sheep-litter-management";
 import ContentSection from "@/components/admin/content-section";
 import MarketScheduleManager from "@/components/admin/market-schedule-manager";
 import MarketItemsManager from "@/components/admin/market-items-manager";
@@ -38,6 +39,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState("dogs");
   const [activeDogTab, setActiveDogTab] = useState("overview");
   const [activeGoatTab, setActiveGoatTab] = useState("overview");
+  const [activeSheepTab, setActiveSheepTab] = useState("overview");
   const [activeMarketTab, setActiveMarketTab] = useState("schedule");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -220,7 +222,18 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="sheep">
-              <SheepManagement />
+              <Tabs value={activeSheepTab} onValueChange={setActiveSheepTab}>
+                <TabsList className="mb-4 flex flex-wrap">
+                  <TabsTrigger value="overview">Sheep</TabsTrigger>
+                  <TabsTrigger value="litters">Litters</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview">
+                  <SheepManagement />
+                </TabsContent>
+                <TabsContent value="litters">
+                  <SheepLitterManagement />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="market">
