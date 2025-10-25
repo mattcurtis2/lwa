@@ -127,7 +127,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                   {dog.registrationName && (
                     <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
                   )}
-                  <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
+                  <span className="text-stone-600">• {formatAge(parseApiDate(dog.birthDate))}</span>
                 </div>
               </div>
               <p className="text-stone-600 mb-4">{dog.description}</p>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from './use-toast';
 import { Dog, Litter } from '@db/schema';
-import { formatApiDate } from '@/lib/date-utils';
+import { formatApiDate, parseApiDate } from '@/lib/date-utils';
 
 export function useLitterManagement() {
   const { toast } = useToast();
@@ -75,7 +75,7 @@ export function useLitterManagement() {
 
       const { puppies, mother, father, ...litterData } = editLitter;
 
-      const dueDate = new Date(litterData.dueDate);
+      const dueDate = parseApiDate(litterData.dueDate);
       if (isNaN(dueDate.getTime())) {
         throw new Error('Invalid due date');
       }
