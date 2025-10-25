@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate, formatApiDate } from "@/lib/date-utils";
 import { useLitterManagement } from "@/hooks/use-litter-management";
 import { X, Plus } from "lucide-react";
 
@@ -92,7 +92,7 @@ export default function LitterManagement() {
       fatherId: litter.fatherId,
       mother,
       father,
-      birthDate: new Date(litter.dueDate).toISOString().split('T')[0],
+      birthDate: formatApiDate(litter.dueDate),
       gender: 'male',
       available: false,
       breed: "Colorado Mountain Dogs",
@@ -188,7 +188,7 @@ export default function LitterManagement() {
             </Button>
           </div>
           <CardDescription>
-            Due Date: {formatDisplayDate(new Date(litter.dueDate))} • {litterPuppies.length} {litterPuppies.length === 1 ? 'puppy' : 'puppies'}
+            Due Date: {formatDisplayDate(parseApiDate(litter.dueDate))} • {litterPuppies.length} {litterPuppies.length === 1 ? 'puppy' : 'puppies'}
           </CardDescription>
         </CardHeader>
         <CardContent>
