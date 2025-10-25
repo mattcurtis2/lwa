@@ -7,22 +7,17 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
-### January 17, 2025 - Date Parsing Bug Fix
-- Fixed off-by-one day error on litter pages and animal detail pages caused by timezone issues
-- Replaced all instances of `new Date()` and `parseISO()` with the custom `parseApiDate()` utility for date-only strings
+### January 17, 2025 - Comprehensive Date Parsing Bug Fix
+- Fixed widespread off-by-one day error across the entire application caused by timezone issues
+- Replaced all instances of `new Date()` with date-only strings to use the custom `parseApiDate()` utility
 - Updated the following files:
-  - `client/src/pages/litter-detail.tsx`
-  - `client/src/pages/dog-current-litters.tsx`
-  - `client/src/pages/dog-future-litters.tsx`
-  - `client/src/pages/past-litters.tsx`
-  - `client/src/pages/goat-detail.tsx`
-  - `client/src/pages/goat-past-litters.tsx`
-  - `client/src/pages/goat-upcoming-litters.tsx`
-  - `client/src/components/dog-details.tsx`
-  - `client/src/components/goat-details.tsx`
-  - `client/src/components/sheep-details.tsx`
-  - `client/src/components/sheep-card.tsx`
+  - Public pages: `litter-detail.tsx`, `dog-current-litters.tsx`, `dog-future-litters.tsx`, `past-litters.tsx`, `goat-detail.tsx`, `goat-past-litters.tsx`, `goat-upcoming-litters.tsx`
+  - Components: `dog-details.tsx`, `goat-details.tsx`, `sheep-details.tsx`, `sheep-card.tsx`, `dog-card.tsx`, `goat-card.tsx`, `dog-profile.tsx`
+  - Layout: `header.tsx`, `mobile-nav.tsx`
+  - Forms: `dog-form.tsx`
+  - Hooks: `use-litter-management.ts`
 - The `parseApiDate()` function creates dates at local midnight to avoid timezone offsets that can cause off-by-one day errors
+- All date-only fields (birthDate, dueDate, expectedPickupDate, expectedBreedingDate) now consistently use parseApiDate throughout the application
 
 ### January 17, 2025 - Litter Banner Logic Fix
 - Fixed litter banner logic to properly check for puppy availability instead of planned litter status
