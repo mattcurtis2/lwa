@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Goat, GoatLitter } from "@db/schema";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import GoatDetails from "@/components/goat-details";
 
@@ -53,7 +53,7 @@ export default function GoatLitterDetail() {
     );
   }
 
-  const isPastDueDate = new Date(litter.dueDate) < new Date();
+  const isPastDueDate = parseApiDate(litter.dueDate) < new Date();
   const kidCount = litter.kids?.length || 0;
   const maleCount = litter.kids?.filter(kid => kid.gender === 'male').length || 0;
   const femaleCount = litter.kids?.filter(kid => kid.gender === 'female').length || 0;
@@ -70,8 +70,8 @@ export default function GoatLitterDetail() {
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-amber-900">
                 {isPastDueDate
-                  ? `Born ${formatDisplayDate(new Date(litter.dueDate))}`
-                  : `Expected ${formatDisplayDate(new Date(litter.dueDate))}`}
+                  ? `Born ${formatDisplayDate(parseApiDate(litter.dueDate))}`
+                  : `Expected ${formatDisplayDate(parseApiDate(litter.dueDate))}`}
               </h1>
             </div>
 

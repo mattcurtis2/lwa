@@ -124,7 +124,7 @@ export default function GoatUpcomingLitters() {
               <div className="grid md:grid-cols-[1fr,2fr] gap-6">
                 <div>
                   <div className="bg-amber-200/80 backdrop-blur-sm px-3 py-1 rounded-full text-amber-800 text-sm font-semibold mb-3 inline-block">
-                    Expected {formatDisplayDate(new Date(litter.dueDate))}
+                    Expected {formatDisplayDate(parseApiDate(litter.dueDate))}
                   </div>
                   <p className="text-muted-foreground text-sm">
                     Click to view detailed information about this current litter

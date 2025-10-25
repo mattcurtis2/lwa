@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { parseApiDate } from "@/lib/date-utils";
 
 interface LitterWithRelations extends GoatLitter {
   mother: Goat & { media?: GoatMedia[] };
@@ -147,8 +148,8 @@ export default function GoatCurrentLitters() {
     if (a.kids.length === 0 && b.kids.length > 0) return 1;
     
     // Then sort by due date (most recent first)
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
+    const dateA = parseApiDate(a.dueDate);
+    const dateB = parseApiDate(b.dueDate);
     return dateB.getTime() - dateA.getTime();
   });
 
@@ -175,8 +176,8 @@ export default function GoatCurrentLitters() {
                 </h3>
                 <p className="text-muted-foreground">
                   {litter.kids.length > 0 
-                    ? `Born: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}` 
-                    : `Due: ${format(new Date(litter.dueDate), 'MMM d, yyyy')}`}
+                    ? `Born: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}` 
+                    : `Due: ${format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}`}
                 </p>
               </div>
               <CardContent className="p-6">
