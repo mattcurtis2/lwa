@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { formatApiDate, formatInputDate } from "@/lib/date-utils";
+import { formatApiDate, formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -122,7 +122,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     defaultValues: {
       name: goat?.name || "",
       registrationName: goat?.registrationName || "",
-      birthDate: goat?.birthDate ? formatInputDate(new Date(goat.birthDate)) : formatInputDate(new Date()),
+      birthDate: goat?.birthDate ? formatInputDate(parseApiDate(goat.birthDate)) : formatInputDate(new Date()),
       gender: goat?.gender || "female",
       breed: goat?.breed || "Nigerian Dwarf",
       color: goat?.color || "",

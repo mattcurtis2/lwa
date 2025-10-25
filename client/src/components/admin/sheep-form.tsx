@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { X, ImageIcon, Upload, Crop } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
+import { formatApiDate } from "@/lib/date-utils";
 
 interface MediaInput {
   url: string;
@@ -102,7 +103,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         registrationName: sheep.registrationName || "",
         breed: sheep.breed || "Katahdin",
         gender: sheep.gender as "male" | "female" || "female",
-        birthDate: sheep.birthDate ? new Date(sheep.birthDate).toISOString().split('T')[0] : "",
+        birthDate: sheep.birthDate ? formatApiDate(sheep.birthDate) : "",
         color: sheep.color || "",
         weight: typeof sheep.weight === 'number' ? sheep.weight : undefined,
         description: sheep.description || "",
