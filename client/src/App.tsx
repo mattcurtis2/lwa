@@ -23,6 +23,9 @@ import GoatDetail from "@/pages/goat-detail";
 import GoatLitterDetail from "@/pages/goat-litter-detail";
 import Sheep from "@/pages/sheep";
 import GoatUpcomingLitters from "@/pages/goat-upcoming-litters";
+import SheepCurrentLitters from "@/pages/sheep-current-litters";
+import SheepUpcomingLitters from "@/pages/sheep-upcoming-litters";
+import SheepPastLitters from "@/pages/sheep-past-litters";
 import GoatPastLitters from "@/pages/goat-past-litters";
 import GoatCurrentLitters from "@/pages/goat-current-litters";
 import Gallery from "@/pages/gallery";
@@ -117,12 +120,9 @@ function Router() {
           <Route path="/sheep/available">
             {() => <Sheep showAvailable={true} />}
           </Route>
-          <Route path="/sheep/litters/current">
-            {() => <div>Sheep Current Litters - Coming Soon</div>}
-          </Route>
-          <Route path="/sheep/litters/past">
-            {() => <div>Sheep Past Litters - Coming Soon</div>}
-          </Route>
+          <Route path="/sheep/litters/upcoming" component={SheepUpcomingLitters} />
+          <Route path="/sheep/litters/current" component={SheepCurrentLitters} />
+          <Route path="/sheep/litters/past" component={SheepPastLitters} />
           {/* Gallery Route */}
           <Route path="/gallery" component={Gallery} />
           {/* Market Routes */}
