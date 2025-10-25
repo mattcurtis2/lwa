@@ -7,6 +7,15 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+### January 25, 2025 - Sheep Litter Public Display System
+- Created complete public-facing sheep litter display system matching goat litter functionality
+- Added filtered API endpoints: `/api/sheep-litters/list/current` and `/api/sheep-litters/list/past`
+- Created three public pages: current litters, upcoming litters, and past litters
+- Added routes in App.tsx for all three sheep litter pages
+- Updated header and mobile navigation to conditionally show sheep litter links based on visibility flags
+- Fixed navigation logic to use boolean flags (isCurrentLitter, isPlannedLitter, isPastLitter) instead of date comparisons
+- Sheep litters now follow the same display pattern as goat litters with consistent UI/UX
+
 ### January 17, 2025 - Comprehensive Date Parsing Bug Fix
 - Fixed widespread off-by-one day error across the entire application caused by timezone issues
 - Replaced all instances of `new Date()` with date-only strings to use the custom `parseApiDate()` utility
