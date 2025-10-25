@@ -25,16 +25,9 @@ export default function Header() {
   // Check if there are sheep matching various criteria
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
-  const hasCurrentSheepLitters = sheepLitters.some(l => {
-    const dueDate = parseApiDate(l.dueDate);
-    const today = new Date();
-    return dueDate >= today;
-  });
-  const hasPastSheepLitters = sheepLitters.some(l => {
-    const dueDate = parseApiDate(l.dueDate);
-    const today = new Date();
-    return dueDate < today;
-  });
+  const hasCurrentSheepLitters = sheepLitters.some(l => l.isVisible && l.isCurrentLitter);
+  const hasUpcomingSheepLitters = sheepLitters.some(l => l.isVisible && l.isPlannedLitter);
+  const hasPastSheepLitters = sheepLitters.some(l => l.isVisible && l.isPastLitter);
 
   return (
     <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
@@ -205,6 +198,13 @@ export default function Header() {
                   <Link href="/sheep/litters/current">
                     <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                       Current Litters
+                    </a>
+                  </Link>
+                )}
+                {hasUpcomingSheepLitters && (
+                  <Link href="/sheep/litters/upcoming">
+                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                      Upcoming Litters
                     </a>
                   </Link>
                 )}
