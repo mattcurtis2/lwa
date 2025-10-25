@@ -75,10 +75,16 @@ export default function SheepCurrentLitters() {
     document.head.appendChild(script);
   }, [litters]);
   
+  const isValidImageUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    if (url === 'data:,' || url === 'data:') return false;
+    return true;
+  };
+  
   const getLitterImage = (litter: LitterWithRelations): string | null => {
     if (litter.lambs.length > 0) {
       for (const lamb of litter.lambs) {
-        if (lamb.profileImageUrl) return lamb.profileImageUrl;
+        if (isValidImageUrl(lamb.profileImageUrl)) return lamb.profileImageUrl;
         if (lamb.media && lamb.media.length > 0) {
           const imgMedia = lamb.media.find(m => m.type === 'image');
           if (imgMedia) return imgMedia.url;
@@ -87,7 +93,7 @@ export default function SheepCurrentLitters() {
     }
     
     if (litter.mother) {
-      if (litter.mother.profileImageUrl) return litter.mother.profileImageUrl;
+      if (isValidImageUrl(litter.mother.profileImageUrl)) return litter.mother.profileImageUrl;
       if (litter.mother.media && litter.mother.media.length > 0) {
         const imgMedia = litter.mother.media.find(m => m.type === 'image');
         if (imgMedia) return imgMedia.url;
@@ -95,7 +101,7 @@ export default function SheepCurrentLitters() {
     }
     
     if (litter.father) {
-      if (litter.father.profileImageUrl) return litter.father.profileImageUrl;
+      if (isValidImageUrl(litter.father.profileImageUrl)) return litter.father.profileImageUrl;
       if (litter.father.media && litter.father.media.length > 0) {
         const imgMedia = litter.father.media.find(m => m.type === 'image');
         if (imgMedia) return imgMedia.url;
@@ -197,7 +203,7 @@ export default function SheepCurrentLitters() {
                     
                     <div className="flex gap-2">
                       <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden shadow-sm border border-pink-100">
-                        {litter.mother?.profileImageUrl ? (
+                        {isValidImageUrl(litter.mother?.profileImageUrl) ? (
                           <img 
                             src={litter.mother.profileImageUrl} 
                             alt={litter.mother.name}
@@ -217,7 +223,7 @@ export default function SheepCurrentLitters() {
                       </div>
                       
                       <div className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden shadow-sm border border-blue-100">
-                        {litter.father?.profileImageUrl ? (
+                        {isValidImageUrl(litter.father?.profileImageUrl) ? (
                           <img 
                             src={litter.father.profileImageUrl} 
                             alt={litter.father.name}
@@ -248,7 +254,7 @@ export default function SheepCurrentLitters() {
                           {litter.lambs.map((lamb) => (
                             <div key={lamb.id} className="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors">
                               <div className={`h-16 w-16 md:h-20 md:w-20 rounded-md overflow-hidden border-2 ${lamb.gender === 'female' ? 'border-pink-200' : 'border-blue-200'}`}>
-                                {lamb.profileImageUrl ? (
+                                {isValidImageUrl(lamb.profileImageUrl) ? (
                                   <img 
                                     src={lamb.profileImageUrl} 
                                     alt={lamb.name}
