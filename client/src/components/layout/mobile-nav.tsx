@@ -24,16 +24,9 @@ export default function MobileNav() {
   // Check if there are sheep matching various criteria
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
-  const hasCurrentSheepLitters = sheepLitters.some(l => {
-    const dueDate = parseApiDate(l.dueDate);
-    const today = new Date();
-    return dueDate >= today;
-  });
-  const hasPastSheepLitters = sheepLitters.some(l => {
-    const dueDate = parseApiDate(l.dueDate);
-    const today = new Date();
-    return dueDate < today;
-  });
+  const hasCurrentSheepLitters = sheepLitters.some(l => l.isVisible && l.isCurrentLitter);
+  const hasUpcomingSheepLitters = sheepLitters.some(l => l.isVisible && l.isPlannedLitter);
+  const hasPastSheepLitters = sheepLitters.some(l => l.isVisible && l.isPastLitter);
 
   const handleSelect = () => {
     setOpen(false);
@@ -169,6 +162,13 @@ export default function MobileNav() {
               <Link href="/sheep/litters/current">
                 <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
                   Current Litters
+                </a>
+              </Link>
+            )}
+            {hasUpcomingSheepLitters && (
+              <Link href="/sheep/litters/upcoming">
+                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                  Upcoming Litters
                 </a>
               </Link>
             )}
