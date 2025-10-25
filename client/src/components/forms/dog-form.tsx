@@ -1184,7 +1184,7 @@ export default function DogForm({
                       <SelectItem value="none">None</SelectItem>
                       {availableLitters.map((litter) => (
                         <SelectItem key={litter.id} value={litter.id.toString()}>
-                          {format(new Date(litter.dueDate), 'MMM dd, yyyy')} Litter
+                          {format(parseApiDate(litter.dueDate), 'MMM dd, yyyy')} Litter
                         </SelectItem>
                       ))}
                     </SelectContent>

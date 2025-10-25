@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatAge } from "@/lib/date-utils";
+import { formatAge, parseApiDate } from "@/lib/date-utils";
 import { Dog, DogMedia } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
 import { Link } from "wouter";
@@ -73,7 +73,7 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
                     {dog.registrationName && (
                       <p className="text-sm text-muted-foreground mt-0.5">{dog.registrationName}</p>
                     )}
-                    <span className="text-stone-600">• {formatAge(new Date(dog.birthDate))}</span>
+                    <span className="text-stone-600">• {formatAge(parseApiDate(dog.birthDate))}</span>
                   </div>
                 </div>
               </Link>

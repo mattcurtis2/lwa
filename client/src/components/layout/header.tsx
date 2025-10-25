@@ -5,6 +5,7 @@ import MobileNav from "./mobile-nav";
 import { useState } from "react";
 import { useCart } from "@/contexts/cart-context";
 import { ShoppingCart } from "lucide-react";
+import { parseApiDate } from "@/lib/date-utils";
 
 export default function Header() {
   const [isDogDropdownOpen, setIsDogDropdownOpen] = useState(false);
@@ -25,12 +26,12 @@ export default function Header() {
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => {
-    const dueDate = new Date(l.dueDate);
+    const dueDate = parseApiDate(l.dueDate);
     const today = new Date();
     return dueDate >= today;
   });
   const hasPastSheepLitters = sheepLitters.some(l => {
-    const dueDate = new Date(l.dueDate);
+    const dueDate = parseApiDate(l.dueDate);
     const today = new Date();
     return dueDate < today;
   });

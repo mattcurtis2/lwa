@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Sheep, SheepLitter } from "@db/schema";
 import { useCart } from "@/contexts/cart-context";
+import { parseApiDate } from "@/lib/date-utils";
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -24,12 +25,12 @@ export default function MobileNav() {
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => {
-    const dueDate = new Date(l.dueDate);
+    const dueDate = parseApiDate(l.dueDate);
     const today = new Date();
     return dueDate >= today;
   });
   const hasPastSheepLitters = sheepLitters.some(l => {
-    const dueDate = new Date(l.dueDate);
+    const dueDate = parseApiDate(l.dueDate);
     const today = new Date();
     return dueDate < today;
   });

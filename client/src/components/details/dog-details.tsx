@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { parseApiDate } from '@/lib/date-utils';
 
 function DogDetails({ dog, litterWaitlistLink }) {
   if (!dog) {
@@ -77,7 +78,7 @@ function DogDetails({ dog, litterWaitlistLink }) {
           {hasContent(dog.gender) && <p className="text-lg text-stone-600">Gender: {dog.gender}</p>}
           {dog.birthDate && (
             <p className="text-lg text-stone-600">
-              Birth Date: {new Date(dog.birthDate).toLocaleDateString()}
+              Birth Date: {parseApiDate(dog.birthDate).toLocaleDateString()}
             </p>
           )}
           {hasContent(dog.color) && <p className="text-lg text-stone-600">Color: {dog.color}</p>}

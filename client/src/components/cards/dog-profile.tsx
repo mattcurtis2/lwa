@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ImageIcon } from "lucide-react";
-import { formatDisplayDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 
 interface DogProfileProps {
   dog: Dog & { media?: DogMedia[] };
@@ -12,7 +12,7 @@ interface DogProfileProps {
 export default function DogProfile({ dog }: DogProfileProps) {
   const calculateAge = (birthDate: string) => {
     const today = new Date();
-    const birth = new Date(birthDate);
+    const birth = parseApiDate(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
@@ -75,7 +75,7 @@ export default function DogProfile({ dog }: DogProfileProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Birth Date</p>
-              <p>{formatDisplayDate(new Date(dog.birthDate))}</p>
+              <p>{formatDisplayDate(parseApiDate(dog.birthDate))}</p>
             </div>
             {dog.color && (
               <div>

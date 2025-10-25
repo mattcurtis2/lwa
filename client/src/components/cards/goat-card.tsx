@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatAge } from "@/lib/date-utils";
+import { formatAge, parseApiDate } from "@/lib/date-utils";
 import { Link } from "wouter";
 import type { Goat } from "@db/schema";
 import DogMediaCarousel from "./dog-media-carousel";
@@ -88,7 +88,7 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                       <p className="text-sm text-muted-foreground mt-0.5">{goat.registrationName}</p>
                     )}
                     {goat.birthDate && (
-                      <span className="text-stone-600">• {formatAge(new Date(goat.birthDate))}</span>
+                      <span className="text-stone-600">• {formatAge(parseApiDate(goat.birthDate))}</span>
                     )}
                     {showPrice && goat.available && goat.price && !isNaN(parseInt(goat.price)) && (
                       <div className="mt-2">
