@@ -1,9 +1,111 @@
 import { Router } from "express";
 import { db } from "../../db/connection";
 import { sheep, sheepLitters } from "@db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 const router = Router();
+
+// Get current sheep litters
+router.get('/api/sheep-litters/list/current', async (req, res) => {
+  try {
+    const allLitters = await db.query.sheepLitters.findMany({
+      where: and(
+        eq(sheepLitters.isVisible, true),
+        eq(sheepLitters.isCurrentLitter, true)
+      ),
+      orderBy: [desc(sheepLitters.dueDate)],
+      with: {
+        mother: {
+          with: {
+            media: true
+          }
+        },
+        father: {
+          with: {
+            media: true
+          }
+        }
+      }
+    });
+    
+    // For each litter, find lambs (sheep with litterId matching the litter's id)
+    const littersWithLambs = await Promise.all(allLitters.map(async (litter) => {
+      const lambs = await db.query.sheep.findMany({
+        where: and(
+          eq(sheep.litterId, litter.id),
+          eq(sheep.died, false)
+        ),
+        with: {
+          media: true
+        }
+      });
+      
+      return {
+        ...litter,
+        lambs: lambs || []
+      };
+    }));
+    
+    res.json(littersWithLambs);
+  } catch (error: any) {
+    console.error('Error fetching current sheep litters:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch current sheep litters',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
+
+// Get past sheep litters
+router.get('/api/sheep-litters/list/past', async (req, res) => {
+  try {
+    const pastLitters = await db.query.sheepLitters.findMany({
+      where: and(
+        eq(sheepLitters.isVisible, true),
+        eq(sheepLitters.isPastLitter, true)
+      ),
+      orderBy: [desc(sheepLitters.dueDate)],
+      with: {
+        mother: {
+          with: {
+            media: true
+          }
+        },
+        father: {
+          with: {
+            media: true
+          }
+        }
+      }
+    });
+    
+    // For each litter, find lambs (sheep with litterId matching the litter's id)
+    const littersWithLambs = await Promise.all(pastLitters.map(async (litter) => {
+      const lambs = await db.query.sheep.findMany({
+        where: and(
+          eq(sheep.litterId, litter.id),
+          eq(sheep.died, false)
+        ),
+        with: {
+          media: true
+        }
+      });
+      
+      return {
+        ...litter,
+        lambs
+      };
+    }));
+    
+    res.json(littersWithLambs);
+  } catch (error: any) {
+    console.error('Error fetching past sheep litters:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch past sheep litters',
+      details: error.message || 'Unknown error' 
+    });
+  }
+});
 
 // Get all sheep litters with their relations
 router.get('/api/sheep-litters', async (req, res) => {
