@@ -6,7 +6,7 @@ import GoatForm from "@/components/forms/goat-form";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { formatApiDate } from "@/lib/date-utils";
+import { formatApiDate, parseApiDate } from "@/lib/date-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,7 +108,7 @@ export default function GoatLitterManagement() {
             </Button>
           </div>
           <CardDescription>
-            Due Date: {formatDisplayDate(new Date(litter.dueDate))}
+            Due Date: {formatDisplayDate(parseApiDate(litter.dueDate))}
           </CardDescription>
         </CardHeader>
         <CardContent>
