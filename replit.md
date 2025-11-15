@@ -7,6 +7,14 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+### November 15, 2025 - Sheep Health and Pedigree Management
+- Extended sheep admin form to include healthData and pedigree text fields with document upload functionality
+- Added separate health and pedigree document state management matching dog/goat form patterns
+- Implemented FileUpload component integration for health and pedigree documents with S3 upload support
+- Documents are categorized by type ('health' or 'pedigree') and synchronized with form state via setValue
+- Sheep detail page already had complete health and pedigree tab infrastructure displaying documents and information
+- All changes architect-reviewed with no security issues; form patterns now consistent across dogs, goats, and sheep
+
 ### January 25, 2025 - Sheep Litter Public Display System
 - Created complete public-facing sheep litter display system matching goat litter functionality
 - Added filtered API endpoints: `/api/sheep-litters/list/current` and `/api/sheep-litters/list/past`
