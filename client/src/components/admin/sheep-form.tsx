@@ -16,10 +16,12 @@ import { Sheep } from "@db/schema";
 import { ImageCrop } from "@/components/ui/image-crop";
 import { useDropzone } from 'react-dropzone';
 import { cn } from "@/lib/utils";
-import { X, ImageIcon, Upload, Crop } from "lucide-react";
+import { X, ImageIcon, Upload, Crop, FileText, ExternalLink } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { formatApiDate } from "@/lib/date-utils";
+import { FileUpload } from "@/components/ui/file-upload";
+import { uploadFileToS3 } from "@/lib/upload-utils";
 
 interface MediaInput {
   url: string;
@@ -28,6 +30,14 @@ interface MediaInput {
   isNew?: boolean;
   file?: File;
   tempUrl?: string;
+}
+
+interface Document {
+  id?: number;
+  type: string;
+  url: string;
+  name: string;
+  mimeType: string;
 }
 
 const mediaSchema = z.object({
@@ -45,12 +55,20 @@ const sheepFormSchema = z.object({
   color: z.string().optional(),
   weight: z.number().optional(),
   description: z.string().optional(),
+  healthData: z.string().optional().nullable(),
+  pedigree: z.string().optional().nullable(),
   available: z.boolean().default(false),
   sold: z.boolean().default(false),
   died: z.boolean().default(false),
   profileImageUrl: z.string().optional(),
   display: z.boolean().default(true),
   media: z.array(mediaSchema).optional(),
+  documents: z.array(z.object({
+    type: z.string(),
+    url: z.string(),
+    name: z.string(),
+    mimeType: z.string()
+  })).optional()
 });
 
 type SheepFormData = z.infer<typeof sheepFormSchema>;
@@ -58,7 +76,7 @@ type SheepFormData = z.infer<typeof sheepFormSchema>;
 interface SheepFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  sheep?: Sheep | null;
+  sheep?: (Sheep & { media?: any[]; documents?: Document[] }) | null;
   mode: 'create' | 'edit';
   fromLitter?: boolean;
 }
@@ -70,6 +88,9 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [mediaInputs, setMediaInputs] = useState<MediaInput[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const [healthDocuments, setHealthDocuments] = useState<Document[]>([]);
+  const [pedigreeDocuments, setPedigreeDocuments] = useState<Document[]>([]);
   const [showCropper, setShowCropper] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState("");
   const [tempMediaData, setTempMediaData] = useState<{ index: number; file: File | undefined; isProfileImage: boolean } | null>(null);
@@ -87,12 +108,15 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
       color: "",
       weight: undefined,
       description: "",
+      healthData: "",
+      pedigree: "",
       available: false,
       sold: false,
       died: false,
       profileImageUrl: "",
       display: true,
       media: [],
+      documents: [],
     },
   });
 
@@ -107,6 +131,8 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         color: sheep.color || "",
         weight: typeof sheep.weight === 'number' ? sheep.weight : undefined,
         description: sheep.description || "",
+        healthData: sheep.healthData || "",
+        pedigree: sheep.pedigree || "",
         available: sheep.available || false,
         sold: sheep.sold || false,
         died: sheep.died || false,
@@ -117,6 +143,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
           type: m.type as "image" | "video",
           fileName: m.fileName || undefined
         })),
+        documents: sheep.documents || [],
       });
       setProfileImageUrl(sheep.profileImageUrl || "");
 
@@ -139,6 +166,14 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
       }
 
       setMediaInputs(media);
+
+      // Load documents
+      if (sheep.documents) {
+        const health = sheep.documents.filter(doc => doc.type === 'health');
+        const pedigree = sheep.documents.filter(doc => doc.type === 'pedigree');
+        setHealthDocuments(health);
+        setPedigreeDocuments(pedigree);
+      }
     } else {
       form.reset({
         name: "",
@@ -149,15 +184,20 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         color: "",
         weight: undefined,
         description: "",
+        healthData: "",
+        pedigree: "",
         available: false,
         sold: false,
         died: false,
         profileImageUrl: "",
         display: true,
         media: [],
+        documents: [],
       });
       setProfileImageUrl("");
       setMediaInputs([]);
+      setHealthDocuments([]);
+      setPedigreeDocuments([]);
     }
   }, [sheep, mode, form]);
 
@@ -327,6 +367,73 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
       setShowCropper(false);
       setCropImageUrl("");
       setTempMediaData(null);
+    }
+  };
+
+  const handleDocumentUpload = async (file: File, type: 'health' | 'pedigree') => {
+    try {
+      if (!file || !(file instanceof File)) {
+        throw new Error('Invalid file object');
+      }
+
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error('File size must be less than 50MB');
+      }
+
+      setIsUploadingDoc(true);
+
+      const uploadedUrl = await uploadFileToS3(file);
+
+      if (!uploadedUrl) {
+        throw new Error('File upload failed - no URL returned');
+      }
+
+      const newDoc: Document = {
+        type,
+        url: uploadedUrl,
+        name: file.name,
+        mimeType: file.type
+      };
+
+      if (type === 'health') {
+        setHealthDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, newDoc, ...pedigreeDocuments];
+        form.setValue("documents", allDocs);
+      } else {
+        setPedigreeDocuments(prev => [newDoc, ...prev]);
+        const allDocs = [...healthDocuments, ...pedigreeDocuments, newDoc];
+        form.setValue("documents", allDocs);
+      }
+
+      toast({
+        title: "Success",
+        description: "Document uploaded successfully",
+      });
+    } catch (error) {
+      let errorMessage = "Failed to upload document";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const removeDocument = (index: number, type: 'health' | 'pedigree') => {
+    if (type === 'health') {
+      const newHealthDocs = healthDocuments.filter((_, i) => i !== index);
+      setHealthDocuments(newHealthDocs);
+      form.setValue("documents", [...newHealthDocs, ...pedigreeDocuments]);
+    } else {
+      const newPedigreeDocs = pedigreeDocuments.filter((_, i) => i !== index);
+      setPedigreeDocuments(newPedigreeDocs);
+      form.setValue("documents", [...healthDocuments, ...newPedigreeDocs]);
     }
   };
 
@@ -562,6 +669,158 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
                         className="min-h-[100px]"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="healthData"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Health Information</FormLabel>
+                    <FormControl>
+                      <div className="space-y-4">
+                        <Textarea
+                          {...field}
+                          placeholder="Health certifications, testing results, etc."
+                          className="min-h-[100px]"
+                        />
+                        <div className="space-y-2">
+                          <Label>Health Documents</Label>
+                          <FileUpload
+                            onFileSelect={(file) => handleDocumentUpload(file, 'health')}
+                            accept="application/pdf,image/jpeg,image/png,video/*"
+                            isUploading={isUploadingDoc}
+                            skipCrop={true}
+                          />
+                          {healthDocuments.length > 0 && (
+                            <div className="space-y-2">
+                              {healthDocuments.map((doc, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                                  <div className="flex items-center gap-2">
+                                    {doc.mimeType.startsWith('image/') ? (
+                                      <img
+                                        src={doc.url}
+                                        alt={doc.name}
+                                        className="w-12 h-12 object-cover rounded"
+                                      />
+                                    ) : doc.mimeType.startsWith('video/') ? (
+                                      <video
+                                        src={doc.url}
+                                        className="w-12 h-12 object-cover rounded"
+                                      />
+                                    ) : (
+                                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                        <FileText className="h-6 w-6 text-muted-foreground" />
+                                      </div>
+                                    )}
+                                    <span className="truncate max-w-[200px]">{doc.name}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      asChild
+                                    >
+                                      <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="h-4 w-4" />
+                                      </a>
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => removeDocument(index, 'health')}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="pedigree"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pedigree Information</FormLabel>
+                    <FormControl>
+                      <div className="space-y-4">
+                        <Textarea
+                          {...field}
+                          placeholder="Family history and lineage information"
+                          className="min-h-[100px]"
+                        />
+                        <div className="space-y-2">
+                          <Label>Pedigree Documents</Label>
+                          <FileUpload
+                            onFileSelect={(file) => handleDocumentUpload(file, 'pedigree')}
+                            accept="application/pdf,image/jpeg,image/png,video/*"
+                            isUploading={isUploadingDoc}
+                            skipCrop={true}
+                          />
+                          {pedigreeDocuments.length > 0 && (
+                            <div className="space-y-2">
+                              {pedigreeDocuments.map((doc, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                                  <div className="flex items-center gap-2">
+                                    {doc.mimeType.startsWith('image/') ? (
+                                      <img
+                                        src={doc.url}
+                                        alt={doc.name}
+                                        className="w-12 h-12 object-cover rounded"
+                                      />
+                                    ) : doc.mimeType.startsWith('video/') ? (
+                                      <video
+                                        src={doc.url}
+                                        className="w-12 h-12 object-cover rounded"
+                                      />
+                                    ) : (
+                                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                        <FileText className="h-6 w-6 text-muted-foreground" />
+                                      </div>
+                                    )}
+                                    <span className="truncate max-w-[200px]">{doc.name}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      asChild
+                                    >
+                                      <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="h-4 w-4" />
+                                      </a>
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => removeDocument(index, 'pedigree')}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
