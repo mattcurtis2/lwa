@@ -7,6 +7,13 @@ This full-stack web application manages a small family farm specializing in Colo
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+### November 15, 2025 - Admin Litter Parent Image Validation Fix
+- Fixed parent image display in goat and sheep litter admin panels where animals with invalid profileImageUrl values (e.g., "data:,") would not show any image
+- Added isValidImageUrl() validation function to both goat-litter-management.tsx and sheep-litter-management.tsx
+- Validation checks for empty strings and invalid data URL placeholders before attempting to render profileImageUrl
+- When profileImageUrl is invalid, components now correctly fall back to first media array item, ensuring parent pictures display properly
+- Fixed Thistle's (sheep father) picture not displaying in sheep litter admin panel
+
 ### November 15, 2025 - Sheep Health and Pedigree Management
 - Extended sheep admin form to include healthData and pedigree text fields with document upload functionality
 - Added separate health and pedigree document state management matching dog/goat form patterns
