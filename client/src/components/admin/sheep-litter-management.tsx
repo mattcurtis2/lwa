@@ -52,9 +52,9 @@ export default function SheepLitterManagement() {
 
 
 
-  const handleAddLamb = (litter: SheepLitter) => {
-    const mother = sheep.find(s => s.id === litter.motherId);
-    const father = sheep.find(s => s.id === litter.fatherId);
+  const handleAddLamb = (litter: SheepLitter & { mother?: Sheep; father?: Sheep; lambs?: Sheep[] }) => {
+    const mother = litter.mother;
+    const father = litter.father;
 
     const lambDefaults = {
       name: "",
@@ -81,8 +81,8 @@ export default function SheepLitterManagement() {
   };
 
   const renderLitterCard = (litter: SheepLitter & { mother?: Sheep; father?: Sheep; lambs?: Sheep[] }) => {
-    const mother = sheep.find(s => s.id === litter.motherId);
-    const father = sheep.find(s => s.id === litter.fatherId);
+    const mother = litter.mother;
+    const father = litter.father;
     // Use lambs from litter data and ensure uniqueness by ID to prevent any duplicates
     const rawLambs = litter.lambs || [];
     const litterLambs = rawLambs.filter((lamb, index, array) => 
@@ -123,6 +123,12 @@ export default function SheepLitterManagement() {
                     alt={mother.name}
                     className="w-full h-full object-cover"
                   />
+                ) : mother?.media && mother.media.length > 0 && mother.media[0].type === 'image' ? (
+                  <img
+                    src={mother.media[0].url}
+                    alt={mother.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full bg-pink-100 flex items-center justify-center">
                     <span className="text-2xl text-pink-500">♀</span>
@@ -141,6 +147,12 @@ export default function SheepLitterManagement() {
                 {father?.profileImageUrl ? (
                   <img
                     src={father.profileImageUrl}
+                    alt={father.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : father?.media && father.media.length > 0 && father.media[0].type === 'image' ? (
+                  <img
+                    src={father.media[0].url}
                     alt={father.name}
                     className="w-full h-full object-cover"
                   />
