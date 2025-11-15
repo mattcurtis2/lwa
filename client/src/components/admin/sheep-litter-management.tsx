@@ -50,6 +50,12 @@ export default function SheepLitterManagement() {
     queryKey: ["/api/sheep-litters"]
   });
 
+  const isValidImageUrl = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    if (url === 'data:,' || url === 'data:') return false;
+    return true;
+  };
+
 
 
   const handleAddLamb = (litter: SheepLitter & { mother?: Sheep; father?: Sheep; lambs?: Sheep[] }) => {
@@ -117,7 +123,7 @@ export default function SheepLitterManagement() {
             {/* Mother */}
             <div className="flex items-center gap-3 p-2 rounded-lg">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                {mother?.profileImageUrl ? (
+                {isValidImageUrl(mother?.profileImageUrl) ? (
                   <img
                     src={mother.profileImageUrl}
                     alt={mother.name}
@@ -144,7 +150,7 @@ export default function SheepLitterManagement() {
             {/* Father */}
             <div className="flex items-center gap-3 p-2 rounded-lg">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                {father?.profileImageUrl ? (
+                {isValidImageUrl(father?.profileImageUrl) ? (
                   <img
                     src={father.profileImageUrl}
                     alt={father.name}
