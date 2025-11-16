@@ -498,6 +498,56 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
               </p>
             </div>
           </div>
+
+          {/* Show filtered content for specific pages */}
+          <div className="mt-12">
+            {filteredGoats.length > 0 ? (
+              <div className="space-y-16">
+                {/* All Females Section */}
+                {filteredGoats.filter(goat => goat.gender === 'female').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Does</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
+                      {filteredGoats
+                        .filter(goat => goat.gender === 'female')
+                        .map(goat => (
+                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Males Section */}
+                {filteredGoats.filter(goat => goat.gender === 'male').length > 0 && (
+                  <div>
+                    <div className="relative flex py-5 items-center mb-8">
+                      <div className="flex-grow border-t border-gray-200"></div>
+                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Bucks</h2>
+                      <div className="flex-grow border-t border-gray-200"></div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-8">
+                      {filteredGoats
+                        .filter(goat => goat.gender === 'male')
+                        .map(goat => (
+                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-lg text-stone-600">
+                  No goats currently available in this category.
+                  Check back later or contact us for more information.
+                </p>
+              </div>
+            )}
+          </div>
         </section>
       )}
 
@@ -581,58 +631,6 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
           </div>
         </div>
       )}
-
-      {/* Show filtered content for specific pages */}
-      {(genderFilter || showAvailable) && (
-          <div className="mt-16">
-            {filteredGoats.length > 0 ? (
-              <div className="space-y-16">
-                {/* All Females Section */}
-                {filteredGoats.filter(goat => goat.gender === 'female').length > 0 && (
-                  <div>
-                    <div className="relative flex py-5 items-center mb-8">
-                      <div className="flex-grow border-t border-gray-200"></div>
-                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Meet Our Does</h2>
-                      <div className="flex-grow border-t border-gray-200"></div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-8">
-                      {filteredGoats
-                        .filter(goat => goat.gender === 'female')
-                        .map(goat => (
-                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Available Males Section */}
-                {filteredGoats.filter(goat => goat.gender === 'male').length > 0 && (
-                  <div>
-                    <div className="relative flex py-5 items-center mb-8">
-                      <div className="flex-grow border-t border-gray-200"></div>
-                      <h2 className="flex-shrink-0 text-3xl font-semibold px-4">Our Bucks</h2>
-                      <div className="flex-grow border-t border-gray-200"></div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-8">
-                      {filteredGoats
-                        .filter(goat => goat.gender === 'male')
-                        .map(goat => (
-                          <GoatDetails key={goat.id} goat={goat} showPrice={goat.available} />
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-lg text-stone-600">
-                  No goats currently available in this category.
-                  Check back later or contact us for more information.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
 
     </div>
   );
