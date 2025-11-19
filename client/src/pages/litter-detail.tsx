@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
+import { useEffect } from "react";
 import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
@@ -26,6 +27,57 @@ export default function LitterDetail() {
   const { data: litter, isLoading: isLoadingLitter } = useQuery<LitterWithRelations>({
     queryKey: [`/api/litters/${id}`],
   });
+
+  useEffect(() => {
+    if (litter) {
+      const motherName = litter.mother?.name || 'Unknown Dam';
+      const fatherName = litter.father?.name || 'Unknown Sire';
+      const pageTitle = `${motherName} × ${fatherName} Litter | Colorado Mountain Dog Puppies | Little Way Acres`;
+      const dueDate = formatDisplayDate(parseApiDate(litter.dueDate));
+      const pageDescription = `Colorado Mountain Dog litter from ${motherName} and ${fatherName}. ${litter.puppies?.length || 0} puppies. Expected ${dueDate}. Little Way Acres, Hudsonville, Michigan.`;
+      const imageUrl = litter.mother?.media?.[0]?.url || litter.father?.media?.[0]?.url || '/logo.png';
+
+      document.title = pageTitle;
+
+      const updateOrCreateMetaTag = (name: string, content: string) => {
+        let metaTag = document.querySelector(`meta[name="${name}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('name', name);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      const updateOrCreateOGTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(`meta[property="${property}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('property', property);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      updateOrCreateMetaTag('description', pageDescription);
+      updateOrCreateMetaTag('keywords', `Colorado Mountain Dog litter, CMDR puppies, ${motherName}, ${fatherName}, Hudsonville Michigan, livestock guardian puppies`);
+
+      updateOrCreateOGTag('og:title', pageTitle);
+      updateOrCreateOGTag('og:description', pageDescription);
+      updateOrCreateOGTag('og:image', imageUrl);
+      updateOrCreateOGTag('og:url', window.location.href);
+      updateOrCreateOGTag('og:type', 'article');
+      updateOrCreateOGTag('og:site_name', 'Little Way Acres');
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', window.location.href);
+    }
+  }, [litter]);
 
   if (isLoadingLitter) {
     return (

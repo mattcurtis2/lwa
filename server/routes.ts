@@ -2708,7 +2708,11 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       '/sheep/males',
       '/sheep/females',
       '/sheep/available',
+      '/sheep/litters/current',
+      '/sheep/litters/upcoming',
+      '/sheep/litters/past',
       '/bees',
+      '/chickens',
       '/market',
       '/market/bakery',
       '/market/animal-products',
@@ -2716,14 +2720,47 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       '/gallery'
     ];
 
-    // Get dynamic litter pages
+    // Get dynamic pages
     try {
       const siteId = getCurrentSiteId(req);
-      const allLitters = await db.query.litters.findMany({
+      
+      // Get all visible dog litters
+      const allDogLitters = await db.query.litters.findMany({
         where: and(eq(litters.siteId, siteId), eq(litters.isVisible, true))
       });
 
-      const dynamicPages = allLitters.map(litter => `/dogs/litters/${litter.id}`);
+      // Get all displayable dogs
+      const allDogs = await db.query.dogs.findMany({
+        where: and(eq(dogs.siteId, siteId), eq(dogs.display, true))
+      });
+
+      // Get all visible goat litters
+      const allGoatLitters = await db.query.goatLitters.findMany({
+        where: and(eq(goatLitters.siteId, siteId), eq(goatLitters.isVisible, true))
+      });
+
+      // Get all displayable goats (exclude outside breeders)
+      const allGoats = await db.query.goats.findMany({
+        where: and(
+          eq(goats.siteId, siteId), 
+          eq(goats.display, true),
+          eq(goats.outsideBreeder, false)
+        )
+      });
+
+      // Get all visible sheep litters
+      const allSheepLitters = await db.query.sheepLitters.findMany({
+        where: and(eq(sheepLitters.siteId, siteId), eq(sheepLitters.isVisible, true))
+      });
+
+      const dynamicPages = [
+        ...allDogLitters.map(litter => `/dogs/litters/${litter.id}`),
+        ...allDogs.map(dog => `/dogs/${dog.id}`),
+        ...allGoatLitters.map(litter => `/goats/litters/${litter.id}`),
+        ...allGoats.map(goat => `/goats/${goat.id}`),
+        ...allSheepLitters.map(litter => `/sheep/litters/${litter.id}`)
+      ];
+      
       const allPages = [...staticPages, ...dynamicPages];
 
       const xml = `<?xml version="1.0" encoding="UTF-8"?>

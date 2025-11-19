@@ -6,12 +6,49 @@ import { Badge } from "@/components/ui/badge";
 export default function Chickens() {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Heritage Chickens - Little Way Acres";
+    document.title = "Heritage Chickens | Farm Fresh Eggs | Little Way Acres";
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Heritage chicken breeding program at Little Way Acres. Raising colorful hens for farm fresh eggs and breeding for color variety and high production.');
+      metaDescription.setAttribute('content', 'Heritage chicken breeding program at Little Way Acres in Hudsonville, Michigan. Raising colorful hens for farm fresh eggs in Grand Rapids, Holland, Zeeland, and West Michigan area.');
     }
+    
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'heritage chickens Hudsonville Michigan, farm fresh eggs Grand Rapids, rainbow eggs Holland Zeeland, chicken breeding West Michigan, heritage breeds Ottawa County');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Heritage Chickens | Farm Fresh Eggs | Little Way Acres',
+      'og:description': 'Heritage chicken breeding program at Little Way Acres in Hudsonville, Michigan. Farm fresh rainbow eggs and breeding stock.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
   }, []);
 
   const { data: siteContent } = useQuery<SiteContent[]>({

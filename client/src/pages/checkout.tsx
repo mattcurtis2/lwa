@@ -58,6 +58,24 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
     phone: ''
   });
 
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
+
   const { data: schedules = [] } = useQuery<MarketSchedule[]>({
     queryKey: ['/api/market-schedules'],
     queryFn: async () => {

@@ -30,14 +30,56 @@ export default function HowToPurchase() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Update page title and meta description for SEO
-    const originalTitle = document.title;
-    const originalDescription = document.querySelector('meta[name="description"]')?.getAttribute('content');
+    document.title = 'How to Purchase a Colorado Mountain Dog Puppy | Little Way Acres';
     
-    document.title = 'How to Purchase a Colorado Mountain Dog Puppy | Little Way Acres Process';
-    updateMetaDescription('Learn how to purchase a Colorado Mountain Dog puppy from Little Way Acres. Our placement process includes interest form, phone conversation, dog selection, and personal pickup or delivery in Michigan.');
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Learn how to purchase a Colorado Mountain Dog puppy from Little Way Acres in Hudsonville, Michigan. Our placement process ensures the best match for families in Grand Rapids, Holland, and West Michigan.');
+    }
+    
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'buy Colorado Mountain Dog puppy Michigan, CMD puppy purchase process, livestock guardian dog puppy Hudsonville, CMDRs puppy adoption Grand Rapids, how to buy farm dog West Michigan');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'How to Purchase a Colorado Mountain Dog Puppy | Little Way Acres',
+      'og:description': 'Learn our placement process for Colorado Mountain Dog puppies at Little Way Acres in Hudsonville, Michigan.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     // Add structured data for SEO
+    const existingScript = document.querySelector('script[data-page="how-to-purchase"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -81,24 +123,10 @@ export default function HowToPurchase() {
     
     const script = document.createElement('script');
     script.type = 'application/ld+json';
+    script.setAttribute('data-page', 'how-to-purchase');
     script.text = JSON.stringify(structuredData);
     document.head.appendChild(script);
-    
-    // Cleanup on unmount
-    return () => {
-      document.title = originalTitle;
-      if (originalDescription) {
-        updateMetaDescription(originalDescription);
-      }
-    };
   }, []);
-  
-  const updateMetaDescription = (description: string) => {
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', description);
-    }
-  };
 
   const openGoogleMaps = () => {
     if (contactInfo?.address) {

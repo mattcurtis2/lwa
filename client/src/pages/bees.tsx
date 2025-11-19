@@ -1,4 +1,4 @@
-
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,54 @@ export default function BeesPage() {
   const { data: siteContent = [] } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    document.title = 'Beekeeping Program | Mite-Resistant Michigan Bees | Little Way Acres';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Beekeeping program at Little Way Acres in Hudsonville, Michigan. Developing mite-resistant, winter-hardy bees for raw honey production. Serving Grand Rapids, Holland, and West Michigan area.');
+    }
+    
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'beekeeping Hudsonville Michigan, raw honey Grand Rapids, mite-resistant bees, winter-hardy bees West Michigan, local honey Holland Zeeland, Michigan beekeepers');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Beekeeping Program | Little Way Acres',
+      'og:description': 'Developing mite-resistant, winter-hardy Michigan bees for raw honey production at Little Way Acres in Hudsonville.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
+  }, []);
 
   // Get bee-specific content or use defaults
   const getContentValue = (key: string, defaultValue: string) => {

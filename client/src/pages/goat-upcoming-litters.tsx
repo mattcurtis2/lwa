@@ -17,7 +17,7 @@ export default function GoatUpcomingLitters() {
     window.scrollTo(0, 0);
     
     // Hyper-local SEO for upcoming Nigerian Dwarf goat litters
-    document.title = 'Upcoming Nigerian Dwarf Goat Litters | Future Kids | Hudsonville, Grand Rapids, MI';
+    document.title = 'Upcoming Nigerian Dwarf Goat Litters | Future Kids | Little Way Acres';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -32,6 +32,35 @@ export default function GoatUpcomingLitters() {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', 'upcoming goat litters Hudsonville, future Nigerian Dwarf kids Grand Rapids, planned goat litters Holland Zeeland, West Michigan dairy goats, Byron Center goat breeding');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Upcoming Nigerian Dwarf Goat Litters | Little Way Acres',
+      'og:description': 'Upcoming Nigerian Dwarf goat litters at Little Way Acres in Hudsonville, Michigan. Reserve your future kids now.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     // Structured data
     const existingScript = document.querySelector('script[data-page="goat-upcoming-litters"]');

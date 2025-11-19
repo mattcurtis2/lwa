@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,24 @@ export default function Login() {
   const { toast } = useToast();
   const { login } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

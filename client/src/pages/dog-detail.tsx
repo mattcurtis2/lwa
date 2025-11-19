@@ -20,7 +20,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import DogDetails from "@/components/dog-details";
 
@@ -113,6 +113,55 @@ export default function DogDetail() {
   console.log('Looking for dog with ID:', dogId);
   const dog = dogs?.find((d) => d.id === dogId);
   console.log('Found dog:', dog);
+
+  useEffect(() => {
+    if (dog) {
+      const dogAge = dog.birthDate ? formatAge(parseApiDate(dog.birthDate)) : '';
+      const pageTitle = `${dog.name} - ${dog.breed || 'Colorado Mountain Dog'} | Little Way Acres`;
+      const pageDescription = dog.description || `Meet ${dog.name}, a ${dogAge} ${dog.gender || ''} ${dog.breed || 'Colorado Mountain Dog'} at Little Way Acres in Hudsonville, Michigan.`;
+      const imageUrl = dog.media?.[0]?.url || dog.imageUrl || '/logo.png';
+
+      document.title = pageTitle;
+
+      const updateOrCreateMetaTag = (name: string, content: string) => {
+        let metaTag = document.querySelector(`meta[name="${name}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('name', name);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      const updateOrCreateOGTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(`meta[property="${property}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('property', property);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      updateOrCreateMetaTag('description', pageDescription);
+      updateOrCreateMetaTag('keywords', `${dog.name}, ${dog.breed || 'Colorado Mountain Dog'}, CMDR, Hudsonville Michigan, livestock guardian dog`);
+
+      updateOrCreateOGTag('og:title', pageTitle);
+      updateOrCreateOGTag('og:description', pageDescription);
+      updateOrCreateOGTag('og:image', imageUrl);
+      updateOrCreateOGTag('og:url', window.location.href);
+      updateOrCreateOGTag('og:type', 'article');
+      updateOrCreateOGTag('og:site_name', 'Little Way Acres');
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', window.location.href);
+    }
+  }, [dog]);
 
   if (!dog) {
     console.log('No dog found with ID:', dogId);

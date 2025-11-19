@@ -50,6 +50,24 @@ export default function Admin() {
     }
   }, [isLoggedIn, isLoading, navigate]);
 
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
+
   const handleLogout = async () => {
     await logout();
     navigate("/login");

@@ -17,7 +17,7 @@ export default function GoatPastLitters() {
     window.scrollTo(0, 0);
     
     // Hyper-local SEO for past Nigerian Dwarf goat litters 
-    document.title = 'Past Nigerian Dwarf Goat Litters | Breeding History | Hudsonville, Grand Rapids, MI';
+    document.title = 'Past Nigerian Dwarf Goat Litters | Breeding History | Little Way Acres';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -32,6 +32,35 @@ export default function GoatPastLitters() {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', 'past goat litters Hudsonville, Nigerian Dwarf breeding history Grand Rapids, goat breeding success Holland Zeeland, West Michigan dairy goat program, Ottawa County goat breeders');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Past Nigerian Dwarf Goat Litters | Little Way Acres',
+      'og:description': 'Past Nigerian Dwarf goat litters from Little Way Acres in Hudsonville, Michigan. View our breeding history and success.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     // Structured data
     const existingScript = document.querySelector('script[data-page="goat-past-litters"]');

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useCart } from '@/contexts/cart-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,24 @@ import { Link } from 'wouter';
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } = useCart();
   const { toast } = useToast();
+
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
 
   const handleQuantityChange = (productId: number, newQuantity: string) => {
     const quantity = parseInt(newQuantity);

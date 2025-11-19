@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Dog, DogMedia, Litter } from "@db/schema";
@@ -25,6 +25,54 @@ export default function UpcomingLitters() {
   const { data: futureLitters, isLoading: futureLittersLoading } = useQuery<PastLitter[]>({
     queryKey: ["/api/litters/list/future"],
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    document.title = 'Upcoming Colorado Mountain Dog Litters | Puppies Available | Little Way Acres';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Upcoming Colorado Mountain Dog litters at Little Way Acres in Hudsonville, Michigan. CMDRs puppies available for families and farms in Grand Rapids, Holland, Zeeland, and West Michigan area.');
+    }
+    
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'Colorado Mountain Dog puppies Hudsonville, CMD litters Grand Rapids, livestock guardian dogs Michigan, CMDRs puppies Holland Zeeland, West Michigan guardian dogs');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Upcoming Colorado Mountain Dog Litters | Little Way Acres',
+      'og:description': 'Upcoming Colorado Mountain Dog litters at Little Way Acres in Hudsonville, Michigan. CMDRs puppies available for families and farms.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
+  }, [litters, futureLitters]);
 
   // Show loading skeleton
   if (isLoading) {

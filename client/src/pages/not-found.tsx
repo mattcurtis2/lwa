@@ -1,7 +1,26 @@
+import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 
 export default function NotFound() {
+  useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md mx-4">

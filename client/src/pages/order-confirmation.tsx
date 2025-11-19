@@ -40,6 +40,24 @@ export default function OrderConfirmation() {
   const [orderCreated, setOrderCreated] = useState(false);
 
   useEffect(() => {
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    const previousContent = metaRobots?.getAttribute('content') || 'index, follow';
+    
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute('content', previousContent);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     // Get stored order data
     const storedOrderData = localStorage.getItem('orderData');
     if (storedOrderData) {

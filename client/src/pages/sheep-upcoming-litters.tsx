@@ -15,7 +15,7 @@ export default function SheepUpcomingLitters() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    document.title = 'Upcoming Sheep Litters | Future Lambs | Hudsonville, Grand Rapids, MI';
+    document.title = 'Upcoming Sheep Litters | Future Lambs | Little Way Acres';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -29,6 +29,35 @@ export default function SheepUpcomingLitters() {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', 'upcoming sheep litters Hudsonville, future lambs Grand Rapids, planned sheep litters Holland Zeeland, West Michigan sheep, Byron Center sheep breeding');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Upcoming Sheep Litters | Little Way Acres',
+      'og:description': 'Upcoming sheep litters at Little Way Acres in Hudsonville, Michigan. Reserve your future lambs now.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     const existingScript = document.querySelector('script[data-page="sheep-upcoming-litters"]');
     if (existingScript) {

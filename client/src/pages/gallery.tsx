@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +26,54 @@ export default function Gallery() {
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState<'all' | 'dogs' | 'goats' | 'sheep' | 'farm'>('all');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    document.title = 'Photo Gallery | Little Way Acres Farm Animals | Little Way Acres';
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Photo gallery of Little Way Acres in Hudsonville, Michigan. Browse our Colorado Mountain Dogs, Nigerian Dwarf goats, Katahdin sheep, chickens, bees, and farm life in West Michigan.');
+    }
+    
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'farm photos Hudsonville Michigan, Colorado Mountain Dog photos, Nigerian Dwarf goat pictures, Katahdin sheep photos, farm animals Grand Rapids, West Michigan farm gallery');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Photo Gallery | Little Way Acres',
+      'og:description': 'Photo gallery of our Colorado Mountain Dogs, Nigerian Dwarf goats, Katahdin sheep, and farm life at Little Way Acres in Hudsonville, Michigan.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
+  }, []);
 
   // Fetch all data sources for photos
   const { data: dogs = [] } = useQuery<(Dog & { media?: DogMedia[] })[]>({

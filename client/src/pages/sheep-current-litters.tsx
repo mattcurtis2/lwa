@@ -23,7 +23,7 @@ export default function SheepCurrentLitters() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    document.title = 'Current Sheep Litters | Lambs Available | Hudsonville, Grand Rapids, MI';
+    document.title = 'Current Sheep Litters | Lambs Available | Little Way Acres';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -37,6 +37,35 @@ export default function SheepCurrentLitters() {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', 'current sheep litters Hudsonville, lambs Grand Rapids, sheep lambs Holland Zeeland, West Michigan sheep, Byron Center livestock, sheep Ottawa County');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Current Sheep Litters | Lambs Available | Little Way Acres',
+      'og:description': 'Current sheep litters available at Little Way Acres in Hudsonville, Michigan. Lambs ready for your farm.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     const existingScript = document.querySelector('script[data-page="sheep-current-litters"]');
     if (existingScript) {

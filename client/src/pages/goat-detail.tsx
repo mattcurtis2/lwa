@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
+import { useEffect } from "react";
 import type { Goat } from "@db/schema";
 import { GoatCard } from "@/components/cards/goat-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
+import { formatDisplayDate, parseApiDate, formatAge } from "@/lib/date-utils";
 
 export default function GoatDetail() {
   const [, params] = useRoute("/goats/:id");
@@ -14,6 +15,55 @@ export default function GoatDetail() {
   const { data: goat, isLoading } = useQuery<Goat>({
     queryKey: [`/api/goats/${goatId}`],
   });
+
+  useEffect(() => {
+    if (goat && !goat.outsideBreeder) {
+      const goatAge = goat.birthDate ? formatAge(parseApiDate(goat.birthDate)) : '';
+      const pageTitle = `${goat.name} - ${goat.breed || 'Nigerian Dwarf Goat'} | Little Way Acres`;
+      const pageDescription = goat.description || `Meet ${goat.name}, a ${goatAge} ${goat.gender || ''} ${goat.breed || 'Nigerian Dwarf Goat'} at Little Way Acres in Hudsonville, Michigan.`;
+      const imageUrl = goat.profileImageUrl || '/logo.png';
+
+      document.title = pageTitle;
+
+      const updateOrCreateMetaTag = (name: string, content: string) => {
+        let metaTag = document.querySelector(`meta[name="${name}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('name', name);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      const updateOrCreateOGTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(`meta[property="${property}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('property', property);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      updateOrCreateMetaTag('description', pageDescription);
+      updateOrCreateMetaTag('keywords', `${goat.name}, ${goat.breed || 'Nigerian Dwarf Goat'}, dairy goat, Hudsonville Michigan, Nigerian Dwarf`);
+
+      updateOrCreateOGTag('og:title', pageTitle);
+      updateOrCreateOGTag('og:description', pageDescription);
+      updateOrCreateOGTag('og:image', imageUrl);
+      updateOrCreateOGTag('og:url', window.location.href);
+      updateOrCreateOGTag('og:type', 'article');
+      updateOrCreateOGTag('og:site_name', 'Little Way Acres');
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', window.location.href);
+    }
+  }, [goat]);
 
   if (isLoading) {
     return (

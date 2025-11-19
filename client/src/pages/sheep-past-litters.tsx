@@ -15,7 +15,7 @@ export default function SheepPastLitters() {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    document.title = 'Past Sheep Litters | Breeding History | Hudsonville, Grand Rapids, MI';
+    document.title = 'Past Sheep Litters | Breeding History | Little Way Acres';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -29,6 +29,35 @@ export default function SheepPastLitters() {
       document.head.appendChild(metaKeywords);
     }
     metaKeywords.setAttribute('content', 'past sheep litters Hudsonville, sheep breeding history Grand Rapids, sheep breeding success Holland Zeeland, West Michigan sheep program, Ottawa County sheep breeders');
+    
+    // Open Graph tags
+    const ogTags = {
+      'og:title': 'Past Sheep Litters | Little Way Acres',
+      'og:description': 'Past sheep litters from Little Way Acres in Hudsonville, Michigan. View our breeding history and success.',
+      'og:image': '/logo.png',
+      'og:url': window.location.href,
+      'og:type': 'website',
+      'og:site_name': 'Little Way Acres'
+    };
+    
+    Object.entries(ogTags).forEach(([property, content]) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+    
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', window.location.href);
     
     const existingScript = document.querySelector('script[data-page="sheep-past-litters"]');
     if (existingScript) {

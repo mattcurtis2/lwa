@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
+import { useEffect } from "react";
 import { Goat, GoatLitter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,6 +27,57 @@ export default function GoatLitterDetail() {
   const { data: litter, isLoading: isLoadingLitter } = useQuery<LitterWithRelations>({
     queryKey: [`/api/goat-litters/${id}`],
   });
+
+  useEffect(() => {
+    if (litter) {
+      const motherName = litter.mother?.name || 'Unknown Dam';
+      const fatherName = litter.father?.name || 'Unknown Sire';
+      const pageTitle = `${motherName} × ${fatherName} Litter | Nigerian Dwarf Goat Kids | Little Way Acres`;
+      const dueDate = formatDisplayDate(parseApiDate(litter.dueDate));
+      const pageDescription = `Nigerian Dwarf goat litter from ${motherName} and ${fatherName}. ${litter.kids?.length || 0} kids. Expected ${dueDate}. Little Way Acres, Hudsonville, Michigan.`;
+      const imageUrl = litter.mother?.media?.[0]?.url || litter.father?.media?.[0]?.url || '/logo.png';
+
+      document.title = pageTitle;
+
+      const updateOrCreateMetaTag = (name: string, content: string) => {
+        let metaTag = document.querySelector(`meta[name="${name}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('name', name);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      const updateOrCreateOGTag = (property: string, content: string) => {
+        let metaTag = document.querySelector(`meta[property="${property}"]`);
+        if (!metaTag) {
+          metaTag = document.createElement('meta');
+          metaTag.setAttribute('property', property);
+          document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', content);
+      };
+
+      updateOrCreateMetaTag('description', pageDescription);
+      updateOrCreateMetaTag('keywords', `Nigerian Dwarf goat litter, goat kids, ${motherName}, ${fatherName}, Hudsonville Michigan, dairy goats`);
+
+      updateOrCreateOGTag('og:title', pageTitle);
+      updateOrCreateOGTag('og:description', pageDescription);
+      updateOrCreateOGTag('og:image', imageUrl);
+      updateOrCreateOGTag('og:url', window.location.href);
+      updateOrCreateOGTag('og:type', 'article');
+      updateOrCreateOGTag('og:site_name', 'Little Way Acres');
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', window.location.href);
+    }
+  }, [litter]);
 
   if (isLoadingLitter) {
     return (
