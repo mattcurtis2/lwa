@@ -1099,6 +1099,14 @@ export default function ContentSection() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>Hero Tagline (between title and subtitle)</Label>
+                  <Textarea
+                    value={getContentValue("dog_hero_tagline") || ""}
+                    onChange={(e) => handleContentChange("dog_hero_tagline", e.target.value)}
+                    placeholder="Enter optional tagline text (leave empty to hide)"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>Hero Subtitle</Label>
                   <Textarea
                     value={getContentValue("dog_hero_subtitle") || "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}

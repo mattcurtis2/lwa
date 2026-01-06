@@ -27,6 +27,11 @@ export function DogHero() {
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">
           {getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
         </h1>
+        {getContentValue("dog_hero_tagline") && (
+          <p className="text-xl md:text-2xl max-w-2xl drop-shadow-md mb-2">
+            {getContentValue("dog_hero_tagline")}
+          </p>
+        )}
         <p className="text-xl md:text-2xl max-w-2xl drop-shadow-md">
           {getContentValue("dog_hero_subtitle") ||
             "Loyal guardians bred for livestock protection, combining strength with gentle temperament"}
