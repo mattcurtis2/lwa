@@ -28,7 +28,7 @@ export function DogHero() {
           {getContentValue("dog_hero_title") || "Colorado Mountain Dogs"}
         </h1>
         {getContentValue("dog_hero_tagline") && (
-          <p className="text-xl md:text-2xl max-w-2xl drop-shadow-md mb-2">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-bold max-w-2xl drop-shadow-md mb-2">
             {getContentValue("dog_hero_tagline")}
           </p>
         )}
