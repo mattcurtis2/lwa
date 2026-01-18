@@ -191,7 +191,7 @@ export default function TotalVegetationManagement() {
     {
       step: 5,
       title: "Contract Flexibility",
-      description: "1–5 year contract terms available, milestone payments, and end-of-season site restoration included."
+      description: "3–10 year contract terms available, milestone payments, and end-of-season site restoration included."
     },
     {
       step: 6,
