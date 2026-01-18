@@ -215,7 +215,7 @@ export default function TotalVegetationManagement() {
           alt="Sheep grazing under solar panels"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/55" />
         <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
           <div className="flex items-center gap-3 mb-6">
             <Sun className="w-10 h-10 text-amber-300" />
