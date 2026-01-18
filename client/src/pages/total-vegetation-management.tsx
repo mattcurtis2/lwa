@@ -156,11 +156,6 @@ export default function TotalVegetationManagement() {
       description: "Maintain vegetation at safe heights year-round to meet O&M requirements and reduce wildfire risk. Detailed monitoring and reporting provided."
     },
     {
-      icon: Leaf,
-      title: "Environmental & ESG Benefits",
-      description: "Herbicide-free grazing improves soil organic matter, supports pollinator habitats, and aligns with sustainability goals and pollinator-friendly vegetation plans."
-    },
-    {
       icon: Settings,
       title: "Reliable Operations",
       description: "Managed rotational grazing with insured, experienced team. Quick response times via local site monitors + central coordination. No damage to panels or wiring."
@@ -237,7 +232,7 @@ export default function TotalVegetationManagement() {
               className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-6 text-lg"
               asChild
             >
-              <a href="mailto:littlewayacres@gmail.com?subject=Solar%20Grazing%20Site%20Assessment%20Request">
+              <a href="mailto:littlewayacresmi@gmail.com?subject=Solar%20Grazing%20Site%20Assessment%20Request">
                 Request a Site Assessment
               </a>
             </Button>
@@ -426,7 +421,7 @@ export default function TotalVegetationManagement() {
                 className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-6 text-lg"
                 asChild
               >
-                <a href="mailto:littlewayacres@gmail.com?subject=Solar%20Grazing%20Proposal%20Request">
+                <a href="mailto:littlewayacresmi@gmail.com?subject=Solar%20Grazing%20Proposal%20Request">
                   <Mail className="w-5 h-5 mr-2" />
                   Email Us
                 </a>
@@ -454,7 +449,7 @@ export default function TotalVegetationManagement() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                <a href="mailto:littlewayacres@gmail.com" className="hover:text-white">littlewayacres@gmail.com</a>
+                <a href="mailto:littlewayacresmi@gmail.com" className="hover:text-white">littlewayacresmi@gmail.com</a>
               </div>
             </div>
           </section>
