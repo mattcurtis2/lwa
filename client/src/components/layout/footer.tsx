@@ -55,6 +55,7 @@ export default function Footer() {
               <li><a href="/sheep/males" className="hover:text-white transition-colors">Males</a></li>
               <li><a href="/sheep/females" className="hover:text-white transition-colors">Females</a></li>
               <li><a href="/sheep/available" className="hover:text-white transition-colors">Available Sheep</a></li>
+              <li><a href="/sheep/total-vegetation-management" className="hover:text-white transition-colors">Solar Grazing</a></li>
             </ul>
           </div>
 
