@@ -2708,6 +2708,7 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       '/sheep/males',
       '/sheep/females',
       '/sheep/available',
+      '/sheep/total-vegetation-management',
       '/sheep/litters/current',
       '/sheep/litters/upcoming',
       '/sheep/litters/past',

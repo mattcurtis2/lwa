@@ -27,6 +27,7 @@ import SheepCurrentLitters from "@/pages/sheep-current-litters";
 import SheepUpcomingLitters from "@/pages/sheep-upcoming-litters";
 import SheepPastLitters from "@/pages/sheep-past-litters";
 import SheepLitterDetail from "@/pages/sheep-litter-detail";
+import TotalVegetationManagement from "@/pages/total-vegetation-management";
 import GoatPastLitters from "@/pages/goat-past-litters";
 import GoatCurrentLitters from "@/pages/goat-current-litters";
 import Gallery from "@/pages/gallery";
@@ -125,6 +126,7 @@ function Router() {
           <Route path="/sheep/litters/current" component={SheepCurrentLitters} />
           <Route path="/sheep/litters/past" component={SheepPastLitters} />
           <Route path="/sheep/litters/:id" component={SheepLitterDetail} />
+          <Route path="/sheep/total-vegetation-management" component={TotalVegetationManagement} />
           {/* Gallery Route */}
           <Route path="/gallery" component={Gallery} />
           {/* Market Routes */}

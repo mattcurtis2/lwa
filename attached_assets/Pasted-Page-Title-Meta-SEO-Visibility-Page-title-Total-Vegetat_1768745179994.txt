@@ -1,0 +1,66 @@
+Page Title & Meta (SEO/Visibility)
+Page title: “Total Vegetation Management for Solar Sites | Little Way Acres – Sustainable Sheep Grazing”
+Meta description (for search engines & social sharing): “Professional solar grazing services using Katahdin sheep for cost-effective, herbicide-free vegetation control. Reduce O&M costs 20–40%, improve soil health, support pollinators, and meet fire-safety standards.”
+Open Graph / Twitter cards: Use a strong hero image (sheep under panels) + the same title/description.
+
+Hero / Above-the-Fold Section
+Full-width background image or video loop: Clean solar array with sheep grazing underneath (or a high-quality stock photo if you don’t have one yet).
+Large headline: “Total Vegetation Management with Solar Grazing”
+Subheadline: “Reliable, low-impact vegetation control that saves money, eliminates chemicals, and enhances site sustainability.”
+Prominent CTA button: “Request a Site Assessment” or “Get a Grazing Proposal” (links to contact form or Calendly).
+Optional small trust signals below CTA: “Backed by MSU Extension” / “Katahdin Specialists” / “Serving Michigan & Northern Indiana”
+
+Key Benefits Section (Targeted to Solar Operators)
+Use a 3–4 column grid or cards (responsive on mobile).
+Each card should have:
+Icon (simple line icon or small image)
+Short, bold headline
+1–2 sentence benefit phrased in operator language
+
+Recommended cards (in this order):
+Cost Savings
+“Reduce vegetation management costs by 20–40% compared to mechanical mowing or herbicides. Predictable seasonal pricing with no surprise fuel/chemical expenses.”
+Compliance & Fire Safety
+“Maintain vegetation at safe heights year-round to meet O&M requirements and reduce wildfire risk. Detailed monitoring and reporting provided.”
+Environmental & ESG Benefits
+“Herbicide-free grazing improves soil organic matter, supports pollinator habitats, and aligns with sustainability goals and pollinator-friendly vegetation plans.”
+Reliable Operations
+“Managed rotational grazing with insured, experienced team. Quick response times via local site monitors + central coordination. No damage to panels or wiring.”
+
+
+How It Works / Process Section
+Numbered steps (4–6) in a clean timeline or simple list layout.
+Content to include:
+Initial site walk-through & assessment (fencing, water, panel clearance, vegetation baseline).
+Customized grazing plan (stocking density 3–4 sheep/acre, rotation frequency 3–7 days).
+Mobilization & seasonal management (April–October in MI/IN).
+Ongoing monitoring & reporting (photos, vegetation height logs, soil/habitat notes).
+Contract flexibility (1–5 year terms, milestone payments, end-of-season site restoration).
+Optional hybrid support (e.g., spot mowing if needed).
+
+End with: “We handle liability insurance (≥$1M umbrella), access coordination, and any required documentation.”
+
+Proof / Credibility Section
+3–4 small testimonial-style blocks or quotes (even if placeholder for now):
+Reference to Charles Gould / MSU Extension support
+ASGA membership or best practices
+Any early pilot success (once you have one)
+“Serving Michigan solar sites from Muskegon to South Bend”
+
+Logos if available: MSU Extension, ASGA, Katahdin breed association, etc.
+Optional stats bar: “Up to 40% cost reduction” / “0 herbicides used” / “Pollinator-friendly forage”
+
+Call-to-Action Section (Repeated or Final)
+Centered, contrasting background (green or solar-blue).
+Headline: “Ready to Lower Vegetation Costs and Meet Sustainability Goals?”
+Text: “Contact us for a no-obligation site review, proposal, or grazing plan tailored to your solar array.”
+Two CTAs side-by-side:
+Primary: “Schedule a Call” (Calendly embed or link)
+Secondary: “Email Us” (mailto: link or form)
+
+Include phone number prominently.
+
+Footer / Contact Info (Site-Wide or Page-Specific)
+Hudsonville, Michigan
+Phone & email
+Link to full contact page / form
