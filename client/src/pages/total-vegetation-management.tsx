@@ -146,6 +146,11 @@ export default function TotalVegetationManagement() {
 
   const benefits = [
     {
+      icon: Sun,
+      title: "Panel Protection",
+      description: "Sheep graze beneath and around solar panels, preventing vegetation from growing up through the arrays and blocking sunlight. This protects your investment and maintains optimal energy production."
+    },
+    {
       icon: DollarSign,
       title: "Cost Savings",
       description: "Reduce vegetation management costs by 20–40% compared to mechanical mowing or herbicides. Predictable seasonal pricing with no surprise fuel or chemical expenses."
