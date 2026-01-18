@@ -255,7 +255,7 @@ export default function TotalVegetationManagement() {
           <div className="flex flex-wrap justify-center gap-4 text-sm text-white/80">
             <span className="flex items-center gap-1">
               <CheckCircle className="w-4 h-4 text-green-400" />
-              Backed by MSU Extension
+              ASGA Certified
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle className="w-4 h-4 text-green-400" />
@@ -375,7 +375,7 @@ export default function TotalVegetationManagement() {
                     <CheckCircle className="w-8 h-8 text-green-600" />
                   </div>
                   <h3 className="font-bold text-stone-800 mb-2">MSU Extension Supported</h3>
-                  <p className="text-stone-600 text-sm">Backed by research and guidance from Michigan State University Extension.</p>
+                  <p className="text-stone-600 text-sm">Supported by research and guidance from Michigan State University Extension.</p>
                 </CardContent>
               </Card>
               
