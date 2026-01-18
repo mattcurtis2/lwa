@@ -226,7 +226,7 @@ export default function TotalVegetationManagement() {
           <p className="text-xl md:text-2xl max-w-3xl drop-shadow-md mb-8 text-white/90">
             Reliable, low-impact vegetation control that saves money, eliminates chemicals, and enhances site sustainability.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="mb-8">
             <Button 
               size="lg" 
               className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-6 text-lg"
@@ -234,16 +234,6 @@ export default function TotalVegetationManagement() {
             >
               <a href="mailto:littlewayacresmi@gmail.com?subject=Solar%20Grazing%20Site%20Assessment%20Request">
                 Request a Site Assessment
-              </a>
-            </Button>
-            <Button 
-              size="lg" 
-              className="bg-white text-stone-800 hover:bg-stone-100 font-semibold px-8 py-6 text-lg"
-              asChild
-            >
-              <a href="tel:616-502-7631">
-                <Phone className="w-5 h-5 mr-2" />
-                Call 616-502-7631
               </a>
             </Button>
           </div>
