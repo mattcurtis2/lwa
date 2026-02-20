@@ -26,6 +26,14 @@ export default function TotalVegetationManagement() {
     document.title = 'Total Vegetation Management for Solar Sites | Little Way Acres – Sustainable Sheep Grazing';
     updateMetaDescription('Professional solar grazing services using Katahdin sheep for cost-effective, herbicide-free vegetation control. Reduce O&M costs 20–40%, improve soil health, support pollinators, and meet fire-safety standards.');
 
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.setAttribute('name', 'robots');
+      document.head.appendChild(metaRobots);
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
       metaKeywords = document.createElement('meta');
@@ -132,7 +140,7 @@ export default function TotalVegetationManagement() {
       if (originalDescription) {
         updateMetaDescription(originalDescription);
       }
-      const addedElements = document.querySelectorAll('meta[name="keywords"], meta[property^="og:"], meta[name^="twitter:"], #solar-grazing-structured-data');
+      const addedElements = document.querySelectorAll('meta[name="keywords"], meta[name="robots"], meta[property^="og:"], meta[name^="twitter:"], #solar-grazing-structured-data');
       addedElements.forEach(element => element.remove());
     };
   }, []);

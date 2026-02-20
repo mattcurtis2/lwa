@@ -186,11 +186,6 @@ export default function MobileNav() {
                 </a>
               </Link>
             )}
-            <Link href="/sheep/total-vegetation-management">
-              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                Solar Grazing
-              </a>
-            </Link>
           </div>
 
           {/* Bees */}
