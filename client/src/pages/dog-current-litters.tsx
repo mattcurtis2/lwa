@@ -460,7 +460,19 @@ export default function DogCurrentLitters() {
                                   </span>
                                 </div>
                                 {puppy.available && !puppy.sold ? (
-                                  <div className="text-sm text-green-600 font-medium">Available</div>
+                                  litter.waitlistLink ? (
+                                    <a
+                                      href={litter.waitlistLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-sm text-green-600 font-medium hover:text-green-800 hover:underline"
+                                    >
+                                      Available - Reserve Now
+                                    </a>
+                                  ) : (
+                                    <div className="text-sm text-green-600 font-medium">Available</div>
+                                  )
                                 ) : puppy.sold ? (
                                   <div className="text-sm text-red-600 font-medium">Sold</div>
                                 ) : null}

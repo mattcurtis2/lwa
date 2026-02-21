@@ -1151,6 +1151,7 @@ export function registerRoutes(app: Express): Server {
     const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
       where: eq(litters.siteId, siteId),
+      orderBy: (litters, { desc }) => [desc(litters.dueDate)],
       with: {
         mother: {
           with: {
