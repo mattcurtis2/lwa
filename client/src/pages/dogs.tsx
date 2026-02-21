@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Dog, DogMedia } from "@db/schema";
+import { Dog, DogMedia, Litter } from "@db/schema";
 import DogDetails from "@/components/dog-details";
 import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,19 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
   const { data: futureLitters } = useQuery<any[]>({
     queryKey: ["/api/litters/list/future"],
   });
+
+  interface LitterWithWaitlist extends Litter {
+    waitlistLink?: string;
+  }
+
+  const { data: allLitters } = useQuery<LitterWithWaitlist[]>({
+    queryKey: ["/api/litters"],
+  });
+
+  const getWaitlistLink = (dog: Dog) => {
+    if (!dog.litterId || !allLitters) return undefined;
+    return allLitters.find(l => l.id === dog.litterId)?.waitlistLink;
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -757,7 +770,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               </div>
               <div className="space-y-16">
                 {availableDogs.map((dog) => (
-                  <DogDetails key={dog.id} dog={dog} />
+                  <DogDetails key={dog.id} dog={dog} litterWaitlistLink={getWaitlistLink(dog)} />
                 ))}
               </div>
             </div>
@@ -778,7 +791,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
               </div>
               <div className="grid grid-cols-1 gap-8">
                 {females.map((dog) => (
-                  <DogDetails key={dog.id} dog={dog} />
+                  <DogDetails key={dog.id} dog={dog} litterWaitlistLink={getWaitlistLink(dog)} />
                 ))}
               </div>
             </div>
@@ -826,7 +839,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       {availableDogs
                         .filter(dog => dog.gender === 'female')
                         .map((dog) => (
-                          <DogDetails key={dog.id} dog={dog} />
+                          <DogDetails key={dog.id} dog={dog} litterWaitlistLink={getWaitlistLink(dog)} />
                         ))}
                     </div>
                   </div>
@@ -844,7 +857,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                       {availableDogs
                         .filter(dog => dog.gender === 'male')
                         .map((dog) => (
-                          <DogDetails key={dog.id} dog={dog} />
+                          <DogDetails key={dog.id} dog={dog} litterWaitlistLink={getWaitlistLink(dog)} />
                         ))}
                     </div>
                   </div>

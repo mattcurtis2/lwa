@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Dog, DogMedia } from "@db/schema";
+import { Dog, DogMedia, Litter } from "@db/schema";
 import { useLocation } from "wouter";
 import { formatAge, formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import {
@@ -114,6 +114,19 @@ export default function DogDetail() {
   const dog = dogs?.find((d) => d.id === dogId);
   console.log('Found dog:', dog);
 
+  interface LitterWithWaitlist extends Litter {
+    waitlistLink?: string;
+  }
+
+  const { data: litters } = useQuery<LitterWithWaitlist[]>({
+    queryKey: ["/api/litters"],
+    enabled: !!dog?.litterId,
+  });
+
+  const litterWaitlistLink = dog?.litterId
+    ? litters?.find((l) => l.id === dog.litterId)?.waitlistLink
+    : undefined;
+
   useEffect(() => {
     if (dog) {
       const dogAge = dog.birthDate ? formatAge(parseApiDate(dog.birthDate)) : '';
@@ -175,7 +188,7 @@ export default function DogDetail() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="max-w-6xl mx-auto">
-        <DogDetails dog={dog} />
+        <DogDetails dog={dog} litterWaitlistLink={litterWaitlistLink} />
       </div>
     </div>
   );

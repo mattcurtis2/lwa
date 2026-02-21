@@ -209,9 +209,9 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
                 SOLD
               </p>
             </div>
-          ) : dog.price && dog.available && (
+          ) : dog.price && dog.available && litterWaitlistLink ? (
             <a
-              href={litterWaitlistLink || "https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"}
+              href={litterWaitlistLink}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -221,7 +221,13 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </p>
               <ExternalLink className="h-4 w-4 text-white" />
             </a>
-          )}
+          ) : dog.price && dog.available ? (
+            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <Card>
@@ -418,9 +424,9 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
                 SOLD
               </p>
             </div>
-          ) : dog.price && dog.available && (
+          ) : dog.price && dog.available && litterWaitlistLink ? (
             <a
-              href={litterWaitlistLink || "https://docs.google.com/forms/d/15mBizweju2yNBT8sB5ujf5jks52-Ouh2VbFx-RpVJWE/edit?ts=6793ce1b"}
+              href={litterWaitlistLink}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
@@ -430,7 +436,13 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </p>
               <ExternalLink className="h-4 w-4 text-white" />
             </a>
-          )}
+          ) : dog.price && dog.available ? (
+            <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center">
+              <p className="text-lg font-semibold text-white">
+                Available: ${parseInt(dog.price).toLocaleString()}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <Dialog open={isMediaDialogOpen} onOpenChange={setIsMediaDialogOpen}>
