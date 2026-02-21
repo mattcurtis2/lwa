@@ -5,6 +5,7 @@ import { GoatHero } from "@/components/sections/goat-hero";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import GoatDetails from "@/components/goat-details";
+import GoatInterestBanner from "@/components/sections/goat-interest-banner";
 import type { Goat, SiteContent } from "@db/schema";
 import { formatDisplayDate } from "@/lib/date-utils";
 
@@ -316,6 +317,8 @@ export default function GoatsPage({ genderFilter, showAvailable }: GoatsPageProp
     <div className="min-h-screen bg-background">
       {/* Only show hero on main goats page */}
       {!genderFilter && !showAvailable && <GoatHero />}
+
+      <GoatInterestBanner />
 
       {/* Our Nigerian Dwarf Goats Program Section - Only show on main goats page */}
       {!genderFilter && !showAvailable && (

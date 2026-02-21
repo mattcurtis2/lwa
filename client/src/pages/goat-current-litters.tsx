@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { parseApiDate } from "@/lib/date-utils";
+import GoatInterestBanner from "@/components/sections/goat-interest-banner";
 
 interface LitterWithRelations extends GoatLitter {
   mother: Goat & { media?: GoatMedia[] };
@@ -114,30 +115,36 @@ export default function GoatCurrentLitters() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
-          <div className="animate-pulse space-y-8">
-            <div className="h-10 bg-gray-200 rounded w-3/4 mb-8"></div>
-            {[1, 2].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-            ))}
+      <>
+        <GoatInterestBanner />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-5xl mx-auto">
+            <div className="animate-pulse space-y-8">
+              <div className="h-10 bg-gray-200 rounded w-3/4 mb-8"></div>
+              {[1, 2].map((_, i) => (
+                <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!litters?.length) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
-        <p className="text-muted-foreground mb-8">
-          We don't have any current litters to display at this time.
-        </p>
-        <Button onClick={() => navigate('/goats')}>
-          View Our Goats
-        </Button>
-      </div>
+      <>
+        <GoatInterestBanner />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
+          <p className="text-muted-foreground mb-8">
+            We don't have any current litters to display at this time.
+          </p>
+          <Button onClick={() => navigate('/goats')}>
+            View Our Goats
+          </Button>
+        </div>
+      </>
     );
   }
   
@@ -154,6 +161,8 @@ export default function GoatCurrentLitters() {
   });
 
   return (
+    <>
+    <GoatInterestBanner />
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
@@ -315,5 +324,6 @@ export default function GoatCurrentLitters() {
         </div>
       </div>
     </div>
+    </>
   );
 }

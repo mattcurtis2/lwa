@@ -2207,6 +2207,26 @@ export default function ContentSection() {
               </CardContent>
             </Card>
 
+            {/* Goat Interest Form Banner */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Goat Interest Form Banner</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Interest Form Link</Label>
+                  <Input
+                    value={getContentValue("goat_interest_form_link") || ""}
+                    onChange={(e) => handleContentChange("goat_interest_form_link", e.target.value)}
+                    placeholder="Paste the goat interest form URL here"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This link will be displayed in a banner on the home page and goat pages. Leave empty to hide the banner.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Explore Our Goats Navigation Section */}
             <Card>
               <CardHeader>
