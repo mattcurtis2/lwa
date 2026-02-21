@@ -22,7 +22,7 @@ export default function GoatInterestBanner() {
                 Interested in Our Goats?
               </div>
               <p className="text-emerald-800">
-                Fill out our interest form to get on the list for upcoming Nigerian Dwarf goat kids.
+                Fill out our interest form to get on the list for current and upcoming Nigerian Dwarf goat kids.
               </p>
             </div>
             <div className="sm:ml-4 flex-shrink-0">
