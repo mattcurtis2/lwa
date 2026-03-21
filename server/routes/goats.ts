@@ -147,8 +147,8 @@ router.put('/api/goats/:id', async (req, res) => {
     
     // Iterate through all fields in data and properly handle nulls/empty strings
     for (const [key, value] of Object.entries(goatData)) {
-      if (key === 'price') {
-        // For price, explicitly allow null/empty values
+      if (key === 'price' || key === 'bucklingPrice' || key === 'wetherPrice') {
+        // For price fields, explicitly allow null/empty values
         if (value === '' || value === null || value === undefined) {
           processedData[key] = null; // Set to null in database
         } else {
