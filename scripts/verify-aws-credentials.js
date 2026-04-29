@@ -14,6 +14,13 @@ function maskValue(value) {
   return `Set (${value.slice(0, 4)}...${value.slice(-4)}, len=${value.length})`;
 }
 
+function rawState(name) {
+  if (!(name in process.env)) return 'missing';
+  const v = process.env[name];
+  if (v === '') return 'empty';
+  return 'set';
+}
+
 function awsBucketEffective() {
   return process.env.AWS_BUCKET_NAME?.trim()
     || process.env.S3_BUCKET_NAME?.trim()
@@ -45,6 +52,27 @@ function sourceLabel(primary, fallback) {
   if (primary) return "primary";
   if (fallback) return "fallback";
   return "missing";
+}
+
+console.log('=== RAW ENV KEY STATES ===');
+const inspectKeys = [
+  'DATABASE_URL',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_SECRET_KEY_LIVE',
+  'AWS_REGION',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_BUCKET_NAME',
+  'S3_BUCKET_NAME',
+  'LWA_AWS_REGION',
+  'LWA_AWS_ACCESS_KEY_ID',
+  'LWA_AWS_SECRET_ACCESS_KEY',
+  'LWA_AWS_BUCKET_NAME',
+  'REPLIT_DEPLOYMENT',
+  'REPLIT_DOMAINS',
+];
+for (const key of inspectKeys) {
+  console.log(`${key}: ${rawState(key)}`);
 }
 
 console.log('=== BUILD ENV CHECK (masked) ===');
