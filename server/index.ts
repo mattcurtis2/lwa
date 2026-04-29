@@ -20,14 +20,8 @@ function validateEnvironment() {
   const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
 
   if (missingAwsVars.length > 0) {
-    console.error(`⚠️ CONFIGURATION ERROR: Missing required AWS variables: ${missingAwsVars.join(', ')}`);
-
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`Missing required environment variables: ${missingAwsVars.join(', ')}. Ensure these are set in your Replit Secrets for deployment.`);
-    } else {
-      console.error('S3 uploads will not work properly without these variables.');
-      console.error('In development, make sure these are set in your .env file or Replit Secrets.');
-    }
+    console.warn(`⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(', ')}`);
+    console.warn('S3 file uploads will not work until these are set in Replit Secrets.');
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
   }
