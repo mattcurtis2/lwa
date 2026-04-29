@@ -10,8 +10,13 @@ import sheepRouter from "./routes/sheep";
 import sheepLittersRouter from "./routes/sheep-litters";
 import { dbErrorHandler } from "./middleware/db-error-handler";
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env file in development only.
+// In production, secrets are injected directly as environment variables
+// by the hosting platform — loading .env would overwrite them with
+// any placeholder values the file contains.
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 // Validate environment variables at startup
 function validateEnvironment() {
