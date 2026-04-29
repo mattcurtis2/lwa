@@ -25,14 +25,19 @@ function validateDeploymentEnv(): void {
   }
   console.log("✅ Environment validation: Stripe secret is set.");
 
-  // Optional but called out for publish debugging
-  const requiredAwsVars = [
-    "AWS_REGION",
-    "AWS_ACCESS_KEY_ID",
-    "AWS_SECRET_ACCESS_KEY",
-    "AWS_BUCKET_NAME",
+  // Optional but called out for publish debugging (bucket name may be S3_BUCKET_NAME in some configs)
+  const bucketName =
+    process.env.AWS_BUCKET_NAME?.trim() || process.env.S3_BUCKET_NAME?.trim() || "";
+  const requiredAwsPieces: { key: string; ok: boolean }[] = [
+    { key: "AWS_REGION", ok: Boolean(process.env.AWS_REGION) },
+    { key: "AWS_ACCESS_KEY_ID", ok: Boolean(process.env.AWS_ACCESS_KEY_ID) },
+    { key: "AWS_SECRET_ACCESS_KEY", ok: Boolean(process.env.AWS_SECRET_ACCESS_KEY) },
+    {
+      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME",
+      ok: bucketName.length > 0,
+    },
   ];
-  const missingAwsVars = requiredAwsVars.filter((name) => !process.env[name]);
+  const missingAwsVars = requiredAwsPieces.filter((p) => !p.ok).map((p) => p.key);
   if (missingAwsVars.length > 0) {
     console.warn(
       `⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(", ")} — S3 uploads may not work.`
