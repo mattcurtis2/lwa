@@ -105,21 +105,6 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                         </a>
                       </div>
                     )}
-                    {showPrice && goat.available && goat.gender === "male" && goat.wetherPrice && !isNaN(parseInt(goat.wetherPrice)) && (
-                      <div className="mt-2">
-                        <a 
-                          href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-primary py-1 px-3 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <p className="text-sm font-semibold text-white">
-                            As Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
-                          </p>
-                        </a>
-                      </div>
-                    )}
                   </div>
                 </div>
               </Link>
@@ -187,21 +172,6 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
                       >
                         <p className="text-sm font-semibold text-white">
                           Available: ${parseInt(goat.price).toLocaleString()}
-                        </p>
-                      </a>
-                    </div>
-                  )}
-                  {showPrice && goat.available && goat.gender === "male" && goat.wetherPrice && !isNaN(parseInt(goat.wetherPrice)) && (
-                    <div className="mt-2">
-                      <a 
-                        href="https://docs.google.com/forms/d/e/1FAIpQLSeAmx7hDWVwRRToiTXTS-3SuT3uYjD0vnxTPP2gLi1ppoy4Ow/viewform?usp=sharing"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-primary py-1 px-3 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <p className="text-sm font-semibold text-white">
-                          As Wether: ${parseInt(goat.wetherPrice).toLocaleString()}
                         </p>
                       </a>
                     </div>

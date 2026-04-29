@@ -70,7 +70,7 @@ const createGoatSchema = (isKid: boolean = false) => {
     laArScores: z.string().optional(),
     damName: z.string().optional().nullable(),
     sireName: z.string().optional().nullable(),
-    price: z.string().optional().nullable(),
+    price: z.string().optional(),
     bucklingPrice: z.string().optional().nullable(),
     wetherPrice: z.string().optional().nullable(),
     profileImageUrl: z.string().optional(),

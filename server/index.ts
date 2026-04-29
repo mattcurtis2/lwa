@@ -10,37 +10,29 @@ import sheepRouter from "./routes/sheep";
 import sheepLittersRouter from "./routes/sheep-litters";
 import { dbErrorHandler } from "./middleware/db-error-handler";
 
-// Load environment variables from .env file in development only.
-// In production, secrets are injected directly as environment variables
-// by the hosting platform — loading .env would overwrite them with
-// any placeholder values the file contains.
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
-
-// Catch any unhandled exceptions or promise rejections (e.g. transient
-// database WebSocket errors) so the process doesn't crash on non-fatal issues.
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception (non-fatal, server continues):', err.message);
-});
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled promise rejection (non-fatal, server continues):', reason);
-});
+// Load environment variables from .env file
+dotenv.config();
 
 // Validate environment variables at startup
 function validateEnvironment() {
-  // AWS credentials are needed only for file uploads — missing them is a warning,
-  // not a fatal error. The site will serve fine; only media uploads will fail.
+  // Check S3 credentials exactly how DB credentials are checked
   const requiredAwsVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
   const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
 
   if (missingAwsVars.length > 0) {
-    console.warn(`⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(', ')}. File uploads will not work. Ensure these are set in your Replit Secrets.`);
+    console.error(`⚠️ CONFIGURATION ERROR: Missing required AWS variables: ${missingAwsVars.join(', ')}`);
+
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`Missing required environment variables: ${missingAwsVars.join(', ')}. Ensure these are set in your Replit Secrets for deployment.`);
+    } else {
+      console.error('S3 uploads will not work properly without these variables.');
+      console.error('In development, make sure these are set in your .env file or Replit Secrets.');
+    }
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
   }
 
-  // Database is genuinely required — nothing works without it.
+  // Check database credentials
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.');
   } else {

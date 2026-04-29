@@ -7,7 +7,7 @@
  */
 
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { neonConfig, Pool } from '@neondatabase/serverless';
+import { neonConfig } from '@neondatabase/serverless';
 import * as schema from "@db/schema";
 import ws from 'ws';
 import { setTimeout } from 'timers/promises';
@@ -29,22 +29,19 @@ const RETRYABLE_ERROR_PATTERNS = [
   'Control plane request failed'
 ];
 
+// Configure Neon database client for better resilience
+neonConfig.webSocketConstructor = ws;
+neonConfig.fetchConnectionCache = true; // Enable connection caching
+neonConfig.useSecureWebSocket = true;
+
 // Validate required environment variables
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set");
 }
 
-// Configure WebSocket constructor for Node.js environments
-neonConfig.webSocketConstructor = ws;
-
-// Create a pool and attach an error listener so a failed connection
-// does not emit an unhandled 'error' event that crashes the process.
-const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
-pool.on('error', (err) => {
-  console.error('Database pool error (non-fatal):', err.message);
-});
-
-export const db = drizzle(pool, { schema });
+// Initialize the database with Drizzle ORM
+// Use non-null assertion since we've checked above
+export const db = drizzle(process.env.DATABASE_URL!, { schema });
 
 /**
  * Wrapper function to add retry capability to database operations
