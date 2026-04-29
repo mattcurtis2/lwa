@@ -14,10 +14,25 @@ import { dbErrorHandler } from "./middleware/db-error-handler";
 // Additional deployment debugging (secrets already validated in env-bootstrap)
 console.log('============ ENVIRONMENT CHECK ============');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('AWS_REGION:', process.env.AWS_REGION || 'Not set');
-console.log('AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : 'Not set');
-console.log('AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Set (length: ' + process.env.AWS_SECRET_ACCESS_KEY.length + ')' : 'Not set');
-console.log('AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || 'Not set');
+const awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
+const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
+const awsSecretAccessKey =
+  process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
+const awsBucketName =
+  process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME;
+console.log('AWS_REGION (or LWA_AWS_REGION):', awsRegion || 'Not set');
+console.log(
+  'AWS_ACCESS_KEY_ID (or LWA_AWS_ACCESS_KEY_ID):',
+  awsAccessKeyId ? `Set (starts with: ${awsAccessKeyId.substring(0, 4)}...)` : 'Not set'
+);
+console.log(
+  'AWS_SECRET_ACCESS_KEY (or LWA_AWS_SECRET_ACCESS_KEY):',
+  awsSecretAccessKey ? 'Set (length: ' + awsSecretAccessKey.length + ')' : 'Not set'
+);
+console.log(
+  'AWS_BUCKET_NAME/S3_BUCKET_NAME (or LWA_AWS_BUCKET_NAME):',
+  awsBucketName || 'Not set'
+);
 console.log('==========================================');
 
 const app = express();

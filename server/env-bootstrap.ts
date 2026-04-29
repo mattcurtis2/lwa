@@ -27,13 +27,23 @@ function validateDeploymentEnv(): void {
 
   // Optional but called out for publish debugging (bucket name may be S3_BUCKET_NAME in some configs)
   const bucketName =
-    process.env.AWS_BUCKET_NAME?.trim() || process.env.S3_BUCKET_NAME?.trim() || "";
+    process.env.AWS_BUCKET_NAME?.trim() ||
+    process.env.S3_BUCKET_NAME?.trim() ||
+    process.env.LWA_AWS_BUCKET_NAME?.trim() ||
+    "";
+  const awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
+  const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
+  const awsSecretAccessKey =
+    process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
   const requiredAwsPieces: { key: string; ok: boolean }[] = [
-    { key: "AWS_REGION", ok: Boolean(process.env.AWS_REGION) },
-    { key: "AWS_ACCESS_KEY_ID", ok: Boolean(process.env.AWS_ACCESS_KEY_ID) },
-    { key: "AWS_SECRET_ACCESS_KEY", ok: Boolean(process.env.AWS_SECRET_ACCESS_KEY) },
+    { key: "AWS_REGION or LWA_AWS_REGION", ok: Boolean(awsRegion) },
+    { key: "AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID", ok: Boolean(awsAccessKeyId) },
     {
-      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME",
+      key: "AWS_SECRET_ACCESS_KEY or LWA_AWS_SECRET_ACCESS_KEY",
+      ok: Boolean(awsSecretAccessKey),
+    },
+    {
+      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME or LWA_AWS_BUCKET_NAME",
       ok: bucketName.length > 0,
     },
   ];

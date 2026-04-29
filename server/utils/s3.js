@@ -6,13 +6,23 @@ import path from "path";
 // Create a single S3 client instance (similar to database pattern)
 let s3Client = null;
 
+function getAwsEnv() {
+  return {
+    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY,
+    bucketName:
+      process.env.AWS_BUCKET_NAME ||
+      process.env.S3_BUCKET_NAME ||
+      process.env.LWA_AWS_BUCKET_NAME,
+  };
+}
+
 // Initialize S3 client with error handling like the DB implementation
 function getS3Client() {
   if (s3Client) return s3Client;
 
-  const region = process.env.AWS_REGION;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const { region, accessKeyId, secretAccessKey } = getAwsEnv();
 
   // Log credentials state for debugging
   console.log('S3 Client Initialization:');
@@ -22,7 +32,9 @@ function getS3Client() {
 
   // Check required credentials (like DATABASE_URL check)
   if (!region || !accessKeyId || !secretAccessKey) {
-    throw new Error('AWS credentials not properly configured. Check AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.');
+    throw new Error(
+      'AWS credentials not properly configured. Check AWS_* vars or LWA_AWS_* fallback vars.'
+    );
   }
 
   // Create client once
@@ -39,15 +51,18 @@ function getS3Client() {
 
 // Get bucket name with validation
 function getBucketName() {
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const bucketName = getAwsEnv().bucketName;
   if (!bucketName) {
-    throw new Error('S3 bucket name not configured. Check AWS_BUCKET_NAME environment variable.');
+    throw new Error(
+      'S3 bucket name not configured. Check AWS_BUCKET_NAME, S3_BUCKET_NAME, or LWA_AWS_BUCKET_NAME.'
+    );
   }
   return bucketName;
 }
 
 export async function uploadToS3(file) {
   console.log('==== S3 UPLOAD ATTEMPT ====');
+  const env = getAwsEnv();
 
   try {
     // Get client and bucket using centralized functions
@@ -56,9 +71,9 @@ export async function uploadToS3(file) {
 
     // Save credentials to global for debugging (can be removed later)
     global.s3CredentialsDebug = {
-      region: process.env.AWS_REGION,
-      keyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) : 'empty',
-      secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY ? process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) : 'empty',
+      region: env.region,
+      keyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : 'empty',
+      secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : 'empty',
       bucketName: BUCKET_NAME
     };
 
@@ -104,9 +119,9 @@ export async function uploadToS3(file) {
     console.log('S3 Upload - Success! Response:', uploadResult);
 
     // Construct the URL
-    const s3Url = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
+    const s3Url = `https://${BUCKET_NAME}.s3.${env.region}.amazonaws.com/${filename}`;
     console.log(`S3 upload successful: ${s3Url}`);
-    console.log(`Alternative URL (path-style): https://s3.${process.env.AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${filename}`);
+    console.log(`Alternative URL (path-style): https://s3.${env.region}.amazonaws.com/${BUCKET_NAME}/${filename}`);
 
     return s3Url;
   } catch (error) {
@@ -118,17 +133,17 @@ export async function uploadToS3(file) {
 
       // Add credentials to the error object for debugging
       error.awsCredentials = {
-        region: process.env.AWS_REGION,
-        accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID.substring(0, 4),
-        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4),
-        fullAccessKeyId: process.env.AWS_ACCESS_KEY_ID,  // Include full key in server logs only
+        region: env.region,
+        accessKeyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : 'empty',
+        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : 'empty',
+        fullAccessKeyId: env.accessKeyId,  // Include full key in server logs only
         bucketName: getBucketName()
       };
 
       console.error('AWS Credentials used in failed request:', {
-        region: process.env.AWS_REGION,
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...',
+        region: env.region,
+        accessKeyId: env.accessKeyId,
+        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) + '...' : 'empty',
         bucketName: getBucketName()
       });
     }

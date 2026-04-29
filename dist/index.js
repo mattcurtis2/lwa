@@ -12,12 +12,27 @@ var __export = (target, all) => {
 var helpers_exports = {};
 __export(helpers_exports, {
   getCurrentSiteId: () => getCurrentSiteId,
+  parseSiteIdHeader: () => parseSiteIdHeader,
   retry: () => retry,
   sleep: () => sleep
 });
+function parseSiteIdHeader(req) {
+  const raw = req.header("X-Site-ID");
+  if (raw == null || String(raw).trim() === "") {
+    return { ok: true, siteId: 1 };
+  }
+  const n = parseInt(String(raw).trim(), 10);
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1) {
+    return { ok: false, error: "X-Site-ID must be a positive integer" };
+  }
+  return { ok: true, siteId: n };
+}
 function getCurrentSiteId(req) {
-  const siteIdHeader = req.header("X-Site-ID");
-  return siteIdHeader ? parseInt(siteIdHeader, 10) : 1;
+  const parsed = parseSiteIdHeader(req);
+  if (parsed.ok) {
+    return parsed.siteId;
+  }
+  return 1;
 }
 async function retry(fn, maxRetries = 3, initialDelay = 1e3) {
   let lastError = new Error("Operation failed after maximum retries");
@@ -53,17 +68,25 @@ import { S3Client as S3Client2, PutObjectCommand as PutObjectCommand2, GetObject
 import { v4 as uuidv4 } from "uuid";
 import fs3 from "fs";
 import path2 from "path";
+function getAwsEnv() {
+  return {
+    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY,
+    bucketName: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME
+  };
+}
 function getS3Client() {
   if (s3Client) return s3Client;
-  const region = process.env.AWS_REGION;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const { region, accessKeyId, secretAccessKey } = getAwsEnv();
   console.log("S3 Client Initialization:");
   console.log(`- AWS_REGION: ${region ? "Set" : "Not set"}`);
   console.log(`- AWS_ACCESS_KEY_ID: ${accessKeyId ? `Set (starts with: ${accessKeyId.substring(0, 4)}...)` : "Not set"}`);
   console.log(`- AWS_SECRET_ACCESS_KEY: ${secretAccessKey ? "Set (length: " + secretAccessKey.length + ")" : "Not set"}`);
   if (!region || !accessKeyId || !secretAccessKey) {
-    throw new Error("AWS credentials not properly configured. Check AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.");
+    throw new Error(
+      "AWS credentials not properly configured. Check AWS_* vars or LWA_AWS_* fallback vars."
+    );
   }
   s3Client = new S3Client2({
     region,
@@ -75,21 +98,24 @@ function getS3Client() {
   return s3Client;
 }
 function getBucketName() {
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const bucketName = getAwsEnv().bucketName;
   if (!bucketName) {
-    throw new Error("S3 bucket name not configured. Check AWS_BUCKET_NAME environment variable.");
+    throw new Error(
+      "S3 bucket name not configured. Check AWS_BUCKET_NAME, S3_BUCKET_NAME, or LWA_AWS_BUCKET_NAME."
+    );
   }
   return bucketName;
 }
 async function uploadToS32(file) {
   console.log("==== S3 UPLOAD ATTEMPT ====");
+  const env = getAwsEnv();
   try {
     const s3 = getS3Client();
     const BUCKET_NAME = getBucketName();
     global.s3CredentialsDebug = {
-      region: process.env.AWS_REGION,
-      keyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) : "empty",
-      secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY ? process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) : "empty",
+      region: env.region,
+      keyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : "empty",
+      secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : "empty",
       bucketName: BUCKET_NAME
     };
     const fileExtension = path2.extname(file.originalname || "unknown.jpg").toLowerCase();
@@ -118,9 +144,9 @@ async function uploadToS32(file) {
     console.log("S3 Upload - Sending file to S3...");
     const uploadResult = await s3.send(new PutObjectCommand2(uploadParams));
     console.log("S3 Upload - Success! Response:", uploadResult);
-    const s3Url = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
+    const s3Url = `https://${BUCKET_NAME}.s3.${env.region}.amazonaws.com/${filename}`;
     console.log(`S3 upload successful: ${s3Url}`);
-    console.log(`Alternative URL (path-style): https://s3.${process.env.AWS_REGION}.amazonaws.com/${BUCKET_NAME}/${filename}`);
+    console.log(`Alternative URL (path-style): https://s3.${env.region}.amazonaws.com/${BUCKET_NAME}/${filename}`);
     return s3Url;
   } catch (error) {
     console.error("S3 Upload - Error during upload:", error);
@@ -129,17 +155,17 @@ async function uploadToS32(file) {
       console.error(`Error message: ${error.message}`);
       console.error(`Error stack: ${error.stack}`);
       error.awsCredentials = {
-        region: process.env.AWS_REGION,
-        accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID.substring(0, 4),
-        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4),
-        fullAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        region: env.region,
+        accessKeyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : "empty",
+        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : "empty",
+        fullAccessKeyId: env.accessKeyId,
         // Include full key in server logs only
         bucketName: getBucketName()
       };
       console.error("AWS Credentials used in failed request:", {
-        region: process.env.AWS_REGION,
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) + "...",
+        region: env.region,
+        accessKeyId: env.accessKeyId,
+        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) + "..." : "empty",
         bucketName: getBucketName()
       });
     }
@@ -197,6 +223,50 @@ var init_s3 = __esm({
   }
 });
 
+// server/env-bootstrap.ts
+import dotenv from "dotenv";
+dotenv.config();
+function validateDeploymentEnv() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL is not set. Add it in Replit Secrets (or .env locally) before publishing."
+    );
+  }
+  console.log("\u2705 Environment validation: DATABASE_URL is set.");
+  const stripeOk = Boolean(process.env.STRIPE_SECRET_KEY_LIVE) || Boolean(process.env.STRIPE_SECRET_KEY);
+  if (!stripeOk) {
+    throw new Error(
+      "Missing Stripe secret: set STRIPE_SECRET_KEY_LIVE or STRIPE_SECRET_KEY in Replit Secrets."
+    );
+  }
+  console.log("\u2705 Environment validation: Stripe secret is set.");
+  const bucketName = process.env.AWS_BUCKET_NAME?.trim() || process.env.S3_BUCKET_NAME?.trim() || process.env.LWA_AWS_BUCKET_NAME?.trim() || "";
+  const awsRegion2 = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
+  const awsAccessKeyId2 = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
+  const awsSecretAccessKey2 = process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
+  const requiredAwsPieces = [
+    { key: "AWS_REGION or LWA_AWS_REGION", ok: Boolean(awsRegion2) },
+    { key: "AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID", ok: Boolean(awsAccessKeyId2) },
+    {
+      key: "AWS_SECRET_ACCESS_KEY or LWA_AWS_SECRET_ACCESS_KEY",
+      ok: Boolean(awsSecretAccessKey2)
+    },
+    {
+      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME or LWA_AWS_BUCKET_NAME",
+      ok: bucketName.length > 0
+    }
+  ];
+  const missingAwsVars = requiredAwsPieces.filter((p) => !p.ok).map((p) => p.key);
+  if (missingAwsVars.length > 0) {
+    console.warn(
+      `\u26A0\uFE0F WARNING: Missing AWS variables: ${missingAwsVars.join(", ")} \u2014 S3 uploads may not work.`
+    );
+  } else {
+    console.log("\u2705 Environment validation: S3-related variables present.");
+  }
+}
+validateDeploymentEnv();
+
 // server/index.ts
 import express6 from "express";
 
@@ -204,8 +274,8 @@ import express6 from "express";
 import { createServer } from "http";
 
 // db/resilient-db.ts
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
 
 // db/schema.ts
 var schema_exports = {};
@@ -960,14 +1030,15 @@ var insertOrderItemSchema = createInsertSchema(orderItems);
 var selectOrderItemSchema = createSelectSchema(orderItems);
 
 // db/resilient-db.ts
-import ws from "ws";
-neonConfig.webSocketConstructor = ws;
-neonConfig.fetchConnectionCache = true;
-neonConfig.useSecureWebSocket = true;
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set");
 }
-var db = drizzle(process.env.DATABASE_URL, { schema: schema_exports });
+var _neonSql = neon(process.env.DATABASE_URL);
+var neonHttpClient = Object.assign(
+  (sql, params, options) => _neonSql.query(sql, params, options),
+  _neonSql
+);
+var db = drizzle(neonHttpClient, { schema: schema_exports });
 
 // server/routes.ts
 init_helpers();
@@ -984,23 +1055,19 @@ import express from "express";
 import { Router } from "express";
 
 // db/connection.ts
-import { drizzle as drizzle2 } from "drizzle-orm/neon-serverless";
-import { neonConfig as neonConfig2 } from "@neondatabase/serverless";
-import ws2 from "ws";
+import { drizzle as drizzle2 } from "drizzle-orm/neon-http";
+import { neon as neon2 } from "@neondatabase/serverless";
 if (!process.env.DATABASE_URL) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?"
   );
 }
-neonConfig2.webSocketConstructor = ws2;
-neonConfig2.fetchConnectionCache = true;
-neonConfig2.wsConnectionTimeout = 3e4;
-neonConfig2.pipelineConnect = false;
-neonConfig2.useSecureWebSocket = true;
-function createDbConnection() {
-  return process.env.DATABASE_URL;
-}
-var db2 = drizzle2(createDbConnection(), { schema: schema_exports });
+var _neonSql2 = neon2(process.env.DATABASE_URL);
+var neonHttpClient2 = Object.assign(
+  (sql, params, options) => _neonSql2.query(sql, params, options),
+  _neonSql2
+);
+var db2 = drizzle2(neonHttpClient2, { schema: schema_exports });
 
 // server/routes/sheep.ts
 import { eq, desc, asc, and } from "drizzle-orm";
@@ -1012,20 +1079,28 @@ import { nanoid } from "nanoid";
 // server/utils/s3.ts
 import fs from "fs-extra";
 import { S3Client, PutObjectCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv2 from "dotenv";
+dotenv2.config();
+function getS3Env() {
+  return {
+    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION || "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY || "",
+    bucketName: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME || ""
+  };
+}
+function isS3Configured() {
+  const env = getS3Env();
+  return !!(env.region && env.accessKeyId && env.secretAccessKey && env.bucketName);
+}
 async function uploadToS3(file) {
-  console.log("==== S3 UPLOAD ATTEMPT ====");
-  console.log("AWS Credentials Check:");
-  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? "Set" : "Not set"}`);
-  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : "Not set"}`);
-  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : "Not set"}`);
-  console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? "Set" : "Not set"}`);
-  console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? "Set" : "Not set"}`);
-  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_BUCKET_NAME && !process.env.S3_BUCKET_NAME) {
-    console.error("S3 Upload - Missing AWS credentials");
-    return null;
+  const env = getS3Env();
+  if (!isS3Configured()) {
+    throw new Error(
+      "S3 not configured: set AWS_* vars (or LWA_AWS_* fallback vars) and AWS_BUCKET_NAME/S3_BUCKET_NAME"
+    );
   }
+  console.log("==== S3 UPLOAD ATTEMPT ====");
   if (!file) {
     console.error("S3 Upload - No file provided");
     return null;
@@ -1034,12 +1109,12 @@ async function uploadToS3(file) {
     console.error("S3 Upload - File missing originalname");
     return null;
   }
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const bucketName = env.bucketName;
   const s3 = new S3Client({
-    region: process.env.AWS_REGION,
+    region: env.region,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      accessKeyId: env.accessKeyId,
+      secretAccessKey: env.secretAccessKey
     }
   });
   try {
@@ -2148,6 +2223,10 @@ function registerRoutes(app2) {
   });
   app2.post("/api/upload", upload2.array("file", 10), async (req, res) => {
     try {
+      const s3Configured = !!(process.env.AWS_REGION && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME));
+      if (!s3Configured) {
+        return res.status(503).json({ error: "S3 not configured" });
+      }
       console.log("\n\n=== UPLOAD REQUEST RECEIVED ===");
       console.log("Headers:", req.headers);
       console.log("Files:", req.files ? req.files.map((f) => ({
@@ -2621,8 +2700,16 @@ function registerRoutes(app2) {
     }
   });
   app2.get("/api/contact-info", async (req, res) => {
+    const parsed = parseSiteIdHeader(req);
+    if (!parsed.ok) {
+      console.warn("GET /api/contact-info client_error:", {
+        reason: parsed.error,
+        xSiteId: req.header("X-Site-ID")
+      });
+      return res.status(400).json({ message: parsed.error });
+    }
+    const siteId = parsed.siteId;
     try {
-      const siteId = getCurrentSiteId(req);
       const contact = await db.query.contactInfo.findFirst({
         where: eq2(contactInfo.siteId, siteId)
       });
@@ -2632,7 +2719,12 @@ function registerRoutes(app2) {
         res.status(404).json({ message: "Contact info not found" });
       }
     } catch (error) {
-      console.error("Error fetching contact info:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error("GET /api/contact-info server_error:", {
+        message: err.message,
+        name: err.name,
+        siteId
+      });
       res.status(500).json({ message: "Failed to fetch contact info" });
     }
   });
@@ -3666,7 +3758,6 @@ function serveStatic(app2) {
 }
 
 // server/index.ts
-import dotenv2 from "dotenv";
 import compression from "compression";
 
 // server/routes/proxy.ts
@@ -4537,29 +4628,25 @@ function isDatabaseConnectionError(err) {
 }
 
 // server/index.ts
-dotenv2.config();
-function validateEnvironment() {
-  const requiredAwsVars = ["AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_BUCKET_NAME"];
-  const missingAwsVars = requiredAwsVars.filter((varName) => !process.env[varName]);
-  if (missingAwsVars.length > 0) {
-    console.warn(`\u26A0\uFE0F WARNING: Missing AWS variables: ${missingAwsVars.join(", ")}`);
-    console.warn("S3 file uploads will not work until these are set in Replit Secrets.");
-  } else {
-    console.log("\u2705 Environment validation: All required S3 credentials found.");
-  }
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.");
-  } else {
-    console.log("\u2705 Environment validation: Database URL found.");
-  }
-}
-validateEnvironment();
 console.log("============ ENVIRONMENT CHECK ============");
 console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("AWS_REGION:", process.env.AWS_REGION || "Not set");
-console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 4)}...)` : "Not set");
-console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY ? "Set (length: " + process.env.AWS_SECRET_ACCESS_KEY.length + ")" : "Not set");
-console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || "Not set");
+var awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
+var awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
+var awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
+var awsBucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME;
+console.log("AWS_REGION (or LWA_AWS_REGION):", awsRegion || "Not set");
+console.log(
+  "AWS_ACCESS_KEY_ID (or LWA_AWS_ACCESS_KEY_ID):",
+  awsAccessKeyId ? `Set (starts with: ${awsAccessKeyId.substring(0, 4)}...)` : "Not set"
+);
+console.log(
+  "AWS_SECRET_ACCESS_KEY (or LWA_AWS_SECRET_ACCESS_KEY):",
+  awsSecretAccessKey ? "Set (length: " + awsSecretAccessKey.length + ")" : "Not set"
+);
+console.log(
+  "AWS_BUCKET_NAME/S3_BUCKET_NAME (or LWA_AWS_BUCKET_NAME):",
+  awsBucketName || "Not set"
+);
 console.log("==========================================");
 var app = express6();
 app.use(compression({
@@ -4653,8 +4740,17 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-  const PORT = 5e3;
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`serving on port ${PORT}`);
+  const rawPort = process.env.PORT;
+  let listenPort = 5e3;
+  if (rawPort !== void 0 && rawPort !== "") {
+    const n = Number.parseInt(rawPort, 10);
+    if (!Number.isNaN(n) && n > 0) {
+      listenPort = n;
+    } else {
+      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5000`);
+    }
+  }
+  server.listen(listenPort, "0.0.0.0", () => {
+    log(`serving on port ${listenPort}`);
   });
 })();

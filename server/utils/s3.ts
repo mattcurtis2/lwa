@@ -7,6 +7,20 @@ import { sleep } from '../helpers';
 
 dotenv.config();
 
+function getS3Env() {
+  return {
+    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION || "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID || "",
+    secretAccessKey:
+      process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY || "",
+    bucketName:
+      process.env.AWS_BUCKET_NAME ||
+      process.env.S3_BUCKET_NAME ||
+      process.env.LWA_AWS_BUCKET_NAME ||
+      "",
+  };
+}
+
 // Function to check and set S3 bucket CORS configuration
 async function ensureBucketCorsConfig(s3Client, bucketName) {
   try {
@@ -43,18 +57,22 @@ async function ensureBucketCorsConfig(s3Client, bucketName) {
 
 // Returns true only when all four required AWS env vars are present
 export function isS3Configured(): boolean {
+  const env = getS3Env();
   return !!(
-    process.env.AWS_REGION &&
-    process.env.AWS_ACCESS_KEY_ID &&
-    process.env.AWS_SECRET_ACCESS_KEY &&
-    (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME)
+    env.region &&
+    env.accessKeyId &&
+    env.secretAccessKey &&
+    env.bucketName
   );
 }
 
 // Initialize the S3 client with AWS credentials
 export async function uploadToS3(file: any): Promise<string> {
+  const env = getS3Env();
   if (!isS3Configured()) {
-    throw new Error('S3 not configured: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_BUCKET_NAME must all be set');
+    throw new Error(
+      "S3 not configured: set AWS_* vars (or LWA_AWS_* fallback vars) and AWS_BUCKET_NAME/S3_BUCKET_NAME"
+    );
   }
 
   console.log('==== S3 UPLOAD ATTEMPT ====');
@@ -70,12 +88,12 @@ export async function uploadToS3(file: any): Promise<string> {
     return null;
   }
 
-  const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+  const bucketName = env.bucketName;
   const s3 = new S3Client({
-    region: process.env.AWS_REGION,
+    region: env.region,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      accessKeyId: env.accessKeyId,
+      secretAccessKey: env.secretAccessKey
     }
   });
 

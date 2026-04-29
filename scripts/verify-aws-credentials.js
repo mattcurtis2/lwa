@@ -11,14 +11,27 @@ dotenv.config();
 function awsBucketEffective() {
   return process.env.AWS_BUCKET_NAME?.trim()
     || process.env.S3_BUCKET_NAME?.trim()
+    || process.env.LWA_AWS_BUCKET_NAME?.trim()
     || '';
 }
 
+function awsRegionEffective() {
+  return process.env.AWS_REGION || process.env.LWA_AWS_REGION || '';
+}
+
+function awsAccessKeyEffective() {
+  return process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID || '';
+}
+
+function awsSecretKeyEffective() {
+  return process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY || '';
+}
+
 const missing = [];
-if (!process.env.AWS_REGION) missing.push('AWS_REGION');
-if (!process.env.AWS_ACCESS_KEY_ID) missing.push('AWS_ACCESS_KEY_ID');
-if (!process.env.AWS_SECRET_ACCESS_KEY) missing.push('AWS_SECRET_ACCESS_KEY');
-if (!awsBucketEffective()) missing.push('AWS_BUCKET_NAME');
+if (!awsRegionEffective()) missing.push('AWS_REGION or LWA_AWS_REGION');
+if (!awsAccessKeyEffective()) missing.push('AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID');
+if (!awsSecretKeyEffective()) missing.push('AWS_SECRET_ACCESS_KEY or LWA_AWS_SECRET_ACCESS_KEY');
+if (!awsBucketEffective()) missing.push('AWS_BUCKET_NAME or S3_BUCKET_NAME or LWA_AWS_BUCKET_NAME');
 
 if (missing.length > 0) {
   console.error(`Missing AWS environment variables: ${missing.join(', ')}`);
@@ -27,7 +40,7 @@ if (missing.length > 0) {
 }
 
 console.log('=== VERIFYING AWS CREDENTIALS ===');
-console.log('AWS_REGION:', process.env.AWS_REGION);
+console.log('AWS_REGION:', awsRegionEffective());
 console.log('AWS_BUCKET_NAME:', awsBucketEffective());
 
 const awsBucketTarget = awsBucketEffective();
@@ -35,10 +48,10 @@ const awsBucketTarget = awsBucketEffective();
 async function verifyAwsCredentials() {
   try {
     const s3Client = new S3Client({
-      region: process.env.AWS_REGION,
+      region: awsRegionEffective(),
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        accessKeyId: awsAccessKeyEffective(),
+        secretAccessKey: awsSecretKeyEffective()
       }
     });
 
