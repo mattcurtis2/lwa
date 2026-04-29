@@ -1,9 +1,6 @@
 
 // Verify AWS credentials before build
 import { S3Client, ListBucketsCommand } from "@aws-sdk/client-s3";
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 // Required AWS environment variables
 const requiredAwsVars = [
