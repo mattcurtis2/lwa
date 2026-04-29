@@ -6,10 +6,9 @@
  * crashes when temporary database availability problems occur.
  */
 
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neonConfig } from '@neondatabase/serverless';
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import * as schema from "@db/schema";
-import ws from 'ws';
 import { setTimeout } from 'timers/promises';
 
 // Maximum number of retry attempts
@@ -29,19 +28,23 @@ const RETRYABLE_ERROR_PATTERNS = [
   'Control plane request failed'
 ];
 
-// Configure Neon database client for better resilience
-neonConfig.webSocketConstructor = ws;
-neonConfig.fetchConnectionCache = true; // Enable connection caching
-neonConfig.useSecureWebSocket = true;
-
 // Validate required environment variables
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set");
 }
 
-// Initialize the database with Drizzle ORM
-// Use non-null assertion since we've checked above
-export const db = drizzle(process.env.DATABASE_URL!, { schema });
+// @neondatabase/serverless v1.0.0 changed neon() to tagged-template-only at runtime,
+// but drizzle-orm/neon-http calls the client as a conventional function (sql, params, opts).
+// We compose a NeonQueryFunction-compatible client that routes those calls to .query().
+const _neonSql = neon(process.env.DATABASE_URL!);
+const neonHttpClient: NeonQueryFunction<false, false> = Object.assign(
+  (sql: string, params?: unknown[], options?: Parameters<typeof _neonSql.query>[2]) =>
+    _neonSql.query(sql, params as Parameters<typeof _neonSql.query>[1], options),
+  _neonSql
+);
+
+// Initialize the database with Drizzle ORM using HTTP transport (no WebSocket)
+export const db = drizzle(neonHttpClient, { schema });
 
 /**
  * Wrapper function to add retry capability to database operations

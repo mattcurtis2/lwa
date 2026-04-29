@@ -1036,6 +1036,18 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
+      // Guard: return 503 immediately when AWS credentials are absent.
+      // Inlined to avoid TS/JS build-artifact divergence on dynamic imports.
+      const s3Configured = !!(
+        process.env.AWS_REGION &&
+        process.env.AWS_ACCESS_KEY_ID &&
+        process.env.AWS_SECRET_ACCESS_KEY &&
+        (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME)
+      );
+      if (!s3Configured) {
+        return res.status(503).json({ error: 'S3 not configured' });
+      }
+
       console.log('\n\n=== UPLOAD REQUEST RECEIVED ===');
       console.log('Headers:', req.headers);
       console.log('Files:', req.files ? req.files.map(f => ({

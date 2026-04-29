@@ -41,22 +41,23 @@ async function ensureBucketCorsConfig(s3Client, bucketName) {
   }
 }
 
-// Initialize the S3 client with AWS credentials
-export async function uploadToS3(file: any): Promise<string | null> {
-  console.log('==== S3 UPLOAD ATTEMPT ====');
-  // Check if AWS credentials are set
-  console.log('AWS Credentials Check:');
-  console.log(`- AWS_REGION: ${process.env.AWS_REGION ? 'Set' : 'Not set'}`);
-  console.log(`- AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? `Set (starts with: ${process.env.AWS_ACCESS_KEY_ID.substring(0, 6)}...)` : 'Not set'}`);
-  console.log(`- AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? `Set (length: ${process.env.AWS_SECRET_ACCESS_KEY.length})` : 'Not set'}`);
-  console.log(`- AWS_BUCKET_NAME: ${process.env.AWS_BUCKET_NAME ? 'Set' : 'Not set'}`);
-  console.log(`- S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME ? 'Set' : 'Not set'}`);
+// Returns true only when all four required AWS env vars are present
+export function isS3Configured(): boolean {
+  return !!(
+    process.env.AWS_REGION &&
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY &&
+    (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME)
+  );
+}
 
-  if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || 
-      (!process.env.AWS_BUCKET_NAME && !process.env.S3_BUCKET_NAME)) {
-    console.error('S3 Upload - Missing AWS credentials');
-    return null;
+// Initialize the S3 client with AWS credentials
+export async function uploadToS3(file: any): Promise<string> {
+  if (!isS3Configured()) {
+    throw new Error('S3 not configured: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_BUCKET_NAME must all be set');
   }
+
+  console.log('==== S3 UPLOAD ATTEMPT ====');
 
   // Validate the file object
   if (!file) {

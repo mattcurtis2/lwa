@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { uploadToS3 } from '../utils/s3';
+import { uploadToS3, isS3Configured } from '../utils/s3';
 
 const router = express.Router();
 
@@ -14,6 +14,9 @@ const upload = multer({
 });
 
 router.post('/upload', upload.array('file'), async (req, res) => {
+  if (!isS3Configured()) {
+    return res.status(503).json({ error: 'S3 not configured' });
+  }
   try {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });

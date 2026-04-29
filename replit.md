@@ -3,6 +3,22 @@
 ## Overview
 This full-stack web application manages a small family farm specializing in Colorado Mountain Dogs and Nigerian Dwarf Goats. It offers a content management interface for animals, litters, site content, and customer inquiries. The system aims to provide a robust, modern platform for farm owners to efficiently manage their operations, market their animals, and handle customer interactions, ultimately supporting the farm's growth and profitability.
 
+## Required Secrets for Deployment
+
+The following environment variables must be set in Replit Secrets before deploying (Settings → Secrets):
+
+| Secret | Description |
+|---|---|
+| `DATABASE_URL` | Neon PostgreSQL connection string |
+| `AWS_REGION` | AWS region where the S3 bucket lives (e.g. `us-east-2`) |
+| `AWS_ACCESS_KEY_ID` | AWS IAM access key ID with S3 write permissions |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM secret access key |
+| `AWS_BUCKET_NAME` | Name of the S3 bucket used for file uploads (`S3_BUCKET_NAME` is accepted as a fallback) |
+
+Without the four AWS secrets, file uploads will return a `503 S3 not configured` error. The app will otherwise start and run normally.
+
+You can verify AWS credentials manually at any time with: `npm run verify-aws`
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
