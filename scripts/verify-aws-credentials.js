@@ -41,6 +41,20 @@ function databaseUrlEffective() {
   return process.env.DATABASE_URL || '';
 }
 
+function sourceLabel(primary, fallback) {
+  if (primary) return "primary";
+  if (fallback) return "fallback";
+  return "missing";
+}
+
+console.log('=== BUILD ENV CHECK (masked) ===');
+console.log('DATABASE_URL:', maskValue(databaseUrlEffective()));
+console.log('STRIPE_SECRET_KEY(_LIVE):', maskValue(stripeSecretEffective()));
+console.log('AWS_REGION:', maskValue(awsRegionEffective()), `[source=${sourceLabel(process.env.AWS_REGION, process.env.LWA_AWS_REGION)}]`);
+console.log('AWS_ACCESS_KEY_ID:', maskValue(awsAccessKeyEffective()), `[source=${sourceLabel(process.env.AWS_ACCESS_KEY_ID, process.env.LWA_AWS_ACCESS_KEY_ID)}]`);
+console.log('AWS_SECRET_ACCESS_KEY:', maskValue(awsSecretKeyEffective()), `[source=${sourceLabel(process.env.AWS_SECRET_ACCESS_KEY, process.env.LWA_AWS_SECRET_ACCESS_KEY)}]`);
+console.log('AWS_BUCKET_NAME:', maskValue(awsBucketEffective()), `[source=${sourceLabel(process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME, process.env.LWA_AWS_BUCKET_NAME)}]`);
+
 const missing = [];
 if (!awsRegionEffective()) missing.push('AWS_REGION or LWA_AWS_REGION');
 if (!awsAccessKeyEffective()) missing.push('AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID');
@@ -52,14 +66,6 @@ if (missing.length > 0) {
   console.error('Add them to Replit Secrets before deploying.');
   process.exit(1);
 }
-
-console.log('=== BUILD ENV CHECK (masked) ===');
-console.log('DATABASE_URL:', maskValue(databaseUrlEffective()));
-console.log('STRIPE_SECRET_KEY(_LIVE):', maskValue(stripeSecretEffective()));
-console.log('AWS_REGION:', maskValue(awsRegionEffective()));
-console.log('AWS_ACCESS_KEY_ID:', maskValue(awsAccessKeyEffective()));
-console.log('AWS_SECRET_ACCESS_KEY:', maskValue(awsSecretKeyEffective()));
-console.log('AWS_BUCKET_NAME:', maskValue(awsBucketEffective()));
 
 const awsBucketTarget = awsBucketEffective();
 
