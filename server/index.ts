@@ -18,26 +18,29 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
+// Catch any unhandled exceptions or promise rejections (e.g. transient
+// database WebSocket errors) so the process doesn't crash on non-fatal issues.
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (non-fatal, server continues):', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection (non-fatal, server continues):', reason);
+});
+
 // Validate environment variables at startup
 function validateEnvironment() {
-  // Check S3 credentials exactly how DB credentials are checked
+  // AWS credentials are needed only for file uploads — missing them is a warning,
+  // not a fatal error. The site will serve fine; only media uploads will fail.
   const requiredAwsVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
   const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
 
   if (missingAwsVars.length > 0) {
-    console.error(`⚠️ CONFIGURATION ERROR: Missing required AWS variables: ${missingAwsVars.join(', ')}`);
-
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`Missing required environment variables: ${missingAwsVars.join(', ')}. Ensure these are set in your Replit Secrets for deployment.`);
-    } else {
-      console.error('S3 uploads will not work properly without these variables.');
-      console.error('In development, make sure these are set in your .env file or Replit Secrets.');
-    }
+    console.warn(`⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(', ')}. File uploads will not work. Ensure these are set in your Replit Secrets.`);
   } else {
     console.log('✅ Environment validation: All required S3 credentials found.');
   }
 
-  // Check database credentials
+  // Database is genuinely required — nothing works without it.
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.');
   } else {
