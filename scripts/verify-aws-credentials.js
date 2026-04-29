@@ -8,6 +8,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+function maskValue(value) {
+  if (!value) return 'Not set';
+  if (value.length <= 8) return `Set (len=${value.length})`;
+  return `Set (${value.slice(0, 4)}...${value.slice(-4)}, len=${value.length})`;
+}
+
 function awsBucketEffective() {
   return process.env.AWS_BUCKET_NAME?.trim()
     || process.env.S3_BUCKET_NAME?.trim()
@@ -27,6 +33,14 @@ function awsSecretKeyEffective() {
   return process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY || '';
 }
 
+function stripeSecretEffective() {
+  return process.env.STRIPE_SECRET_KEY_LIVE || process.env.STRIPE_SECRET_KEY || '';
+}
+
+function databaseUrlEffective() {
+  return process.env.DATABASE_URL || '';
+}
+
 const missing = [];
 if (!awsRegionEffective()) missing.push('AWS_REGION or LWA_AWS_REGION');
 if (!awsAccessKeyEffective()) missing.push('AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID');
@@ -39,9 +53,13 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-console.log('=== VERIFYING AWS CREDENTIALS ===');
-console.log('AWS_REGION:', awsRegionEffective());
-console.log('AWS_BUCKET_NAME:', awsBucketEffective());
+console.log('=== BUILD ENV CHECK (masked) ===');
+console.log('DATABASE_URL:', maskValue(databaseUrlEffective()));
+console.log('STRIPE_SECRET_KEY(_LIVE):', maskValue(stripeSecretEffective()));
+console.log('AWS_REGION:', maskValue(awsRegionEffective()));
+console.log('AWS_ACCESS_KEY_ID:', maskValue(awsAccessKeyEffective()));
+console.log('AWS_SECRET_ACCESS_KEY:', maskValue(awsSecretKeyEffective()));
+console.log('AWS_BUCKET_NAME:', maskValue(awsBucketEffective()));
 
 const awsBucketTarget = awsBucketEffective();
 
