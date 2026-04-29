@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { db } from "@db";
 import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, sheep, sheepMedia, sheepDocuments, sheepLitters, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
-import { getCurrentSiteId } from "./helpers";
+import { getCurrentSiteId, parseSiteIdHeader } from "./helpers";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -1594,19 +1594,32 @@ app.get("/api/litters/list/current", async (req, res) => {
   
   // Add contact info endpoint
   app.get("/api/contact-info", async (req, res) => {
+    const parsed = parseSiteIdHeader(req);
+    if (!parsed.ok) {
+      console.warn("GET /api/contact-info client_error:", {
+        reason: parsed.error,
+        xSiteId: req.header("X-Site-ID"),
+      });
+      return res.status(400).json({ message: parsed.error });
+    }
+    const siteId = parsed.siteId;
     try {
-      const siteId = getCurrentSiteId(req);
       const contact = await db.query.contactInfo.findFirst({
         where: eq(contactInfo.siteId, siteId)
       });
-      
+
       if (contact) {
         res.json(contact);
       } else {
         res.status(404).json({ message: "Contact info not found" });
       }
     } catch (error) {
-      console.error("Error fetching contact info:", error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error("GET /api/contact-info server_error:", {
+        message: err.message,
+        name: err.name,
+        siteId,
+      });
       res.status(500).json({ message: "Failed to fetch contact info" });
     }
   });

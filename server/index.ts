@@ -1,7 +1,8 @@
+// Load .env and validate DATABASE_URL + Stripe before routes (which require Stripe at import time).
+import "./env-bootstrap";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import dotenv from "dotenv";
 import compression from "compression";
 import proxyRouter from "./routes/proxy";
 import goatsRouter from "./routes/goats";
@@ -10,33 +11,7 @@ import sheepRouter from "./routes/sheep";
 import sheepLittersRouter from "./routes/sheep-litters";
 import { dbErrorHandler } from "./middleware/db-error-handler";
 
-// Load environment variables from .env file
-dotenv.config();
-
-// Validate environment variables at startup
-function validateEnvironment() {
-  // Check S3 credentials exactly how DB credentials are checked
-  const requiredAwsVars = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
-  const missingAwsVars = requiredAwsVars.filter(varName => !process.env[varName]);
-
-  if (missingAwsVars.length > 0) {
-    console.warn(`⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(', ')}`);
-    console.warn('S3 file uploads will not work until these are set in Replit Secrets.');
-  } else {
-    console.log('✅ Environment validation: All required S3 credentials found.');
-  }
-
-  // Check database credentials
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is not set. Ensure this is set in your Replit Secrets for deployment.');
-  } else {
-    console.log('✅ Environment validation: Database URL found.');
-  }
-}
-
-validateEnvironment();
-
-// Additional check for deployment environment
+// Additional deployment debugging (secrets already validated in env-bootstrap)
 console.log('============ ENVIRONMENT CHECK ============');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('AWS_REGION:', process.env.AWS_REGION || 'Not set');
@@ -183,10 +158,18 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
-  const PORT = 5000;
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`serving on port ${PORT}`);
+  // Bind to platform PORT when set (e.g. Replit / Cloud Run); default 5000 for local .replit
+  const rawPort = process.env.PORT;
+  let listenPort = 5000;
+  if (rawPort !== undefined && rawPort !== "") {
+    const n = Number.parseInt(rawPort, 10);
+    if (!Number.isNaN(n) && n > 0) {
+      listenPort = n;
+    } else {
+      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5000`);
+    }
+  }
+  server.listen(listenPort, "0.0.0.0", () => {
+    log(`serving on port ${listenPort}`);
   });
 })();
