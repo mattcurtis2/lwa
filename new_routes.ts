@@ -965,11 +965,17 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      // Import the S3 upload utility dynamically
-      const { uploadToS3 } = await import('./utils/s3.js');
+      const { isFirebaseConfigured, uploadToFirebase } = await import(
+        './utils/firebase-storage.js'
+      );
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: 'Firebase Storage not configured' });
+      }
+
+      // Import the Firebase upload utility dynamically
       const { retry } = await import('./helpers');
 
-      console.log(`Processing ${req.files.length} files for S3 upload`);
+      console.log(`Processing ${req.files.length} files for Firebase upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
         console.log(`\n=== Processing file ${index + 1}/${req.files.length} ===`);
         console.log('File details:', {
@@ -979,15 +985,14 @@ export function registerRoutes(app: Express): Server {
           path: file.path
         });
 
-        // Attempt to upload to S3 with retry logic
-        console.log('Uploading to S3...');
-        const s3Url = await retry(
-          () => uploadToS3(file),
-          3,  // max 3 retries
-          2000 // start with 2 second delay
+        console.log('Uploading to Firebase Storage...');
+        const fileUrl = await retry(
+          () => uploadToFirebase(file),
+          3,
+          2000
         );
 
-        console.log(`S3 upload successful: ${s3Url}`);
+        console.log(`Firebase upload successful: ${fileUrl}`);
 
         // Clean up the local temp file after successful S3 upload
         try {
@@ -1000,18 +1005,18 @@ export function registerRoutes(app: Express): Server {
         }
 
         return {
-          url: s3Url,
+          url: fileUrl,
           type: file.mimetype.split('/')[0],
           originalName: file.originalname,
           mimeType: file.mimetype
         };
       }));
 
-      console.log('=== S3 UPLOADS COMPLETED SUCCESSFULLY ===');
+      console.log('=== FIREBASE UPLOADS COMPLETED SUCCESSFULLY ===');
       console.log('Results:', uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error('\n=== S3 UPLOAD ERROR ===');
+      console.error('\n=== FIREBASE UPLOAD ERROR ===');
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
 
@@ -1030,7 +1035,7 @@ export function registerRoutes(app: Express): Server {
       }
 
       return res.status(500).json({
-        message: "Failed to upload files to S3",
+        message: "Failed to upload files to Firebase Storage",
         details: error instanceof Error ? error.message : String(error)
       });
     }

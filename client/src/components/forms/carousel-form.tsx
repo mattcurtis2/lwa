@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CarouselItem } from "@db/schema";
 import { FileUpload } from "@/components/ui/file-upload";
-import { uploadFileToS3 } from "../../lib/upload-utils"; // Added import
+import { uploadFile } from "../../lib/upload-utils";
 
 
 const carouselItemSchema = z.object({
@@ -69,7 +69,7 @@ export default function CarouselForm({ item, onClose }: CarouselFormProps) {
 
     const file = acceptedFiles[0];
     try {
-      const url = await uploadFileToS3(file);
+      const url = await uploadFile(file);
       form.setValue("imageUrl", url, { shouldValidate: true });
     } catch (error) {
       console.error('Error uploading image:', error);

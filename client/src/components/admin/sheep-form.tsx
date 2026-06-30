@@ -21,7 +21,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { formatApiDate } from "@/lib/date-utils";
 import { FileUpload } from "@/components/ui/file-upload";
-import { uploadFileToS3 } from "@/lib/upload-utils";
+import { uploadFile } from "@/lib/upload-utils";
 
 interface MediaInput {
   url: string;
@@ -382,7 +382,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
 
       setIsUploadingDoc(true);
 
-      const uploadedUrl = await uploadFileToS3(file);
+      const uploadedUrl = await uploadFile(file);
 
       if (!uploadedUrl) {
         throw new Error('File upload failed - no URL returned');

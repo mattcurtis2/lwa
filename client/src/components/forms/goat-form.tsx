@@ -1,3 +1,4 @@
+import { getProxiedImageUrl } from "../../lib/upload-utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -230,7 +231,13 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       }
 
       // If the URL is already a server URL or an S3 URL, use it directly
-      if (uploadedUrl.startsWith('/uploads/') || uploadedUrl.includes('lwacontent') || uploadedUrl.includes('amazonaws.com')) {
+      if (
+        uploadedUrl.startsWith('/uploads/') ||
+        uploadedUrl.includes('firebasestorage.googleapis.com') ||
+        uploadedUrl.includes('storage.googleapis.com') ||
+        uploadedUrl.includes('lwacontent') ||
+        uploadedUrl.includes('amazonaws.com')
+      ) {
         // Add a timestamp to prevent caching
         const timestampedUrl = `${uploadedUrl}?t=${Date.now()}`;
         console.log(`Goat Form - Using existing URL with timestamp: ${timestampedUrl.substring(0, 50)}...`);
@@ -635,18 +642,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   };
 
 
-  const processImageUrl = (url: string): string => {
-    // Avoid double-proxying by checking if the URL already contains proxy-image
-    if (url && url.includes('proxy-image')) {
-      return url;
-    }
-
-    // Only proxy S3 URLs that are not already proxied
-    if (url && (url.includes('lwacontent.s3') || url.startsWith('https://s3'))) {
-      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
-    }
-    return url;
-  };
+  const processImageUrl = (url: string): string => getProxiedImageUrl(url);
 
   const handleRemoveMedia = (index: number) => {
     const updatedMedia = [...mediaInputs];

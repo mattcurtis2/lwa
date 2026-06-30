@@ -8,18 +8,18 @@ app.post('/api/admin/upload-principle-image', upload.single('image'), async (req
     }
 
     // Upload to S3 instead of storing locally
-    const { uploadToS3 } = await import('../utils/s3.js');
-    const s3Url = await uploadToS3(file);
+    const { uploadToFirebase } = await import('../utils/firebase-storage.js');
+    const fileUrl = await uploadToFirebase(file);
 
-    if (!s3Url) {
-      throw new Error('Failed to upload to S3');
+    if (!fileUrl) {
+      throw new Error('Failed to upload to Firebase Storage');
     }
 
-    console.log(`Principle image uploaded to S3: ${s3Url}`);
+    console.log(`Principle image uploaded to Firebase: ${fileUrl}`);
 
-    // Return the S3 URL
+    // Return the Firebase URL
     res.json({ 
-      url: s3Url,
+      url: fileUrl,
       size: file.size
     });
   } catch (error) {
@@ -49,7 +49,7 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
     const imageBuffer = Buffer.from(base64Data, 'base64');
     console.log(`Created buffer from base64 data (size: ${imageBuffer.length} bytes)`);
 
-    // Create a mock file object that uploadToS3 can handle
+    // Create a mock file object that uploadToFirebase can handle
     const filename = `principle-${Date.now()}.jpg`;
     const mockFile = {
       buffer: imageBuffer,
@@ -60,25 +60,26 @@ app.post('/api/admin/upload-principle-image-base64', async (req, res) => {
 
     // Import and call the S3 upload function
     console.log('Importing S3 utility...');
-    const { uploadToS3 } = await import('../utils/s3.js');
-    console.log('Calling uploadToS3...');
-    const s3Url = await uploadToS3(mockFile);
+    const { uploadToFirebase } = await import('../utils/firebase-storage.js');
+    console.log('Calling uploadToFirebase...');
+    const { isFirebaseUrl } = await import('../utils/firebase-storage.js');
+    const fileUrl = await uploadToFirebase(mockFile);
 
-    if (!s3Url) {
-      console.error('S3 upload failed: No URL returned');
-      throw new Error('Failed to upload base64 image to S3 - No URL returned');
+    if (!fileUrl) {
+      console.error('Firebase upload failed: No URL returned');
+      throw new Error('Failed to upload base64 image to Firebase Storage - No URL returned');
     }
 
-    if (!s3Url.includes('s3.amazonaws.com') && !s3Url.includes('amazonaws.com')) {
-      console.error(`S3 upload returned invalid URL: ${s3Url}`);
-      throw new Error(`Invalid S3 URL returned: ${s3Url}`);
+    if (!isFirebaseUrl(fileUrl)) {
+      console.error(`Firebase upload returned invalid URL: ${fileUrl}`);
+      throw new Error(`Invalid Firebase URL returned: ${fileUrl}`);
     }
 
-    console.log(`Principle base64 image uploaded to S3 successfully: ${s3Url}`);
+    console.log(`Principle base64 image uploaded to Firebase successfully: ${fileUrl}`);
 
-    // Return the S3 URL
+    // Return the Firebase URL
     res.json({
-      url: s3Url,
+      url: fileUrl,
       size: imageBuffer.length
     });
   } catch (error) {
@@ -110,8 +111,8 @@ app.post('/api/admin/upload-carousel-image', upload.single('image'), async (req,
     }
 
     // Upload to S3 instead of storing locally
-    const { uploadToS3 } = await import('../utils/s3.js');
-    const s3Url = await uploadToS3(file);
+    const { uploadToFirebase } = await import('../utils/firebase-storage.js');
+    const s3Url = await uploadToFirebase(file);
 
     if (!s3Url) {
       throw new Error('Failed to upload to S3');
@@ -161,35 +162,29 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
     };
 
     // Upload to S3
-    const { uploadToS3 } = await import('../utils/s3.js');
-    const s3Url = await uploadToS3(file);
+    const { uploadToFirebase } = await import('../utils/firebase-storage.js');
+    const fileUrl = await uploadToFirebase(file);
 
-    if (!s3Url) {
-      throw new Error('Failed to upload to S3');
+    if (!fileUrl) {
+      throw new Error('Failed to upload to Firebase Storage');
     }
 
-    console.log(`Cropped image uploaded to S3: ${s3Url}`);
+    console.log(`Cropped image uploaded to Firebase: ${fileUrl}`);
 
     // Clean up temporary file
     fs.unlinkSync(tempPath);
 
-    // Return the S3 URL
-    res.json({ url: s3Url });
+    res.json({ url: fileUrl });
   } catch (error) {
     console.error('Error saving cropped image:', error);
-    
-    // Enhanced error reporting for troubleshooting
+
     const errorDetails = {
       message: error.message,
-      code: error.code || 'unknown',
-      requestId: error.$metadata?.requestId || 'N/A',
-      awsRegion: process.env.AWS_REGION || 'Not set',
-      accessKeyIdPrefix: process.env.AWS_ACCESS_KEY_ID ? process.env.AWS_ACCESS_KEY_ID.substring(0, 4) + '...' : 'Not set',
-      secretKeyPrefix: process.env.AWS_SECRET_ACCESS_KEY ? process.env.AWS_SECRET_ACCESS_KEY.substring(0, 4) + '...' : 'Not set',
-      s3CredentialsUsed: global.s3CredentialsDebug || 'Not available'
+      firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'Not set',
+      firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'Not set',
     };
-    
-    console.error('Detailed S3 error information:', errorDetails);
+
+    console.error('Detailed Firebase error information:', errorDetails);
     
     res.status(500).json({ 
       error: 'Failed to save cropped image', 
@@ -199,64 +194,43 @@ app.post('/api/admin/save-cropped-image', async (req, res) => {
   }
 });
 
-// Add a test route for S3 connectivity
-app.get('/api/admin/test-s3-connection', async (req, res) => {
+// Add a test route for Firebase Storage connectivity
+app.get('/api/admin/test-firebase-connection', async (req, res) => {
   try {
-    console.log('Testing S3 connection...');
+    console.log('Testing Firebase Storage connection...');
 
-    // Check environment variables
     const envCheck = {
-      AWS_REGION: process.env.AWS_REGION ? 'Set' : 'Not set',
-      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Not set',
-      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Not set',
-      AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME || 'Not set',
-      S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || 'Not set'
+      FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'Set' : 'Not set',
+      FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'Set' : 'Not set',
+      FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON ? 'Set' : 'Not set',
+      FIREBASE_SERVICE_ACCOUNT_PATH: process.env.FIREBASE_SERVICE_ACCOUNT_PATH ? 'Set' : 'Not set',
     };
 
-    const bucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME;
+    const { isFirebaseConfigured, getFirebaseBucket } = await import('../utils/firebase-storage.js');
 
-    if (!bucketName) {
+    if (!isFirebaseConfigured()) {
       return res.status(500).json({
         success: false,
-        message: 'S3 bucket name not configured',
-        envCheck
+        message: 'Firebase Storage not configured',
+        envCheck,
       });
     }
 
-    // Initialize S3 client
-    const { S3Client, ListObjectsCommand } = await import('@aws-sdk/client-s3');
-    const s3Client = new S3Client({
-      region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    });
-
-    // Test connection by listing objects (max 1)
-    const command = new ListObjectsCommand({
-      Bucket: bucketName,
-      MaxKeys: 1
-    });
-
-    const response = await s3Client.send(command);
+    const bucket = getFirebaseBucket();
+    const [exists] = await bucket.exists();
 
     res.json({
-      success: true,
-      message: 'S3 connection successful',
-      bucketName,
-      region: process.env.AWS_REGION,
-      objects: response.Contents ? response.Contents.length : 0,
-      envCheck
+      success: exists,
+      message: exists ? 'Firebase Storage connection successful' : 'Firebase Storage bucket not found',
+      bucketName: bucket.name,
+      envCheck,
     });
   } catch (error) {
-    console.error('S3 connection test failed:', error);
+    console.error('Firebase connection test failed:', error);
     res.status(500).json({
       success: false,
-      message: `S3 connection failed: ${error.message}`,
-      code: error.code,
-      region: process.env.AWS_REGION,
-      errorDetails: error.stack
+      message: `Firebase connection failed: ${error.message}`,
+      errorDetails: error.stack,
     });
   }
 });
@@ -275,7 +249,7 @@ app.put("/api/principles/:id", async (req, res) => {
         console.log(`Principle ${id} has a base64 image that needs to be uploaded to S3`);
         try {
           // Use async import to ensure we get the latest version of the module
-          const { uploadToS3 } = await import('../utils/s3.js');
+          const { uploadToFirebase } = await import('../utils/firebase-storage.js');
           
           // Extract the base64 data and determine mimetype
           const matches = imageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -292,7 +266,7 @@ app.put("/api/principles/:id", async (req, res) => {
           const imageBuffer = Buffer.from(base64Data, 'base64');
           console.log(`Created buffer from base64 data (size: ${imageBuffer.length} bytes)`);
           
-          // Create a mock file object that uploadToS3 can handle
+          // Create a mock file object that uploadToFirebase can handle
           const filename = `principle-${id}-${Date.now()}.jpg`;
           const mockFile = {
             buffer: imageBuffer,
@@ -302,7 +276,7 @@ app.put("/api/principles/:id", async (req, res) => {
           console.log(`Created mock file object with name: ${filename}`);
           
           console.log('=== S3 UPLOAD FOR PRINCIPLE UPDATE ===');
-          const s3Url = await uploadToS3(mockFile);
+          const s3Url = await uploadToFirebase(mockFile);
           
           if (!s3Url) {
             throw new Error('Failed to upload to S3 - No URL returned');
@@ -354,9 +328,9 @@ app.post('/api/principles/upload-image', upload.single('file'), async (req, res)
     console.log(`Received file: ${file.originalname}, size: ${file.size}, type: ${file.mimetype}`);
 
     // Upload to S3
-    const { uploadToS3 } = await import('../utils/s3.js');
-    console.log('Calling uploadToS3 for principle image...');
-    const s3Url = await uploadToS3(file);
+    const { uploadToFirebase } = await import('../utils/firebase-storage.js');
+    console.log('Calling uploadToFirebase for principle image...');
+    const s3Url = await uploadToFirebase(file);
 
     if (!s3Url) {
       console.error('S3 upload failed for principle image - No URL returned');

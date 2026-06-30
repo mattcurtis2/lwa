@@ -11,7 +11,7 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import ImageCrop from "@/components/ui/image-crop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { uploadFileToS3 } from "../../lib/upload-utils"; //Import added here
+import { uploadFile } from "../../lib/upload-utils";
 
 type SiteContent = {
   id: number;
@@ -191,7 +191,7 @@ const FileUpload = ({ onFileUpload }: { onFileUpload: (url: string) => void }) =
       const file = files[0];
       if (!file) return;
       try {
-        const url = await uploadFileToS3(file);
+        const url = await uploadFile(file);
         onFileUpload(url);
       } catch (error) {
         console.error('Upload failed:', error);
@@ -274,7 +274,7 @@ export default function ContentSection() {
   }, [aboutCardsData]);
 
   const handleFileUpload = async (file: File): Promise<string> => {
-    return uploadFileToS3(file); // Use the shared S3 upload function
+    return uploadFile(file);
   };
 
   const updateSiteContent = useMutation({

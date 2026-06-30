@@ -387,7 +387,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src={getContent("dogs_why_love_image_1") || "https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg"}
+                        src={getContent("dogs_why_love_image_1") || ""}
                         alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
@@ -397,7 +397,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     </div>
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src={getContent("dogs_why_love_image_2") || "https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg"}
+                        src={getContent("dogs_why_love_image_2") || ""}
                         alt="Colorado Mountain Dog" 
                         className="w-full h-48 object-cover"
                       />
@@ -475,7 +475,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     <div className="space-y-4">
                       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                         <img 
-                          src={getContent("dogs_breeding_goals_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/c361a5d5-8ec6-4fea-99bc-5ab50c31347b.jpg"}
+                          src={getContent("dogs_breeding_goals_image") || ""}
                           alt="Colorado Mountain Dog" 
                           className="w-full aspect-square object-cover"
                         />
@@ -540,7 +540,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src={getContent("dogs_good_fit_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/d0dffa6d-f0e3-4c6d-bbfe-03f9f54ecdb5-cropped-image-jpg.jpg"}
+                        src={getContent("dogs_good_fit_image") || ""}
                         alt="Colorado Mountain Dog on farm" 
                         className="w-full h-64 object-cover"
                       />
@@ -615,7 +615,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                     
                     <div className="bg-white rounded-xl overflow-hidden shadow-lg">
                       <img 
-                        src={getContent("dogs_placement_process_image") || "https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg"}
+                        src={getContent("dogs_placement_process_image") || ""}
                         alt="Colorado Mountain Dog placement process" 
                         className="w-full h-96 object-cover"
                       />

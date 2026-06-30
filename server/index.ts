@@ -14,24 +14,17 @@ import { dbErrorHandler } from "./middleware/db-error-handler";
 // Additional deployment debugging (secrets already validated in env-bootstrap)
 console.log('============ ENVIRONMENT CHECK ============');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-const awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
-const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
-const awsSecretAccessKey =
-  process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
-const awsBucketName =
-  process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME;
-console.log('AWS_REGION (or LWA_AWS_REGION):', awsRegion || 'Not set');
-console.log(
-  'AWS_ACCESS_KEY_ID (or LWA_AWS_ACCESS_KEY_ID):',
-  awsAccessKeyId ? `Set (starts with: ${awsAccessKeyId.substring(0, 4)}...)` : 'Not set'
+const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || '';
+const firebaseStorageBucket = process.env.FIREBASE_STORAGE_BUCKET?.trim() || '';
+const firebaseServiceAccountConfigured = Boolean(
+  process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH?.trim()
 );
+console.log('FIREBASE_PROJECT_ID:', firebaseProjectId || 'Not set');
+console.log('FIREBASE_STORAGE_BUCKET:', firebaseStorageBucket || 'Not set');
 console.log(
-  'AWS_SECRET_ACCESS_KEY (or LWA_AWS_SECRET_ACCESS_KEY):',
-  awsSecretAccessKey ? 'Set (length: ' + awsSecretAccessKey.length + ')' : 'Not set'
-);
-console.log(
-  'AWS_BUCKET_NAME/S3_BUCKET_NAME (or LWA_AWS_BUCKET_NAME):',
-  awsBucketName || 'Not set'
+  'FIREBASE service account:',
+  firebaseServiceAccountConfigured ? 'Configured' : 'Not set'
 );
 console.log('==========================================');
 
@@ -173,15 +166,16 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Bind to platform PORT when set (e.g. Replit / Cloud Run); default 5000 for local .replit
+  // Bind to platform PORT when set (e.g. Replit / Cloud Run); default 5001 locally
+  // (macOS AirPlay Receiver often occupies 5000)
   const rawPort = process.env.PORT;
-  let listenPort = 5000;
+  let listenPort = 5001;
   if (rawPort !== undefined && rawPort !== "") {
     const n = Number.parseInt(rawPort, 10);
     if (!Number.isNaN(n) && n > 0) {
       listenPort = n;
     } else {
-      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5000`);
+      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5001`);
     }
   }
   server.listen(listenPort, "0.0.0.0", () => {

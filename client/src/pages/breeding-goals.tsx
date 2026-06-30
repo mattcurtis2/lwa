@@ -52,7 +52,7 @@ export default function BreedingGoals() {
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
       { property: 'og:site_name', content: 'Little Way Acres' },
-      { property: 'og:image', content: 'https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg' }
+      { property: 'og:image', content: `${window.location.origin}/logo.png` }
     ];
 
     ogTags.forEach(tag => {
@@ -95,7 +95,7 @@ export default function BreedingGoals() {
             "@type": "WebPage",
             "@id": window.location.href
           },
-          "image": "https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg"
+          "image": `${window.location.origin}/logo.png`
         },
         {
           "@type": "Organization",
@@ -252,7 +252,7 @@ export default function BreedingGoals() {
               <div className="flex items-center justify-center">
                 <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-md">
                   <img 
-                    src="https://lwacontent.s3.us-east-2.amazonaws.com/52aa3e57-3a8e-472e-a3f3-f905b2d19e3b.jpg" 
+                    src="/logo.png"
                     alt="Colorado Mountain Dog demonstrating calm guardian presence" 
                     className="w-full aspect-square object-cover"
                   />
@@ -268,7 +268,7 @@ export default function BreedingGoals() {
               <div className="flex items-center justify-center">
                 <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-md">
                   <img 
-                    src="https://lwacontent.s3.us-east-2.amazonaws.com/f88fee00-816d-4f4a-8cf8-0a32b44ce8c4.jpg" 
+                    src="/logo.png"
                     alt="Colorado Mountain Dog showing reliable guardian instincts" 
                     className="w-full aspect-square object-cover"
                   />

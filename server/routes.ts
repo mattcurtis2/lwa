@@ -384,19 +384,25 @@ export function registerRoutes(app: Express): Server {
     console.log('Request body:', req.body);
     console.log('Request file:', req.file ? 'Present' : 'None');
     try {
+      const {
+        isFirebaseConfigured,
+        uploadBase64ToFirebase,
+        uploadToFirebase,
+      } = await import('./utils/firebase-storage.js');
+
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: 'Firebase Storage not configured' });
+      }
+
       let value = req.body.value;
 
       // Handle base64 image data from cropper
       if (value && value.startsWith('data:image')) {
-        const base64Data = value.split(',')[1];
-        const buffer = Buffer.from(base64Data, 'base64');
-        const filename = `file-${Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
-        await fs.writeFile(path.join(uploadDir, filename), buffer);
-        value = `/uploads/${filename}`;
+        value = await uploadBase64ToFirebase(value, `${key}-${Date.now()}.jpg`);
       }
       // If this is a file upload (for hero_background or other images)
       else if (req.file && (key === 'hero_background' || key.includes('image'))) {
-        value = `/uploads/${req.file.filename}`;
+        value = await uploadToFirebase(req.file);
       }
 
       // Check if the content exists first
@@ -765,11 +771,20 @@ export function registerRoutes(app: Express): Server {
 
   app.put("/api/dogs-hero/:id", upload.single('image'), async (req, res) => {
     try {
+      const {
+        isFirebaseConfigured,
+        uploadToFirebase,
+      } = await import('./utils/firebase-storage.js');
+
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: 'Firebase Storage not configured' });
+      }
+
       let imageUrl = req.body.imageUrl; // For direct URL updates
 
-      // If a file was uploaded, use its path
+      // If a file was uploaded, upload it to Firebase
       if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`;
+        imageUrl = await uploadToFirebase(req.file);
       }
 
       if (!imageUrl) {
@@ -1036,16 +1051,11 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
-      // Guard: return 503 immediately when AWS credentials are absent.
-      // Inlined to avoid TS/JS build-artifact divergence on dynamic imports.
-      const s3Configured = !!(
-        process.env.AWS_REGION &&
-        process.env.AWS_ACCESS_KEY_ID &&
-        process.env.AWS_SECRET_ACCESS_KEY &&
-        (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME)
+      const { isFirebaseConfigured, uploadToFirebase } = await import(
+        './utils/firebase-storage.js'
       );
-      if (!s3Configured) {
-        return res.status(503).json({ error: 'S3 not configured' });
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: 'Firebase Storage not configured' });
       }
 
       console.log('\n\n=== UPLOAD REQUEST RECEIVED ===');
@@ -1067,11 +1077,9 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      // Import the S3 upload utility dynamically
-      const { uploadToS3 } = await import('./utils/s3.js');
       const { retry } = await import('./helpers');
 
-      console.log(`Processing ${req.files.length} files for S3 upload`);
+      console.log(`Processing ${req.files.length} files for Firebase upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
         console.log(`\n=== Processing file ${index + 1}/${req.files.length} ===`);
         console.log('File details:', {
@@ -1081,15 +1089,14 @@ export function registerRoutes(app: Express): Server {
           path: file.path
         });
 
-        // Attempt to upload to S3 with retry logic
-        console.log('Uploading to S3...');
-        const s3Url = await retry(
-          () => uploadToS3(file),
-          3,  // max 3 retries
-          2000 // start with 2 second delay
+        console.log('Uploading to Firebase Storage...');
+        const fileUrl = await retry(
+          () => uploadToFirebase(file),
+          3,
+          2000
         );
 
-        console.log(`S3 upload successful: ${s3Url}`);
+        console.log(`Firebase upload successful: ${fileUrl}`);
 
         // Clean up the local temp file after successful S3 upload
         try {
@@ -1102,18 +1109,18 @@ export function registerRoutes(app: Express): Server {
         }
 
         return {
-          url: s3Url,
+          url: fileUrl,
           type: file.mimetype.split('/')[0],
           originalName: file.originalname,
           mimeType: file.mimetype
         };
       }));
 
-      console.log('=== S3 UPLOADS COMPLETED SUCCESSFULLY ===');
+      console.log('=== FIREBASE UPLOADS COMPLETED SUCCESSFULLY ===');
       console.log('Results:', uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error('\n=== S3 UPLOAD ERROR ===');
+      console.error('\n=== FIREBASE UPLOAD ERROR ===');
       console.error('Error details:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
 
@@ -1132,7 +1139,7 @@ export function registerRoutes(app: Express): Server {
       }
 
       return res.status(500).json({
-        message: "Failed to upload files to S3",
+        message: "Failed to upload files to Firebase Storage",
         details: error instanceof Error ? error.message : String(error)
       });
     }
@@ -1539,11 +1546,16 @@ app.get("/api/litters/list/current", async (req, res) => {
 
   app.put("/api/principles/:id", async (req, res) => {
     try {
+      const { title, description, imageUrl, order, siteId } = req.body;
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+      if (order !== undefined) updateData.order = order;
+      if (siteId !== undefined) updateData.siteId = siteId;
+
       const principle = await db.update(principles)
-        .set({
-          ...req.body,
-          updatedAt: new Date()
-        })
+        .set(updateData)
         .where(eq(principles.id, parseInt(req.params.id)))
         .returning();
       res.json(principle[0]);

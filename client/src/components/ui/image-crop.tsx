@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import { getProxiedImageUrl } from "@/lib/upload-utils";
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -124,10 +124,7 @@ export function ImageCrop({
     }
   }, [completedCrop, imgRef, onCropComplete]);
 
-  // Convert image URL to use proxy if it's from S3, but prevent recursion
-  const processedImageUrl = imageUrl.includes('lwacontent.s3') && !imageUrl.includes('/api/proxy-image') ? 
-    `/api/proxy-image?url=${encodeURIComponent(imageUrl)}` : 
-    imageUrl;
+  const processedImageUrl = getProxiedImageUrl(imageUrl);
 
   return (
     <Dialog open={true} onOpenChange={() => onCancel()}>

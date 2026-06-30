@@ -25,35 +25,29 @@ function validateDeploymentEnv(): void {
   }
   console.log("✅ Environment validation: Stripe secret is set.");
 
-  // Optional but called out for publish debugging (bucket name may be S3_BUCKET_NAME in some configs)
-  const bucketName =
-    process.env.AWS_BUCKET_NAME?.trim() ||
-    process.env.S3_BUCKET_NAME?.trim() ||
-    process.env.LWA_AWS_BUCKET_NAME?.trim() ||
+  const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "";
+  const firebaseBucket = process.env.FIREBASE_STORAGE_BUCKET?.trim() || "";
+  const firebaseServiceAccount =
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH?.trim() ||
     "";
-  const awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
-  const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
-  const awsSecretAccessKey =
-    process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
-  const requiredAwsPieces: { key: string; ok: boolean }[] = [
-    { key: "AWS_REGION or LWA_AWS_REGION", ok: Boolean(awsRegion) },
-    { key: "AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID", ok: Boolean(awsAccessKeyId) },
+  const requiredFirebasePieces: { key: string; ok: boolean }[] = [
+    { key: "FIREBASE_PROJECT_ID", ok: Boolean(firebaseProjectId) },
+    { key: "FIREBASE_STORAGE_BUCKET", ok: Boolean(firebaseBucket) },
     {
-      key: "AWS_SECRET_ACCESS_KEY or LWA_AWS_SECRET_ACCESS_KEY",
-      ok: Boolean(awsSecretAccessKey),
-    },
-    {
-      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME or LWA_AWS_BUCKET_NAME",
-      ok: bucketName.length > 0,
+      key: "FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH",
+      ok: Boolean(firebaseServiceAccount),
     },
   ];
-  const missingAwsVars = requiredAwsPieces.filter((p) => !p.ok).map((p) => p.key);
-  if (missingAwsVars.length > 0) {
+  const missingFirebaseVars = requiredFirebasePieces
+    .filter((p) => !p.ok)
+    .map((p) => p.key);
+  if (missingFirebaseVars.length > 0) {
     console.warn(
-      `⚠️ WARNING: Missing AWS variables: ${missingAwsVars.join(", ")} — S3 uploads may not work.`
+      `⚠️ WARNING: Missing Firebase variables: ${missingFirebaseVars.join(", ")} — Firebase Storage uploads may not work.`
     );
   } else {
-    console.log("✅ Environment validation: S3-related variables present.");
+    console.log("✅ Environment validation: Firebase Storage variables present.");
   }
 }
 

@@ -6,7 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import { uploadToS3 } from "../utils/s3";
+import { uploadToFirebase } from "../utils/firebase-storage";
 
 const router = Router();
 
@@ -124,8 +124,8 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     // Handle profile image upload
     let profileImageUrl = null;
     if (req.file) {
-      const s3Result = await uploadToS3(req.file);
-      profileImageUrl = s3Result;
+      const firebaseResult = await uploadToFirebase(req.file);
+      profileImageUrl = firebaseResult;
     }
     
     // Parse media and documents (handle both JSON strings and objects)

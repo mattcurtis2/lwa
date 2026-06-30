@@ -10,14 +10,16 @@ The following environment variables must be set in Replit Secrets before deployi
 | Secret | Description |
 |---|---|
 | `DATABASE_URL` | Neon PostgreSQL connection string |
-| `AWS_REGION` | AWS region where the S3 bucket lives (e.g. `us-east-2`) |
-| `AWS_ACCESS_KEY_ID` | AWS IAM access key ID with S3 write permissions |
-| `AWS_SECRET_ACCESS_KEY` | AWS IAM secret access key |
-| `AWS_BUCKET_NAME` | Name of the S3 bucket used for file uploads (`S3_BUCKET_NAME` is accepted as a fallback) |
+| `FIREBASE_PROJECT_ID` | Firebase project ID |
+| `FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket (e.g. `your-project.appspot.com`) |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Full Firebase service account JSON (preferred for deployment) |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | Path to service account JSON file (local dev alternative) |
 
-Without the four AWS secrets, file uploads will return a `503 S3 not configured` error. The app will otherwise start and run normally.
+Without the Firebase secrets, file uploads will return a `503 Firebase Storage not configured` error. The app will otherwise start and run normally.
 
-You can verify AWS credentials manually at any time with: `npm run verify-aws`
+You can verify Firebase credentials manually at any time with: `npm run verify-firebase`
+
+To migrate existing S3/local file URLs to Firebase Storage, run: `npm run migrate:firebase:dry-run` first, then `npm run migrate:firebase`.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -33,7 +35,7 @@ Preferred communication style: Simple, everyday language.
 ### November 15, 2025 - Sheep Health and Pedigree Management
 - Extended sheep admin form to include healthData and pedigree text fields with document upload functionality
 - Added separate health and pedigree document state management matching dog/goat form patterns
-- Implemented FileUpload component integration for health and pedigree documents with S3 upload support
+- Implemented FileUpload component integration for health and pedigree documents with Firebase Storage upload support
 - Documents are categorized by type ('health' or 'pedigree') and synchronized with form state via setValue
 - Sheep detail page already had complete health and pedigree tab infrastructure displaying documents and information
 - All changes architect-reviewed with no security issues; form patterns now consistent across dogs, goats, and sheep

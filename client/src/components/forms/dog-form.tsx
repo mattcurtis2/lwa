@@ -24,7 +24,7 @@ import { ImageCrop } from "@/components/ui/image-crop";
 import { X, ImageIcon, FileText, ExternalLink, Edit, Upload } from "lucide-react";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { uploadFileToS3 } from "../../lib/upload-utils";
+import { uploadFile, getProxiedImageUrl } from "../../lib/upload-utils";
 
 // Other components
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
@@ -323,7 +323,7 @@ export default function DogForm({
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
-      const url = await uploadFileToS3(file);
+      const url = await uploadFile(file);
 
       const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
@@ -843,7 +843,7 @@ export default function DogForm({
     if (media && media.type === "image") {
       console.log('[DogForm] Editing media at index:', index, 'Media:', media);
       // Create a proxy URL to handle CORS
-      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(media.url)}`;
+      const proxyUrl = getProxiedImageUrl(media.url);
       console.log('[DogForm] Created proxy URL:', proxyUrl);
       setEditingMediaIndex(index);
       setCurrentMediaUrl(proxyUrl);
