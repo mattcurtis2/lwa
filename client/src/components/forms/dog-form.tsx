@@ -183,7 +183,9 @@ export default function DogForm({
   useEffect(() => {
     if (!fromLitter) {
       const fetchParents = async () => {
-        const response = await fetch('/api/dogs');
+        const response = await fetch('/api/dogs?admin=true', {
+          credentials: 'include',
+        });
         const dogs = await response.json();
 
         const mothers = dogs.filter((d: Dog) => d.gender === 'female');
@@ -203,7 +205,9 @@ export default function DogForm({
         const fatherId = form.getValues('fatherId');
 
         if (motherId && fatherId) {
-          const response = await fetch('/api/litters');
+          const response = await fetch('/api/litters', {
+            credentials: 'include',
+          });
           const allLitters = await response.json();
           const filteredLitters = allLitters.filter(
             (l: any) => l.motherId === motherId && l.fatherId === fatherId
@@ -625,6 +629,7 @@ export default function DogForm({
       
       const response = await fetch(url, {
         method,
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
