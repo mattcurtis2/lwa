@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteContent } from "@db/schema";
 
 export default function Hero() {
-  const { data: siteContent, isLoading } = useQuery<SiteContent[]>({
+  const { data: siteContent } = useQuery<SiteContent[]>({
     queryKey: ["/api/site-content"],
   });
 
@@ -14,10 +14,6 @@ export default function Hero() {
   const scrollToAbout = () => {
     document.getElementById('about-farm')?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  if (isLoading) {
-    return <div className="h-[600px] bg-muted" />; // Loading state
-  }
 
   return (
     <div 
