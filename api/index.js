@@ -217,127 +217,6 @@ var init_firebase_storage = __esm({
   }
 });
 
-// server/logger.ts
-function log(message, source = "express") {
-  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true
-  });
-  console.log(`${formattedTime} [${source}] ${message}`);
-}
-var init_logger = __esm({
-  "server/logger.ts"() {
-    "use strict";
-  }
-});
-
-// vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
-import path5, { dirname as dirname2 } from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
-import { fileURLToPath as fileURLToPath2 } from "url";
-var __filename2, __dirname2, vite_config_default;
-var init_vite_config = __esm({
-  "vite.config.ts"() {
-    "use strict";
-    __filename2 = fileURLToPath2(import.meta.url);
-    __dirname2 = dirname2(__filename2);
-    vite_config_default = defineConfig({
-      plugins: [react(), runtimeErrorOverlay(), themePlugin()],
-      resolve: {
-        alias: {
-          "@db": path5.resolve(__dirname2, "db"),
-          "@": path5.resolve(__dirname2, "client", "src")
-        }
-      },
-      root: path5.resolve(__dirname2, "client"),
-      build: {
-        outDir: path5.resolve(__dirname2, "dist/public"),
-        emptyOutDir: true
-      }
-    });
-  }
-});
-
-// server/vite.ts
-var vite_exports = {};
-__export(vite_exports, {
-  log: () => log,
-  setupVite: () => setupVite
-});
-import fs5 from "fs";
-import path6, { dirname as dirname3 } from "path";
-import { fileURLToPath as fileURLToPath3 } from "url";
-import { createServer as createViteServer, createLogger } from "vite";
-import { nanoid as nanoid2 } from "nanoid";
-async function setupVite(app, server) {
-  const vite = await createViteServer({
-    ...vite_config_default,
-    configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
-      }
-    },
-    server: {
-      middlewareMode: true,
-      hmr: { server }
-    },
-    appType: "custom"
-  });
-  app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-    const protocol = req.headers["x-forwarded-proto"] || "http";
-    const host = req.headers["x-forwarded-host"] || req.headers.host;
-    const siteUrl = `${protocol}://${host}`;
-    const heroImagePath = "/path/to/hero.jpg";
-    try {
-      const clientTemplate = path6.resolve(
-        __dirname3,
-        "..",
-        "client",
-        "index.html"
-      );
-      let template = await fs5.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid2()}"`
-      );
-      const metaTags = `
-        <meta property="og:url" content="${siteUrl}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Little Way Acres" />
-        <meta property="og:description" content="Description of Little Way Acres" />
-        <meta property="og:image" content="${siteUrl}${heroImagePath}" />
-      `;
-      template = template.replace("<head>", "<head>" + metaTags);
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e);
-      next(e);
-    }
-  });
-}
-var __filename3, __dirname3, viteLogger;
-var init_vite = __esm({
-  "server/vite.ts"() {
-    "use strict";
-    init_vite_config();
-    init_logger();
-    __filename3 = fileURLToPath3(import.meta.url);
-    __dirname3 = dirname3(__filename3);
-    viteLogger = createLogger();
-  }
-});
-
 // server/env-bootstrap.ts
 import dotenv from "dotenv";
 dotenv.config();
@@ -1451,8 +1330,8 @@ var stripe = new Stripe(stripeSecretKey, {
 var productCache = [];
 var cacheLastUpdated = null;
 var CACHE_DURATION_MS = 12 * 60 * 60 * 1e3;
-function registerRoutes(app) {
-  app.get("/api/files/:filename", async (req, res) => {
+function registerRoutes(app2) {
+  app2.get("/api/files/:filename", async (req, res) => {
     try {
       const file = await db.query.fileStorage.findFirst({
         where: eq2(fileStorage.fileName, req.params.filename)
@@ -1469,7 +1348,7 @@ function registerRoutes(app) {
     }
   });
   const SessionStore = MemoryStore(session);
-  app.use(session({
+  app2.use(session({
     store: new SessionStore({ checkPeriod: 864e5 }),
     secret: "farm-secret",
     resave: false,
@@ -1553,7 +1432,7 @@ function registerRoutes(app) {
       }
     }
     const existingHero = await db.query.dogsHero.findFirst();
-    app.get("/api/site-content/:key", async (req, res) => {
+    app2.get("/api/site-content/:key", async (req, res) => {
       try {
         const content = await db.query.siteContent.findFirst({
           where: (siteContent2, { eq: eq6 }) => eq6(siteContent2.key, req.params.key)
@@ -1727,14 +1606,14 @@ function registerRoutes(app) {
       }
     }
   })();
-  app.get("/api/site-content", async (req, res) => {
+  app2.get("/api/site-content", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const content = await db.query.siteContent.findMany({
       where: eq2(siteContent.siteId, siteId)
     });
     res.json(content);
   });
-  app.put("/api/site-content/:key", upload2.single("file"), async (req, res) => {
+  app2.put("/api/site-content/:key", upload2.single("file"), async (req, res) => {
     const key = req.params.key;
     console.log(`=== SITE CONTENT UPDATE: ${key} ===`);
     console.log("Request body:", req.body);
@@ -1780,7 +1659,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update site content" });
     }
   });
-  app.get("/api/site-content/cmd-description", async (_req, res) => {
+  app2.get("/api/site-content/cmd-description", async (_req, res) => {
     try {
       const content = await db.query.siteContent.findFirst({
         where: eq2(siteContent.key, "cmd_description")
@@ -1800,7 +1679,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch CMD description" });
     }
   });
-  app.post("/api/site-content/cmd-description", async (req, res) => {
+  app2.post("/api/site-content/cmd-description", async (req, res) => {
     try {
       const { value } = req.body;
       const existingContent = await db.query.siteContent.findFirst({
@@ -1829,26 +1708,26 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update CMD description" });
     }
   });
-  app.get("/api/animals", async (req, res) => {
+  app2.get("/api/animals", async (req, res) => {
     const type = req.query.type;
     const allAnimals = await db.query.animals.findMany({
       where: type ? eq2(animals.type, type) : void 0
     });
     res.json(allAnimals);
   });
-  app.post("/api/animals", async (req, res) => {
+  app2.post("/api/animals", async (req, res) => {
     const animal = await db.insert(animals).values(req.body).returning();
     res.json(animal[0]);
   });
-  app.put("/api/animals/:id", async (req, res) => {
+  app2.put("/api/animals/:id", async (req, res) => {
     const animal = await db.update(animals).set(req.body).where(eq2(animals.id, parseInt(req.params.id))).returning();
     res.json(animal[0]);
   });
-  app.delete("/api/animals/:id", async (req, res) => {
+  app2.delete("/api/animals/:id", async (req, res) => {
     await db.delete(animals).where(eq2(animals.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
-  app.get("/api/market-sections", async (_req, res) => {
+  app2.get("/api/market-sections", async (_req, res) => {
     try {
       const sections = await db.query.marketSections.findMany({
         orderBy: (marketSections2, { asc: asc3 }) => [asc3(marketSections2.order)]
@@ -1859,7 +1738,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch market sections" });
     }
   });
-  app.post("/api/market-sections", async (req, res) => {
+  app2.post("/api/market-sections", async (req, res) => {
     try {
       const section = await db.insert(marketSections).values(req.body).returning();
       res.json(section[0]);
@@ -1868,7 +1747,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create market section" });
     }
   });
-  app.put("/api/market-sections/:id", async (req, res) => {
+  app2.put("/api/market-sections/:id", async (req, res) => {
     try {
       const section = await db.update(marketSections).set({
         ...req.body,
@@ -1880,7 +1759,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update market section" });
     }
   });
-  app.delete("/api/market-sections/:id", async (req, res) => {
+  app2.delete("/api/market-sections/:id", async (req, res) => {
     try {
       await db.delete(marketSections).where(eq2(marketSections.id, parseInt(req.params.id)));
       res.json({ message: "Market section deleted successfully" });
@@ -1889,7 +1768,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete market section" });
     }
   });
-  app.get("/api/market-schedules", async (_req, res) => {
+  app2.get("/api/market-schedules", async (_req, res) => {
     try {
       const schedules = await db.query.marketSchedules.findMany({
         orderBy: (marketSchedules2, { asc: asc3 }) => [asc3(marketSchedules2.order)]
@@ -1900,7 +1779,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch market schedules" });
     }
   });
-  app.post("/api/market-schedules", async (req, res) => {
+  app2.post("/api/market-schedules", async (req, res) => {
     try {
       const schedule = await db.insert(marketSchedules).values(req.body).returning();
       res.json(schedule[0]);
@@ -1909,7 +1788,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create market schedule" });
     }
   });
-  app.put("/api/market-schedules/:id", async (req, res) => {
+  app2.put("/api/market-schedules/:id", async (req, res) => {
     try {
       const { location, address, dayOfWeek, startTime, endTime, description, order, isActive } = req.body;
       const schedule = await db.update(marketSchedules).set({
@@ -1929,7 +1808,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update market schedule" });
     }
   });
-  app.delete("/api/market-schedules/:id", async (req, res) => {
+  app2.delete("/api/market-schedules/:id", async (req, res) => {
     try {
       await db.delete(marketSchedules).where(eq2(marketSchedules.id, parseInt(req.params.id)));
       res.json({ message: "Market schedule deleted successfully" });
@@ -1938,7 +1817,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete market schedule" });
     }
   });
-  app.get("/api/products", async (req, res) => {
+  app2.get("/api/products", async (req, res) => {
     const section = req.query.section;
     try {
       const allProducts = await db.query.products.findMany({
@@ -1951,7 +1830,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch products" });
     }
   });
-  app.post("/api/products", async (req, res) => {
+  app2.post("/api/products", async (req, res) => {
     try {
       const product = await db.insert(products).values(req.body).returning();
       res.json(product[0]);
@@ -1960,7 +1839,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create product" });
     }
   });
-  app.put("/api/products/:id", async (req, res) => {
+  app2.put("/api/products/:id", async (req, res) => {
     try {
       const product = await db.update(products).set({
         ...req.body,
@@ -1972,7 +1851,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update product" });
     }
   });
-  app.delete("/api/products/:id", async (req, res) => {
+  app2.delete("/api/products/:id", async (req, res) => {
     try {
       await db.delete(products).where(eq2(products.id, parseInt(req.params.id)));
       res.json({ message: "Product deleted successfully" });
@@ -1981,10 +1860,10 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete product" });
     }
   });
-  app.get("/api/deployment-status", (_req, res) => {
+  app2.get("/api/deployment-status", (_req, res) => {
     res.json({ isProduction: process.env.NODE_ENV === "production" });
   });
-  app.get("/api/carousel", async (req, res) => {
+  app2.get("/api/carousel", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const items = await db.query.carouselItems.findMany({
       where: eq2(carouselItems.siteId, siteId),
@@ -1992,13 +1871,13 @@ function registerRoutes(app) {
     });
     res.json(items);
   });
-  app.post("/api/carousel", async (req, res) => {
+  app2.post("/api/carousel", async (req, res) => {
     const items = await db.query.carouselItems.findMany();
     const maxOrder = items.reduce((max, item2) => Math.max(max, item2.order), 0);
     const item = await db.insert(carouselItems).values({ ...req.body, order: maxOrder + 1 }).returning();
     res.json(item[0]);
   });
-  app.put("/api/carousel/:id", async (req, res) => {
+  app2.put("/api/carousel/:id", async (req, res) => {
     try {
       const updateData = {
         ...req.body,
@@ -2014,7 +1893,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update carousel item" });
     }
   });
-  app.delete("/api/carousel/:id", async (req, res) => {
+  app2.delete("/api/carousel/:id", async (req, res) => {
     await db.delete(carouselItems).where(eq2(carouselItems.id, parseInt(req.params.id)));
     const items = await db.query.carouselItems.findMany({
       orderBy: (carouselItems2, { asc: asc3 }) => [asc3(carouselItems2.order)]
@@ -2024,11 +1903,11 @@ function registerRoutes(app) {
     }
     res.json({ message: "Deleted successfully" });
   });
-  app.get("/api/dogs-hero", async (_req, res) => {
+  app2.get("/api/dogs-hero", async (_req, res) => {
     const hero = await db.query.dogsHero.findMany();
     res.json(hero);
   });
-  app.put("/api/dogs-hero/:id", upload2.single("image"), async (req, res) => {
+  app2.put("/api/dogs-hero/:id", upload2.single("image"), async (req, res) => {
     try {
       const {
         isFirebaseConfigured: isFirebaseConfigured2,
@@ -2054,7 +1933,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update hero image" });
     }
   });
-  app.get("/api/dogs", async (req, res) => {
+  app2.get("/api/dogs", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === "true" || Boolean(req.session.isAdmin);
     console.log(`GET /api/dogs - isAdmin: ${isAdmin}`);
@@ -2088,7 +1967,7 @@ function registerRoutes(app) {
     });
     res.json(processedDogs);
   });
-  app.post("/api/dogs", async (req, res) => {
+  app2.post("/api/dogs", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     try {
       const dog = await db.transaction(async (tx) => {
@@ -2132,7 +2011,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create dog" });
     }
   });
-  app.put("/api/dogs/:id", async (req, res) => {
+  app2.put("/api/dogs/:id", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
     try {
@@ -2234,14 +2113,14 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update dog" });
     }
   });
-  app.put("/api/dogs/:id/reorder", async (req, res) => {
+  app2.put("/api/dogs/:id/reorder", async (req, res) => {
     const dog = await db.update(dogs).set({
       order: req.body.order,
       updatedAt: /* @__PURE__ */ new Date()
     }).where(eq2(dogs.id, parseInt(req.params.id))).returning();
     res.json(dog[0]);
   });
-  app.post("/api/upload", upload2.array("file", 10), async (req, res) => {
+  app2.post("/api/upload", upload2.array("file", 10), async (req, res) => {
     try {
       const { isFirebaseConfigured: isFirebaseConfigured2, uploadToFirebase: uploadToFirebase2 } = await Promise.resolve().then(() => (init_firebase_storage(), firebase_storage_exports));
       if (!isFirebaseConfigured2()) {
@@ -2322,7 +2201,7 @@ function registerRoutes(app) {
       });
     }
   });
-  app.use("/uploads", express.static(uploadDir, {
+  app2.use("/uploads", express.static(uploadDir, {
     setHeaders: (res, filePath) => {
       const ext = path3.extname(filePath).toLowerCase();
       const mimeTypes = {
@@ -2340,7 +2219,7 @@ function registerRoutes(app) {
       }
     }
   }));
-  app.get("/api/litters", async (req, res) => {
+  app2.get("/api/litters", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
       where: eq2(litters.siteId, siteId),
@@ -2378,7 +2257,7 @@ function registerRoutes(app) {
     );
     res.json(littersWithPuppies);
   });
-  app.post("/api/litters", async (req, res) => {
+  app2.post("/api/litters", async (req, res) => {
     try {
       console.log("Creating litter with data:", req.body);
       const formattedData = {
@@ -2408,7 +2287,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create litter" });
     }
   });
-  app.put("/api/litters/:id", async (req, res) => {
+  app2.put("/api/litters/:id", async (req, res) => {
     try {
       console.log("Updating litter with data:", req.body);
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
@@ -2440,7 +2319,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update litter", error: error.message });
     }
   });
-  app.delete("/api/litters/:id", async (req, res) => {
+  app2.delete("/api/litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       await db.delete(litter_interest_signups).where(eq2(litter_interest_signups.litterId, litterId));
@@ -2451,7 +2330,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete litter" });
     }
   });
-  app.get("/api/litters/:id", async (req, res) => {
+  app2.get("/api/litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       if (isNaN(litterId)) {
@@ -2503,7 +2382,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch litter" });
     }
   });
-  app.get("/api/litters/list/current", async (req, res) => {
+  app2.get("/api/litters/list/current", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2547,7 +2426,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch current litters" });
     }
   });
-  app.get("/api/litters/list/future", async (req, res) => {
+  app2.get("/api/litters/list/future", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2576,7 +2455,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch future litters" });
     }
   });
-  app.get("/api/litters/list/past", async (req, res) => {
+  app2.get("/api/litters/list/past", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2636,7 +2515,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch past litters" });
     }
   });
-  app.get("/api/principles", async (req, res) => {
+  app2.get("/api/principles", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allPrinciples = await db.query.principles.findMany({
@@ -2649,7 +2528,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch principles" });
     }
   });
-  app.post("/api/principles", async (req, res) => {
+  app2.post("/api/principles", async (req, res) => {
     try {
       const principle = await db.insert(principles).values(req.body).returning();
       res.json(principle[0]);
@@ -2658,7 +2537,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create principle" });
     }
   });
-  app.put("/api/principles/:id", async (req, res) => {
+  app2.put("/api/principles/:id", async (req, res) => {
     try {
       const { title, description, imageUrl, order, siteId } = req.body;
       const updateData = { updatedAt: /* @__PURE__ */ new Date() };
@@ -2674,7 +2553,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update principle" });
     }
   });
-  app.delete("/api/principles/:id", async (req, res) => {
+  app2.delete("/api/principles/:id", async (req, res) => {
     try {
       await db.delete(principles).where(eq2(principles.id, parseInt(req.params.id)));
       res.json({ message: "Principle deleted successfully" });
@@ -2683,7 +2562,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete principle" });
     }
   });
-  app.get("/api/about-cards", async (req, res) => {
+  app2.get("/api/about-cards", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const cardKeys = [
@@ -2720,7 +2599,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch about cards" });
     }
   });
-  app.get("/api/contact-info", async (req, res) => {
+  app2.get("/api/contact-info", async (req, res) => {
     const parsed = parseSiteIdHeader(req);
     if (!parsed.ok) {
       console.warn("GET /api/contact-info client_error:", {
@@ -2749,7 +2628,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch contact info" });
     }
   });
-  app.put("/api/about-cards", async (req, res) => {
+  app2.put("/api/about-cards", async (req, res) => {
     try {
       const { sectionTitle, sectionDescription, cards } = req.body;
       const updates = [
@@ -2777,7 +2656,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update about cards" });
     }
   });
-  app.post("/api/create-payment-intent", async (req, res) => {
+  app2.post("/api/create-payment-intent", async (req, res) => {
     try {
       const { amount, items, customerInfo, pickupLocation } = req.body;
       console.log("Creating payment intent for amount:", amount);
@@ -2804,7 +2683,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
     }
   });
-  app.post("/api/update-payment-intent", async (req, res) => {
+  app2.post("/api/update-payment-intent", async (req, res) => {
     try {
       const { paymentIntentId, customerInfo, pickupLocation } = req.body;
       if (!paymentIntentId) {
@@ -2838,7 +2717,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Error updating payment intent: " + error.message });
     }
   });
-  app.post("/api/send-order-confirmation", async (req, res) => {
+  app2.post("/api/send-order-confirmation", async (req, res) => {
     try {
       res.json({
         success: true,
@@ -2849,7 +2728,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Error in order confirmation: " + error.message });
     }
   });
-  app.post("/api/auth/login", async (req, res) => {
+  app2.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
       const trimmedUsername = username?.trim();
@@ -2876,7 +2755,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Server error during login" });
     }
   });
-  app.post("/api/auth/logout", (req, res) => {
+  app2.post("/api/auth/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Failed to logout" });
@@ -2884,14 +2763,14 @@ function registerRoutes(app) {
       res.status(200).json({ success: true });
     });
   });
-  app.get("/api/auth/status", (req, res) => {
+  app2.get("/api/auth/status", (req, res) => {
     if (req.session.isAdmin) {
       res.json({ isLoggedIn: true, username: req.session.username });
     } else {
       res.json({ isLoggedIn: false });
     }
   });
-  app.get("/api/sites", async (_req, res) => {
+  app2.get("/api/sites", async (_req, res) => {
     try {
       const allSites = await db.query.sites.findMany({
         orderBy: (sites2, { asc: asc3 }) => [asc3(sites2.name)]
@@ -2902,7 +2781,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch sites" });
     }
   });
-  app.get("/api/goats", async (req, res) => {
+  app2.get("/api/goats", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const isAdmin = req.query.admin === "true" || Boolean(req.session.isAdmin);
@@ -2938,7 +2817,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch goats" });
     }
   });
-  app.get("/api/goat-litters", async (req, res) => {
+  app2.get("/api/goat-litters", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const allGoatLitters = await db.query.goatLitters.findMany({
       where: eq2(goatLitters.siteId, siteId),
@@ -2970,7 +2849,7 @@ function registerRoutes(app) {
     });
     res.json(allGoatLitters);
   });
-  app.post("/api/goat-litters", async (req, res) => {
+  app2.post("/api/goat-litters", async (req, res) => {
     try {
       console.log("Creating goat litter with data:", req.body);
       const formattedData = {
@@ -3000,7 +2879,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create goat litter" });
     }
   });
-  app.put("/api/goat-litters/:id", async (req, res) => {
+  app2.put("/api/goat-litters/:id", async (req, res) => {
     try {
       console.log("Updating goat litter with data:", req.body);
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
@@ -3032,7 +2911,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update goat litter", error: error.message });
     }
   });
-  app.delete("/api/goat-litters/:id", async (req, res) => {
+  app2.delete("/api/goat-litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       await db.delete(goatLitters).where(eq2(goatLitters.id, litterId));
@@ -3042,7 +2921,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to delete goat litter" });
     }
   });
-  app.get("/api/gallery-photos", async (req, res) => {
+  app2.get("/api/gallery-photos", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const photos = await db.query.galleryPhotos.findMany({
@@ -3055,7 +2934,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch gallery photos" });
     }
   });
-  app.post("/api/gallery-photos", async (req, res) => {
+  app2.post("/api/gallery-photos", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3071,7 +2950,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create gallery photo" });
     }
   });
-  app.put("/api/gallery-photos/:id", async (req, res) => {
+  app2.put("/api/gallery-photos/:id", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3086,7 +2965,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to update gallery photo" });
     }
   });
-  app.delete("/api/gallery-photos/:id", async (req, res) => {
+  app2.delete("/api/gallery-photos/:id", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3220,7 +3099,7 @@ function registerRoutes(app) {
     if (!cacheLastUpdated || productCache.length === 0) return false;
     return Date.now() - cacheLastUpdated.getTime() < CACHE_DURATION_MS;
   }
-  app.get("/api/printify/products", async (req, res) => {
+  app2.get("/api/printify/products", async (req, res) => {
     try {
       res.set("Cache-Control", "public, max-age=300");
       if (isCacheFresh() && productCache.length > 0) {
@@ -3275,7 +3154,7 @@ function registerRoutes(app) {
       });
     }
   });
-  app.post("/api/printify/sync", async (req, res) => {
+  app2.post("/api/printify/sync", async (req, res) => {
     try {
       const count = await syncPrintifyProducts();
       res.json({
@@ -3290,7 +3169,7 @@ function registerRoutes(app) {
       });
     }
   });
-  app.get("/api/printify/products/direct", async (req, res) => {
+  app2.get("/api/printify/products/direct", async (req, res) => {
     try {
       const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
       const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
@@ -3395,7 +3274,7 @@ function registerRoutes(app) {
       });
     }
   });
-  app.get("/api/printify/shops", async (req, res) => {
+  app2.get("/api/printify/shops", async (req, res) => {
     try {
       const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
       if (!PRINTIFY_API_TOKEN) {
@@ -3451,7 +3330,7 @@ function registerRoutes(app) {
       console.error("Error during scheduled sync:", error);
     }
   }, 12 * 60 * 60 * 1e3);
-  app.get("/api/orders", async (req, res) => {
+  app2.get("/api/orders", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const environment = req.query.env;
@@ -3482,7 +3361,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch orders" });
     }
   });
-  app.get("/api/orders/summary", async (req, res) => {
+  app2.get("/api/orders/summary", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const environment = req.query.env;
@@ -3528,7 +3407,7 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to fetch orders summary" });
     }
   });
-  app.post("/api/orders", async (req, res) => {
+  app2.post("/api/orders", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const {
@@ -3578,15 +3457,15 @@ function registerRoutes(app) {
       res.status(500).json({ message: "Failed to create order" });
     }
   });
-  app.use(sheep_default);
-  app.get("/robots.txt", (req, res) => {
+  app2.use(sheep_default);
+  app2.get("/robots.txt", (req, res) => {
     res.type("text/plain");
     res.send(`User-agent: *
 Allow: /
 
 Sitemap: ${req.protocol}://${req.get("host")}/sitemap.xml`);
   });
-  app.get("/sitemap.xml", async (req, res) => {
+  app2.get("/sitemap.xml", async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const staticPages = [
       "",
@@ -3667,12 +3546,20 @@ ${allPages.map((page) => `  <url>
       res.status(500).send("Error generating sitemap");
     }
   });
-  const httpServer = createServer(app);
+  const httpServer = createServer(app2);
   return httpServer;
 }
 
-// server/create-app.ts
-init_logger();
+// server/logger.ts
+function log(message, source = "express") {
+  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
 
 // server/static.ts
 import express2 from "express";
@@ -3681,15 +3568,15 @@ import path4, { dirname } from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = dirname(__filename);
-function serveStatic(app) {
+function serveStatic(app2) {
   const distPath = path4.resolve(__dirname, "public");
   if (!fs4.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app.use(express2.static(distPath));
-  app.use("*", (_req, res) => {
+  app2.use(express2.static(distPath));
+  app2.use("*", (_req, res) => {
     res.sendFile(path4.resolve(distPath, "index.html"));
   });
 }
@@ -4588,8 +4475,8 @@ async function buildApp(options) {
     firebaseServiceAccountConfigured ? "Configured" : "Not set"
   );
   console.log("==========================================");
-  const app = express6();
-  app.use(
+  const app2 = express6();
+  app2.use(
     compression({
       filter: (req, res) => {
         if (req.headers["x-no-compression"]) {
@@ -4602,8 +4489,8 @@ async function buildApp(options) {
       memLevel: 8
     })
   );
-  app.set("trust proxy", true);
-  app.use((req, res, next) => {
+  app2.set("trust proxy", true);
+  app2.use((req, res, next) => {
     const host = req.get("host");
     if (host && host.startsWith("www.")) {
       const nonWwwHost = host.slice(4);
@@ -4612,7 +4499,7 @@ async function buildApp(options) {
     }
     next();
   });
-  app.use((req, res, next) => {
+  app2.use((req, res, next) => {
     res.set({
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
@@ -4621,7 +4508,7 @@ async function buildApp(options) {
     });
     next();
   });
-  app.use((req, res, next) => {
+  app2.use((req, res, next) => {
     const url = req.url;
     if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
       res.setHeader("Cache-Control", "public, max-age=31536000");
@@ -4635,16 +4522,16 @@ async function buildApp(options) {
     }
     next();
   });
-  app.use(express6.json({ limit: "50mb" }));
-  app.use(express6.urlencoded({ extended: false, limit: "50mb" }));
-  app.use("/api", proxy_default);
-  app.use(goats_default);
-  app.use(goat_litters_default);
-  app.use(sheep_default);
-  app.use(sheep_litters_default);
-  app.use((req, res, next) => {
+  app2.use(express6.json({ limit: "50mb" }));
+  app2.use(express6.urlencoded({ extended: false, limit: "50mb" }));
+  app2.use("/api", proxy_default);
+  app2.use(goats_default);
+  app2.use(goat_litters_default);
+  app2.use(sheep_default);
+  app2.use(sheep_litters_default);
+  app2.use((req, res, next) => {
     const start = Date.now();
-    const path7 = req.path;
+    const path5 = req.path;
     let capturedJsonResponse = void 0;
     const originalResJson = res.json;
     res.json = function(bodyJson, ...args) {
@@ -4653,8 +4540,8 @@ async function buildApp(options) {
     };
     res.on("finish", () => {
       const duration = Date.now() - start;
-      if (path7.startsWith("/api")) {
-        let logLine = `${req.method} ${path7} ${res.statusCode} in ${duration}ms`;
+      if (path5.startsWith("/api")) {
+        let logLine = `${req.method} ${path5} ${res.statusCode} in ${duration}ms`;
         if (capturedJsonResponse) {
           logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
         }
@@ -4666,45 +4553,28 @@ async function buildApp(options) {
     });
     next();
   });
-  const server = registerRoutes(app);
-  app.use(dbErrorHandler);
-  app.use((err, _req, res, _next) => {
+  const server = registerRoutes(app2);
+  app2.use(dbErrorHandler);
+  app2.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
     console.error("Server error:", err);
     res.status(status).json({ message });
   });
   if (shouldServeStatic) {
-    serveStatic(app);
+    serveStatic(app2);
   }
-  return { app, server };
+  return { app: app2, server };
 }
 
-// server/index.ts
-init_logger();
-(async () => {
-  const isDevelopment = process.env.NODE_ENV !== "production";
-  const { app, server } = await createApp({
-    serveStatic: !isDevelopment && process.env.VERCEL !== "1"
-  });
-  if (isDevelopment) {
-    const { setupVite: setupVite2 } = await Promise.resolve().then(() => (init_vite(), vite_exports));
-    await setupVite2(app, server);
+// server/vercel-handler.ts
+var app;
+async function handler(req, res) {
+  if (!app) {
+    ({ app } = await createApp({ serveStatic: false }));
   }
-  if (process.env.VERCEL === "1") {
-    return;
-  }
-  const rawPort = process.env.PORT;
-  let listenPort = 5001;
-  if (rawPort !== void 0 && rawPort !== "") {
-    const n = Number.parseInt(rawPort, 10);
-    if (!Number.isNaN(n) && n > 0) {
-      listenPort = n;
-    } else {
-      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5001`);
-    }
-  }
-  server.listen(listenPort, "0.0.0.0", () => {
-    log(`serving on port ${listenPort}`);
-  });
-})();
+  return app(req, res);
+}
+export {
+  handler as default
+};
