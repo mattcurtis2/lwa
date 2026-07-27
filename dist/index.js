@@ -57,169 +57,284 @@ var init_helpers = __esm({
   }
 });
 
-// server/utils/s3.js
-var s3_exports = {};
-__export(s3_exports, {
-  getFromS3: () => getFromS3,
-  uploadBase64ToS3: () => uploadBase64ToS3,
-  uploadToS3: () => uploadToS32
+// server/utils/firebase-storage.ts
+var firebase_storage_exports = {};
+__export(firebase_storage_exports, {
+  getFirebaseBucket: () => getFirebaseBucket,
+  isExternalUrl: () => isExternalUrl,
+  isFirebaseConfigured: () => isFirebaseConfigured,
+  isFirebaseUrl: () => isFirebaseUrl,
+  isLegacyStorageUrl: () => isLegacyStorageUrl,
+  isLocalUploadUrl: () => isLocalUploadUrl,
+  isS3Url: () => isS3Url,
+  shouldMigrateUrl: () => shouldMigrateUrl,
+  uploadBase64ToFirebase: () => uploadBase64ToFirebase,
+  uploadBufferToFirebase: () => uploadBufferToFirebase,
+  uploadToFirebase: () => uploadToFirebase
 });
-import { S3Client as S3Client2, PutObjectCommand as PutObjectCommand2, GetObjectCommand } from "@aws-sdk/client-s3";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getStorage } from "firebase-admin/storage";
+import fs from "fs";
+import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import fs3 from "fs";
-import path2 from "path";
-function getAwsEnv() {
+function getFirebaseEnv() {
   return {
-    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY,
-    bucketName: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME
+    projectId: process.env.FIREBASE_PROJECT_ID?.trim() || "",
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET?.trim() || "",
+    serviceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() || "",
+    serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH?.trim() || ""
   };
 }
-function getS3Client() {
-  if (s3Client) return s3Client;
-  const { region, accessKeyId, secretAccessKey } = getAwsEnv();
-  console.log("S3 Client Initialization:");
-  console.log(`- AWS_REGION: ${region ? "Set" : "Not set"}`);
-  console.log(`- AWS_ACCESS_KEY_ID: ${accessKeyId ? `Set (starts with: ${accessKeyId.substring(0, 4)}...)` : "Not set"}`);
-  console.log(`- AWS_SECRET_ACCESS_KEY: ${secretAccessKey ? "Set (length: " + secretAccessKey.length + ")" : "Not set"}`);
-  if (!region || !accessKeyId || !secretAccessKey) {
+function getServiceAccount() {
+  const { serviceAccountJson, serviceAccountPath } = getFirebaseEnv();
+  if (serviceAccountJson) {
+    return JSON.parse(serviceAccountJson);
+  }
+  if (serviceAccountPath) {
+    const contents = fs.readFileSync(serviceAccountPath, "utf8");
+    return JSON.parse(contents);
+  }
+  throw new Error(
+    "Firebase service account not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH."
+  );
+}
+function isFirebaseConfigured() {
+  const { projectId, storageBucket: storageBucket2, serviceAccountJson, serviceAccountPath } = getFirebaseEnv();
+  return Boolean(
+    projectId && storageBucket2 && (serviceAccountJson || serviceAccountPath)
+  );
+}
+function getFirebaseBucket() {
+  if (storageBucket) {
+    return storageBucket;
+  }
+  const { projectId, storageBucket: bucketName } = getFirebaseEnv();
+  if (!projectId || !bucketName) {
     throw new Error(
-      "AWS credentials not properly configured. Check AWS_* vars or LWA_AWS_* fallback vars."
+      "Firebase Storage not configured. Set FIREBASE_PROJECT_ID and FIREBASE_STORAGE_BUCKET."
     );
   }
-  s3Client = new S3Client2({
-    region,
-    credentials: {
-      accessKeyId,
-      secretAccessKey
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert(getServiceAccount()),
+      projectId,
+      storageBucket: bucketName
+    });
+  }
+  storageBucket = getStorage().bucket(bucketName);
+  return storageBucket;
+}
+function sanitizeFilename(originalName) {
+  const ext = path.extname(originalName || "file.bin").toLowerCase();
+  const baseName = path.basename(originalName || "file", ext).replace(/[^a-zA-Z0-9]/g, "-").substring(0, 30);
+  return `${uuidv4()}-${baseName || "file"}${ext || ".bin"}`;
+}
+function buildDownloadUrl(bucketName, objectPath, token) {
+  const encodedPath = encodeURIComponent(objectPath);
+  return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media&token=${token}`;
+}
+function readFileBuffer(file) {
+  if (file.buffer) {
+    return file.buffer;
+  }
+  if (file.path) {
+    return fs.readFileSync(file.path);
+  }
+  throw new Error("No file buffer or path provided for Firebase upload");
+}
+async function uploadBufferToFirebase(buffer, fileName, mimeType) {
+  const bucket = getFirebaseBucket();
+  const objectName = fileName.startsWith("uploads/") ? fileName : `uploads/${fileName}`;
+  const token = uuidv4();
+  const file = bucket.file(objectName);
+  await file.save(buffer, {
+    metadata: {
+      contentType: mimeType || "application/octet-stream",
+      metadata: {
+        firebaseStorageDownloadTokens: token
+      }
     }
   });
-  return s3Client;
+  const downloadUrl = buildDownloadUrl(bucket.name, objectName, token);
+  console.log(`Firebase upload successful: ${downloadUrl}`);
+  return downloadUrl;
 }
-function getBucketName() {
-  const bucketName = getAwsEnv().bucketName;
-  if (!bucketName) {
-    throw new Error(
-      "S3 bucket name not configured. Check AWS_BUCKET_NAME, S3_BUCKET_NAME, or LWA_AWS_BUCKET_NAME."
-    );
+async function uploadToFirebase(file) {
+  const fileName = sanitizeFilename(file.originalname || "upload.bin");
+  const buffer = readFileBuffer(file);
+  return uploadBufferToFirebase(
+    buffer,
+    fileName,
+    file.mimetype || "application/octet-stream"
+  );
+}
+async function uploadBase64ToFirebase(base64Data, fileName) {
+  const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  if (!matches || matches.length !== 3) {
+    throw new Error("Invalid base64 data URL format");
   }
-  return bucketName;
+  const mimeType = matches[1];
+  const buffer = Buffer.from(matches[2], "base64");
+  const extension = mimeType.split("/")[1] || "jpeg";
+  const generatedFileName = fileName || `image-${Date.now()}.${extension}`;
+  return uploadBufferToFirebase(buffer, generatedFileName, mimeType);
 }
-async function uploadToS32(file) {
-  console.log("==== S3 UPLOAD ATTEMPT ====");
-  const env = getAwsEnv();
-  try {
-    const s3 = getS3Client();
-    const BUCKET_NAME = getBucketName();
-    global.s3CredentialsDebug = {
-      region: env.region,
-      keyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : "empty",
-      secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : "empty",
-      bucketName: BUCKET_NAME
-    };
-    const fileExtension = path2.extname(file.originalname || "unknown.jpg").toLowerCase();
-    const sanitizedName = (file.originalname || "").replace(/[^a-zA-Z0-9]/g, "-").substring(0, 30);
-    const filename = `${uuidv4()}-${sanitizedName}${fileExtension}`;
-    console.log(`S3 Upload - Processing file: ${file.originalname || "unnamed"}, size: ${file.size || "unknown"} bytes`);
-    const contentType = file.mimetype || "application/octet-stream";
-    let fileBuffer;
-    if (file.buffer) {
-      fileBuffer = file.buffer;
-    } else if (file.path) {
-      fileBuffer = fs3.readFileSync(file.path);
-    } else {
-      throw new Error("No file buffer or path provided for S3 upload");
-    }
-    console.log(`File buffer size: ${fileBuffer.length} bytes`);
-    const uploadParams = {
-      Bucket: BUCKET_NAME,
-      Key: filename,
-      Body: fileBuffer,
-      ContentType: contentType,
-      ContentDisposition: "inline",
-      ContentLength: fileBuffer.length
-    };
-    console.log("S3 Upload - Params prepared:", uploadParams);
-    console.log("S3 Upload - Sending file to S3...");
-    const uploadResult = await s3.send(new PutObjectCommand2(uploadParams));
-    console.log("S3 Upload - Success! Response:", uploadResult);
-    const s3Url = `https://${BUCKET_NAME}.s3.${env.region}.amazonaws.com/${filename}`;
-    console.log(`S3 upload successful: ${s3Url}`);
-    console.log(`Alternative URL (path-style): https://s3.${env.region}.amazonaws.com/${BUCKET_NAME}/${filename}`);
-    return s3Url;
-  } catch (error) {
-    console.error("S3 Upload - Error during upload:", error);
-    if (error instanceof Error) {
-      console.error(`Error name: ${error.name}`);
-      console.error(`Error message: ${error.message}`);
-      console.error(`Error stack: ${error.stack}`);
-      error.awsCredentials = {
-        region: env.region,
-        accessKeyIdPrefix: env.accessKeyId ? env.accessKeyId.substring(0, 4) : "empty",
-        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) : "empty",
-        fullAccessKeyId: env.accessKeyId,
-        // Include full key in server logs only
-        bucketName: getBucketName()
-      };
-      console.error("AWS Credentials used in failed request:", {
-        region: env.region,
-        accessKeyId: env.accessKeyId,
-        secretKeyPrefix: env.secretAccessKey ? env.secretAccessKey.substring(0, 4) + "..." : "empty",
-        bucketName: getBucketName()
-      });
-    }
-    throw error;
-  }
+function isFirebaseUrl(url) {
+  if (!url) return false;
+  return url.includes("firebasestorage.googleapis.com") || url.includes("storage.googleapis.com");
 }
-async function getFromS3(key) {
-  try {
-    const s3 = getS3Client();
-    const BUCKET_NAME = getBucketName();
-    const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key
-    });
-    const response = await s3.send(command);
-    return response;
-  } catch (error) {
-    console.error("Error getting file from S3:", error);
-    throw error;
-  }
+function isS3Url(url) {
+  if (!url) return false;
+  return url.includes("s3.amazonaws.com") || url.includes("s3.us-east-2.amazonaws.com") || url.startsWith("https://lwacontent") || url.startsWith("https://askanswercontent");
 }
-async function uploadBase64ToS3(base64Data, fileName) {
-  try {
-    console.log("Starting base64 to S3 upload process...");
-    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      console.error("Invalid base64 data URL format");
-      throw new Error("Invalid base64 data URL format");
-    }
-    const type = matches[1];
-    const buffer = Buffer.from(matches[2], "base64");
-    console.log(`Processing base64 image: ${type}, size: ${buffer.length} bytes`);
-    const extension = type.split("/")[1] || "jpeg";
-    const generatedFileName = fileName || `image-${Date.now()}.${extension}`;
-    const mockFile = {
-      buffer,
-      originalname: generatedFileName,
-      mimetype: type,
-      size: buffer.length
-    };
-    console.log(`Created mock file for S3 upload: ${generatedFileName} (${type})`);
-    const uploadResult = await uploadToS32(mockFile);
-    console.log(`Base64 image successfully uploaded to S3: ${uploadResult}`);
-    return uploadResult;
-  } catch (error) {
-    console.error("Error uploading base64 to S3:", error);
-    throw error;
-  }
+function isLocalUploadUrl(url) {
+  return Boolean(url && url.startsWith("/uploads/"));
 }
-var s3Client;
-var init_s3 = __esm({
-  "server/utils/s3.js"() {
+function isLegacyStorageUrl(url) {
+  return isFirebaseUrl(url) || isS3Url(url) || isLocalUploadUrl(url);
+}
+function shouldMigrateUrl(url) {
+  if (!url) return false;
+  if (isFirebaseUrl(url)) return false;
+  if (isS3Url(url) || isLocalUploadUrl(url)) return true;
+  return false;
+}
+function isExternalUrl(url) {
+  if (!url) return false;
+  if (shouldMigrateUrl(url)) return false;
+  if (url.startsWith("/images/") || url.startsWith("/logo")) return true;
+  if (url.startsWith("https://images.unsplash.com")) return true;
+  if (url.includes("placehold.co")) return true;
+  if (url.startsWith("data:")) return true;
+  if (!url.startsWith("http") && !url.startsWith("/uploads/")) return true;
+  return false;
+}
+var storageBucket;
+var init_firebase_storage = __esm({
+  "server/utils/firebase-storage.ts"() {
     "use strict";
-    s3Client = null;
+    storageBucket = null;
+  }
+});
+
+// server/logger.ts
+function log(message, source = "express") {
+  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+var init_logger = __esm({
+  "server/logger.ts"() {
+    "use strict";
+  }
+});
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
+import path5, { dirname as dirname2 } from "path";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { fileURLToPath as fileURLToPath2 } from "url";
+var __filename2, __dirname2, vite_config_default;
+var init_vite_config = __esm({
+  "vite.config.ts"() {
+    "use strict";
+    __filename2 = fileURLToPath2(import.meta.url);
+    __dirname2 = dirname2(__filename2);
+    vite_config_default = defineConfig({
+      plugins: [react(), runtimeErrorOverlay(), themePlugin()],
+      resolve: {
+        alias: {
+          "@db": path5.resolve(__dirname2, "db"),
+          "@": path5.resolve(__dirname2, "client", "src")
+        }
+      },
+      root: path5.resolve(__dirname2, "client"),
+      build: {
+        outDir: path5.resolve(__dirname2, "dist/public"),
+        emptyOutDir: true
+      }
+    });
+  }
+});
+
+// server/vite.ts
+var vite_exports = {};
+__export(vite_exports, {
+  log: () => log,
+  setupVite: () => setupVite
+});
+import fs5 from "fs";
+import path6, { dirname as dirname3 } from "path";
+import { fileURLToPath as fileURLToPath3 } from "url";
+import { createServer as createViteServer, createLogger } from "vite";
+import { nanoid as nanoid2 } from "nanoid";
+async function setupVite(app, server) {
+  const vite = await createViteServer({
+    ...vite_config_default,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      }
+    },
+    server: {
+      middlewareMode: true,
+      hmr: { server }
+    },
+    appType: "custom"
+  });
+  app.use(vite.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    const protocol = req.headers["x-forwarded-proto"] || "http";
+    const host = req.headers["x-forwarded-host"] || req.headers.host;
+    const siteUrl = `${protocol}://${host}`;
+    const heroImagePath = "/path/to/hero.jpg";
+    try {
+      const clientTemplate = path6.resolve(
+        __dirname3,
+        "..",
+        "client",
+        "index.html"
+      );
+      let template = await fs5.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid2()}"`
+      );
+      const metaTags = `
+        <meta property="og:url" content="${siteUrl}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Little Way Acres" />
+        <meta property="og:description" content="Description of Little Way Acres" />
+        <meta property="og:image" content="${siteUrl}${heroImagePath}" />
+      `;
+      template = template.replace("<head>", "<head>" + metaTags);
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+}
+var __filename3, __dirname3, viteLogger;
+var init_vite = __esm({
+  "server/vite.ts"() {
+    "use strict";
+    init_vite_config();
+    init_logger();
+    __filename3 = fileURLToPath3(import.meta.url);
+    __dirname3 = dirname3(__filename3);
+    viteLogger = createLogger();
   }
 });
 
@@ -240,34 +355,29 @@ function validateDeploymentEnv() {
     );
   }
   console.log("\u2705 Environment validation: Stripe secret is set.");
-  const bucketName = process.env.AWS_BUCKET_NAME?.trim() || process.env.S3_BUCKET_NAME?.trim() || process.env.LWA_AWS_BUCKET_NAME?.trim() || "";
-  const awsRegion2 = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
-  const awsAccessKeyId2 = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
-  const awsSecretAccessKey2 = process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
-  const requiredAwsPieces = [
-    { key: "AWS_REGION or LWA_AWS_REGION", ok: Boolean(awsRegion2) },
-    { key: "AWS_ACCESS_KEY_ID or LWA_AWS_ACCESS_KEY_ID", ok: Boolean(awsAccessKeyId2) },
+  const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "";
+  const firebaseBucket = process.env.FIREBASE_STORAGE_BUCKET?.trim() || "";
+  const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() || process.env.FIREBASE_SERVICE_ACCOUNT_PATH?.trim() || "";
+  const requiredFirebasePieces = [
+    { key: "FIREBASE_PROJECT_ID", ok: Boolean(firebaseProjectId) },
+    { key: "FIREBASE_STORAGE_BUCKET", ok: Boolean(firebaseBucket) },
     {
-      key: "AWS_SECRET_ACCESS_KEY or LWA_AWS_SECRET_ACCESS_KEY",
-      ok: Boolean(awsSecretAccessKey2)
-    },
-    {
-      key: "AWS_BUCKET_NAME or S3_BUCKET_NAME or LWA_AWS_BUCKET_NAME",
-      ok: bucketName.length > 0
+      key: "FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_PATH",
+      ok: Boolean(firebaseServiceAccount)
     }
   ];
-  const missingAwsVars = requiredAwsPieces.filter((p) => !p.ok).map((p) => p.key);
-  if (missingAwsVars.length > 0) {
+  const missingFirebaseVars = requiredFirebasePieces.filter((p) => !p.ok).map((p) => p.key);
+  if (missingFirebaseVars.length > 0) {
     console.warn(
-      `\u26A0\uFE0F WARNING: Missing AWS variables: ${missingAwsVars.join(", ")} \u2014 S3 uploads may not work.`
+      `\u26A0\uFE0F WARNING: Missing Firebase variables: ${missingFirebaseVars.join(", ")} \u2014 Firebase Storage uploads may not work.`
     );
   } else {
-    console.log("\u2705 Environment validation: S3-related variables present.");
+    console.log("\u2705 Environment validation: Firebase Storage variables present.");
   }
 }
 validateDeploymentEnv();
 
-// server/index.ts
+// server/create-app.ts
 import express6 from "express";
 
 // server/routes.ts
@@ -1048,7 +1158,7 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import multer2 from "multer";
 import path3 from "path";
-import fs4 from "fs-extra";
+import fs3 from "fs-extra";
 import express from "express";
 
 // server/routes/sheep.ts
@@ -1070,120 +1180,16 @@ var neonHttpClient2 = Object.assign(
 var db2 = drizzle2(neonHttpClient2, { schema: schema_exports });
 
 // server/routes/sheep.ts
+init_firebase_storage();
 import { eq, desc, asc, and } from "drizzle-orm";
 import multer from "multer";
-import path from "path";
+import path2 from "path";
 import fs2 from "fs-extra";
 import { nanoid } from "nanoid";
-
-// server/utils/s3.ts
-import fs from "fs-extra";
-import { S3Client, PutObjectCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3";
-import dotenv2 from "dotenv";
-dotenv2.config();
-function getS3Env() {
-  return {
-    region: process.env.AWS_REGION || process.env.LWA_AWS_REGION || "",
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY || "",
-    bucketName: process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME || ""
-  };
-}
-function isS3Configured() {
-  const env = getS3Env();
-  return !!(env.region && env.accessKeyId && env.secretAccessKey && env.bucketName);
-}
-async function uploadToS3(file) {
-  const env = getS3Env();
-  if (!isS3Configured()) {
-    throw new Error(
-      "S3 not configured: set AWS_* vars (or LWA_AWS_* fallback vars) and AWS_BUCKET_NAME/S3_BUCKET_NAME"
-    );
-  }
-  console.log("==== S3 UPLOAD ATTEMPT ====");
-  if (!file) {
-    console.error("S3 Upload - No file provided");
-    return null;
-  }
-  if (!file.originalname) {
-    console.error("S3 Upload - File missing originalname");
-    return null;
-  }
-  const bucketName = env.bucketName;
-  const s3 = new S3Client({
-    region: env.region,
-    credentials: {
-      accessKeyId: env.accessKeyId,
-      secretAccessKey: env.secretAccessKey
-    }
-  });
-  try {
-    console.log("Checking S3 bucket CORS configuration...");
-    await s3.send(
-      new PutBucketCorsCommand({
-        Bucket: bucketName,
-        CORSConfiguration: {
-          CORSRules: [
-            {
-              AllowedHeaders: ["*"],
-              AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
-              AllowedOrigins: ["*"],
-              ExposeHeaders: ["ETag"]
-            }
-          ]
-        }
-      })
-    );
-    console.log("CORS configuration set successfully");
-  } catch (error) {
-    console.error("Error setting CORS configuration", error);
-  }
-  try {
-    const fileKey = `uploads/${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`;
-    console.log(`S3 Upload - Processing file: ${file.originalname}`);
-    let fileContent;
-    if (file.buffer) {
-      console.log(`Using buffer content with size: ${file.buffer.length} bytes`);
-      fileContent = file.buffer;
-    } else if (file.path) {
-      console.log(`Reading file from path: ${file.path}`);
-      fileContent = await fs.readFile(file.path);
-    } else {
-      throw new Error("File has neither buffer nor path");
-    }
-    if (!fileContent) {
-      throw new Error("Failed to get file content");
-    }
-    console.log(`File content obtained, size: ${fileContent.length} bytes`);
-    console.log(`Content type: ${file.mimetype || "application/octet-stream"}`);
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: bucketName,
-        Key: fileKey,
-        Body: fileContent,
-        ContentType: file.mimetype || "application/octet-stream"
-        // Remove ACL setting as it might cause issues with some bucket configurations
-      })
-    );
-    const url = `https://${bucketName}.s3.amazonaws.com/${fileKey}`;
-    console.log(`S3 Upload - Success. URL: ${url}`);
-    return url;
-  } catch (error) {
-    console.error("S3 Upload - Error during upload:", error);
-    if (error instanceof Error) {
-      console.error(`Error name: ${error.name}`);
-      console.error(`Error message: ${error.message}`);
-      console.error(`Error stack: ${error.stack}`);
-    }
-    throw error;
-  }
-}
-
-// server/routes/sheep.ts
 var router = Router();
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir2 = path.join(process.cwd(), "uploads");
+    const uploadDir2 = path2.join(process.cwd(), "uploads");
     fs2.ensureDirSync(uploadDir2);
     cb(null, uploadDir2);
   },
@@ -1271,8 +1277,8 @@ router.post("/api/sheep", upload.single("profileImage"), async (req, res) => {
     const data = req.body;
     let profileImageUrl = null;
     if (req.file) {
-      const s3Result = await uploadToS3(req.file);
-      profileImageUrl = s3Result;
+      const firebaseResult = await uploadToFirebase(req.file);
+      profileImageUrl = firebaseResult;
     }
     const media = data.media ? typeof data.media === "string" ? JSON.parse(data.media) : data.media : [];
     const documents = data.documents ? typeof data.documents === "string" ? JSON.parse(data.documents) : data.documents : [];
@@ -1413,7 +1419,7 @@ var sheep_default = router;
 // server/routes.ts
 import Stripe from "stripe";
 var uploadDir = path3.join(process.cwd(), "uploads");
-fs4.ensureDirSync(uploadDir);
+fs3.ensureDirSync(uploadDir);
 var storage2 = multer2.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, uploadDir);
@@ -1442,8 +1448,8 @@ var stripe = new Stripe(stripeSecretKey, {
 var productCache = [];
 var cacheLastUpdated = null;
 var CACHE_DURATION_MS = 12 * 60 * 60 * 1e3;
-function registerRoutes(app2) {
-  app2.get("/api/files/:filename", async (req, res) => {
+function registerRoutes(app) {
+  app.get("/api/files/:filename", async (req, res) => {
     try {
       const file = await db.query.fileStorage.findFirst({
         where: eq2(fileStorage.fileName, req.params.filename)
@@ -1460,7 +1466,7 @@ function registerRoutes(app2) {
     }
   });
   const SessionStore = MemoryStore(session);
-  app2.use(session({
+  app.use(session({
     store: new SessionStore({ checkPeriod: 864e5 }),
     secret: "farm-secret",
     resave: false,
@@ -1544,7 +1550,7 @@ function registerRoutes(app2) {
       }
     }
     const existingHero = await db.query.dogsHero.findFirst();
-    app2.get("/api/site-content/:key", async (req, res) => {
+    app.get("/api/site-content/:key", async (req, res) => {
       try {
         const content = await db.query.siteContent.findFirst({
           where: (siteContent2, { eq: eq6 }) => eq6(siteContent2.key, req.params.key)
@@ -1718,28 +1724,32 @@ function registerRoutes(app2) {
       }
     }
   })();
-  app2.get("/api/site-content", async (req, res) => {
+  app.get("/api/site-content", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const content = await db.query.siteContent.findMany({
       where: eq2(siteContent.siteId, siteId)
     });
     res.json(content);
   });
-  app2.put("/api/site-content/:key", upload2.single("file"), async (req, res) => {
+  app.put("/api/site-content/:key", upload2.single("file"), async (req, res) => {
     const key = req.params.key;
     console.log(`=== SITE CONTENT UPDATE: ${key} ===`);
     console.log("Request body:", req.body);
     console.log("Request file:", req.file ? "Present" : "None");
     try {
+      const {
+        isFirebaseConfigured: isFirebaseConfigured2,
+        uploadBase64ToFirebase: uploadBase64ToFirebase2,
+        uploadToFirebase: uploadToFirebase2
+      } = await Promise.resolve().then(() => (init_firebase_storage(), firebase_storage_exports));
+      if (!isFirebaseConfigured2()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
+      }
       let value = req.body.value;
       if (value && value.startsWith("data:image")) {
-        const base64Data = value.split(",")[1];
-        const buffer = Buffer.from(base64Data, "base64");
-        const filename = `file-${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
-        await fs4.writeFile(path3.join(uploadDir, filename), buffer);
-        value = `/uploads/${filename}`;
+        value = await uploadBase64ToFirebase2(value, `${key}-${Date.now()}.jpg`);
       } else if (req.file && (key === "hero_background" || key.includes("image"))) {
-        value = `/uploads/${req.file.filename}`;
+        value = await uploadToFirebase2(req.file);
       }
       const existingContent = await db.query.siteContent.findFirst({
         where: eq2(siteContent.key, key)
@@ -1767,7 +1777,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update site content" });
     }
   });
-  app2.get("/api/site-content/cmd-description", async (_req, res) => {
+  app.get("/api/site-content/cmd-description", async (_req, res) => {
     try {
       const content = await db.query.siteContent.findFirst({
         where: eq2(siteContent.key, "cmd_description")
@@ -1787,7 +1797,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch CMD description" });
     }
   });
-  app2.post("/api/site-content/cmd-description", async (req, res) => {
+  app.post("/api/site-content/cmd-description", async (req, res) => {
     try {
       const { value } = req.body;
       const existingContent = await db.query.siteContent.findFirst({
@@ -1816,26 +1826,26 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update CMD description" });
     }
   });
-  app2.get("/api/animals", async (req, res) => {
+  app.get("/api/animals", async (req, res) => {
     const type = req.query.type;
     const allAnimals = await db.query.animals.findMany({
       where: type ? eq2(animals.type, type) : void 0
     });
     res.json(allAnimals);
   });
-  app2.post("/api/animals", async (req, res) => {
+  app.post("/api/animals", async (req, res) => {
     const animal = await db.insert(animals).values(req.body).returning();
     res.json(animal[0]);
   });
-  app2.put("/api/animals/:id", async (req, res) => {
+  app.put("/api/animals/:id", async (req, res) => {
     const animal = await db.update(animals).set(req.body).where(eq2(animals.id, parseInt(req.params.id))).returning();
     res.json(animal[0]);
   });
-  app2.delete("/api/animals/:id", async (req, res) => {
+  app.delete("/api/animals/:id", async (req, res) => {
     await db.delete(animals).where(eq2(animals.id, parseInt(req.params.id)));
     res.json({ message: "Deleted successfully" });
   });
-  app2.get("/api/market-sections", async (_req, res) => {
+  app.get("/api/market-sections", async (_req, res) => {
     try {
       const sections = await db.query.marketSections.findMany({
         orderBy: (marketSections2, { asc: asc3 }) => [asc3(marketSections2.order)]
@@ -1846,7 +1856,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch market sections" });
     }
   });
-  app2.post("/api/market-sections", async (req, res) => {
+  app.post("/api/market-sections", async (req, res) => {
     try {
       const section = await db.insert(marketSections).values(req.body).returning();
       res.json(section[0]);
@@ -1855,7 +1865,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create market section" });
     }
   });
-  app2.put("/api/market-sections/:id", async (req, res) => {
+  app.put("/api/market-sections/:id", async (req, res) => {
     try {
       const section = await db.update(marketSections).set({
         ...req.body,
@@ -1867,7 +1877,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update market section" });
     }
   });
-  app2.delete("/api/market-sections/:id", async (req, res) => {
+  app.delete("/api/market-sections/:id", async (req, res) => {
     try {
       await db.delete(marketSections).where(eq2(marketSections.id, parseInt(req.params.id)));
       res.json({ message: "Market section deleted successfully" });
@@ -1876,7 +1886,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete market section" });
     }
   });
-  app2.get("/api/market-schedules", async (_req, res) => {
+  app.get("/api/market-schedules", async (_req, res) => {
     try {
       const schedules = await db.query.marketSchedules.findMany({
         orderBy: (marketSchedules2, { asc: asc3 }) => [asc3(marketSchedules2.order)]
@@ -1887,7 +1897,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch market schedules" });
     }
   });
-  app2.post("/api/market-schedules", async (req, res) => {
+  app.post("/api/market-schedules", async (req, res) => {
     try {
       const schedule = await db.insert(marketSchedules).values(req.body).returning();
       res.json(schedule[0]);
@@ -1896,7 +1906,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create market schedule" });
     }
   });
-  app2.put("/api/market-schedules/:id", async (req, res) => {
+  app.put("/api/market-schedules/:id", async (req, res) => {
     try {
       const { location, address, dayOfWeek, startTime, endTime, description, order, isActive } = req.body;
       const schedule = await db.update(marketSchedules).set({
@@ -1916,7 +1926,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update market schedule" });
     }
   });
-  app2.delete("/api/market-schedules/:id", async (req, res) => {
+  app.delete("/api/market-schedules/:id", async (req, res) => {
     try {
       await db.delete(marketSchedules).where(eq2(marketSchedules.id, parseInt(req.params.id)));
       res.json({ message: "Market schedule deleted successfully" });
@@ -1925,7 +1935,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete market schedule" });
     }
   });
-  app2.get("/api/products", async (req, res) => {
+  app.get("/api/products", async (req, res) => {
     const section = req.query.section;
     try {
       const allProducts = await db.query.products.findMany({
@@ -1938,7 +1948,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch products" });
     }
   });
-  app2.post("/api/products", async (req, res) => {
+  app.post("/api/products", async (req, res) => {
     try {
       const product = await db.insert(products).values(req.body).returning();
       res.json(product[0]);
@@ -1947,7 +1957,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create product" });
     }
   });
-  app2.put("/api/products/:id", async (req, res) => {
+  app.put("/api/products/:id", async (req, res) => {
     try {
       const product = await db.update(products).set({
         ...req.body,
@@ -1959,7 +1969,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update product" });
     }
   });
-  app2.delete("/api/products/:id", async (req, res) => {
+  app.delete("/api/products/:id", async (req, res) => {
     try {
       await db.delete(products).where(eq2(products.id, parseInt(req.params.id)));
       res.json({ message: "Product deleted successfully" });
@@ -1968,10 +1978,10 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete product" });
     }
   });
-  app2.get("/api/deployment-status", (_req, res) => {
+  app.get("/api/deployment-status", (_req, res) => {
     res.json({ isProduction: process.env.NODE_ENV === "production" });
   });
-  app2.get("/api/carousel", async (req, res) => {
+  app.get("/api/carousel", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const items = await db.query.carouselItems.findMany({
       where: eq2(carouselItems.siteId, siteId),
@@ -1979,13 +1989,13 @@ function registerRoutes(app2) {
     });
     res.json(items);
   });
-  app2.post("/api/carousel", async (req, res) => {
+  app.post("/api/carousel", async (req, res) => {
     const items = await db.query.carouselItems.findMany();
     const maxOrder = items.reduce((max, item2) => Math.max(max, item2.order), 0);
     const item = await db.insert(carouselItems).values({ ...req.body, order: maxOrder + 1 }).returning();
     res.json(item[0]);
   });
-  app2.put("/api/carousel/:id", async (req, res) => {
+  app.put("/api/carousel/:id", async (req, res) => {
     try {
       const updateData = {
         ...req.body,
@@ -2001,7 +2011,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update carousel item" });
     }
   });
-  app2.delete("/api/carousel/:id", async (req, res) => {
+  app.delete("/api/carousel/:id", async (req, res) => {
     await db.delete(carouselItems).where(eq2(carouselItems.id, parseInt(req.params.id)));
     const items = await db.query.carouselItems.findMany({
       orderBy: (carouselItems2, { asc: asc3 }) => [asc3(carouselItems2.order)]
@@ -2011,15 +2021,22 @@ function registerRoutes(app2) {
     }
     res.json({ message: "Deleted successfully" });
   });
-  app2.get("/api/dogs-hero", async (_req, res) => {
+  app.get("/api/dogs-hero", async (_req, res) => {
     const hero = await db.query.dogsHero.findMany();
     res.json(hero);
   });
-  app2.put("/api/dogs-hero/:id", upload2.single("image"), async (req, res) => {
+  app.put("/api/dogs-hero/:id", upload2.single("image"), async (req, res) => {
     try {
+      const {
+        isFirebaseConfigured: isFirebaseConfigured2,
+        uploadToFirebase: uploadToFirebase2
+      } = await Promise.resolve().then(() => (init_firebase_storage(), firebase_storage_exports));
+      if (!isFirebaseConfigured2()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
+      }
       let imageUrl = req.body.imageUrl;
       if (req.file) {
-        imageUrl = `/uploads/${req.file.filename}`;
+        imageUrl = await uploadToFirebase2(req.file);
       }
       if (!imageUrl) {
         return res.status(400).json({ message: "No image URL or file provided" });
@@ -2034,7 +2051,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update hero image" });
     }
   });
-  app2.get("/api/dogs", async (req, res) => {
+  app.get("/api/dogs", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === "true" || Boolean(req.session.isAdmin);
     console.log(`GET /api/dogs - isAdmin: ${isAdmin}`);
@@ -2068,7 +2085,7 @@ function registerRoutes(app2) {
     });
     res.json(processedDogs);
   });
-  app2.post("/api/dogs", async (req, res) => {
+  app.post("/api/dogs", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     try {
       const dog = await db.transaction(async (tx) => {
@@ -2112,7 +2129,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create dog" });
     }
   });
-  app2.put("/api/dogs/:id", async (req, res) => {
+  app.put("/api/dogs/:id", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
     const dogId = parseInt(req.params.id);
     try {
@@ -2214,18 +2231,18 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update dog" });
     }
   });
-  app2.put("/api/dogs/:id/reorder", async (req, res) => {
+  app.put("/api/dogs/:id/reorder", async (req, res) => {
     const dog = await db.update(dogs).set({
       order: req.body.order,
       updatedAt: /* @__PURE__ */ new Date()
     }).where(eq2(dogs.id, parseInt(req.params.id))).returning();
     res.json(dog[0]);
   });
-  app2.post("/api/upload", upload2.array("file", 10), async (req, res) => {
+  app.post("/api/upload", upload2.array("file", 10), async (req, res) => {
     try {
-      const s3Configured = !!(process.env.AWS_REGION && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && (process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME));
-      if (!s3Configured) {
-        return res.status(503).json({ error: "S3 not configured" });
+      const { isFirebaseConfigured: isFirebaseConfigured2, uploadToFirebase: uploadToFirebase2 } = await Promise.resolve().then(() => (init_firebase_storage(), firebase_storage_exports));
+      if (!isFirebaseConfigured2()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
       }
       console.log("\n\n=== UPLOAD REQUEST RECEIVED ===");
       console.log("Headers:", req.headers);
@@ -2244,9 +2261,8 @@ function registerRoutes(app2) {
         console.error("No files in request");
         return res.status(400).json({ message: "No files uploaded" });
       }
-      const { uploadToS3: uploadToS33 } = await Promise.resolve().then(() => (init_s3(), s3_exports));
       const { retry: retry2 } = await Promise.resolve().then(() => (init_helpers(), helpers_exports));
-      console.log(`Processing ${req.files.length} files for S3 upload`);
+      console.log(`Processing ${req.files.length} files for Firebase upload`);
       const uploadedFiles = await Promise.all(req.files.map(async (file, index) => {
         console.log(`
 === Processing file ${index + 1}/${req.files.length} ===`);
@@ -2256,42 +2272,40 @@ function registerRoutes(app2) {
           mimetype: file.mimetype,
           path: file.path
         });
-        console.log("Uploading to S3...");
-        const s3Url = await retry2(
-          () => uploadToS33(file),
+        console.log("Uploading to Firebase Storage...");
+        const fileUrl = await retry2(
+          () => uploadToFirebase2(file),
           3,
-          // max 3 retries
           2e3
-          // start with 2 second delay
         );
-        console.log(`S3 upload successful: ${s3Url}`);
+        console.log(`Firebase upload successful: ${fileUrl}`);
         try {
-          if (file.path && fs4.existsSync(file.path)) {
-            fs4.unlinkSync(file.path);
+          if (file.path && fs3.existsSync(file.path)) {
+            fs3.unlinkSync(file.path);
             console.log(`Deleted local temp file: ${file.path}`);
           }
         } catch (cleanupError) {
           console.warn(`Warning: Could not delete temp file ${file.path}:`, cleanupError);
         }
         return {
-          url: s3Url,
+          url: fileUrl,
           type: file.mimetype.split("/")[0],
           originalName: file.originalname,
           mimeType: file.mimetype
         };
       }));
-      console.log("=== S3 UPLOADS COMPLETED SUCCESSFULLY ===");
+      console.log("=== FIREBASE UPLOADS COMPLETED SUCCESSFULLY ===");
       console.log("Results:", uploadedFiles);
       res.json(uploadedFiles);
     } catch (error) {
-      console.error("\n=== S3 UPLOAD ERROR ===");
+      console.error("\n=== FIREBASE UPLOAD ERROR ===");
       console.error("Error details:", error);
       console.error("Stack trace:", error instanceof Error ? error.stack : "No stack trace");
       if (req.files && Array.isArray(req.files)) {
         req.files.forEach((file) => {
           try {
-            if (file.path && fs4.existsSync(file.path)) {
-              fs4.unlinkSync(file.path);
+            if (file.path && fs3.existsSync(file.path)) {
+              fs3.unlinkSync(file.path);
               console.log(`Cleaned up temp file after error: ${file.path}`);
             }
           } catch (cleanupError) {
@@ -2300,12 +2314,12 @@ function registerRoutes(app2) {
         });
       }
       return res.status(500).json({
-        message: "Failed to upload files to S3",
+        message: "Failed to upload files to Firebase Storage",
         details: error instanceof Error ? error.message : String(error)
       });
     }
   });
-  app2.use("/uploads", express.static(uploadDir, {
+  app.use("/uploads", express.static(uploadDir, {
     setHeaders: (res, filePath) => {
       const ext = path3.extname(filePath).toLowerCase();
       const mimeTypes = {
@@ -2323,7 +2337,7 @@ function registerRoutes(app2) {
       }
     }
   }));
-  app2.get("/api/litters", async (req, res) => {
+  app.get("/api/litters", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
       where: eq2(litters.siteId, siteId),
@@ -2361,7 +2375,7 @@ function registerRoutes(app2) {
     );
     res.json(littersWithPuppies);
   });
-  app2.post("/api/litters", async (req, res) => {
+  app.post("/api/litters", async (req, res) => {
     try {
       console.log("Creating litter with data:", req.body);
       const formattedData = {
@@ -2391,7 +2405,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create litter" });
     }
   });
-  app2.put("/api/litters/:id", async (req, res) => {
+  app.put("/api/litters/:id", async (req, res) => {
     try {
       console.log("Updating litter with data:", req.body);
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
@@ -2423,7 +2437,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update litter", error: error.message });
     }
   });
-  app2.delete("/api/litters/:id", async (req, res) => {
+  app.delete("/api/litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       await db.delete(litter_interest_signups).where(eq2(litter_interest_signups.litterId, litterId));
@@ -2434,7 +2448,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete litter" });
     }
   });
-  app2.get("/api/litters/:id", async (req, res) => {
+  app.get("/api/litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       if (isNaN(litterId)) {
@@ -2486,7 +2500,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch litter" });
     }
   });
-  app2.get("/api/litters/list/current", async (req, res) => {
+  app.get("/api/litters/list/current", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2530,7 +2544,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch current litters" });
     }
   });
-  app2.get("/api/litters/list/future", async (req, res) => {
+  app.get("/api/litters/list/future", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2559,7 +2573,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch future litters" });
     }
   });
-  app2.get("/api/litters/list/past", async (req, res) => {
+  app.get("/api/litters/list/past", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
@@ -2619,7 +2633,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch past litters" });
     }
   });
-  app2.get("/api/principles", async (req, res) => {
+  app.get("/api/principles", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const allPrinciples = await db.query.principles.findMany({
@@ -2632,7 +2646,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch principles" });
     }
   });
-  app2.post("/api/principles", async (req, res) => {
+  app.post("/api/principles", async (req, res) => {
     try {
       const principle = await db.insert(principles).values(req.body).returning();
       res.json(principle[0]);
@@ -2641,19 +2655,23 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create principle" });
     }
   });
-  app2.put("/api/principles/:id", async (req, res) => {
+  app.put("/api/principles/:id", async (req, res) => {
     try {
-      const principle = await db.update(principles).set({
-        ...req.body,
-        updatedAt: /* @__PURE__ */ new Date()
-      }).where(eq2(principles.id, parseInt(req.params.id))).returning();
+      const { title, description, imageUrl, order, siteId } = req.body;
+      const updateData = { updatedAt: /* @__PURE__ */ new Date() };
+      if (title !== void 0) updateData.title = title;
+      if (description !== void 0) updateData.description = description;
+      if (imageUrl !== void 0) updateData.imageUrl = imageUrl;
+      if (order !== void 0) updateData.order = order;
+      if (siteId !== void 0) updateData.siteId = siteId;
+      const principle = await db.update(principles).set(updateData).where(eq2(principles.id, parseInt(req.params.id))).returning();
       res.json(principle[0]);
     } catch (error) {
       console.error("Error updating principle:", error);
       res.status(500).json({ message: "Failed to update principle" });
     }
   });
-  app2.delete("/api/principles/:id", async (req, res) => {
+  app.delete("/api/principles/:id", async (req, res) => {
     try {
       await db.delete(principles).where(eq2(principles.id, parseInt(req.params.id)));
       res.json({ message: "Principle deleted successfully" });
@@ -2662,7 +2680,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete principle" });
     }
   });
-  app2.get("/api/about-cards", async (req, res) => {
+  app.get("/api/about-cards", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const cardKeys = [
@@ -2699,7 +2717,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch about cards" });
     }
   });
-  app2.get("/api/contact-info", async (req, res) => {
+  app.get("/api/contact-info", async (req, res) => {
     const parsed = parseSiteIdHeader(req);
     if (!parsed.ok) {
       console.warn("GET /api/contact-info client_error:", {
@@ -2728,7 +2746,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch contact info" });
     }
   });
-  app2.put("/api/about-cards", async (req, res) => {
+  app.put("/api/about-cards", async (req, res) => {
     try {
       const { sectionTitle, sectionDescription, cards } = req.body;
       const updates = [
@@ -2756,7 +2774,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update about cards" });
     }
   });
-  app2.post("/api/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", async (req, res) => {
     try {
       const { amount, items, customerInfo, pickupLocation } = req.body;
       console.log("Creating payment intent for amount:", amount);
@@ -2783,7 +2801,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
     }
   });
-  app2.post("/api/update-payment-intent", async (req, res) => {
+  app.post("/api/update-payment-intent", async (req, res) => {
     try {
       const { paymentIntentId, customerInfo, pickupLocation } = req.body;
       if (!paymentIntentId) {
@@ -2817,7 +2835,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Error updating payment intent: " + error.message });
     }
   });
-  app2.post("/api/send-order-confirmation", async (req, res) => {
+  app.post("/api/send-order-confirmation", async (req, res) => {
     try {
       res.json({
         success: true,
@@ -2828,7 +2846,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Error in order confirmation: " + error.message });
     }
   });
-  app2.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
       const trimmedUsername = username?.trim();
@@ -2855,7 +2873,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Server error during login" });
     }
   });
-  app2.post("/api/auth/logout", (req, res) => {
+  app.post("/api/auth/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Failed to logout" });
@@ -2863,14 +2881,14 @@ function registerRoutes(app2) {
       res.status(200).json({ success: true });
     });
   });
-  app2.get("/api/auth/status", (req, res) => {
+  app.get("/api/auth/status", (req, res) => {
     if (req.session.isAdmin) {
       res.json({ isLoggedIn: true, username: req.session.username });
     } else {
       res.json({ isLoggedIn: false });
     }
   });
-  app2.get("/api/sites", async (_req, res) => {
+  app.get("/api/sites", async (_req, res) => {
     try {
       const allSites = await db.query.sites.findMany({
         orderBy: (sites2, { asc: asc3 }) => [asc3(sites2.name)]
@@ -2881,7 +2899,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch sites" });
     }
   });
-  app2.get("/api/goats", async (req, res) => {
+  app.get("/api/goats", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const isAdmin = req.query.admin === "true" || Boolean(req.session.isAdmin);
@@ -2917,7 +2935,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch goats" });
     }
   });
-  app2.get("/api/goat-litters", async (req, res) => {
+  app.get("/api/goat-litters", async (req, res) => {
     const siteId = getCurrentSiteId(req);
     const allGoatLitters = await db.query.goatLitters.findMany({
       where: eq2(goatLitters.siteId, siteId),
@@ -2949,7 +2967,7 @@ function registerRoutes(app2) {
     });
     res.json(allGoatLitters);
   });
-  app2.post("/api/goat-litters", async (req, res) => {
+  app.post("/api/goat-litters", async (req, res) => {
     try {
       console.log("Creating goat litter with data:", req.body);
       const formattedData = {
@@ -2979,7 +2997,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create goat litter" });
     }
   });
-  app2.put("/api/goat-litters/:id", async (req, res) => {
+  app.put("/api/goat-litters/:id", async (req, res) => {
     try {
       console.log("Updating goat litter with data:", req.body);
       const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
@@ -3011,7 +3029,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update goat litter", error: error.message });
     }
   });
-  app2.delete("/api/goat-litters/:id", async (req, res) => {
+  app.delete("/api/goat-litters/:id", async (req, res) => {
     try {
       const litterId = parseInt(req.params.id);
       await db.delete(goatLitters).where(eq2(goatLitters.id, litterId));
@@ -3021,7 +3039,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to delete goat litter" });
     }
   });
-  app2.get("/api/gallery-photos", async (req, res) => {
+  app.get("/api/gallery-photos", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const photos = await db.query.galleryPhotos.findMany({
@@ -3034,7 +3052,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch gallery photos" });
     }
   });
-  app2.post("/api/gallery-photos", async (req, res) => {
+  app.post("/api/gallery-photos", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3050,7 +3068,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create gallery photo" });
     }
   });
-  app2.put("/api/gallery-photos/:id", async (req, res) => {
+  app.put("/api/gallery-photos/:id", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3065,7 +3083,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to update gallery photo" });
     }
   });
-  app2.delete("/api/gallery-photos/:id", async (req, res) => {
+  app.delete("/api/gallery-photos/:id", async (req, res) => {
     try {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -3199,7 +3217,7 @@ function registerRoutes(app2) {
     if (!cacheLastUpdated || productCache.length === 0) return false;
     return Date.now() - cacheLastUpdated.getTime() < CACHE_DURATION_MS;
   }
-  app2.get("/api/printify/products", async (req, res) => {
+  app.get("/api/printify/products", async (req, res) => {
     try {
       res.set("Cache-Control", "public, max-age=300");
       if (isCacheFresh() && productCache.length > 0) {
@@ -3254,7 +3272,7 @@ function registerRoutes(app2) {
       });
     }
   });
-  app2.post("/api/printify/sync", async (req, res) => {
+  app.post("/api/printify/sync", async (req, res) => {
     try {
       const count = await syncPrintifyProducts();
       res.json({
@@ -3269,7 +3287,7 @@ function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/printify/products/direct", async (req, res) => {
+  app.get("/api/printify/products/direct", async (req, res) => {
     try {
       const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
       const PRINTIFY_SHOP_ID = process.env.PRINTIFY_SHOP_ID;
@@ -3374,7 +3392,7 @@ function registerRoutes(app2) {
       });
     }
   });
-  app2.get("/api/printify/shops", async (req, res) => {
+  app.get("/api/printify/shops", async (req, res) => {
     try {
       const PRINTIFY_API_TOKEN = process.env.PRINTIFY_API_TOKEN;
       if (!PRINTIFY_API_TOKEN) {
@@ -3430,7 +3448,7 @@ function registerRoutes(app2) {
       console.error("Error during scheduled sync:", error);
     }
   }, 12 * 60 * 60 * 1e3);
-  app2.get("/api/orders", async (req, res) => {
+  app.get("/api/orders", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const environment = req.query.env;
@@ -3461,7 +3479,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch orders" });
     }
   });
-  app2.get("/api/orders/summary", async (req, res) => {
+  app.get("/api/orders/summary", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const environment = req.query.env;
@@ -3507,7 +3525,7 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to fetch orders summary" });
     }
   });
-  app2.post("/api/orders", async (req, res) => {
+  app.post("/api/orders", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const {
@@ -3557,15 +3575,15 @@ function registerRoutes(app2) {
       res.status(500).json({ message: "Failed to create order" });
     }
   });
-  app2.use(sheep_default);
-  app2.get("/robots.txt", (req, res) => {
+  app.use(sheep_default);
+  app.get("/robots.txt", (req, res) => {
     res.type("text/plain");
     res.send(`User-agent: *
 Allow: /
 
 Sitemap: ${req.protocol}://${req.get("host")}/sitemap.xml`);
   });
-  app2.get("/sitemap.xml", async (req, res) => {
+  app.get("/sitemap.xml", async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const staticPages = [
       "",
@@ -3646,118 +3664,34 @@ ${allPages.map((page) => `  <url>
       res.status(500).send("Error generating sitemap");
     }
   });
-  const httpServer = createServer(app2);
+  const httpServer = createServer(app);
   return httpServer;
 }
 
-// server/vite.ts
-import express2 from "express";
-import fs5 from "fs";
-import path5, { dirname as dirname2 } from "path";
-import { fileURLToPath as fileURLToPath2 } from "url";
-import { createServer as createViteServer, createLogger } from "vite";
+// server/create-app.ts
+init_logger();
 
-// vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
+// server/static.ts
+import express2 from "express";
+import fs4 from "fs";
 import path4, { dirname } from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = dirname(__filename);
-var vite_config_default = defineConfig({
-  plugins: [react(), runtimeErrorOverlay(), themePlugin()],
-  resolve: {
-    alias: {
-      "@db": path4.resolve(__dirname, "db"),
-      "@": path4.resolve(__dirname, "client", "src")
-    }
-  },
-  root: path4.resolve(__dirname, "client"),
-  build: {
-    outDir: path4.resolve(__dirname, "dist/public"),
-    emptyOutDir: true
-  }
-});
-
-// server/vite.ts
-import { nanoid as nanoid2 } from "nanoid";
-var __filename2 = fileURLToPath2(import.meta.url);
-var __dirname2 = dirname2(__filename2);
-var viteLogger = createLogger();
-function log(message, source = "express") {
-  const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true
-  });
-  console.log(`${formattedTime} [${source}] ${message}`);
-}
-async function setupVite(app2, server) {
-  const vite = await createViteServer({
-    ...vite_config_default,
-    configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
-      }
-    },
-    server: {
-      middlewareMode: true,
-      hmr: { server }
-    },
-    appType: "custom"
-  });
-  app2.use(vite.middlewares);
-  app2.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-    const protocol = req.headers["x-forwarded-proto"] || "http";
-    const host = req.headers["x-forwarded-host"] || req.headers.host;
-    const siteUrl = `${protocol}://${host}`;
-    const heroImagePath = "/path/to/hero.jpg";
-    try {
-      const clientTemplate = path5.resolve(
-        __dirname2,
-        "..",
-        "client",
-        "index.html"
-      );
-      let template = await fs5.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(`src="/src/main.tsx"`, `src="/src/main.tsx?v=${nanoid2()}"`);
-      const metaTags = `
-        <meta property="og:url" content="${siteUrl}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Little Way Acres" />
-        <meta property="og:description" content="Description of Little Way Acres" />
-        <meta property="og:image" content="${siteUrl}${heroImagePath}" />
-      `;
-      template = template.replace("<head>", "<head>" + metaTags);
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e);
-      next(e);
-    }
-  });
-}
-function serveStatic(app2) {
-  const distPath = path5.resolve(__dirname2, "public");
-  if (!fs5.existsSync(distPath)) {
+function serveStatic(app) {
+  const distPath = path4.resolve(__dirname, "public");
+  if (!fs4.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app2.use(express2.static(distPath));
-  app2.use("*", (_req, res) => {
-    res.sendFile(path5.resolve(distPath, "index.html"));
+  app.use(express2.static(distPath));
+  app.use("*", (_req, res) => {
+    res.sendFile(path4.resolve(distPath, "index.html"));
   });
 }
 
-// server/index.ts
+// server/create-app.ts
 import compression from "compression";
 
 // server/routes/proxy.ts
@@ -4627,106 +4561,108 @@ function isDatabaseConnectionError(err) {
   );
 }
 
-// server/index.ts
-console.log("============ ENVIRONMENT CHECK ============");
-console.log("NODE_ENV:", process.env.NODE_ENV);
-var awsRegion = process.env.AWS_REGION || process.env.LWA_AWS_REGION;
-var awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.LWA_AWS_ACCESS_KEY_ID;
-var awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.LWA_AWS_SECRET_ACCESS_KEY;
-var awsBucketName = process.env.AWS_BUCKET_NAME || process.env.S3_BUCKET_NAME || process.env.LWA_AWS_BUCKET_NAME;
-console.log("AWS_REGION (or LWA_AWS_REGION):", awsRegion || "Not set");
-console.log(
-  "AWS_ACCESS_KEY_ID (or LWA_AWS_ACCESS_KEY_ID):",
-  awsAccessKeyId ? `Set (starts with: ${awsAccessKeyId.substring(0, 4)}...)` : "Not set"
-);
-console.log(
-  "AWS_SECRET_ACCESS_KEY (or LWA_AWS_SECRET_ACCESS_KEY):",
-  awsSecretAccessKey ? "Set (length: " + awsSecretAccessKey.length + ")" : "Not set"
-);
-console.log(
-  "AWS_BUCKET_NAME/S3_BUCKET_NAME (or LWA_AWS_BUCKET_NAME):",
-  awsBucketName || "Not set"
-);
-console.log("==========================================");
-var app = express6();
-app.use(compression({
-  filter: (req, res) => {
-    if (req.headers["x-no-compression"]) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  threshold: 1024,
-  // Only compress responses > 1KB
-  level: 6,
-  // Compression level (1-9, 6 is good balance)
-  memLevel: 8
-}));
-app.set("trust proxy", true);
-app.use((req, res, next) => {
-  const host = req.get("host");
-  if (host && host.startsWith("www.")) {
-    const nonWwwHost = host.slice(4);
-    const protocol = req.header("x-forwarded-proto") || "https";
-    return res.redirect(301, `${protocol}://${nonWwwHost}${req.originalUrl}`);
+// server/create-app.ts
+var appPromise = null;
+function createApp(options = {}) {
+  if (!appPromise) {
+    appPromise = buildApp(options);
   }
-  next();
-});
-app.use((req, res, next) => {
-  res.set({
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "X-XSS-Protection": "1; mode=block",
-    "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
-  });
-  next();
-});
-app.use((req, res, next) => {
-  const url = req.url;
-  if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
-    res.setHeader("Cache-Control", "public, max-age=31536000");
-    res.setHeader("Expires", new Date(Date.now() + 31536e6).toUTCString());
-  } else if (url.match(/\.(css|js)$/i)) {
-    res.setHeader("Cache-Control", "public, max-age=2592000");
-    res.setHeader("Expires", new Date(Date.now() + 2592e6).toUTCString());
-  } else if (!url.startsWith("/api") && url.match(/\.(html|json|xml|txt)$/i)) {
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.setHeader("Expires", new Date(Date.now() + 36e5).toUTCString());
-  }
-  next();
-});
-app.use(express6.json({ limit: "50mb" }));
-app.use(express6.urlencoded({ extended: false, limit: "50mb" }));
-app.use("/api", proxy_default);
-app.use(goats_default);
-app.use(goat_litters_default);
-app.use(sheep_default);
-app.use(sheep_litters_default);
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path6 = req.path;
-  let capturedJsonResponse = void 0;
-  const originalResJson = res.json;
-  res.json = function(bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path6.startsWith("/api")) {
-      let logLine = `${req.method} ${path6} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "\u2026";
-      }
-      log(logLine);
+  return appPromise;
+}
+async function buildApp(options) {
+  const shouldServeStatic = options.serveStatic ?? process.env.VERCEL !== "1";
+  console.log("============ ENVIRONMENT CHECK ============");
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "";
+  const firebaseStorageBucket = process.env.FIREBASE_STORAGE_BUCKET?.trim() || "";
+  const firebaseServiceAccountConfigured = Boolean(
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim() || process.env.FIREBASE_SERVICE_ACCOUNT_PATH?.trim()
+  );
+  console.log("FIREBASE_PROJECT_ID:", firebaseProjectId || "Not set");
+  console.log("FIREBASE_STORAGE_BUCKET:", firebaseStorageBucket || "Not set");
+  console.log(
+    "FIREBASE service account:",
+    firebaseServiceAccountConfigured ? "Configured" : "Not set"
+  );
+  console.log("==========================================");
+  const app = express6();
+  app.use(
+    compression({
+      filter: (req, res) => {
+        if (req.headers["x-no-compression"]) {
+          return false;
+        }
+        return compression.filter(req, res);
+      },
+      threshold: 1024,
+      level: 6,
+      memLevel: 8
+    })
+  );
+  app.set("trust proxy", true);
+  app.use((req, res, next) => {
+    const host = req.get("host");
+    if (host && host.startsWith("www.")) {
+      const nonWwwHost = host.slice(4);
+      const protocol = req.header("x-forwarded-proto") || "https";
+      return res.redirect(301, `${protocol}://${nonWwwHost}${req.originalUrl}`);
     }
+    next();
   });
-  next();
-});
-(async () => {
+  app.use((req, res, next) => {
+    res.set({
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "X-XSS-Protection": "1; mode=block",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+    });
+    next();
+  });
+  app.use((req, res, next) => {
+    const url = req.url;
+    if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
+      res.setHeader("Cache-Control", "public, max-age=31536000");
+      res.setHeader("Expires", new Date(Date.now() + 31536e6).toUTCString());
+    } else if (url.match(/\.(css|js)$/i)) {
+      res.setHeader("Cache-Control", "public, max-age=2592000");
+      res.setHeader("Expires", new Date(Date.now() + 2592e6).toUTCString());
+    } else if (!url.startsWith("/api") && url.match(/\.(html|json|xml|txt)$/i)) {
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Expires", new Date(Date.now() + 36e5).toUTCString());
+    }
+    next();
+  });
+  app.use(express6.json({ limit: "50mb" }));
+  app.use(express6.urlencoded({ extended: false, limit: "50mb" }));
+  app.use("/api", proxy_default);
+  app.use(goats_default);
+  app.use(goat_litters_default);
+  app.use(sheep_default);
+  app.use(sheep_litters_default);
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path7 = req.path;
+    let capturedJsonResponse = void 0;
+    const originalResJson = res.json;
+    res.json = function(bodyJson, ...args) {
+      capturedJsonResponse = bodyJson;
+      return originalResJson.apply(res, [bodyJson, ...args]);
+    };
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      if (path7.startsWith("/api")) {
+        let logLine = `${req.method} ${path7} ${res.statusCode} in ${duration}ms`;
+        if (capturedJsonResponse) {
+          logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        }
+        if (logLine.length > 80) {
+          logLine = logLine.slice(0, 79) + "\u2026";
+        }
+        log(logLine);
+      }
+    });
+    next();
+  });
   const server = registerRoutes(app);
   app.use(dbErrorHandler);
   app.use((err, _req, res, _next) => {
@@ -4735,19 +4671,34 @@ app.use((req, res, next) => {
     console.error("Server error:", err);
     res.status(status).json({ message });
   });
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
+  if (shouldServeStatic) {
     serveStatic(app);
   }
+  return { app, server };
+}
+
+// server/index.ts
+init_logger();
+(async () => {
+  const isDevelopment = process.env.NODE_ENV !== "production";
+  const { app, server } = await createApp({
+    serveStatic: !isDevelopment && process.env.VERCEL !== "1"
+  });
+  if (isDevelopment) {
+    const { setupVite: setupVite2 } = await Promise.resolve().then(() => (init_vite(), vite_exports));
+    await setupVite2(app, server);
+  }
+  if (process.env.VERCEL === "1") {
+    return;
+  }
   const rawPort = process.env.PORT;
-  let listenPort = 5e3;
+  let listenPort = 5001;
   if (rawPort !== void 0 && rawPort !== "") {
     const n = Number.parseInt(rawPort, 10);
     if (!Number.isNaN(n) && n > 0) {
       listenPort = n;
     } else {
-      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5000`);
+      console.error(`Invalid PORT env (${JSON.stringify(rawPort)}); using 5001`);
     }
   }
   server.listen(listenPort, "0.0.0.0", () => {

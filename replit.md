@@ -14,12 +14,31 @@ The following environment variables must be set in Replit Secrets before deployi
 | `FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket (e.g. `your-project.appspot.com`) |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | Full Firebase service account JSON (preferred for deployment) |
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | Path to service account JSON file (local dev alternative) |
+| `STRIPE_SECRET_KEY` or `STRIPE_SECRET_KEY_LIVE` | Stripe secret key for checkout |
+| `VITE_STRIPE_PUBLIC_KEY` or `VITE_STRIPE_PUBLIC_KEY_LIVE` | Stripe publishable key (required at **build time** for Vite) |
+| `SESSION_SECRET` | Session signing secret for production |
 
 Without the Firebase secrets, file uploads will return a `503 Firebase Storage not configured` error. The app will otherwise start and run normally.
 
-You can verify Firebase credentials manually at any time with: `npm run verify-firebase`
+You can verify Firebase credentials manually at any time with: `npm run verify-firebase` (strict — fails if credentials are missing or invalid). The `prebuild` step runs the same check in non-fatal mode so deploys are not blocked when secrets are runtime-only.
 
 To migrate existing S3/local file URLs to Firebase Storage, run: `npm run migrate:firebase:dry-run` first, then `npm run migrate:firebase`.
+
+## Vercel Deployment
+
+Set the same secrets in **Vercel → Project Settings → Environment Variables** for Production (and Preview if you use preview deployments). Enable **Expose to Build** for any `VITE_*` variables.
+
+| Variable | Notes |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | **Required on Vercel** — paste minified JSON (`jq -c . firebase-service-account.json`). Do not use `FIREBASE_SERVICE_ACCOUNT_PATH`. |
+| `FIREBASE_PROJECT_ID` | Firebase project ID |
+| `FIREBASE_STORAGE_BUCKET` | e.g. `your-project.firebasestorage.app` |
+| `DATABASE_URL` | Neon connection string |
+| `STRIPE_SECRET_KEY_LIVE` or `STRIPE_SECRET_KEY` | Runtime checkout |
+| `VITE_STRIPE_PUBLIC_KEY_LIVE` or `VITE_STRIPE_PUBLIC_KEY` | **Build time** — baked into the client bundle |
+| `SESSION_SECRET` | Recommended for production sessions |
+
+After changing env vars, redeploy without cache. The project includes `vercel.json` (static frontend from `dist/public`, API via bundled `api/index.js`) for serverless Express routes on Vercel.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

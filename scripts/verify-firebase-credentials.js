@@ -45,6 +45,8 @@ console.log(
   maskValue(process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
 );
 
+const strict = process.env.VERIFY_FIREBASE_STRICT === "1";
+
 const missing = [];
 if (!projectId) missing.push("FIREBASE_PROJECT_ID");
 if (!storageBucket) missing.push("FIREBASE_STORAGE_BUCKET");
@@ -56,9 +58,15 @@ if (
 }
 
 if (missing.length > 0) {
-  console.error(`Missing Firebase environment variables: ${missing.join(", ")}`);
-  console.error("Add them to deployment secrets before publishing.");
-  process.exit(1);
+  if (strict) {
+    console.error(`Missing Firebase environment variables: ${missing.join(", ")}`);
+    console.error("Add them to deployment secrets before publishing.");
+    process.exit(1);
+  }
+  console.warn(`\n⚠️  WARNING: Missing Firebase environment variables: ${missing.join(", ")}`);
+  console.warn("Firebase Storage uploads will not work until these are set.");
+  console.warn("Build will continue — set secrets before publishing.\n");
+  process.exit(0);
 }
 
 async function verifyFirebaseCredentials() {
@@ -85,16 +93,26 @@ async function verifyFirebaseCredentials() {
     const [exists] = await bucket.exists();
 
     if (!exists) {
-      console.error(`Firebase Storage bucket "${storageBucket}" was not found`);
-      process.exit(1);
+      if (strict) {
+        console.error(`Firebase Storage bucket "${storageBucket}" was not found`);
+        process.exit(1);
+      }
+      console.warn(`\n⚠️  WARNING: Firebase Storage bucket "${storageBucket}" was not found`);
+      console.warn("Build will continue, but Firebase uploads may fail at runtime.\n");
+      process.exit(0);
     }
 
     console.log("✅ Firebase credentials verified");
     console.log(`✅ Storage bucket "${storageBucket}" is accessible`);
     process.exit(0);
   } catch (error) {
-    console.error(`Firebase credential check failed: ${error.message}`);
-    process.exit(1);
+    if (strict) {
+      console.error(`Firebase credential check failed: ${error.message}`);
+      process.exit(1);
+    }
+    console.warn(`\n⚠️  WARNING: Firebase credential check failed: ${error.message}`);
+    console.warn("Build will continue — verify your Firebase secrets are correct.\n");
+    process.exit(0);
   }
 }
 

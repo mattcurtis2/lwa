@@ -17,17 +17,25 @@ import Stripe from "stripe";
 
 // Multer configuration for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
-fs.ensureDirSync(uploadDir); // Create uploads directory if it doesn't exist
+const useMemoryUploads =
+  process.env.VERCEL === "1" ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'file-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+if (!useMemoryUploads) {
+  fs.ensureDirSync(uploadDir);
+}
+
+const storage = useMemoryUploads
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (_req, _file, cb) => {
+        cb(null, uploadDir);
+      },
+      filename: (_req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, "file-" + uniqueSuffix + path.extname(file.originalname));
+      },
+    });
 
 const upload = multer({
   storage,
