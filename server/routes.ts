@@ -111,29 +111,35 @@ export function registerRoutes(app: Express): Server {
 
     const defaultContent = [
       { key: "logo", value: "/images/logo.png", type: "image" },
-      { key: "hero_background", value: "https://images.unsplash.com/photo-1611501807352-03324d70054c", type: "image" },
-      { key: "hero_text", value: "Welcome to Little Way Acres", type: "text" },
-      { key: "hero_subtext", value: "Experience the charm of sustainable farming, meet our beloved animals, and enjoy fresh, locally grown produce at our farmers market.", type: "text" },
-      { key: "about_title", value: "About Our Farm", type: "text" },
-      { key: "mission_text", value: "Dedicated to sustainable farming practices and providing the highest quality produce and animal products to our local community.", type: "text" },
+      { key: "hero_background", value: "https://firebasestorage.googleapis.com/v0/b/cmdr-test.firebasestorage.app/o/uploads%2F8d42e657-3e20-4d56-adf1-ac2657975f3a-PXL-20250530-004522953-2-jpg.jpg?alt=media&token=bf17d070-fb90-48f7-a7f0-db1e66546227", type: "image" },
+      { key: "hero_text", value: "Little Way Acres", type: "text" },
+      { key: "hero_subtext", value: "Living out God's great plan in small ways, daily", type: "text" },
+      { key: "about_title", value: "What We Offer", type: "text" },
+      { key: "mission_text", value: "A small family farm and sourdough bakery in West Michigan raising ADGA registered Nigerian Dwarf goats, hens, meat chickens, honey bees, vegetables, fruit, and our beautiful CMDR registered Colorado Mountain Dogs.", type: "text" },
       // Animals Card
-      { key: "animals_title", value: "Our Animals", type: "text" },
-      { key: "animals_text", value: "Our Colorado Mountain Dogs are exceptional working dogs bred for livestock protection. Known for their gentle nature with family and fierce loyalty in guarding, these magnificent animals combine the best traits of various mountain dog breeds. Each puppy is raised with hands-on care and early socialization to ensure they develop into well-rounded guardians.", type: "text" },
-      { key: "animals_image", value: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e", type: "image" },
-      { key: "animals_button_text", value: "Learn More About Our Dogs", type: "text" },
+      { key: "animals_title", value: "Colorado Mountain Dogs", type: "text" },
+      { key: "animals_text", value: "Our exceptional working dogs bred for livestock protection. Known for their gentle nature with family and friends and fierce loyalty in guarding livestock, these magnificent animals are raised with hands-on care and early socialization.", type: "text" },
+      { key: "animals_image", value: "https://firebasestorage.googleapis.com/v0/b/cmdr-test.firebasestorage.app/o/uploads%2F0816a67f-974c-4749-b4c0-0025b48bcbf3.jpg?alt=media&token=831c56a7-810e-459e-8209-f01fecd9268d", type: "image" },
+      { key: "animals_button_text", value: "Learn More", type: "text" },
       { key: "animals_redirect", value: "/dogs", type: "text" },
       // Goats Card
-      { key: "bakery_title", value: "Our Goats", type: "text" },
-      { key: "bakery_text", value: "Our Nigerian Dwarf Goats are beloved members of our farm family. These charming, miniature dairy goats are known for their friendly personalities and rich milk production. Perfect for small homesteads, they're easy to handle and maintain. Our goats are registered, health-tested, and raised with love to ensure they make wonderful additions to your family or farming operation.", type: "text" },
-      { key: "bakery_image", value: "https://images.unsplash.com/photo-1533318087102-b3ad366ed041", type: "image" },
-      { key: "bakery_button_text", value: "Learn About Our Goats", type: "text" },
+      { key: "bakery_title", value: "Nigerian Dwarf Goats", type: "text" },
+      { key: "bakery_text", value: "Our beloved Nigerian Dwarf Goats, known for their friendly personalities and rich milk production. Perfect for small homesteads, they're ADGA registered, health-tested, and raised with love.", type: "text" },
+      { key: "bakery_image", value: "https://firebasestorage.googleapis.com/v0/b/cmdr-test.firebasestorage.app/o/uploads%2F721202a4-f999-4de1-92b4-dc4aec332199-IMG-2252-1-JPG.jpg?alt=media&token=ea48bf51-e15f-422e-a764-845b14570571", type: "image" },
+      { key: "bakery_button_text", value: "Learn More", type: "text" },
       { key: "bakery_redirect", value: "/goats", type: "text" },
       // Products Card
-      { key: "products_title", value: "Farmers Market", type: "text" },
-      { key: "products_text", value: "Visit our Farmers Market for a delightful selection of homemade and farm-fresh goods. Savor our artisanal sourdough bread and buttery croissants, baked fresh daily. Enjoy our seasonal mixed salad greens, farm-fresh eggs, pasture-raised chicken, and pure local honey. Every product reflects our commitment to quality and sustainable farming practices.", type: "text" },
-      { key: "products_image", value: "https://images.unsplash.com/photo-1488459716781-31db52582fe9", type: "image" },
-      { key: "products_button_text", value: "Visit Our Market", type: "text" },
+      { key: "products_title", value: "Farmers Markets", type: "text" },
+      { key: "products_text", value: "Learn about our bakery and farm products available at the farmers market. ", type: "text" },
+      { key: "products_image", value: "https://firebasestorage.googleapis.com/v0/b/cmdr-test.firebasestorage.app/o/uploads%2Fe6e4e6db-b6b5-4a42-bdc5-465627a25688.jpg?alt=media&token=09c7da7c-18b4-4c6a-aac1-0ecbddeb9a89", type: "image" },
+      { key: "products_button_text", value: "Learn More", type: "text" },
       { key: "products_redirect", value: "/market", type: "text" },
+      // Sheep Card
+      { key: "sheep_title", value: "Katahdin Sheep", type: "text" },
+      { key: "sheep_text", value: "Hardy Katahdin sheep known for their natural shedding coat and excellent meat production, raised with care on our pastures.", type: "text" },
+      { key: "sheep_image", value: "https://firebasestorage.googleapis.com/v0/b/cmdr-test.firebasestorage.app/o/uploads%2F50a29c90-a91a-4095-acee-a3f20b52f87e-1000005433-jpg.jpg?alt=media&token=3ca2030d-a1bf-474d-81c0-e47d5b6e6090", type: "image" },
+      { key: "sheep_button_text", value: "Learn About Our Sheep", type: "text" },
+      { key: "sheep_redirect", value: "/sheep", type: "text" },
     ];
 
     for (const content of defaultContent) {
