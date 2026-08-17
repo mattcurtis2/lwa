@@ -599,29 +599,40 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/market-sections", async (req, res) => {
     try {
+      const { name, title, description, imageUrl, order } = req.body;
       const section = await db.insert(marketSections)
-        .values(req.body)
+        .values({
+          name,
+          title,
+          description,
+          imageUrl,
+          order: order ?? 0,
+        })
         .returning();
       res.json(section[0]);
     } catch (error) {
       console.error("Error creating market section:", error);
-      res.status(500).json({ message: "Failed to create market section" });
+      res.status(500).json({ message: "Failed to create market section", details: errorMessage(error) });
     }
   });
 
   app.put("/api/market-sections/:id", async (req, res) => {
     try {
+      const { name, title, description, imageUrl, order } = req.body;
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (name !== undefined) updateData.name = name;
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+      if (order !== undefined) updateData.order = order;
       const section = await db.update(marketSections)
-        .set({
-          ...req.body,
-          updatedAt: new Date()
-        })
+        .set(updateData)
         .where(eq(marketSections.id, parseInt(req.params.id)))
         .returning();
       res.json(section[0]);
     } catch (error) {
       console.error("Error updating market section:", error);
-      res.status(500).json({ message: "Failed to update market section" });
+      res.status(500).json({ message: "Failed to update market section", details: errorMessage(error) });
     }
   });
 
@@ -1199,6 +1210,36 @@ export function registerRoutes(app: Express): Server {
       return res.status(500).json({
         message: "Failed to upload files to Firebase Storage",
         details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  app.post("/api/admin/upload-principle-image-base64", async (req, res) => {
+    try {
+      const { base64Image } = req.body || {};
+      if (!base64Image || typeof base64Image !== "string") {
+        return res.status(400).json({ error: "No base64 image provided" });
+      }
+
+      const { isFirebaseConfigured, uploadToFirebase } = await import("./utils/firebase-storage.js");
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
+      }
+
+      const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+      const imageBuffer = Buffer.from(base64Data, "base64");
+      const fileUrl = await uploadToFirebase({
+        buffer: imageBuffer,
+        mimetype: "image/jpeg",
+        originalname: `principle-${Date.now()}.jpg`,
+      });
+
+      res.json({ url: fileUrl, size: imageBuffer.length });
+    } catch (error) {
+      console.error("Error uploading base64 principle image:", error);
+      res.status(500).json({
+        error: "Failed to upload image",
+        details: errorMessage(error),
       });
     }
   });
@@ -2004,14 +2045,17 @@ app.get("/api/litters/list/current", async (req, res) => {
   app.get("/api/gallery-photos", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
+      const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
       const photos = await db.query.galleryPhotos.findMany({
-        where: and(eq(galleryPhotos.siteId, siteId), eq(galleryPhotos.isVisible, true)),
+        where: isAdmin
+          ? eq(galleryPhotos.siteId, siteId)
+          : and(eq(galleryPhotos.siteId, siteId), eq(galleryPhotos.isVisible, true)),
         orderBy: (galleryPhotos, { asc }) => [asc(galleryPhotos.order), asc(galleryPhotos.createdAt)],
       });
       res.json(photos);
     } catch (error) {
       console.error("Error fetching gallery photos:", error);
-      res.status(500).json({ message: "Failed to fetch gallery photos" });
+      res.status(500).json({ message: "Failed to fetch gallery photos", details: errorMessage(error) });
     }
   });
 
@@ -2022,16 +2066,22 @@ app.get("/api/litters/list/current", async (req, res) => {
       }
       
       const siteId = getCurrentSiteId(req);
+      const { title, description, imageUrl, category, order, isVisible } = req.body;
       const photo = await db.insert(galleryPhotos)
         .values({
-          ...req.body,
+          title,
+          description,
+          imageUrl,
+          category: category || "farm",
+          order: order ?? 0,
+          isVisible: isVisible !== false,
           siteId,
         })
         .returning();
       res.json(photo[0]);
     } catch (error) {
       console.error("Error creating gallery photo:", error);
-      res.status(500).json({ message: "Failed to create gallery photo" });
+      res.status(500).json({ message: "Failed to create gallery photo", details: errorMessage(error) });
     }
   });
 
@@ -2040,18 +2090,24 @@ app.get("/api/litters/list/current", async (req, res) => {
       if (!req.session.isAdmin) {
         return res.status(401).json({ message: "Unauthorized" });
       }
+
+      const { title, description, imageUrl, category, order, isVisible } = req.body;
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+      if (category !== undefined) updateData.category = category;
+      if (order !== undefined) updateData.order = order;
+      if (isVisible !== undefined) updateData.isVisible = isVisible === true;
       
       const photo = await db.update(galleryPhotos)
-        .set({
-          ...req.body,
-          updatedAt: new Date()
-        })
+        .set(updateData)
         .where(eq(galleryPhotos.id, parseInt(req.params.id)))
         .returning();
       res.json(photo[0]);
     } catch (error) {
       console.error("Error updating gallery photo:", error);
-      res.status(500).json({ message: "Failed to update gallery photo" });
+      res.status(500).json({ message: "Failed to update gallery photo", details: errorMessage(error) });
     }
   });
 

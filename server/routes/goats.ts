@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/api/goats', async (req, res) => {
   try {
     const siteId = getCurrentSiteId(req);
-    const isAdmin = req.query.admin === 'true';
+    const isAdmin = req.query.admin === 'true' || Boolean((req as any).session?.isAdmin);
     
     const whereCondition = isAdmin
       ? eq(goats.siteId, siteId)
@@ -40,7 +40,7 @@ router.get('/api/goats', async (req, res) => {
 router.get('/api/goats/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const isAdmin = req.query.admin === 'true';
+    const isAdmin = req.query.admin === 'true' || Boolean((req as any).session?.isAdmin);
     
     // For public pages, only show goats with display=true and died=false
     const whereCondition = isAdmin

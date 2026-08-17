@@ -23,24 +23,25 @@ const PrincipleForm = ({ principle }: { principle?: Principle }) => {
   const [isUploading, setIsUploading] = useState(false); // Added for upload status
 
   const handleCropComplete = async (croppedUrl: string) => {
-    console.log('Crop completed, setting cropped image:', croppedUrl?.substring(0, 50) + '...');
-    
+    if (croppedUrl.startsWith("http")) {
+      form.setValue("imageUrl", croppedUrl);
+      return;
+    }
+
     setIsUploading(true);
     try {
-      // Upload to S3
-      const s3Url = await handleUploadImage(croppedUrl);
-      if (s3Url) {
-        console.log('Image uploaded to S3 successfully:', s3Url);
-        form.setValue('imageUrl', s3Url);
+      const uploadedUrl = await handleUploadImage(croppedUrl);
+      if (uploadedUrl) {
+        form.setValue("imageUrl", uploadedUrl);
       } else {
-        throw new Error('Failed to get S3 URL from server');
+        throw new Error("Failed to get image URL from server");
       }
     } catch (error) {
-      console.error('Error uploading image to S3:', error);
+      console.error("Error uploading cropped image:", error);
       toast({
-        title: 'Image upload failed',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
+        title: "Image upload failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
       });
     } finally {
       setIsUploading(false);

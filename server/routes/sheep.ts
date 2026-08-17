@@ -33,7 +33,7 @@ const upload = multer({
 router.get('/api/sheep', async (req, res) => {
   try {
     const siteId = getCurrentSiteId(req);
-    const isAdmin = req.query.admin === 'true';
+    const isAdmin = req.query.admin === 'true' || Boolean((req as any).session?.isAdmin);
     
     const whereCondition = isAdmin
       ? eq(sheep.siteId, siteId)
@@ -85,7 +85,7 @@ router.get('/api/sheep/admin', async (req, res) => {
 router.get('/api/sheep/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const isAdmin = req.query.admin === 'true';
+    const isAdmin = req.query.admin === 'true' || Boolean((req as any).session?.isAdmin);
     
     // For public pages, only show sheep with display=true and died=false
     const whereCondition = isAdmin
