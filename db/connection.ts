@@ -20,7 +20,8 @@ const neonHttpClient: NeonQueryFunction<false, false> = Object.assign(
   _neonSql
 );
 
-// Initialize Drizzle ORM using HTTP transport (no WebSocket required)
+// Initialize Drizzle ORM using HTTP transport (no WebSocket required).
+// neon-http does not support db.transaction(); keep writes sequential instead.
 export const db = drizzle(neonHttpClient, { schema });
 
 /**

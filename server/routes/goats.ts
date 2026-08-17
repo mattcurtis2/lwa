@@ -1,20 +1,20 @@
 import express from 'express';
 import { db } from '@db';
-import { goats, goatMedia, goatDocuments, goatLitters } from '@db/schema';
+import { goats, goatMedia, goatDocuments } from '@db/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { buildGoatWriteData, errorMessage, getCurrentSiteId } from '../helpers';
 
 const router = express.Router();
 
 // Get all goats
 router.get('/api/goats', async (req, res) => {
   try {
+    const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === 'true';
     
-    // Define the where condition based on whether this is an admin request
-    // For admin, show all goats; for public pages, only show goats with display=true and died=false
     const whereCondition = isAdmin
-      ? undefined
-      : and(eq(goats.display, true), eq(goats.died, false));
+      ? eq(goats.siteId, siteId)
+      : and(eq(goats.siteId, siteId), eq(goats.display, true), eq(goats.died, false));
     
     const allGoats = await db.query.goats.findMany({
       where: whereCondition,
@@ -80,9 +80,9 @@ router.post('/api/goats', async (req, res) => {
     
     // Extract media and documents from the request body
     const { media = [], documents = [], ...goatData } = data;
+    const insertData = buildGoatWriteData(goatData);
     
-    // Insert the goat and get the ID
-    const [goatResult] = await db.insert(goats).values(goatData).returning({ id: goats.id });
+    const [goatResult] = await db.insert(goats).values(insertData as any).returning({ id: goats.id });
     const goatId = goatResult.id;
     
     // Insert media if present
@@ -124,7 +124,7 @@ router.post('/api/goats', async (req, res) => {
     console.error('Error creating goat:', error);
     res.status(500).json({ 
       error: 'Failed to create goat',
-      details: error.message || 'Unknown error' 
+      details: errorMessage(error)
     });
   }
 });
@@ -139,78 +139,42 @@ router.put('/api/goats/:id', async (req, res) => {
     console.log('Updating goat with ID:', id);
     console.log('Request body:', JSON.stringify(data));
     
-    // Extract media and documents from the request body
     const { media = [], documents = [], ...goatData } = data;
+    const processedData = {
+      ...buildGoatWriteData(goatData),
+      updatedAt: new Date(),
+    };
     
-    // Process null or empty values properly (to support removing fields like price)
-    const processedData: Record<string, any> = {};
+    await db.update(goats)
+      .set(processedData as any)
+      .where(eq(goats.id, id));
     
-    // Iterate through all fields in data and properly handle nulls/empty strings
-    for (const [key, value] of Object.entries(goatData)) {
-      if (key === 'price' || key === 'bucklingPrice' || key === 'wetherPrice') {
-        // For price fields, explicitly allow null/empty values
-        if (value === '' || value === null || value === undefined) {
-          processedData[key] = null; // Set to null in database
-        } else {
-          processedData[key] = value;
-        }
-      } else if (key === 'display') {
-        // FIXED: Use strict boolean comparison to interpret display value
-        console.log('Goat display field - original value:', value);
-        const displayValue = value === true;
-        console.log('Goat display field - processed value with strict comparison:', displayValue);
-        processedData[key] = displayValue;
-      } else if (key === 'sold' || key === 'available' || key === 'kid' || key === 'outsideBreeder' || key === 'died') {
-        // Use strict boolean comparison for all boolean fields
-        console.log(`Goat ${key} field - original value:`, value);
-        const boolValue = value === true;
-        console.log(`Goat ${key} field - processed value with strict comparison:`, boolValue);
-        processedData[key] = boolValue;
-      } else {
-        processedData[key] = value;
-      }
+    await db.delete(goatMedia).where(eq(goatMedia.goatId, id));
+    
+    if (media.length > 0) {
+      const mediaValues = media.map((item: any, index: number) => ({
+        goatId: id,
+        url: item.url,
+        type: item.type || 'image',
+        order: index
+      }));
+      
+      await db.insert(goatMedia).values(mediaValues);
     }
     
-    // Start a transaction
-    await db.transaction(async (tx) => {
-      // Update the goat data
-      await tx.update(goats)
-        .set(processedData)
-        .where(eq(goats.id, id));
+    await db.delete(goatDocuments).where(eq(goatDocuments.goatId, id));
+    
+    if (documents.length > 0) {
+      const documentValues = documents.map((doc: any) => ({
+        goatId: id,
+        url: doc.url,
+        type: doc.type || 'health',
+        name: doc.name || 'Document',
+        mimeType: doc.mimeType || 'application/pdf'
+      }));
       
-      // Handle media updates
-      // Always delete existing media for this goat
-      await tx.delete(goatMedia).where(eq(goatMedia.goatId, id));
-      
-      // Insert new media if there are any
-      if (media.length > 0) {
-        const mediaValues = media.map((item: any, index: number) => ({
-          goatId: id,
-          url: item.url,
-          type: item.type || 'image',
-          order: index
-        }));
-        
-        await tx.insert(goatMedia).values(mediaValues);
-      }
-      
-      // Handle document updates
-      // Always delete existing documents for this goat
-      await tx.delete(goatDocuments).where(eq(goatDocuments.goatId, id));
-      
-      // Insert new documents if there are any
-      if (documents.length > 0) {
-        const documentValues = documents.map((doc: any) => ({
-          goatId: id,
-          url: doc.url,
-          type: doc.type || 'health',
-          name: doc.name || 'Document',
-          mimeType: doc.mimeType || 'application/pdf'
-        }));
-        
-        await tx.insert(goatDocuments).values(documentValues);
-      }
-    });
+      await db.insert(goatDocuments).values(documentValues);
+    }
     
     // Fetch the updated goat with its relations
     const updatedGoat = await db.query.goats.findFirst({
@@ -237,16 +201,9 @@ router.delete('/api/goats/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     
     // Start a transaction to delete related records
-    await db.transaction(async (tx) => {
-      // Delete media
-      await tx.delete(goatMedia).where(eq(goatMedia.goatId, id));
-      
-      // Delete documents
-      await tx.delete(goatDocuments).where(eq(goatDocuments.goatId, id));
-      
-      // Delete the goat
-      await tx.delete(goats).where(eq(goats.id, id));
-    });
+    await db.delete(goatMedia).where(eq(goatMedia.goatId, id));
+    await db.delete(goatDocuments).where(eq(goatDocuments.goatId, id));
+    await db.delete(goats).where(eq(goats.id, id));
     
     res.json({ success: true });
   } catch (error: any) {

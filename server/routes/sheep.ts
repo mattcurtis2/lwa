@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import { uploadToFirebase } from "../utils/firebase-storage";
+import { buildSheepWriteData, parseJsonField, errorMessage, getCurrentSiteId } from "../helpers";
 
 const router = Router();
 
@@ -31,13 +32,12 @@ const upload = multer({
 // Get all sheep with their relations
 router.get('/api/sheep', async (req, res) => {
   try {
+    const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === 'true';
     
-    // Define the where condition based on whether this is an admin request
-    // For admin, show all sheep; for public pages, only show sheep with display=true and died=false
     const whereCondition = isAdmin
-      ? undefined
-      : and(eq(sheep.display, true), eq(sheep.died, false));
+      ? eq(sheep.siteId, siteId)
+      : and(eq(sheep.siteId, siteId), eq(sheep.display, true), eq(sheep.died, false));
     
     const result = await db.query.sheep.findMany({
       where: whereCondition,
@@ -128,23 +128,10 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
       profileImageUrl = firebaseResult;
     }
     
-    // Parse media and documents (handle both JSON strings and objects)
-    const media = data.media ? 
-      (typeof data.media === 'string' ? JSON.parse(data.media) : data.media) : [];
-    const documents = data.documents ? 
-      (typeof data.documents === 'string' ? JSON.parse(data.documents) : data.documents) : [];
+    const media = parseJsonField<any[]>(data.media, []);
+    const documents = parseJsonField<any[]>(data.documents, []);
     
-    // Process boolean fields
-    const processedData: Record<string, any> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (key === 'display' || key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder' || key === 'died') {
-        processedData[key] = value === true || value === 'true';
-      } else if (key === 'price' || key === 'ramPrice' || key === 'wetherPrice') {
-        processedData[key] = value === '' || value === null || value === undefined ? null : value;
-      } else if (key !== 'media' && key !== 'documents') {
-        processedData[key] = value;
-      }
-    }
+    const processedData = buildSheepWriteData(data);
     
     // Add profile image URL
     if (profileImageUrl) {
@@ -152,41 +139,34 @@ router.post('/api/sheep', upload.single('profileImage'), async (req, res) => {
     }
     
     // Start a transaction
-    const result = await db.transaction(async (tx) => {
-      // Create the sheep
-      const insertResult = await tx.insert(sheep).values(processedData).returning();
-      const newSheep = insertResult[0] as typeof processedData & { id: number };
-      
-      // Insert media if there are any
-      if (media.length > 0) {
-        const mediaValues = media.map((item: any, index: number) => ({
-          sheepId: newSheep.id,
-          url: item.url,
-          type: item.type || 'image',
-          order: index
-        }));
-        await tx.insert(sheepMedia).values(mediaValues);
-      }
-      
-      // Insert documents if there are any  
-      if (documents.length > 0) {
-        const documentValues = documents.map((doc: any) => ({
-          sheepId: newSheep.id,
-          url: doc.url,
-          type: doc.type || 'health',
-          name: doc.name || 'Document',
-          mimeType: doc.mimeType || 'application/pdf'
-        }));
-        await tx.insert(sheepDocuments).values(documentValues);
-      }
-      
-      return newSheep;
-    });
+    const insertResult = await db.insert(sheep).values(processedData as any).returning();
+    const result = insertResult[0] as typeof processedData & { id: number };
+    
+    if (media.length > 0) {
+      const mediaValues = media.map((item: any, index: number) => ({
+        sheepId: result.id,
+        url: item.url,
+        type: item.type || 'image',
+        order: index
+      }));
+      await db.insert(sheepMedia).values(mediaValues);
+    }
+    
+    if (documents.length > 0) {
+      const documentValues = documents.map((doc: any) => ({
+        sheepId: result.id,
+        url: doc.url,
+        type: doc.type || 'health',
+        name: doc.name || 'Document',
+        mimeType: doc.mimeType || 'application/pdf'
+      }));
+      await db.insert(sheepDocuments).values(documentValues);
+    }
     
     res.json(result);
   } catch (error: any) {
     console.error('Error creating sheep:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage(error) });
   }
 });
 
@@ -198,72 +178,42 @@ router.put('/api/sheep/:id', async (req, res) => {
     
     // Extract media and documents from the request body
     const { media = [], documents = [], ...sheepData } = data;
-    
-    // Process null or empty values properly (to support removing fields like price)
-    const processedData: Record<string, any> = {};
-    
-    // Iterate through all fields in data and properly handle nulls/empty strings
-    for (const [key, value] of Object.entries(sheepData)) {
-      if (key === 'price' || key === 'ramPrice' || key === 'wetherPrice') {
-        // For price fields, explicitly allow null/empty values
-        if (value === '' || value === null || value === undefined) {
-          processedData[key] = null; // Set to null in database
-        } else {
-          processedData[key] = value;
-        }
-      } else if (key === 'display') {
-        // Use strict boolean comparison to interpret display value
-        const displayValue = value === true;
-        processedData[key] = displayValue;
-      } else if (key === 'sold' || key === 'available' || key === 'lamb' || key === 'outsideBreeder' || key === 'died') {
-        // Use strict boolean comparison for all boolean fields
-        const boolValue = value === true;
-        processedData[key] = boolValue;
-      } else {
-        processedData[key] = value;
-      }
-    }
+    const processedData = {
+      ...buildSheepWriteData(sheepData),
+      updatedAt: new Date(),
+    };
     
     // Start a transaction
-    await db.transaction(async (tx) => {
-      // Update the sheep data
-      await tx.update(sheep)
-        .set(processedData)
-        .where(eq(sheep.id, id));
+    await db.update(sheep)
+      .set(processedData as any)
+      .where(eq(sheep.id, id));
+    
+    await db.delete(sheepMedia).where(eq(sheepMedia.sheepId, id));
+    
+    if (media.length > 0) {
+      const mediaValues = media.map((item: any, index: number) => ({
+        sheepId: id,
+        url: item.url,
+        type: item.type || 'image',
+        order: index
+      }));
       
-      // Handle media updates
-      // Always delete existing media for this sheep
-      await tx.delete(sheepMedia).where(eq(sheepMedia.sheepId, id));
+      await db.insert(sheepMedia).values(mediaValues);
+    }
+    
+    await db.delete(sheepDocuments).where(eq(sheepDocuments.sheepId, id));
+    
+    if (documents.length > 0) {
+      const documentValues = documents.map((doc: any) => ({
+        sheepId: id,
+        url: doc.url,
+        type: doc.type || 'health',
+        name: doc.name || 'Document',
+        mimeType: doc.mimeType || 'application/pdf'
+      }));
       
-      // Insert new media if there are any
-      if (media.length > 0) {
-        const mediaValues = media.map((item: any, index: number) => ({
-          sheepId: id,
-          url: item.url,
-          type: item.type || 'image',
-          order: index
-        }));
-        
-        await tx.insert(sheepMedia).values(mediaValues);
-      }
-      
-      // Handle document updates
-      // Always delete existing documents for this sheep
-      await tx.delete(sheepDocuments).where(eq(sheepDocuments.sheepId, id));
-      
-      // Insert new documents if there are any
-      if (documents.length > 0) {
-        const documentValues = documents.map((doc: any) => ({
-          sheepId: id,
-          url: doc.url,
-          type: doc.type || 'health',
-          name: doc.name || 'Document',
-          mimeType: doc.mimeType || 'application/pdf'
-        }));
-        
-        await tx.insert(sheepDocuments).values(documentValues);
-      }
-    });
+      await db.insert(sheepDocuments).values(documentValues);
+    }
     
     // Fetch the updated sheep with its relations
     const updatedSheep = await db.query.sheep.findFirst({
@@ -282,7 +232,7 @@ router.put('/api/sheep/:id', async (req, res) => {
     res.json(updatedSheep);
   } catch (error: any) {
     console.error('Error updating sheep:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: errorMessage(error) });
   }
 });
 
@@ -305,16 +255,9 @@ router.delete('/api/sheep/:id', async (req, res) => {
     }
     
     // Start a transaction to delete everything
-    await db.transaction(async (tx) => {
-      // Delete media records
-      await tx.delete(sheepMedia).where(eq(sheepMedia.sheepId, id));
-      
-      // Delete document records
-      await tx.delete(sheepDocuments).where(eq(sheepDocuments.sheepId, id));
-      
-      // Delete the sheep
-      await tx.delete(sheep).where(eq(sheep.id, id));
-    });
+    await db.delete(sheepMedia).where(eq(sheepMedia.sheepId, id));
+    await db.delete(sheepDocuments).where(eq(sheepDocuments.sheepId, id));
+    await db.delete(sheep).where(eq(sheep.id, id));
     
     // Note: Files remain in S3 for now
     // TODO: Implement S3 cleanup if needed

@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatMedia, goatLitters, goatDocuments, sheep, sheepMedia, sheepDocuments, sheepLitters, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
+import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatLitters, sheepLitters, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
 import { eq, inArray, and } from "drizzle-orm";
-import { getCurrentSiteId, parseSiteIdHeader } from "./helpers";
+import { getCurrentSiteId, parseSiteIdHeader, buildDogWriteData, buildLitterWriteData, errorMessage } from "./helpers";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -11,7 +11,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs-extra";
 import express from 'express';
-import sheepRoutes from './routes/sheep';
 import Stripe from "stripe";
 
 
@@ -520,29 +519,69 @@ export function registerRoutes(app: Express): Server {
 
   // Animals routes
   app.get("/api/animals", async (req, res) => {
-    const type = req.query.type as string;
-    const allAnimals = await db.query.animals.findMany({
-      where: type ? eq(animals.type, type) : undefined,
-    });
-    res.json(allAnimals);
+    try {
+      const type = req.query.type as string;
+      const allAnimals = await db.query.animals.findMany({
+        where: type ? eq(animals.type, type) : undefined,
+      });
+      res.json(allAnimals);
+    } catch (error) {
+      console.error("Error fetching animals:", error);
+      res.status(500).json({ message: "Failed to fetch animals", details: errorMessage(error) });
+    }
   });
 
   app.post("/api/animals", async (req, res) => {
-    const animal = await db.insert(animals).values(req.body).returning();
-    res.json(animal[0]);
+    try {
+      const { name, type, breed, age, description, imageUrl, isAvailable, siteId } = req.body;
+      const animal = await db.insert(animals).values({
+        name,
+        type,
+        breed,
+        age,
+        description,
+        imageUrl,
+        isAvailable,
+        siteId: siteId || 1,
+      }).returning();
+      res.json(animal[0]);
+    } catch (error) {
+      console.error("Error creating animal:", error);
+      res.status(500).json({ message: "Failed to create animal", details: errorMessage(error) });
+    }
   });
 
   app.put("/api/animals/:id", async (req, res) => {
-    const animal = await db.update(animals)
-      .set(req.body)
-      .where(eq(animals.id, parseInt(req.params.id)))
-      .returning();
-    res.json(animal[0]);
+    try {
+      const { name, type, breed, age, description, imageUrl, isAvailable } = req.body;
+      const animal = await db.update(animals)
+        .set({
+          name,
+          type,
+          breed,
+          age,
+          description,
+          imageUrl,
+          isAvailable,
+          updatedAt: new Date(),
+        })
+        .where(eq(animals.id, parseInt(req.params.id)))
+        .returning();
+      res.json(animal[0]);
+    } catch (error) {
+      console.error("Error updating animal:", error);
+      res.status(500).json({ message: "Failed to update animal", details: errorMessage(error) });
+    }
   });
 
   app.delete("/api/animals/:id", async (req, res) => {
-    await db.delete(animals).where(eq(animals.id, parseInt(req.params.id)));
-    res.json({ message: "Deleted successfully" });
+    try {
+      await db.delete(animals).where(eq(animals.id, parseInt(req.params.id)));
+      res.json({ message: "Deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting animal:", error);
+      res.status(500).json({ message: "Failed to delete animal", details: errorMessage(error) });
+    }
   });
 
   // Market Section routes
@@ -675,19 +714,46 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/products", async (req, res) => {
     try {
-      const product = await db.insert(products).values(req.body).returning();
+      const { name, section, category, description, price, unit, imageUrl, inStock, availableForPurchase, seasonal, availableFrom, order, siteId } = req.body;
+      const product = await db.insert(products).values({
+        name,
+        section,
+        category,
+        description,
+        price,
+        unit,
+        imageUrl,
+        inStock,
+        availableForPurchase,
+        seasonal,
+        availableFrom,
+        order,
+        siteId: siteId || 1,
+      }).returning();
       res.json(product[0]);
     } catch (error) {
       console.error("Error creating product:", error);
-      res.status(500).json({ message: "Failed to create product" });
+      res.status(500).json({ message: "Failed to create product", details: errorMessage(error) });
     }
   });
 
   app.put("/api/products/:id", async (req, res) => {
     try {
+      const { name, section, category, description, price, unit, imageUrl, inStock, availableForPurchase, seasonal, availableFrom, order } = req.body;
       const product = await db.update(products)
         .set({
-          ...req.body,
+          name,
+          section,
+          category,
+          description,
+          price,
+          unit,
+          imageUrl,
+          inStock,
+          availableForPurchase,
+          seasonal,
+          availableFrom,
+          order,
           updatedAt: new Date()
         })
         .where(eq(products.id, parseInt(req.params.id)))
@@ -695,7 +761,7 @@ export function registerRoutes(app: Express): Server {
       res.json(product[0]);
     } catch (error) {
       console.error("Error updating product:", error);
-      res.status(500).json({ message: "Failed to update product" });
+      res.status(500).json({ message: "Failed to update product", details: errorMessage(error) });
     }
   });
 
@@ -717,36 +783,43 @@ export function registerRoutes(app: Express): Server {
 
   // Add carousel routes
   app.get("/api/carousel", async (req, res) => {
-    const siteId = getCurrentSiteId(req);
-    const items = await db.query.carouselItems.findMany({
-      where: eq(carouselItems.siteId, siteId),
-      orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
-    });
-    res.json(items);
+    try {
+      const siteId = getCurrentSiteId(req);
+      const items = await db.query.carouselItems.findMany({
+        where: eq(carouselItems.siteId, siteId),
+        orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
+      });
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching carousel:", error);
+      res.status(500).json({ message: "Failed to fetch carousel", details: errorMessage(error) });
+    }
   });
 
   app.post("/api/carousel", async (req, res) => {
-    // Get the highest order number
-    const items = await db.query.carouselItems.findMany();
-    const maxOrder = items.reduce((max, item) => Math.max(max, item.order), 0);
+    try {
+      const items = await db.query.carouselItems.findMany();
+      const maxOrder = items.reduce((max, item) => Math.max(max, item.order), 0);
+      const { title, description, imageUrl, siteId } = req.body;
 
-    const item = await db.insert(carouselItems)
-      .values({ ...req.body, order: maxOrder + 1 })
-      .returning();
-    res.json(item[0]);
+      const item = await db.insert(carouselItems)
+        .values({ title, description, imageUrl, siteId: siteId || 1, order: maxOrder + 1 })
+        .returning();
+      res.json(item[0]);
+    } catch (error) {
+      console.error("Error creating carousel item:", error);
+      res.status(500).json({ message: "Failed to create carousel item", details: errorMessage(error) });
+    }
   });
 
   app.put("/api/carousel/:id", async (req, res) => {
     try {
-      const updateData = {
-        ...req.body,
-        updatedAt: new Date()
-      };
-
-      // Ensure timestamp fields are proper Date objects
-      if (updateData.createdAt) {
-        updateData.createdAt = new Date(updateData.createdAt);
-      }
+      const { title, description, imageUrl, order } = req.body;
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+      if (order !== undefined) updateData.order = order;
 
       const item = await db.update(carouselItems)
         .set(updateData)
@@ -755,32 +828,41 @@ export function registerRoutes(app: Express): Server {
       res.json(item[0]);
     } catch (error) {
       console.error("Error updating carousel item:", error);
-      res.status(500).json({ message: "Failed to update carousel item" });
+      res.status(500).json({ message: "Failed to update carousel item", details: errorMessage(error) });
     }
   });
 
   app.delete("/api/carousel/:id", async (req, res) => {
-    await db.delete(carouselItems)
-      .where(eq(carouselItems.id, parseInt(req.params.id)));
+    try {
+      await db.delete(carouselItems)
+        .where(eq(carouselItems.id, parseInt(req.params.id)));
 
-    // Reorder remaining items
-    const items = await db.query.carouselItems.findMany({
-      orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
-    });
+      const items = await db.query.carouselItems.findMany({
+        orderBy: (carouselItems, { asc }) => [asc(carouselItems.order)],
+      });
 
-    for (let i = 0; i < items.length; i++) {
-      await db.update(carouselItems)
-        .set({ order: i + 1 })
-        .where(eq(carouselItems.id, items[i].id));
+      for (let i = 0; i < items.length; i++) {
+        await db.update(carouselItems)
+          .set({ order: i + 1 })
+          .where(eq(carouselItems.id, items[i].id));
+      }
+
+      res.json({ message: "Deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting carousel item:", error);
+      res.status(500).json({ message: "Failed to delete carousel item", details: errorMessage(error) });
     }
-
-    res.json({ message: "Deleted successfully" });
   });
 
   // Dogs Hero routes
   app.get("/api/dogs-hero", async (_req, res) => {
-    const hero = await db.query.dogsHero.findMany();
-    res.json(hero);
+    try {
+      const hero = await db.query.dogsHero.findMany();
+      res.json(hero);
+    } catch (error) {
+      console.error("Error fetching dogs hero:", error);
+      res.status(500).json({ message: "Failed to fetch dogs hero", details: errorMessage(error) });
+    }
   });
 
   app.put("/api/dogs-hero/:id", upload.single('image'), async (req, res) => {
@@ -820,75 +902,143 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Update the GET /api/dogs route to include parent and litter information
+  const dogRelations = {
+    media: {
+      orderBy: (dogMedia: any, { asc }: any) => [asc(dogMedia.order)],
+    },
+    documents: true,
+    mother: true,
+    father: true,
+    litter: true,
+  } as const;
+
   app.get("/api/dogs", async (req, res) => {
-    const siteId = getCurrentSiteId(req);
-    const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
-    
-    console.log(`GET /api/dogs - isAdmin: ${isAdmin}`);
-    console.log(`Session admin status: ${Boolean(req.session.isAdmin)}`);
-    console.log(`Admin query param: ${req.query.admin}`);
-    
-    // Define the where condition based on whether this is an admin request
-    // For admin, show all dogs; for public pages, only show dogs with display=true
-    const whereCondition = isAdmin
-      ? eq(dogs.siteId, siteId) 
-      : and(eq(dogs.siteId, siteId), eq(dogs.display, true));
-    
-    const allDogs = await db.query.dogs.findMany({
-      where: whereCondition,
-      orderBy: (dogs, { asc }) => [asc(dogs.order)],
-      with: {
-        media: {
-          orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-        },
-        documents: true,
-        mother: true,
-        father: true,
-        litter: true,
-      },
-    });
+    try {
+      const siteId = getCurrentSiteId(req);
+      const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
 
-    // Set first media image as profile picture if none exists
-    const processedDogs = allDogs.map(dog => {
-      if (!dog.profileImageUrl && dog.media && dog.media.length > 0) {
-        const firstImage = dog.media.find(m => m.type === 'image');
-        if (firstImage) {
-          return {
-            ...dog,
-            profileImageUrl: firstImage.url
-          };
+      const whereCondition = isAdmin
+        ? eq(dogs.siteId, siteId)
+        : and(eq(dogs.siteId, siteId), eq(dogs.display, true));
+
+      const allDogs = await db.query.dogs.findMany({
+        where: whereCondition,
+        orderBy: (dogs, { asc }) => [asc(dogs.order)],
+        with: dogRelations,
+      });
+
+      const processedDogs = allDogs.map(dog => {
+        if (!dog.profileImageUrl && dog.media && dog.media.length > 0) {
+          const firstImage = dog.media.find(m => m.type === 'image');
+          if (firstImage) {
+            return {
+              ...dog,
+              profileImageUrl: firstImage.url
+            };
+          }
         }
-      }
-      return dog;
-    });
+        return dog;
+      });
 
-    res.json(processedDogs);
+      res.json(processedDogs);
+    } catch (error) {
+      console.error("Error fetching dogs:", error);
+      res.status(500).json({ message: "Failed to fetch dogs", details: errorMessage(error) });
+    }
   });
 
-  // Update the POST /api/dogs route to handle parent and litter information
   app.post("/api/dogs", async (req, res) => {
     const { media, documents, ...dogData } = req.body;
 
     try {
-      const dog = await db.transaction(async (tx) => {
-        const [newDog] = await tx.insert(dogs).values(dogData).returning();
+      const insertData = buildDogWriteData(dogData);
+      const [newDog] = await db.insert(dogs).values(insertData as any).returning();
 
-        if (media && media.length > 0) {
-          await tx.insert(dogMedia).values(
+      if (media && media.length > 0) {
+        await db.insert(dogMedia).values(
+          media.map((item: any, index: number) => ({
+            dogId: newDog.id,
+            url: item.url,
+            type: item.type,
+            order: index,
+          }))
+        );
+      }
+
+      if (documents && documents.length > 0) {
+        await db.insert(dogDocuments).values(
+          documents.map((doc: any) => ({
+            dogId: newDog.id,
+            url: doc.url,
+            type: doc.type,
+            name: doc.name,
+            mimeType: doc.mimeType
+          }))
+        );
+      }
+
+      const dog = await db.query.dogs.findFirst({
+        where: eq(dogs.id, newDog.id),
+        with: dogRelations,
+      });
+
+      res.json(dog);
+    } catch (error) {
+      console.error("Error creating dog:", error);
+      res.status(500).json({ message: "Failed to create dog", details: errorMessage(error) });
+    }
+  });
+
+  app.put("/api/dogs/:id", async (req, res) => {
+    const { media, documents, ...dogData } = req.body;
+    const dogId = parseInt(req.params.id);
+
+    try {
+      if (!Number.isFinite(dogId)) {
+        return res.status(400).json({ message: "Invalid dog id" });
+      }
+
+      const existingDog = await db.query.dogs.findFirst({
+        where: eq(dogs.id, dogId),
+      });
+
+      if (!existingDog) {
+        return res.status(404).json({ message: "Dog not found" });
+      }
+
+      const updateData = {
+        ...buildDogWriteData(dogData),
+        updatedAt: new Date(),
+      };
+
+      await db.update(dogs)
+        .set(updateData as any)
+        .where(eq(dogs.id, dogId));
+
+      if (media) {
+        await db.delete(dogMedia)
+          .where(eq(dogMedia.dogId, dogId));
+
+        if (media.length > 0) {
+          await db.insert(dogMedia).values(
             media.map((item: any, index: number) => ({
-              dogId: newDog.id,
+              dogId: dogId,
               url: item.url,
               type: item.type,
               order: index,
             }))
           );
         }
+      }
 
-        if (documents && documents.length > 0) {
-          await tx.insert(dogDocuments).values(
+      if (documents) {
+        await db.delete(dogDocuments)
+          .where(eq(dogDocuments.dogId, dogId));
+
+        if (documents.length > 0) {
+          await db.insert(dogDocuments).values(
             documents.map((doc: any) => ({
-              dogId: newDog.id,
+              dogId: dogId,
               url: doc.url,
               type: doc.type,
               name: doc.name,
@@ -896,171 +1046,65 @@ export function registerRoutes(app: Express): Server {
             }))
           );
         }
+      }
 
-        const dogWithRelations = await tx.query.dogs.findFirst({
-          where: eq(dogs.id, newDog.id),
-          with: {
-            media: true,
-            documents: true,
-            mother: true,
-            father: true,
-            litter: true,
-          },
-        });
-
-        return dogWithRelations;
-      });
-
-      res.json(dog);
-    } catch (error) {
-      console.error("Error creating dog:", error);
-      res.status(500).json({ message: "Failed to create dog"});
-    }
-  });
-
-  // Update the PUT/api/dogs/:id route to handle parent and litter information
-  app.put("/api/dogs/:id", async (req, res) => {
-    const { media, documents, ...dogData } = req.body;
-    const dogId = parseInt(req.params.id);
-
-    try {
-      console.log('Updating dog with ID:', dogId);
-      console.log('Received dog data:', dogData);
-      console.log('Sold status in request:', dogData.sold);
-      console.log('Display status in request:', dogData.display);
-
-      const dog = await db.transaction(async (tx) => {
-        const existingDog = await tx.query.dogs.findFirst({
-          where: eq(dogs.id, dogId),
-        });
-
-        if (!existingDog) {
-          console.log('Dog not found:', dogId);
-          return res.status(404).json({ message: "Dog not found" });
-        }
-
-        console.log('Existing dog data:', existingDog);
-
-        // Process the data before update
-        // Add detailed logging for debugging display field
-        console.log('Display value before processing:', dogData.display);
-        console.log('Display value type:', typeof dogData.display);
-        
-        // FIXED: Use strict boolean comparison to interpret display value
-        // Previous: const displayValue = Boolean(dogData.display); - this still coerces values like {} to true
-        const displayValue = dogData.display === true;
-        console.log('Processed display value using strict comparison:', displayValue);
-        
-        const updateData = {
-          ...dogData,
-          height: dogData.height !== undefined && dogData.height !== "" ? parseFloat(dogData.height) : null,
-          weight: dogData.weight !== undefined && dogData.weight !== "" ? parseFloat(dogData.weight) : null,
-          price: dogData.price !== undefined && dogData.price !== "" ? parseFloat(dogData.price) : null,
-          // Use strict boolean comparison for all boolean fields
-          sold: dogData.sold === true,
-          available: dogData.available === true,
-          puppy: dogData.puppy === true,
-          died: dogData.died === true,
-          display: displayValue, // Value is pre-processed with strict comparison
-          outsideBreeder: dogData.outsideBreeder === true,
-          updatedAt: new Date(),
-          // Handle string fields with null
-          description: dogData.description || null,
-          narrativeDescription: dogData.narrativeDescription || null,
-          healthData: dogData.healthData || null,
-          color: dogData.color || null,
-          dewclaws: dogData.dewclaws || null,
-          furLength: dogData.furLength || null,
-          pedigree: dogData.pedigree || null,
-          registrationName: dogData.registrationName || null,
-          // Handle IDs
-          motherId: dogData.motherId || null,
-          fatherId: dogData.fatherId || null,
-          litterId: dogData.litterId || null,
-          breed: "Colorado Mountain Dogs"
-        };
-
-        // Remove undefined values
-        Object.keys(updateData).forEach(key => {
-          if (updateData[key] === undefined) {
-            delete updateData[key];
-          }
-        });
-
-        // Update the dog
-        await tx.update(dogs)
-          .set(updateData)
-          .where(eq(dogs.id, dogId));
-
-        // Handle media
-        if (media) {
-          await tx.delete(dogMedia)
-            .where(eq(dogMedia.dogId, dogId));
-
-          if (media.length > 0) {
-            await tx.insert(dogMedia).values(
-              media.map((item: any, index: number) => ({
-                dogId: dogId,
-                url: item.url,
-                type: item.type,
-                order: index,
-              }))
-            );
-          }
-        }
-
-        // Handle documents
-        if (documents) {
-          await tx.delete(dogDocuments)
-            .where(eq(dogDocuments.dogId, dogId));
-
-          if (documents.length > 0) {
-            await tx.insert(dogDocuments).values(
-              documents.map((doc: any) => ({
-                dogId: dogId,
-                url: doc.url,
-                type: doc.type,
-                name: doc.name,
-                mimeType: doc.mimeType
-              }))
-            );
-          }
-        }
-
-        // Return updated dog with relations
-        const updatedDog = await tx.query.dogs.findFirst({
-          where: eq(dogs.id, dogId),
-          with: {
-            media: true,
-            documents: true,
-            mother: true,
-            father: true,
-            litter: true,
-          },
-        });
-
-        console.log('Updated dog data:', updatedDog);
-        return updatedDog;
+      const dog = await db.query.dogs.findFirst({
+        where: eq(dogs.id, dogId),
+        with: dogRelations,
       });
 
       res.json(dog);
     } catch (error) {
       console.error("Error updating dog:", error);
-      res.status(500).json({ message: "Failed to update dog" });
+      res.status(500).json({ message: "Failed to update dog", details: errorMessage(error) });
     }
   });
 
-  // Add reorder endpoint for dogs
-  app.put("/api/dogs/:id/reorder", async (req, res) => {
-    const dog = await db.update(dogs)
-      .set({
-        order: req.body.order,
-        updatedAt: new Date()
-      })
-      .where(eq(dogs.id, parseInt(req.params.id)))
-      .returning();
+  app.delete("/api/dogs/:id", async (req, res) => {
+    const dogId = parseInt(req.params.id);
 
-    res.json(dog[0]);
+    try {
+      if (!Number.isFinite(dogId)) {
+        return res.status(400).json({ message: "Invalid dog id" });
+      }
+
+      const existingDog = await db.query.dogs.findFirst({
+        where: eq(dogs.id, dogId),
+      });
+
+      if (!existingDog) {
+        return res.status(404).json({ message: "Dog not found" });
+      }
+
+      await db.delete(dogMedia).where(eq(dogMedia.dogId, dogId));
+      await db.delete(dogDocuments).where(eq(dogDocuments.dogId, dogId));
+      await db.update(dogs).set({ motherId: null }).where(eq(dogs.motherId, dogId));
+      await db.update(dogs).set({ fatherId: null }).where(eq(dogs.fatherId, dogId));
+      await db.update(dogs).set({ litterId: null }).where(eq(dogs.id, dogId));
+      await db.delete(dogs).where(eq(dogs.id, dogId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting dog:", error);
+      res.status(500).json({ message: "Failed to delete dog", details: errorMessage(error) });
+    }
+  });
+
+  app.put("/api/dogs/:id/reorder", async (req, res) => {
+    try {
+      const dog = await db.update(dogs)
+        .set({
+          order: req.body.order,
+          updatedAt: new Date()
+        })
+        .where(eq(dogs.id, parseInt(req.params.id)))
+        .returning();
+
+      res.json(dog[0]);
+    } catch (error) {
+      console.error("Error reordering dog:", error);
+      res.status(500).json({ message: "Failed to reorder dog", details: errorMessage(error) });
+    }
   });
 
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
@@ -1181,6 +1225,7 @@ export function registerRoutes(app: Express): Server {
 
   // Add litter routes
   app.get("/api/litters", async (req, res) => {
+    try {
     const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
       where: eq(litters.siteId, siteId),
@@ -1221,27 +1266,22 @@ export function registerRoutes(app: Express): Server {
     );
 
     res.json(littersWithPuppies);
+    } catch (error) {
+      console.error("Error fetching litters:", error);
+      res.status(500).json({ message: "Failed to fetch litters", details: errorMessage(error) });
+    }
   });
 
   app.post("/api/litters", async (req, res) => {
     try {
-      console.log('Creating litter with data:', req.body);
       const formattedData = {
-        ...req.body,
-        dueDate: req.body.dueDate,
-        isCurrentLitter: req.body.isCurrentLitter || false,
-        isPastLitter: req.body.isPastLitter || false,
-        isPlannedLitter: req.body.isPlannedLitter || false,
-        expectedBreedingDate: req.body.expectedBreedingDate || null,
-        expectedPickupDate: req.body.expectedPickupDate || null,
-        waitlistLink: req.body.waitlistLink || null,
+        ...buildLitterWriteData(req.body),
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      console.log('Formatted data:', formattedData);
 
       const litter = await db.insert(litters)
-        .values(formattedData)
+        .values(formattedData as any)
         .returning();
 
       const litterWithParents = await db.query.litters.findFirst({
@@ -1255,32 +1295,19 @@ export function registerRoutes(app: Express): Server {
       res.json(litterWithParents);
     } catch (error) {
       console.error("Error creating litter:", error);
-      res.status(500).json({ message: "Failed to create litter" });
+      res.status(500).json({ message: "Failed to create litter", details: errorMessage(error) });
     }
   });
 
   app.put("/api/litters/:id", async (req, res) => {
     try {
-      console.log('Updating litter with data:', req.body);
-      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
-
       const updateData = {
-        dueDate: dueDate,
-        motherId,
-        fatherId,
-        isVisible,
-        isCurrentLitter: isCurrentLitter || false,
-        isPastLitter: isPastLitter || false,
-        isPlannedLitter: isPlannedLitter || false,
-        expectedBreedingDate: expectedBreedingDate || null,
-        expectedPickupDate: expectedPickupDate || null,
-        waitlistLink: waitlistLink || null,
+        ...buildLitterWriteData(req.body),
         updatedAt: new Date(),
       };
-      console.log('Formatted update data:', updateData);
 
       const litter = await db.update(litters)
-        .set(updateData)
+        .set(updateData as any)
         .where(eq(litters.id, parseInt(req.params.id)))
         .returning();
 
@@ -1295,7 +1322,7 @@ export function registerRoutes(app: Express): Server {
       res.json(litterWithParents);
     } catch (error) {
       console.error("Error updating litter - Full error:", error);
-      res.status(500).json({ message: "Failed to update litter", error: error.message });
+      res.status(500).json({ message: "Failed to update litter", details: errorMessage(error) });
     }
   });
 
@@ -1698,6 +1725,119 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
+  app.get("/api/about-cards-old", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const cardKeys = [
+        'about_card_1_title', 'about_card_1_description', 'about_card_1_icon',
+        'about_card_2_title', 'about_card_2_description', 'about_card_2_icon',
+        'about_card_3_title', 'about_card_3_description', 'about_card_3_icon',
+      ];
+      const content = await db.query.siteContent.findMany({
+        where: (siteContent, { or, eq, and }) =>
+          and(
+            eq(siteContent.siteId, siteId),
+            or(...cardKeys.map(key => eq(siteContent.key, key)))
+          )
+      });
+      const cards = [1, 2, 3].map((id) => ({
+        id,
+        title: content.find(c => c.key === `about_card_${id}_title`)?.value || '',
+        description: content.find(c => c.key === `about_card_${id}_description`)?.value || '',
+        imageUrl: content.find(c => c.key === `about_card_${id}_icon`)?.value || '',
+        buttonText: '',
+        redirectUrl: '',
+        order: id,
+      }));
+      res.json(cards);
+    } catch (error) {
+      console.error("Error fetching legacy about cards:", error);
+      res.status(500).json({ message: "Failed to fetch about cards", details: errorMessage(error) });
+    }
+  });
+
+  app.put("/api/about-cards/:id", async (req, res) => {
+    try {
+      const cardId = parseInt(req.params.id);
+      if (![1, 2, 3].includes(cardId)) {
+        return res.status(400).json({ message: "About card id must be 1, 2, or 3" });
+      }
+      const { title, description, icon, imageUrl } = req.body;
+      const iconValue = icon ?? imageUrl;
+      const updates = [
+        title !== undefined ? { key: `about_card_${cardId}_title`, value: title } : null,
+        description !== undefined ? { key: `about_card_${cardId}_description`, value: description } : null,
+        iconValue !== undefined ? { key: `about_card_${cardId}_icon`, value: iconValue } : null,
+      ].filter(Boolean) as { key: string; value: string }[];
+
+      for (const update of updates) {
+        const existing = await db.query.siteContent.findFirst({
+          where: eq(siteContent.key, update.key)
+        });
+        if (existing) {
+          await db.update(siteContent)
+            .set({ value: update.value, updatedAt: new Date() })
+            .where(eq(siteContent.key, update.key));
+        } else {
+          await db.insert(siteContent).values({ key: update.key, value: update.value ?? '', type: 'text' });
+        }
+      }
+
+      res.json({ message: "About card updated successfully" });
+    } catch (error) {
+      console.error("Error updating about card:", error);
+      res.status(500).json({ message: "Failed to update about card", details: errorMessage(error) });
+    }
+  });
+
+  const THEME_CONTENT_KEY = "theme_config";
+
+  app.get("/api/theme", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const existing = await db.query.siteContent.findFirst({
+        where: and(eq(siteContent.siteId, siteId), eq(siteContent.key, THEME_CONTENT_KEY)),
+      });
+      if (!existing?.value) {
+        return res.json({});
+      }
+      try {
+        res.json(JSON.parse(existing.value));
+      } catch {
+        res.json({});
+      }
+    } catch (error) {
+      console.error("Error fetching theme:", error);
+      res.status(500).json({ message: "Failed to fetch theme", details: errorMessage(error) });
+    }
+  });
+
+  app.put("/api/theme", async (req, res) => {
+    try {
+      const siteId = getCurrentSiteId(req);
+      const value = JSON.stringify(req.body ?? {});
+      const existing = await db.query.siteContent.findFirst({
+        where: and(eq(siteContent.siteId, siteId), eq(siteContent.key, THEME_CONTENT_KEY)),
+      });
+      if (existing) {
+        await db.update(siteContent)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(siteContent.id, existing.id));
+      } else {
+        await db.insert(siteContent).values({
+          siteId,
+          key: THEME_CONTENT_KEY,
+          value,
+          type: "text",
+        });
+      }
+      res.json(req.body ?? {});
+    } catch (error) {
+      console.error("Error updating theme:", error);
+      res.status(500).json({ message: "Failed to update theme", details: errorMessage(error) });
+    }
+  });
+
   // Stripe payment route for checkout
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
@@ -1857,178 +1997,6 @@ app.get("/api/litters/list/current", async (req, res) => {
     } catch (error) {
       console.error("Error fetching sites:", error);
       res.status(500).json({ message: "Failed to fetch sites" });
-    }
-  });
-
-  // Add the GET /api/goats endpoint with proper relations
-  app.get("/api/goats", async (req, res) => {
-    try {
-      const siteId = getCurrentSiteId(req);
-      const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
-      
-      // Define the where condition based on whether this is an admin request
-      // For admin, show all goats; for public pages, only show goats with display=true
-      const whereCondition = isAdmin 
-        ? eq(goats.siteId, siteId)
-        : and(eq(goats.siteId, siteId), eq(goats.display, true));
-        
-      const allGoats = await db.query.goats.findMany({
-        where: whereCondition,
-        orderBy: (goats, { asc }) => [asc(goats.order)],
-        with: {
-          media: {
-            orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
-          },
-          documents: true,
-          mother: true,
-          father: true,
-          litter: true,
-        },
-      });
-
-      // Set first media image as profile picture if none exists
-      const processedGoats = allGoats.map(goat => {
-        if (!goat.profileImageUrl && goat.media && goat.media.length > 0) {
-          const firstImage = goat.media.find(m => m.type === 'image');
-          if (firstImage) {
-            return {
-              ...goat,
-              profileImageUrl: firstImage.url
-            };
-          }
-        }
-        return goat;
-      });
-
-      res.json(processedGoats);
-    } catch (error) {
-      console.error("Error fetching goats:", error);
-      res.status(500).json({ message: "Failed to fetch goats" });
-    }
-  });
-
-  // Add goat litter routes
-  app.get("/api/goat-litters", async (req, res) => {
-    const siteId = getCurrentSiteId(req);
-    const allGoatLitters = await db.query.goatLitters.findMany({
-      where: eq(goatLitters.siteId, siteId),
-      with: {
-        mother: {
-          with: {
-            media: {
-              orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
-            },
-            documents: true,
-          },
-        },
-        father: {
-          with: {
-            media: {
-              orderBy: (goatMedia, { asc }) => [asc(goatMedia.order)],
-            },
-            documents: true,
-          },
-        },
-        puppies: {
-          with: {
-            media: {
-              orderBy: (m, { asc }) => [asc(m.order)],
-            },
-          },
-        },
-      },
-    });
-    res.json(allGoatLitters);
-  });
-
-  app.post("/api/goat-litters", async (req, res) => {
-    try {
-      console.log('Creating goat litter with data:', req.body);
-      const formattedData = {
-        ...req.body,
-        dueDate: req.body.dueDate,
-        isCurrentLitter: req.body.isCurrentLitter || false,
-        isPastLitter: req.body.isPastLitter || false,
-        isPlannedLitter: req.body.isPlannedLitter || false,
-        expectedBreedingDate: req.body.expectedBreedingDate || null,
-        expectedPickupDate: req.body.expectedPickupDate || null,
-        waitlistLink: req.body.waitlistLink || null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      console.log('Formatted data:', formattedData);
-
-      const litter = await db.insert(goatLitters)
-        .values(formattedData)
-        .returning();
-
-      const litterWithParents = await db.query.goatLitters.findFirst({
-        where: eq(goatLitters.id, litter[0].id),
-        with: {
-          mother: true,
-          father: true,
-        },
-      });
-
-      res.json(litterWithParents);
-    } catch (error) {
-      console.error("Error creating goat litter:", error);
-      res.status(500).json({ message: "Failed to create goat litter" });
-    }
-  });
-
-  app.put("/api/goat-litters/:id", async (req, res) => {
-    try {
-      console.log('Updating goat litter with data:', req.body);
-      const { dueDate, motherId, fatherId, isVisible, isCurrentLitter, isPastLitter, isPlannedLitter, expectedBreedingDate, expectedPickupDate, waitlistLink } = req.body;
-
-      const updateData = {
-        dueDate: dueDate,
-        motherId,
-        fatherId,
-        isVisible,
-        isCurrentLitter: isCurrentLitter || false,
-        isPastLitter: isPastLitter || false,
-        isPlannedLitter: isPlannedLitter || false,
-        expectedBreedingDate: expectedBreedingDate || null,
-        expectedPickupDate: expectedPickupDate || null,
-        waitlistLink: waitlistLink || null,
-        updatedAt: new Date(),
-      };
-      console.log('Formatted update data:', updateData);
-
-      const litter = await db.update(goatLitters)
-        .set(updateData)
-        .where(eq(goatLitters.id, parseInt(req.params.id)))
-        .returning();
-
-      const litterWithParents = await db.query.goatLitters.findFirst({
-        where: eq(goatLitters.id, litter[0].id),
-        with: {
-          mother: true,
-          father: true,
-        },
-      });
-
-      res.json(litterWithParents);
-    } catch (error) {
-      console.error("Error updating goat litter - Full error:", error);
-      res.status(500).json({ message: "Failed to update goat litter", error: error.message });
-    }
-  });
-
-  app.delete("/api/goat-litters/:id", async (req, res) => {
-    try {
-      const litterId = parseInt(req.params.id);
-
-      // Delete the goat litter
-      await db.delete(goatLitters)
-        .where(eq(goatLitters.id, litterId));
-
-      res.json({ message: "Goat litter deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting goat litter:", error);
-      res.status(500).json({ message: "Failed to delete goat litter" });
     }
   });
 
@@ -2722,9 +2690,6 @@ app.get("/api/litters/list/current", async (req, res) => {
       res.status(500).json({ message: "Failed to create order" });
     }
   });
-
-  // Register sheep routes
-  app.use(sheepRoutes);
 
   // SEO Routes for indexing
   app.get('/robots.txt', (req, res) => {

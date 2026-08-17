@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "../../db/connection";
 import { sheep, sheepLitters } from "@db/schema";
 import { eq, desc, and } from "drizzle-orm";
+import { buildLitterWriteData } from "../helpers";
 
 const router = Router();
 
@@ -200,17 +201,8 @@ router.post('/api/sheep-litters', async (req, res) => {
     console.log('Creating sheep litter with data:', JSON.stringify(data));
     
     const result = await db.insert(sheepLitters).values({
-      motherId: data.motherId,
-      fatherId: data.fatherId,
-      dueDate: data.dueDate,
-      isVisible: data.isVisible,
-      isCurrentLitter: data.isCurrentLitter,
-      isPastLitter: data.isPastLitter,
-      isPlannedLitter: data.isPlannedLitter,
-      expectedBreedingDate: data.expectedBreedingDate || null,
-      expectedPickupDate: data.expectedPickupDate || null,
-      waitlistLink: data.waitlistLink || null
-    }).returning();
+      ...buildLitterWriteData(data),
+    } as any).returning();
 
     // Fetch the created litter with its relations
     const createdLitter = await db.query.sheepLitters.findFirst({
@@ -259,17 +251,9 @@ router.put('/api/sheep-litters/:id', async (req, res) => {
     // Update the litter
     await db.update(sheepLitters)
       .set({
-        motherId: data.motherId,
-        fatherId: data.fatherId,
-        dueDate: data.dueDate,
-        isVisible: data.isVisible,
-        isCurrentLitter: data.isCurrentLitter,
-        isPastLitter: data.isPastLitter,
-        isPlannedLitter: data.isPlannedLitter,
-        expectedBreedingDate: data.expectedBreedingDate || null,
-        expectedPickupDate: data.expectedPickupDate || null,
-        waitlistLink: data.waitlistLink || null
-      })
+        ...buildLitterWriteData(data),
+        updatedAt: new Date(),
+      } as any)
       .where(eq(sheepLitters.id, id));
     
     // Fetch the updated litter with its relations

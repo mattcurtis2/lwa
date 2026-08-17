@@ -157,6 +157,8 @@ export default function DogForm({
       motherId: defaultValues?.motherId || null,
       fatherId: defaultValues?.fatherId || null,
       litterId: defaultValues?.litterId || null,
+      placementCity: defaultValues?.placementCity || "",
+      placementState: defaultValues?.placementState || "",
       profileImageUrl: defaultValues?.profileImageUrl || "",
       healthData: defaultValues?.healthData || "",
       color: defaultValues?.color || "",
@@ -230,23 +232,47 @@ export default function DogForm({
       console.log('Display value strictly compared for form:', displayValue);
       
       const birthDate = parseApiDate(dog.birthDate);
+      const numericToInput = (value: unknown) => {
+        if (value == null || value === "") return "";
+        const asString = String(value);
+        if (!asString.trim() || asString.toLowerCase() === "nan") return "";
+        const n = Number(asString);
+        return Number.isFinite(n) ? asString : "";
+      };
       const formValues = {
-        ...dog,
+        name: dog.name || "",
+        registrationName: dog.registrationName || "",
         birthDate: formatInputDate(birthDate),
+        gender: (dog.gender as "male" | "female") || "male",
+        description: dog.description || "",
         motherId: dog.motherId || null,
         fatherId: dog.fatherId || null,
         litterId: dog.litterId || null,
-        height: dog.height?.toString() || "",
-        weight: dog.weight?.toString() || "",
-        price: dog.price?.toString() || "",
+        profileImageUrl: dog.profileImageUrl || "",
+        healthData: dog.healthData || "",
+        color: dog.color || "",
+        dewclaws: dog.dewclaws || "",
+        furLength: dog.furLength || "",
+        height: numericToInput(dog.height),
+        weight: numericToInput(dog.weight),
+        pedigree: dog.pedigree || "",
+        narrativeDescription: dog.narrativeDescription || "",
         media: dog.media?.map(m => ({
           url: m.url,
           type: m.type as "image" | "video",
-          fileName: m.fileName,
+          fileName: (m as { fileName?: string }).fileName,
         })) || [],
         documents: dog.documents || [],
-        sold: dog.sold ?? false, //Added sold
-        display: displayValue //Use the explicitly cleaned display value
+        outsideBreeder: dog.outsideBreeder === true,
+        puppy: dog.puppy === true,
+        available: dog.available === true,
+        sold: dog.sold === true,
+        died: dog.died === true,
+        display: displayValue,
+        price: numericToInput(dog.price),
+        breed: dog.breed || "Colorado Mountain Dogs",
+        placementCity: dog.placementCity || "",
+        placementState: dog.placementState || "",
       };
       
       console.log('Form reset with values:', formValues);
@@ -572,12 +598,27 @@ export default function DogForm({
       // Log the actual runtime type of the display field
       console.log('Display field runtime type:', Object.prototype.toString.call(values.display));
       
+      const toNullableDecimal = (value: unknown) => {
+        if (value == null || value === "") return null;
+        const n = typeof value === "number" ? value : parseFloat(String(value).replace(/,/g, ""));
+        return Number.isFinite(n) ? n : null;
+      };
+      const toNullablePrice = (value: unknown) => {
+        if (value == null || value === "") return null;
+        const s = String(value).replace(/,/g, "").trim();
+        if (!s || s.toLowerCase() === "nan") return null;
+        return s;
+      };
+
       const processedValues = {
-        ...values,
-        siteId: 1, // Explicitly set siteId to 1 for all dogs
-        height: values.height ? parseFloat(values.height) : null,
-        weight: values.weight ? parseFloat(values.weight) : null,
-        price: values.price && values.price !== "" ? parseInt(values.price.replace(/,/g, '')) : null,
+        name: values.name,
+        registrationName: values.registrationName || null,
+        birthDate: values.birthDate,
+        gender: values.gender,
+        siteId: 1,
+        height: toNullableDecimal(values.height),
+        weight: toNullableDecimal(values.weight),
+        price: toNullablePrice(values.price),
         motherId: values.motherId || null,
         fatherId: values.fatherId || null,
         litterId: values.litterId || null,
@@ -587,11 +628,20 @@ export default function DogForm({
         outsideBreeder: values.outsideBreeder === true,
         sold: values.sold === true,
         died: values.died === true,
-        // Explicitly set display as a strict boolean value
         display: displayValue,
         documents: [
-          ...healthDocuments.map(doc => ({ ...doc, type: 'health' })),
-          ...pedigreeDocuments.map(doc => ({ ...doc, type: 'pedigree' }))
+          ...healthDocuments.map(doc => ({
+            url: doc.url,
+            name: doc.name,
+            mimeType: doc.mimeType,
+            type: 'health'
+          })),
+          ...pedigreeDocuments.map(doc => ({
+            url: doc.url,
+            name: doc.name,
+            mimeType: doc.mimeType,
+            type: 'pedigree'
+          }))
         ],
         description: values.description || null,
         narrativeDescription: values.narrativeDescription || null,
@@ -600,9 +650,13 @@ export default function DogForm({
         dewclaws: values.dewclaws || null,
         furLength: values.furLength || null,
         pedigree: values.pedigree || null,
-        registrationName: values.registrationName || null,
-        media: values.media || []
-        // Note: sold is already set above using strict comparison
+        profileImageUrl: values.profileImageUrl || null,
+        placementCity: values.placementCity || null,
+        placementState: values.placementState || null,
+        media: (values.media || []).map((item: any) => ({
+          url: item.url,
+          type: item.type,
+        })),
       };
 
       Object.keys(processedValues).forEach(key => {

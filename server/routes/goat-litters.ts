@@ -1,7 +1,8 @@
 import express from 'express';
 import { db } from '@db';
-import { goats, goatLitters, goatMedia, goatDocuments } from '@db/schema';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { goats, goatLitters } from '@db/schema';
+import { eq, and } from 'drizzle-orm';
+import { buildLitterWriteData } from '../helpers';
 
 const router = express.Router();
 
@@ -164,16 +165,8 @@ router.post('/api/goat-litters', async (req, res) => {
     
     // Insert the litter
     const [litterResult] = await db.insert(goatLitters).values({
-      motherId: data.motherId,
-      fatherId: data.fatherId,
-      dueDate: data.dueDate,
-      isVisible: data.isVisible ?? true,
-      isCurrentLitter: data.isCurrentLitter ?? false,
-      isPastLitter: data.isPastLitter ?? false,
-      isPlannedLitter: data.isPlannedLitter ?? false,
-      expectedBreedingDate: data.expectedBreedingDate || null,
-      expectedPickupDate: data.expectedPickupDate || null
-    }).returning({ id: goatLitters.id });
+      ...buildLitterWriteData(data),
+    } as any).returning({ id: goatLitters.id });
     
     const litterId = litterResult.id;
     
@@ -269,16 +262,9 @@ router.put('/api/goat-litters/:id', async (req, res) => {
     // Update the litter
     await db.update(goatLitters)
       .set({
-        motherId: data.motherId,
-        fatherId: data.fatherId,
-        dueDate: data.dueDate,
-        isVisible: data.isVisible,
-        isCurrentLitter: data.isCurrentLitter,
-        isPastLitter: data.isPastLitter,
-        isPlannedLitter: data.isPlannedLitter,
-        expectedBreedingDate: data.expectedBreedingDate || null,
-        expectedPickupDate: data.expectedPickupDate || null
-      })
+        ...buildLitterWriteData(data),
+        updatedAt: new Date(),
+      } as any)
       .where(eq(goatLitters.id, id));
     
     // Fetch the updated litter with its relations
@@ -331,17 +317,13 @@ router.delete('/api/goat-litters/:id', async (req, res) => {
     });
     
     // Start a transaction
-    await db.transaction(async (tx) => {
-      // Update all kids to remove their litter association
-      for (const kid of kids) {
-        await tx.update(goats)
-          .set({ litterId: null })
-          .where(eq(goats.id, kid.id));
-      }
-      
-      // Delete the litter
-      await tx.delete(goatLitters).where(eq(goatLitters.id, id));
-    });
+    for (const kid of kids) {
+      await db.update(goats)
+        .set({ litterId: null })
+        .where(eq(goats.id, kid.id));
+    }
+    
+    await db.delete(goatLitters).where(eq(goatLitters.id, id));
     
     res.json({ success: true });
   } catch (error: any) {
