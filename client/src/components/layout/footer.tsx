@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { SiteContent, ContactInfo } from "@db/schema";
+import { openCookieConsent } from "@/lib/cookie-consent";
 
 export default function Footer() {
   const { data: siteContent } = useQuery<SiteContent[]>({
@@ -126,6 +127,14 @@ export default function Footer() {
             <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
             <span className="mx-3">·</span>
             <a href="/do-not-sell#your-rights" className="hover:text-white transition-colors">Do Not Sell or Share My Personal Information</a>
+            <span className="mx-3">·</span>
+            <button
+              type="button"
+              onClick={openCookieConsent}
+              className="hover:text-white transition-colors underline-offset-2 hover:underline"
+            >
+              Cookie settings
+            </button>
           </p>
           <p>&copy; {new Date().getFullYear()} Little Way Acres. All rights reserved.</p>
         </div>

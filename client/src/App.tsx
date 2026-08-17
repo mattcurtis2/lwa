@@ -42,6 +42,7 @@ import { CartProvider } from "@/contexts/cart-context";
 import { useEffect } from "react";
 import BeesPage from "./pages/bees";
 import Chickens from "./pages/chickens";
+import CookieConsentBanner from "@/components/cookie-consent-banner";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -156,6 +157,7 @@ function App() {
         <SiteProvider>
           <CartProvider>
             <Router />
+            <CookieConsentBanner />
             <Toaster />
           </CartProvider>
         </SiteProvider>
