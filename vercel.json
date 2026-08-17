@@ -9,6 +9,11 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/uploads/(.*)", "destination": "/api" },
+    { "source": "/privacy", "destination": "/privacy-policy.html" },
+    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
+    { "source": "/legal/privacy", "destination": "/privacy-policy.html" },
+    { "source": "/legal/privacy-policy", "destination": "/privacy-policy.html" },
+    { "source": "/do-not-sell", "destination": "/privacy-policy.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { parseApiDate } from '@/lib/date-utils';
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 function DogDetails({ dog, litterWaitlistLink }) {
   if (!dog) {
@@ -109,6 +110,7 @@ function DogDetails({ dog, litterWaitlistLink }) {
           >
             Interested? Sign Up Here
           </a>
+          <WaitlistPrivacyNotice className="text-sm text-stone-600 mt-3" />
         </div>
       )}
     </div>

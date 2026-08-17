@@ -31,6 +31,24 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  const privacyPolicyPath = path.resolve(
+    __dirname,
+    "..",
+    "client",
+    "public",
+    "privacy-policy.html",
+  );
+  const privacyPaths = [
+    "/privacy",
+    "/privacy-policy",
+    "/legal/privacy",
+    "/legal/privacy-policy",
+    "/do-not-sell",
+  ];
+  app.get(privacyPaths, (_req, res) => {
+    res.sendFile(privacyPolicyPath);
+  });
+
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;

@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface Document {
   id?: number;
@@ -260,6 +261,7 @@ export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsP
                   <ExternalLink className="h-4 w-4 text-white" />
                 </a>
               )}
+              <WaitlistPrivacyNotice />
             </div>
           )}
         </div>
@@ -547,6 +549,7 @@ export default function SheepDetails({ sheep, showPrice = false }: SheepDetailsP
                   <ExternalLink className="h-4 w-4 text-white" />
                 </a>
               )}
+              <WaitlistPrivacyNotice />
             </div>
           )}
         </div>

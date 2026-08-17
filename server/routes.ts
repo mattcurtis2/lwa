@@ -12,6 +12,7 @@ import path from "path";
 import fs from "fs-extra";
 import express from 'express';
 import Stripe from "stripe";
+import { sendPrivacyRequestEmails } from "./utils/sendgrid";
 
 
 // Multer configuration for file uploads
@@ -57,6 +58,38 @@ const stripe = new Stripe(stripeSecretKey, {
 let productCache: any[] = [];
 let cacheLastUpdated: Date | null = null;
 const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+const PRIVACY_REQUEST_TYPES = [
+  "access",
+  "delete",
+  "correct",
+  "opt-out",
+  "limit-sensitive",
+  "other",
+] as const;
+const PRIVACY_RATE_WINDOW_MS = 60 * 60 * 1000;
+const PRIVACY_RATE_MAX = 5;
+const privacyRequestHits = new Map<string, number[]>();
+
+function privacyClientIp(req: { ip?: string }): string {
+  return req.ip || "unknown";
+}
+
+function isPrivacyRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const hits = (privacyRequestHits.get(ip) || []).filter((time) => now - time < PRIVACY_RATE_WINDOW_MS);
+  if (hits.length >= PRIVACY_RATE_MAX) {
+    privacyRequestHits.set(ip, hits);
+    return true;
+  }
+  hits.push(now);
+  privacyRequestHits.set(ip, hits);
+  return false;
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
 export function registerRoutes(app: Express): Server {
   app.get("/api/files/:filename", async (req, res) => {
@@ -2747,6 +2780,81 @@ app.get("/api/litters/list/current", async (req, res) => {
     }
   });
 
+  app.post("/api/privacy-requests", async (req, res) => {
+    const isBrowserForm = Boolean(
+      req.headers["content-type"]?.includes("application/x-www-form-urlencoded")
+    );
+    const redirectSuccess = "/privacy-policy?submitted=1#privacy-request";
+
+    const sendError = (status: number, message: string) => {
+      if (isBrowserForm) {
+        res.status(status).type("html").send(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Privacy request</title></head>
+<body>
+  <p>${message}</p>
+  <p><a href="/privacy-policy#privacy-request">Return to the privacy policy</a></p>
+</body></html>`);
+        return;
+      }
+      res.status(status).json({ message });
+    };
+
+    try {
+      if (isPrivacyRateLimited(privacyClientIp(req))) {
+        return sendError(429, "Too many requests. Please try again later.");
+      }
+
+      const body = req.body || {};
+      if (typeof body.website === "string" && body.website.trim() !== "") {
+        if (isBrowserForm) {
+          return res.redirect(303, redirectSuccess);
+        }
+        return res.json({ ok: true });
+      }
+
+      const name = typeof body.name === "string" ? body.name.trim() : "";
+      const email = typeof body.email === "string" ? body.email.trim() : "";
+      const state = typeof body.state === "string" ? body.state.trim() : "";
+      const requestType = typeof body.requestType === "string" ? body.requestType.trim() : "";
+      const details = typeof body.details === "string" ? body.details.trim() : "";
+
+      if (!name || name.length > 200) {
+        return sendError(400, "Please provide your name.");
+      }
+      if (!email || email.length > 254 || !isValidEmail(email)) {
+        return sendError(400, "Please provide a valid email address.");
+      }
+      if (!state || state.length > 100) {
+        return sendError(400, "Please select your state of residence.");
+      }
+      if (!PRIVACY_REQUEST_TYPES.includes(requestType as (typeof PRIVACY_REQUEST_TYPES)[number])) {
+        return sendError(400, "Please choose a request type.");
+      }
+      if (details.length > 5000) {
+        return sendError(400, "Details must be 5,000 characters or fewer.");
+      }
+
+      const { farmSent } = await sendPrivacyRequestEmails({
+        name,
+        email,
+        state,
+        requestType,
+        details,
+      });
+
+      if (!farmSent) {
+        return sendError(500, "We could not send your request. Please email littlewayacresmi@gmail.com.");
+      }
+
+      if (isBrowserForm) {
+        return res.redirect(303, redirectSuccess);
+      }
+      res.json({ ok: true, message: "Your request was sent." });
+    } catch {
+      sendError(500, "We could not send your request. Please email littlewayacresmi@gmail.com.");
+    }
+  });
+
   // SEO Routes for indexing
   app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
@@ -2791,7 +2899,12 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       '/market/bakery',
       '/market/animal-products',
       '/market/apparel',
-      '/gallery'
+      '/gallery',
+      '/privacy',
+      '/privacy-policy',
+      '/legal/privacy',
+      '/legal/privacy-policy',
+      '/do-not-sell'
     ];
 
     // Get dynamic pages

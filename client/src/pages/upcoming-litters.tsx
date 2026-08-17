@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatDisplayDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogForm from "@/components/forms/dog-form";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface PastLitter extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -157,6 +158,9 @@ export default function UpcomingLitters() {
                             >
                               Sign Up Here
                             </Button>
+                          )}
+                          {litter.waitlistLink && (
+                            <WaitlistPrivacyNotice className="text-sm mt-2" />
                           )}
                         </p>
                       </div>

@@ -6,6 +6,7 @@ import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import DogDetails from "@/components/dog-details";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface Document {
   id?: number;
@@ -139,6 +140,7 @@ export default function LitterDetail() {
                   >
                     {puppyCount > 0 ? "Reserve a Puppy" : "Sign Up Here"}
                   </a>
+                  <WaitlistPrivacyNotice className="text-sm text-amber-800/80 mt-3" />
                 </div>
               )}
             </div>
@@ -223,6 +225,7 @@ export default function LitterDetail() {
               >
                 {puppyCount > 0 ? "Reserve a Puppy" : "Sign Up Here"}
               </a>
+              <WaitlistPrivacyNotice className="text-sm text-amber-800/80 mt-3" />
             </div>
           )}
         </div>

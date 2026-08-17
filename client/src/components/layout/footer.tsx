@@ -122,6 +122,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-stone-700 text-center text-stone-400">
+          <p className="mb-3">
+            <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <span className="mx-3">·</span>
+            <a href="/do-not-sell#your-rights" className="hover:text-white transition-colors">Do Not Sell or Share My Personal Information</a>
+          </p>
           <p>&copy; {new Date().getFullYear()} Little Way Acres. All rights reserved.</p>
         </div>
       </div>

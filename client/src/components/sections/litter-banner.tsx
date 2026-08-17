@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { format } from "date-fns";
 import { Dog, DogMedia, Litter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface PastLitter extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -117,6 +118,7 @@ export default function LitterBanner() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                 </a>
+                <WaitlistPrivacyNotice className="text-xs text-amber-800/80 mt-2 max-w-[16rem]" />
               </div>
             )}
           </div>

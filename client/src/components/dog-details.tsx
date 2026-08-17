@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface Document {
   id?: number;
@@ -210,17 +211,20 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </p>
             </div>
           ) : dog.price && dog.available && litterWaitlistLink ? (
-            <a
-              href={litterWaitlistLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
+            <div className="mt-2">
+              <a
+                href={litterWaitlistLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+              >
+                <p className="text-lg font-semibold text-white">
+                  Available: ${parseInt(dog.price).toLocaleString()}
+                </p>
+                <ExternalLink className="h-4 w-4 text-white" />
+              </a>
+              <WaitlistPrivacyNotice />
+            </div>
           ) : dog.price && dog.available ? (
             <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center">
               <p className="text-lg font-semibold text-white">
@@ -425,17 +429,20 @@ export default function DogDetails({ dog, litterWaitlistLink }: DogDetailsProps)
               </p>
             </div>
           ) : dog.price && dog.available && litterWaitlistLink ? (
-            <a
-              href={litterWaitlistLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <p className="text-lg font-semibold text-white">
-                Available: ${parseInt(dog.price).toLocaleString()}
-              </p>
-              <ExternalLink className="h-4 w-4 text-white" />
-            </a>
+            <div className="mt-2">
+              <a
+                href={litterWaitlistLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary py-2 px-4 rounded-md inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
+              >
+                <p className="text-lg font-semibold text-white">
+                  Available: ${parseInt(dog.price).toLocaleString()}
+                </p>
+                <ExternalLink className="h-4 w-4 text-white" />
+              </a>
+              <WaitlistPrivacyNotice />
+            </div>
           ) : dog.price && dog.available ? (
             <div className="mt-2 bg-primary py-2 px-4 rounded-md inline-flex items-center">
               <p className="text-lg font-semibold text-white">

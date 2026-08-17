@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy | Little Way Acres</title>
+    <meta
+      name="description"
+      content="How Little Way Acres collects, uses, and shares personal information, and how to submit access, deletion, correction, and opt-out requests."
+    />
+    <link rel="canonical" href="https://littlewayacres.com/privacy-policy" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      @font-face {
+        font-family: Inter;
+        font-style: normal;
+        font-display: swap;
+        font-weight: 100 900;
+        src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+      }
+      :root {
+        --cream: #fdf7eb;
+        --green: #3f6a52;
+        --green-dark: #2c5530;
+        --stone: #1c1917;
+        --muted: #57534e;
+        --border: #e7e5e4;
+        --white: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: var(--stone);
+        background: #fafaf9;
+        line-height: 1.65;
+      }
+      a { color: var(--green); }
+      a:hover { color: var(--green-dark); }
+      header {
+        background: var(--cream);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .bar {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .brand {
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: var(--green);
+        text-decoration: none;
+      }
+      .brand:hover { color: var(--stone); }
+      nav a {
+        margin-left: 1rem;
+        text-decoration: none;
+        color: #57534e;
+        font-weight: 500;
+      }
+      main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      h1 {
+        font-size: 2.25rem;
+        line-height: 1.2;
+        margin: 0 0 0.5rem;
+      }
+      .updated { color: var(--muted); margin: 0 0 2rem; }
+      h2 {
+        font-size: 1.35rem;
+        margin: 2.25rem 0 0.75rem;
+        color: var(--green-dark);
+      }
+      h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+      p, li { color: #292524; }
+      ul { padding-left: 1.25rem; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.95rem;
+        background: var(--white);
+      }
+      th, td {
+        border: 1px solid var(--border);
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        vertical-align: top;
+      }
+      th { background: var(--cream); }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 0.9rem 0 0.35rem;
+      }
+      input, select, textarea {
+        width: 100%;
+        padding: 0.6rem 0.7rem;
+        border: 1px solid #d6d3d1;
+        border-radius: 8px;
+        font: inherit;
+      }
+      textarea { min-height: 120px; resize: vertical; }
+      button[type="submit"] {
+        margin-top: 1.1rem;
+        background: var(--green);
+        color: var(--white);
+        border: 0;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button[type="submit"]:hover { background: var(--green-dark); }
+      .hp {
+        position: absolute;
+        left: -10000px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .note {
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+      .banner {
+        padding: 0.85rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      .success { background: #ecfdf5; color: #065f46; }
+      .error { background: #fef2f2; color: #991b1b; }
+      .hidden { display: none; }
+      footer {
+        background: #1c1917;
+        color: #d6d3d1;
+        padding: 2.5rem 1.25rem;
+      }
+      .footer-inner { max-width: 960px; margin: 0 auto; }
+      footer a { color: #e7e5e4; }
+      footer .legal { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid #44403c; }
+      footer .legal a { margin-right: 1.25rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <a class="brand" href="/">Little Way Acres</a>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/privacy-policy">Privacy</a>
+          <a href="/do-not-sell#your-rights">Do Not Sell or Share</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: August 17, 2026</p>
+      <p>
+        Little Way Acres (“we,” “us,” or “our”) is a family farm in Hudsonville, Michigan.
+        This notice explains what personal information we collect on
+        <a href="https://littlewayacres.com">littlewayacres.com</a>, why we collect it,
+        who we share it with, how long we keep it, and how you can ask us about your information.
+      </p>
+      <p>
+        This page describes our current website practices. It is not a substitute for legal advice.
+        Some U.S. state privacy laws apply only if a business meets revenue or volume thresholds.
+        We still offer the request channel below to anyone who wants to exercise access, deletion,
+        correction, or opt-out rights.
+      </p>
+
+      <h2 id="notice-at-collection">Notice at collection</h2>
+      <p>
+        We collect the categories below when you use this site, place a market order, or fill out
+        an interest or waitlist form. We do not sell personal information, and we do not use
+        advertising or analytics pixels on this site.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Examples</th>
+            <th>Purpose</th>
+            <th>Retention criteria</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Identity and contact</td>
+            <td>Name, email, phone</td>
+            <td>Fulfill orders, place animals, answer questions, send confirmations</td>
+            <td>Kept while needed to complete the order or placement, then as required for accounting, tax, and legal records</td>
+          </tr>
+          <tr>
+            <td>Order and pickup details</td>
+            <td>Items ordered, pickup location and date, payment status</td>
+            <td>Process market pickup orders and prevent fraud</td>
+            <td>Kept for pickup, bookkeeping, and legal recordkeeping</td>
+          </tr>
+          <tr>
+            <td>Interest and waitlist answers</td>
+            <td>Contact details and farm or household information you submit in a Google Form</td>
+            <td>Match families with dogs, goats, or sheep and follow up about availability</td>
+            <td>Kept until the litter or placement process ends, you ask us to delete it, or it is no longer needed for follow-up</td>
+          </tr>
+          <tr>
+            <td>Browser storage</td>
+            <td>Cart contents and checkout details stored on your device</td>
+            <td>Keep your cart and complete checkout</td>
+            <td>Until you clear site data or complete/abandon checkout</td>
+          </tr>
+          <tr>
+            <td>Account data (staff only)</td>
+            <td>Admin username and login session</td>
+            <td>Operate and secure the website</td>
+            <td>Session cookie lasts up to 30 days after login</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="what-we-collect">What we collect</h2>
+      <p>Depending on how you use the site, we may collect:</p>
+      <ul>
+        <li>
+          <strong>Market checkout:</strong> first name, last name, email, phone, pickup location,
+          pickup date, and the products you order.
+        </li>
+        <li>
+          <strong>Interest and waitlist forms:</strong> information you type into Google Forms linked
+          from this site, which typically includes contact details and questions about your farm,
+          household, or placement needs.
+        </li>
+        <li>
+          <strong>Email or phone contact:</strong> whatever you send us at the farm email or phone
+          number listed on the site.
+        </li>
+        <li>
+          <strong>On-device cart data:</strong> product selections stored in your browser so your cart
+          persists between visits.
+        </li>
+        <li>
+          <strong>Payment details:</strong> card information is collected by Stripe on the checkout
+          page. We do not store full card numbers on our servers.
+        </li>
+      </ul>
+      <p>
+        We do not ask for Social Security numbers, government ID numbers, precise geolocation, or
+        health information. Google Forms used for animal placement may ask about your land, livestock,
+        household, or experience so we can make a responsible match. We do not use that information
+        for advertising.
+      </p>
+
+      <h2 id="how-we-use">How we use information</h2>
+      <ul>
+        <li>Fulfill farmers-market pre-orders and send order confirmations.</li>
+        <li>Place dogs, goats, and sheep with suitable homes and keep waitlists.</li>
+        <li>Answer questions and communicate about orders, litters, and farm products.</li>
+        <li>Process payments and help prevent fraud through Stripe.</li>
+        <li>Operate, secure, and maintain the website, including staff admin login.</li>
+      </ul>
+
+      <h2 id="sharing">Sharing and service providers</h2>
+      <p>
+        We share personal information with companies that help us run the farm site, only as needed
+        for those services:
+      </p>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing on market checkout.</li>
+        <li><strong>SendGrid</strong> — transactional email such as order confirmations and privacy-request notices.</li>
+        <li><strong>Google Forms</strong> — interest and waitlist submissions.</li>
+        <li><strong>Printify</strong> — apparel orders, which are completed on Printify’s checkout.</li>
+        <li><strong>Firebase / Google Cloud</strong> — image and file hosting.</li>
+        <li><strong>Our website host</strong> — serving the site and storing order records in our database.</li>
+      </ul>
+      <p>
+        We do <strong>not sell</strong> personal information, and we do <strong>not share</strong> it
+        for cross-context behavioral advertising. We do not run Google Analytics, Meta Pixel, or
+        similar advertising or analytics tags on this site. If you buy apparel, Printify’s own
+        privacy policy applies to that checkout.
+      </p>
+
+      <h2 id="cookies">Cookies and local storage</h2>
+      <p>This site uses a small number of cookies and similar technologies:</p>
+      <ul>
+        <li>
+          <strong>Admin session cookie</strong> — set only after a staff member logs in, for up to
+          30 days, so the admin tools stay signed in.
+        </li>
+        <li>
+          <strong>Admin sidebar cookie</strong> — remembers whether the staff sidebar is open.
+        </li>
+        <li>
+          <strong>Stripe</strong> — Stripe’s checkout script may set cookies on the payment page
+          for fraud prevention and to complete the payment.
+        </li>
+        <li>
+          <strong>Browser local storage</strong> — stores your cart and, during checkout, the order
+          details needed to finish payment.
+        </li>
+      </ul>
+      <p>
+        These are used to run the site and complete purchases. We do not use non-essential
+        advertising cookies. If we add analytics or advertising later, we will update this notice
+        and provide any required choice.
+      </p>
+
+      <h2 id="retention">How long we keep information</h2>
+      <p>We keep personal information only as long as we have a reason to keep it:</p>
+      <ul>
+        <li>
+          <strong>Orders:</strong> until pickup is complete, then as long as needed for accounting,
+          tax, dispute, and legal recordkeeping.
+        </li>
+        <li>
+          <strong>Waitlist and interest forms:</strong> until the related litter or placement process
+          is finished, you ask us to delete the information, or it is no longer useful for follow-up.
+        </li>
+        <li>
+          <strong>Email correspondence:</strong> as long as needed to respond and keep a record of
+          the conversation.
+        </li>
+        <li>
+          <strong>Cart data on your device:</strong> until you clear it or complete checkout.
+        </li>
+        <li>
+          <strong>Admin sessions:</strong> up to 30 days.
+        </li>
+      </ul>
+      <p>
+        Payment processors and form providers keep information according to their own policies.
+        When you ask us to delete information we control, we will delete or de-identify it unless
+        we need to keep a record (for example, a completed order or a privacy request itself).
+      </p>
+
+      <h2 id="your-rights">Your privacy rights</h2>
+      <p>
+        Depending on where you live, you may have the right to know what personal information we
+        have about you, request a copy, ask us to correct it, ask us to delete it, or opt out of
+        sale, sharing, or targeted advertising. We do not sell or share personal information for
+        targeted ads, but you can still submit an opt-out request.
+      </p>
+      <p>
+        Use the form below, or email
+        <a href="mailto:littlewayacresmi@gmail.com">littlewayacresmi@gmail.com</a>
+        with the subject “Privacy request.” We may need to confirm it is you before we fulfill a
+        request. Some state laws apply only above certain thresholds; we will still review every
+        request we receive.
+      </p>
+
+      <div class="card" id="privacy-request">
+        <h3>Submit a privacy request</h3>
+        <p class="note">
+          Choose the type of request, tell us how to reach you, and include enough detail for us
+          to find your information (for example, the email used at checkout or on a waitlist form).
+        </p>
+        <div id="request-success" class="banner success hidden" role="status">
+          Thank you. Your request was sent. We will follow up at the email you provided.
+        </div>
+        <div id="request-error" class="banner error hidden" role="alert"></div>
+        <form id="privacy-request-form" action="/api/privacy-requests" method="post">
+          <div class="hp" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" required maxlength="200" autocomplete="name" />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" />
+
+          <label for="state">State of residence</label>
+          <select id="state" name="state" required>
+            <option value="">Select</option>
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="DC">District of Columbia</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+            <option value="outside-us">Outside the United States</option>
+          </select>
+
+          <label for="requestType">Request type</label>
+          <select id="requestType" name="requestType" required>
+            <option value="">Select</option>
+            <option value="access">Know / access my information</option>
+            <option value="delete">Delete my information</option>
+            <option value="correct">Correct my information</option>
+            <option value="opt-out">Opt out of sale, share, or targeted advertising</option>
+            <option value="limit-sensitive">Limit use of sensitive personal information</option>
+            <option value="other">Other</option>
+          </select>
+
+          <label for="details">Details</label>
+          <textarea id="details" name="details" maxlength="5000" placeholder="Optional: order email, waitlist form, or what you want corrected."></textarea>
+
+          <button type="submit">Submit request</button>
+        </form>
+      </div>
+
+      <h2 id="children">Children</h2>
+      <p>
+        This site is for adults buying farm products or inquiring about livestock and dogs.
+        We do not knowingly collect personal information from children under 13. If you believe
+        a child submitted information to us, email
+        <a href="mailto:littlewayacresmi@gmail.com">littlewayacresmi@gmail.com</a>
+        and we will delete it.
+      </p>
+
+      <h2 id="security">Security</h2>
+      <p>
+        We use HTTPS, access controls for staff admin tools, and service providers that process
+        payments and email. No method of transmission or storage is completely secure.
+      </p>
+
+      <h2 id="changes">Changes</h2>
+      <p>
+        We may update this notice when our practices change. The “Last updated” date at the top
+        will change when we do. Continued use of the site after an update means the new notice
+        applies to that later use.
+      </p>
+
+      <h2 id="contact">Contact</h2>
+      <p>
+        Little Way Acres<br />
+        Hudsonville, Michigan<br />
+        Email: <a href="mailto:littlewayacresmi@gmail.com">littlewayacresmi@gmail.com</a>
+      </p>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <p><strong>Little Way Acres</strong></p>
+        <p>A family farm dedicated to sustainable agriculture and animal husbandry.</p>
+        <div class="legal">
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/do-not-sell#your-rights">Do Not Sell or Share My Personal Information</a>
+          <p>&copy; 2026 Little Way Acres. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var path = window.location.pathname || "";
+        var typeSelect = document.getElementById("requestType");
+        var success = document.getElementById("request-success");
+        var errorBox = document.getElementById("request-error");
+        var form = document.getElementById("privacy-request-form");
+
+        if (
+          typeSelect &&
+          (params.get("request") === "opt-out" || path.indexOf("do-not-sell") !== -1)
+        ) {
+          typeSelect.value = "opt-out";
+        }
+
+        if (params.get("submitted") === "1" && success) {
+          success.classList.remove("hidden");
+        }
+
+        if (!form) return;
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          if (errorBox) {
+            errorBox.classList.add("hidden");
+            errorBox.textContent = "";
+          }
+          var data = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            state: document.getElementById("state").value,
+            requestType: document.getElementById("requestType").value,
+            details: document.getElementById("details").value,
+            website: document.getElementById("website").value
+          };
+          fetch("/api/privacy-requests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify(data)
+          })
+            .then(function (res) {
+              return res.json().then(function (body) {
+                return { ok: res.ok, status: res.status, body: body };
+              });
+            })
+            .then(function (result) {
+              if (result.ok) {
+                if (success) success.classList.remove("hidden");
+                form.reset();
+                if (
+                  typeSelect &&
+                  (params.get("request") === "opt-out" || path.indexOf("do-not-sell") !== -1)
+                ) {
+                  typeSelect.value = "opt-out";
+                }
+                return;
+              }
+              if (errorBox) {
+                errorBox.textContent =
+                  (result.body && result.body.message) ||
+                  "We could not send your request. Please email littlewayacresmi@gmail.com.";
+                errorBox.classList.remove("hidden");
+              }
+            })
+            .catch(function () {
+              form.submit();
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>

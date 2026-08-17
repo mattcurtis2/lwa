@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { parseApiDate } from "@/lib/date-utils";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface LitterWithRelations extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -250,6 +251,7 @@ export default function DogFutureLitters() {
                         >
                           Join Waitlist
                         </a>
+                        <WaitlistPrivacyNotice className="text-sm text-amber-700 mt-2" />
                       </div>
                     ) : (
                       <p className="text-sm text-amber-700">

@@ -4,6 +4,7 @@ import { ContactInfo } from "@db/schema";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, MapPin, Phone, Mail } from "lucide-react";
 import { Link } from "wouter";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface Litter {
   id: number;
@@ -185,6 +186,7 @@ export default function HowToPurchase() {
                         <span>Training plans, housing arrangements, and specific puppy preparation needs</span>
                       </li>
                     </ul>
+                    <WaitlistPrivacyNotice className="text-sm text-stone-600 mt-4" />
                   </div>
                 </div>
               </div>

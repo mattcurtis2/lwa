@@ -443,6 +443,14 @@ const CheckoutForm = ({ clientSecret }: { clientSecret: string }) => {
                   />
                 </div>
 
+                <p className="text-sm text-muted-foreground">
+                  We collect your name, email, and phone to fulfill this order. See our{" "}
+                  <a href="/privacy-policy" className="underline hover:text-foreground">
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
+
                 {selectedSchedule && (
                   <div className="mt-6 p-4 bg-muted rounded-lg">
                     <h4 className="font-medium mb-2">Selected Pickup Location:</h4>

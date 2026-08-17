@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { parseApiDate } from "@/lib/date-utils";
 import { Heart, Mail } from "lucide-react";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface LitterWithRelations extends Litter {
   mother: Dog & { media?: DogMedia[] };
@@ -203,13 +204,16 @@ export default function DogCurrentLitters() {
                       Due: {format(parseApiDate(litter.dueDate), 'MMM d, yyyy')}
                     </h3>
                     {litter.waitlistLink && (
-                      <Button 
-                        onClick={() => litter.waitlistLink && window.open(litter.waitlistLink, '_blank')}
-                        size="sm"
-                        className="mt-2"
-                      >
-                        Sign Up Here
-                      </Button>
+                      <>
+                        <Button 
+                          onClick={() => litter.waitlistLink && window.open(litter.waitlistLink, '_blank')}
+                          size="sm"
+                          className="mt-2"
+                        >
+                          Sign Up Here
+                        </Button>
+                        <WaitlistPrivacyNotice className="text-sm text-blue-800/80 mt-2" />
+                      </>
                     )}
                   </div>
                   <CardContent className="p-6">

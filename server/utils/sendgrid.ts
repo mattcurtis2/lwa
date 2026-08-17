@@ -121,3 +121,119 @@ If you have any questions, please contact us at littlewayacresmi@gmail.com
     return false;
   }
 }
+
+const FARM_EMAIL = 'littlewayacresmi@gmail.com';
+
+export interface PrivacyRequestEmailData {
+  name: string;
+  email: string;
+  state: string;
+  requestType: string;
+  details: string;
+}
+
+const REQUEST_TYPE_LABELS: Record<string, string> = {
+  access: 'Know / access my information',
+  delete: 'Delete my information',
+  correct: 'Correct my information',
+  'opt-out': 'Opt out of sale, share, or targeted advertising',
+  'limit-sensitive': 'Limit use of sensitive personal information',
+  other: 'Other',
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export async function sendPrivacyRequestEmails(
+  data: PrivacyRequestEmailData
+): Promise<{ farmSent: boolean; confirmationSent: boolean }> {
+  const requestLabel = REQUEST_TYPE_LABELS[data.requestType] || data.requestType;
+  const safeName = escapeHtml(data.name);
+  const safeEmail = escapeHtml(data.email);
+  const safeState = escapeHtml(data.state);
+  const safeType = escapeHtml(requestLabel);
+  const safeDetails = escapeHtml(data.details || '(none provided)');
+
+  const farmHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+      <h1 style="color: #2c5530;">Privacy request</h1>
+      <p><strong>Name:</strong> ${safeName}</p>
+      <p><strong>Email:</strong> ${safeEmail}</p>
+      <p><strong>State:</strong> ${safeState}</p>
+      <p><strong>Request type:</strong> ${safeType}</p>
+      <p><strong>Details:</strong></p>
+      <p>${safeDetails.replace(/\n/g, '<br>')}</p>
+    </div>
+  `;
+
+  const farmText = `Privacy request
+
+Name: ${data.name}
+Email: ${data.email}
+State: ${data.state}
+Request type: ${requestLabel}
+
+Details:
+${data.details || '(none provided)'}
+`;
+
+  const confirmationHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+      <h1 style="color: #2c5530;">We received your privacy request</h1>
+      <p>Hi ${safeName.split(' ')[0] || safeName},</p>
+      <p>Little Way Acres received your request: <strong>${safeType}</strong>.</p>
+      <p>We will follow up at this email if we need more information or when the request is complete.</p>
+      <p>If you did not submit this request, please email littlewayacresmi@gmail.com.</p>
+    </div>
+  `;
+
+  const confirmationText = `We received your privacy request
+
+Hi ${data.name.split(' ')[0] || data.name},
+
+Little Way Acres received your request: ${requestLabel}.
+
+We will follow up at this email if we need more information or when the request is complete.
+
+If you did not submit this request, please email littlewayacresmi@gmail.com.
+`;
+
+  let farmSent = false;
+  let confirmationSent = false;
+
+  try {
+    await sgMail.send({
+      to: FARM_EMAIL,
+      from: FARM_EMAIL,
+      replyTo: data.email,
+      subject: `Privacy request: ${requestLabel}`,
+      text: farmText,
+      html: farmHtml,
+    });
+    farmSent = true;
+  } catch (error) {
+    console.error('Privacy request farm email failed');
+    return { farmSent, confirmationSent };
+  }
+
+  try {
+    await sgMail.send({
+      to: data.email,
+      from: FARM_EMAIL,
+      subject: 'We received your privacy request - Little Way Acres',
+      text: confirmationText,
+      html: confirmationHtml,
+    });
+    confirmationSent = true;
+  } catch (error) {
+    console.error('Privacy request confirmation email failed');
+  }
+
+  return { farmSent, confirmationSent };
+}

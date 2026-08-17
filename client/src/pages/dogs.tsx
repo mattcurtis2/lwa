@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { DogHero } from "@/components/sections/dog-hero";
 import { SiteContent } from "@/lib/types";
 import LitterBanner from "@/components/sections/litter-banner";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 interface DogsProps {
   genderFilter?: 'male' | 'female';
@@ -573,6 +574,7 @@ export default function Dogs({ genderFilter, showAvailable }: DogsProps) {
                           <p className="text-stone-700 leading-relaxed">
                             {getContent("dogs_placement_step_1_description") || "Families begin by filling out our interest form or joining our waitlist. This helps us learn more about your needs—whether you're looking for a dedicated working guardian, a family companion, or both."}
                           </p>
+                          <WaitlistPrivacyNotice />
                         </div>
                       </div>
                       

@@ -15,6 +15,19 @@ export function serveStatic(app: Express) {
     );
   }
 
+  const privacyPolicyPath = path.resolve(distPath, "privacy-policy.html");
+  const privacyPaths = [
+    "/privacy",
+    "/privacy-policy",
+    "/legal/privacy",
+    "/legal/privacy-policy",
+    "/do-not-sell",
+  ];
+
+  app.get(privacyPaths, (_req, res) => {
+    res.sendFile(privacyPolicyPath);
+  });
+
   app.use(express.static(distPath));
 
   app.use("*", (_req, res) => {
