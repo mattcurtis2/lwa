@@ -10,8 +10,12 @@ import {
 export default function CookieConsentBanner() {
   const [location] = useLocation();
   const [visible, setVisible] = useState(false);
+  const shouldShow =
+    visible && location !== "/admin" && location !== "/login";
 
   useEffect(() => {
+    document.body.style.removeProperty("overflow");
+
     if (!getCookieConsent()) {
       setVisible(true);
     }
@@ -21,16 +25,7 @@ export default function CookieConsentBanner() {
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, open);
   }, []);
 
-  useEffect(() => {
-    if (!visible) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [visible]);
-
-  if (location === "/admin" || location === "/login" || !visible) {
+  if (!shouldShow) {
     return null;
   }
 
@@ -44,12 +39,11 @@ export default function CookieConsentBanner() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-stone-900/60"
-      role="dialog"
-      aria-modal="true"
+      className="fixed inset-x-0 bottom-0 z-[100] p-4 pointer-events-none"
+      role="region"
       aria-labelledby="cookie-consent-title"
     >
-      <div className="w-full max-w-lg rounded-2xl bg-[#FDF7EB] shadow-2xl border border-stone-200 p-6 sm:p-8">
+      <div className="pointer-events-auto mx-auto w-full max-w-lg rounded-2xl bg-[#FDF7EB] shadow-2xl border border-stone-200 p-6 sm:p-8">
         <h2 id="cookie-consent-title" className="text-2xl font-bold text-stone-800 mb-3">
           Cookies and privacy
         </h2>

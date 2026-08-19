@@ -161,7 +161,7 @@ export default function Admin() {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen overflow-y-auto">
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
