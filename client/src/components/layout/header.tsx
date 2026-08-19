@@ -33,11 +33,13 @@ export default function Header() {
     <header className="sticky top-0 z-50 shadow-lg" style={{ backgroundColor: '#FDF7EB' }}>
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
-          <Link href="/">
-            <span className="text-xl font-semibold text-[#3F6A52] hover:text-stone-900 transition-colors">Little Way Acres</span>
+          <Link href="/" className="shrink-0">
+            <span className="block text-lg sm:text-xl font-semibold text-[#3F6A52] hover:text-stone-900 transition-colors whitespace-nowrap">
+              Little Way Acres
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6">
             {/* Colorado Mountain Dogs Dropdown */}
             <div className="relative">
               <Link href="/dogs">

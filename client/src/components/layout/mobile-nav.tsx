@@ -33,7 +33,7 @@ export default function MobileNav() {
   };
 
   return (
-    <div className="flex items-center gap-4 md:hidden">
+    <div className="flex items-center gap-4 lg:hidden">
       {/* Cart Icon for Mobile */}
       <Link href="/cart">
         <div className="relative cursor-pointer group">
@@ -48,7 +48,7 @@ export default function MobileNav() {
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden">
+          <Button variant="ghost" size="icon" className="lg:hidden">
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
