@@ -1,7 +1,7 @@
 import express from 'express';
 import { db } from '@db';
 import { goats, goatMedia, goatDocuments } from '@db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, or, isNull } from 'drizzle-orm';
 import { buildGoatWriteData, errorMessage, getCurrentSiteId } from '../helpers';
 
 const router = express.Router();
@@ -11,10 +11,15 @@ router.get('/api/goats', async (req, res) => {
   try {
     const siteId = getCurrentSiteId(req);
     const isAdmin = req.query.admin === 'true' || Boolean((req as any).session?.isAdmin);
+
+    // Older goats were inserted before site_id had a default, so NULL means site 1.
+    const siteFilter = siteId === 1
+      ? or(eq(goats.siteId, siteId), isNull(goats.siteId))
+      : eq(goats.siteId, siteId);
     
     const whereCondition = isAdmin
-      ? eq(goats.siteId, siteId)
-      : and(eq(goats.siteId, siteId), eq(goats.display, true), eq(goats.died, false));
+      ? siteFilter
+      : and(siteFilter, eq(goats.display, true), eq(goats.died, false));
     
     const allGoats = await db.query.goats.findMany({
       where: whereCondition,
