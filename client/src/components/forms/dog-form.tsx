@@ -24,7 +24,7 @@ import { ImageCrop } from "@/components/ui/image-crop";
 import { X, ImageIcon, FileText, ExternalLink, Edit, Upload } from "lucide-react";
 import { formatInputDate, parseApiDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { uploadFile, getProxiedImageUrl } from "../../lib/upload-utils";
+import { uploadFile, getProxiedImageUrl, mimeTypeForFile } from "../../lib/upload-utils";
 
 // Other components
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
@@ -480,45 +480,15 @@ export default function DogForm({
       }
 
       setIsUploadingDoc(true);
-      const formData = new FormData();
-      formData.append("file", file);
 
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-        }, 30000);
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || 'Upload failed');
-        }
-
-        const data = await res.json();
-
-        if (!data || (!Array.isArray(data) && !data.url)) {
-          throw new Error('Invalid response format from server');
-        }
-
-        const uploadedFile = Array.isArray(data) ? data[0] : data;
-
-        if (!uploadedFile?.url) {
-          throw new Error('Missing URL in upload response');
-        }
+        const url = await uploadFile(file);
 
         const newDoc = {
-          url: uploadedFile.url,
+          url,
           type,
           name: file.name,
-          mimeType: file.type,
+          mimeType: mimeTypeForFile(file),
           isNew: true,
         };
 

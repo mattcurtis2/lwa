@@ -135,6 +135,92 @@ export async function uploadToFirebase(file: UploadableFile): Promise<string> {
   );
 }
 
+const UPLOAD_OBJECT_NAME = /^uploads\/[A-Za-z0-9._-]+$/;
+
+let uploadCorsReady: Promise<void> | null = null;
+
+export function ensureUploadCors(): Promise<void> {
+  if (!uploadCorsReady) {
+    uploadCorsReady = getFirebaseBucket()
+      .setCorsConfiguration([
+        {
+          origin: ["*"],
+          method: ["GET", "HEAD", "PUT", "POST", "OPTIONS"],
+          responseHeader: ["Content-Type", "Content-Length"],
+          maxAgeSeconds: 3600,
+        },
+      ])
+      .then(() => undefined)
+      .catch((error) => {
+        uploadCorsReady = null;
+        throw error;
+      });
+  }
+  return uploadCorsReady;
+}
+
+export async function createSignedUpload(
+  originalName: string,
+  mimeType: string
+): Promise<{
+  uploadUrl: string;
+  objectName: string;
+  contentType: string;
+  token: string;
+}> {
+  try {
+    await ensureUploadCors();
+  } catch (error) {
+    console.warn("Could not update Firebase Storage CORS:", error);
+  }
+
+  const bucket = getFirebaseBucket();
+  const objectName = `uploads/${sanitizeFilename(originalName)}`;
+  const contentType = mimeType || "application/octet-stream";
+  const token = uuidv4();
+  const [uploadUrl] = await bucket.file(objectName).getSignedUrl({
+    version: "v4",
+    action: "write",
+    expires: Date.now() + 15 * 60 * 1000,
+    contentType,
+  });
+
+  return { uploadUrl, objectName, contentType, token };
+}
+
+export async function finalizeSignedUpload(
+  objectName: string,
+  token: string
+): Promise<string> {
+  if (!UPLOAD_OBJECT_NAME.test(objectName)) {
+    throw new Error("Invalid upload path");
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(token)) {
+    throw new Error("Invalid upload token");
+  }
+
+  const bucket = getFirebaseBucket();
+  const file = bucket.file(objectName);
+  const [exists] = await file.exists();
+  if (!exists) {
+    throw new Error("Uploaded file was not found");
+  }
+
+  const [metadata] = await file.getMetadata();
+  const existingToken = metadata.metadata?.firebaseStorageDownloadTokens;
+  if (typeof existingToken === "string" && existingToken && existingToken !== token) {
+    throw new Error("Upload was already finalized");
+  }
+
+  await file.setMetadata({
+    metadata: {
+      firebaseStorageDownloadTokens: token,
+    },
+  });
+
+  return buildDownloadUrl(bucket.name, objectName, token);
+}
+
 export async function uploadBase64ToFirebase(
   base64Data: string,
   fileName?: string

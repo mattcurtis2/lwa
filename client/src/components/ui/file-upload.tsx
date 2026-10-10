@@ -1,9 +1,33 @@
-import { useCallback, useState, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useDropzone, type Accept } from 'react-dropzone';
 import { cn } from "@/lib/utils";
 import { Upload, FileText } from "lucide-react";
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
+import { uploadFile } from "@/lib/upload-utils";
+
+const MIME_EXTENSIONS: Record<string, string[]> = {
+  "application/pdf": [".pdf"],
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/jpg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/gif": [".gif"],
+  "image/webp": [".webp"],
+  "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+  "video/*": [".mp4", ".webm", ".mov"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+};
+
+function acceptFromProp(accept: string): Accept {
+  const result: Accept = {};
+  for (const part of accept.split(",").map((value) => value.trim()).filter(Boolean)) {
+    const extensions = MIME_EXTENSIONS[part] || (part.startsWith(".") ? [part] : []);
+    const mime = part.startsWith(".") ? "application/octet-stream" : part;
+    result[mime] = Array.from(new Set([...(result[mime] || []), ...extensions]));
+  }
+  return result;
+}
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -35,6 +59,8 @@ export function FileUpload({
     }
   }, [value]);
 
+  const dropzoneAccept = useMemo(() => acceptFromProp(accept), [accept]);
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
@@ -48,37 +74,22 @@ export function FileUpload({
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // Document forms upload the file themselves. Uploading here as well
+    // sends pedigree PNGs through the server twice and fails the size limit.
+    if (!onChange) {
+      onFileSelect(file);
+      return;
+    }
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-      const uploadedFiles = Array.isArray(data) ? data : [data];
-      const uploadedFile = uploadedFiles[0];
-
-      if (!uploadedFile?.url) {
-        throw new Error("Invalid upload response");
-      }
-
-      setPreviewUrl(uploadedFile.url);
-      if (onChange) {
-        onChange(uploadedFile.url);
-      }
+      const url = await uploadFile(file);
+      setPreviewUrl(url);
+      onChange(url);
       onFileSelect(file);
-
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to upload file",
+        description: error instanceof Error ? error.message : "Failed to upload file",
         variant: "destructive"
       });
     }
@@ -86,13 +97,15 @@ export function FileUpload({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': [],
-      'video/*': [],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+    onDropRejected: (rejections) => {
+      const message = rejections[0]?.errors[0]?.message || "That file type is not supported";
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive"
+      });
     },
+    accept: dropzoneAccept,
     maxFiles: 1,
     multiple: false,
     maxSize: 50 * 1024 * 1024,

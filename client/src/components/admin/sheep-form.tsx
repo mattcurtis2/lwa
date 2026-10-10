@@ -21,7 +21,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import { StrictModeDroppable } from "@/components/ui/StrictModeDroppable";
 import { formatApiDate } from "@/lib/date-utils";
 import { FileUpload } from "@/components/ui/file-upload";
-import { uploadFile } from "@/lib/upload-utils";
+import { mimeTypeForFile, uploadFile } from "@/lib/upload-utils";
 
 interface MediaInput {
   url: string;
@@ -392,7 +392,7 @@ export default function SheepForm({ open, onOpenChange, sheep, mode, fromLitter 
         type,
         url: uploadedUrl,
         name: file.name,
-        mimeType: file.type
+        mimeType: mimeTypeForFile(file)
       };
 
       if (type === 'health') {

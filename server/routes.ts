@@ -1151,6 +1151,60 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.post("/api/upload/signed", async (req, res) => {
+    try {
+      const { isFirebaseConfigured, createSignedUpload } = await import(
+        "./utils/firebase-storage.js"
+      );
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
+      }
+
+      const fileName = typeof req.body?.fileName === "string" ? req.body.fileName : "";
+      const mimeType = typeof req.body?.mimeType === "string" ? req.body.mimeType : "";
+      const size = Number(req.body?.size);
+      if (!fileName || !mimeType || !Number.isFinite(size) || size <= 0) {
+        return res.status(400).json({ message: "fileName, mimeType, and size are required" });
+      }
+      if (size > 50 * 1024 * 1024) {
+        return res.status(400).json({ message: "File is too large (max 50MB)" });
+      }
+
+      const signed = await createSignedUpload(fileName, mimeType);
+      res.json(signed);
+    } catch (error) {
+      console.error("Error creating signed upload:", error);
+      res.status(500).json({
+        message: "Failed to start upload",
+        details: errorMessage(error),
+      });
+    }
+  });
+
+  app.post("/api/upload/finalize", async (req, res) => {
+    try {
+      const { isFirebaseConfigured, finalizeSignedUpload } = await import(
+        "./utils/firebase-storage.js"
+      );
+      if (!isFirebaseConfigured()) {
+        return res.status(503).json({ error: "Firebase Storage not configured" });
+      }
+
+      const objectName = typeof req.body?.objectName === "string" ? req.body.objectName : "";
+      const token = typeof req.body?.token === "string" ? req.body.token : "";
+      const url = await finalizeSignedUpload(objectName, token);
+      res.json({ url });
+    } catch (error) {
+      console.error("Error finalizing upload:", error);
+      const message = errorMessage(error);
+      const status = message === "Uploaded file was not found" ? 404 : 400;
+      res.status(status).json({
+        message: "Failed to finish upload",
+        details: message,
+      });
+    }
+  });
+
   app.post("/api/upload", upload.array("file", 10), async (req, res) => {
     try {
       const { isFirebaseConfigured, uploadToFirebase } = await import(

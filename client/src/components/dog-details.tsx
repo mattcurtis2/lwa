@@ -25,6 +25,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { documentPreviewKind } from "@/lib/document-kind";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
@@ -47,11 +48,8 @@ interface DogDetailsProps {
 
 function DocumentLink({ document }: { document: Document }) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const { url, type } = document;
-
-  const isPdf = url.toLowerCase().endsWith(".pdf");
-  const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url);
-  const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+  const { url } = document;
+  const { isPdf, isImage, isVideo } = documentPreviewKind(document);
 
   const getIcon = () => {
     if (isPdf) return <FileText className="h-5 w-5" />;
@@ -86,11 +84,11 @@ function DocumentLink({ document }: { document: Document }) {
               {document.name || url.split("/").pop()}
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-2">
+          <div className="mt-2 max-h-[75vh] overflow-auto">
             {isPdf && (
               <iframe
                 src={url}
-                className="w-full h-[80vh]"
+                className="w-full h-[70vh]"
                 title={document.name || "PDF document"}
               />
             )}
@@ -102,6 +100,15 @@ function DocumentLink({ document }: { document: Document }) {
               />
             )}
             {isVideo && <video src={url} controls className="w-full h-auto" />}
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1 text-sm text-primary underline"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Open full size
+            </a>
           </div>
         </DialogContent>
       </Dialog>

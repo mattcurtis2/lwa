@@ -1,4 +1,4 @@
-import { getProxiedImageUrl } from "../../lib/upload-utils";
+import { getProxiedImageUrl, mimeTypeForFile, uploadFile } from "../../lib/upload-utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -354,33 +354,14 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
     if (!file) return;
 
     setIsUploadingDoc(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to upload file");
-      }
-
-      const data = await res.json();
-      console.log("Document upload response:", data);
-      
-      // The API returns an array of uploaded files
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        throw new Error("Invalid response from upload API");
-      }
-      
-      const fileData = data[0];
+      const url = await uploadFile(file);
       const newDoc = {
-        url: fileData.url,
+        url,
         type,
         name: file.name,
-        mimeType: file.type,
+        mimeType: mimeTypeForFile(file),
         isNew: true,
       };
 
@@ -398,7 +379,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       console.error("Document upload error:", error);
       toast({
         title: "Error",
-        description: "Failed to upload document",
+        description: error instanceof Error ? error.message : "Failed to upload document",
         variant: "destructive",
       });
     } finally {
