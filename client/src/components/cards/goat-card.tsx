@@ -18,6 +18,16 @@ interface GoatCardProps {
 }
 
 export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderChange }: GoatCardProps) {
+  // Show the profile picture as the card's first image without it being
+  // part of the goat's gallery media.
+  const stripCacheBuster = (url: string) => url.split('?t=')[0];
+  const galleryMedia = goat.media || [];
+  const displayMedia =
+    goat.profileImageUrl &&
+    !galleryMedia.some(m => stripCacheBuster(m.url) === stripCacheBuster(goat.profileImageUrl!))
+      ? [{ url: goat.profileImageUrl, type: 'image' }, ...galleryMedia]
+      : galleryMedia;
+
   console.log('GoatCard rendered with:', { 
     goatId: goat.id,
     goatName: goat.name,
@@ -48,9 +58,9 @@ export function GoatCard({ goat, isAdmin, showPrice, onEdit, onDelete, onOrderCh
       <Link href={`/goats/${goat.id}`}>
         <div className="cursor-pointer">
           <div className="relative group">
-            {goat.media && goat.media.length > 0 ? (
+            {displayMedia.length > 0 ? (
               <div>
-                <DogMediaCarousel media={goat.media} />
+                <DogMediaCarousel media={displayMedia} />
                 {/* Removed price banner from image */}
               </div>
             ) : goat.profileImageUrl ? (

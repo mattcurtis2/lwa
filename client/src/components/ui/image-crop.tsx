@@ -1,3 +1,4 @@
+import { useCallback, useRef, useState, type SyntheticEvent } from "react";
 import { getProxiedImageUrl } from "@/lib/upload-utils";
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -51,7 +52,7 @@ export function ImageCrop({
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+  const onImageLoad = useCallback((e: SyntheticEvent<HTMLImageElement>) => {
     if (aspect) {
       const { width, height } = e.currentTarget;
       setCrop(centerAspectCrop(width, height, aspect));
