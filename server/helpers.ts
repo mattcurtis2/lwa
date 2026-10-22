@@ -1,3 +1,4 @@
+import { eq, isNull, or, type Column } from "drizzle-orm";
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -182,6 +183,16 @@ function asBoolean(value: unknown): boolean {
   return value === true || value === "true";
 }
 
+function optionalBoolean(value: unknown): boolean | undefined {
+  if (value === undefined) return undefined;
+  return asBoolean(value);
+}
+
+/** Site 1 includes NULL site_id rows created before the column had a default. */
+export function matchSiteId(column: Column, siteId: number) {
+  return siteId === 1 ? or(eq(column, siteId), isNull(column)) : eq(column, siteId);
+}
+
 export function buildDogWriteData(dogData: Record<string, unknown>): Record<string, unknown> {
   return pickAllowedFields(
     {
@@ -195,11 +206,11 @@ export function buildDogWriteData(dogData: Record<string, unknown>): Record<stri
       motherId: parseOptionalIntId(dogData.motherId),
       fatherId: parseOptionalIntId(dogData.fatherId),
       litterId: parseOptionalIntId(dogData.litterId),
-      puppy: asBoolean(dogData.puppy),
-      available: asBoolean(dogData.available),
-      sold: asBoolean(dogData.sold),
-      died: asBoolean(dogData.died),
-      display: asBoolean(dogData.display),
+      puppy: optionalBoolean(dogData.puppy),
+      available: optionalBoolean(dogData.available),
+      sold: optionalBoolean(dogData.sold),
+      died: optionalBoolean(dogData.died),
+      display: optionalBoolean(dogData.display),
       price: parseOptionalText(dogData.price),
       profileImageUrl: emptyToNull(dogData.profileImageUrl),
       healthData: emptyToNull(dogData.healthData),
@@ -211,7 +222,7 @@ export function buildDogWriteData(dogData: Record<string, unknown>): Record<stri
       pedigree: emptyToNull(dogData.pedigree),
       narrativeDescription: emptyToNull(dogData.narrativeDescription),
       order: typeof dogData.order === "number" ? dogData.order : undefined,
-      outsideBreeder: asBoolean(dogData.outsideBreeder),
+      outsideBreeder: optionalBoolean(dogData.outsideBreeder),
       placementCity: emptyToNull(dogData.placementCity),
       placementState: emptyToNull(dogData.placementState),
     },

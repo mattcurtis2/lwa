@@ -25,7 +25,6 @@ export default function MobileNav() {
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => l.isVisible && l.isCurrentLitter);
-  const hasUpcomingSheepLitters = sheepLitters.some(l => l.isVisible && l.isPlannedLitter);
   const hasPastSheepLitters = sheepLitters.some(l => l.isVisible && l.isPastLitter);
 
   const handleSelect = () => {
@@ -125,6 +124,11 @@ export default function MobileNav() {
                 Past Litters
               </a>
             </Link>
+            <Link href="/goats/litters/upcoming">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Future Litters
+              </a>
+            </Link>
             <Link href="/goats/available">
               <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
                 Available Goats
@@ -165,13 +169,6 @@ export default function MobileNav() {
                 </a>
               </Link>
             )}
-            {hasUpcomingSheepLitters && (
-              <Link href="/sheep/litters/upcoming">
-                <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
-                  Upcoming Litters
-                </a>
-              </Link>
-            )}
             {hasPastSheepLitters && (
               <Link href="/sheep/litters/past">
                 <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
@@ -179,6 +176,11 @@ export default function MobileNav() {
                 </a>
               </Link>
             )}
+            <Link href="/sheep/litters/upcoming">
+              <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">
+                Future Litters
+              </a>
+            </Link>
             {hasAvailableSheep && (
               <Link href="/sheep/available">
                 <a onClick={handleSelect} className="block px-4 py-1 text-stone-600 hover:text-stone-900 hover:pl-6 transition-all duration-75">

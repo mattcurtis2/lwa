@@ -93,7 +93,7 @@ export default function SheepUpcomingLitters() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8">Upcoming Litters</h1>
+        <h1 className="text-3xl font-bold mb-8">Future Litters</h1>
         <div className="space-y-8">
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="overflow-hidden animate-pulse">
@@ -126,9 +126,9 @@ export default function SheepUpcomingLitters() {
   if (!upcomingLitters?.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">No Upcoming Litters</h1>
+        <h1 className="text-3xl font-bold mb-4">No Future Litters</h1>
         <p className="text-muted-foreground">
-          We currently don't have any upcoming litters planned.
+          We currently don't have any future litters planned.
           Please check back later or contact us for more information.
         </p>
       </div>
@@ -137,7 +137,7 @@ export default function SheepUpcomingLitters() {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8">Upcoming Litters</h1>
+      <h1 className="text-3xl font-bold mb-8">Future Litters</h1>
       <div className="grid gap-8">
         {upcomingLitters.map((litter) => (
           <Card
@@ -152,7 +152,7 @@ export default function SheepUpcomingLitters() {
                     Expected {formatDisplayDate(parseApiDate(litter.dueDate))}
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    Click to view detailed information about this upcoming litter
+                    Click to view detailed information about this future litter
                   </p>
                 </div>
 

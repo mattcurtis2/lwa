@@ -543,7 +543,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       const priceValue = processEmptyPrice(values.price);
       const bucklingPriceValue = processEmptyPrice(values.bucklingPrice);
       const wetherPriceValue = processEmptyPrice(values.wetherPrice);
-      
+
       const processedValues = {
         ...values,
         birthDate: formatApiDate(values.birthDate), // Format birth date properly for API

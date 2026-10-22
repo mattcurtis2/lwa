@@ -36,9 +36,13 @@ async function run() {
   }
 
   const leftoverGoats = await sql`SELECT COUNT(*)::int AS n FROM goats WHERE site_id IS NULL`;
-  const leftoverLitters = await sql`SELECT COUNT(*)::int AS n FROM goat_litters WHERE site_id IS NULL`;
+  const leftoverGoatLitters = await sql`SELECT COUNT(*)::int AS n FROM goat_litters WHERE site_id IS NULL`;
+  const leftoverDogs = await sql`SELECT COUNT(*)::int AS n FROM dogs WHERE site_id IS NULL`;
+  const leftoverLitters = await sql`SELECT COUNT(*)::int AS n FROM litters WHERE site_id IS NULL`;
   console.log("Remaining null site_id goats:", leftoverGoats[0]?.n);
-  console.log("Remaining null site_id goat_litters:", leftoverLitters[0]?.n);
+  console.log("Remaining null site_id goat_litters:", leftoverGoatLitters[0]?.n);
+  console.log("Remaining null site_id dogs:", leftoverDogs[0]?.n);
+  console.log("Remaining null site_id litters:", leftoverLitters[0]?.n);
 }
 
 run().catch((error) => {

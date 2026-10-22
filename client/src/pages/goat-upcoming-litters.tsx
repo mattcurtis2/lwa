@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { GoatLitter } from "@db/schema";
 import { formatDisplayDate, parseApiDate } from "@/lib/date-utils";
 import { Card, CardContent } from "@/components/ui/card";
+import WaitlistPrivacyNotice from "@/components/waitlist-privacy-notice";
 
 export default function GoatUpcomingLitters() {
   const [_, navigate] = useLocation();
@@ -97,7 +98,7 @@ export default function GoatUpcomingLitters() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
+        <h1 className="text-3xl font-bold mb-8">Future Litters</h1>
         <div className="space-y-8">
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="overflow-hidden animate-pulse">
@@ -107,11 +108,11 @@ export default function GoatUpcomingLitters() {
                     <div className="bg-muted h-6 w-32 rounded-full mb-3" />
                     <div className="bg-muted h-4 w-48 rounded" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[...Array(2)].map((_, j) => (
                       <div key={j} className="flex items-center gap-3">
-                        <div className="w-16 h-16 rounded-full bg-muted" />
-                        <div className="space-y-2">
+                        <div className="w-16 h-16 shrink-0 rounded-full bg-muted" />
+                        <div className="min-w-0 space-y-2">
                           <div className="bg-muted h-4 w-24 rounded" />
                           <div className="bg-muted h-3 w-16 rounded" />
                         </div>
@@ -130,9 +131,9 @@ export default function GoatUpcomingLitters() {
   if (!upcomingLitters?.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">No Current Litters</h1>
+        <h1 className="text-3xl font-bold mb-4">No Future Litters</h1>
         <p className="text-muted-foreground">
-          We currently don't have any current litters planned.
+          We currently don't have any future litters planned.
           Please check back later or contact us for more information.
         </p>
       </div>
@@ -141,7 +142,7 @@ export default function GoatUpcomingLitters() {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold mb-8">Current Litters</h1>
+      <h1 className="text-3xl font-bold mb-8">Future Litters</h1>
       <div className="grid gap-8">
         {upcomingLitters.map((litter) => (
           <Card
@@ -156,13 +157,29 @@ export default function GoatUpcomingLitters() {
                     Expected {formatDisplayDate(parseApiDate(litter.dueDate))}
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    Click to view detailed information about this current litter
+                    Click to view detailed information about this future litter
                   </p>
+                  {litter.waitlistLink && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <a
+                        href={litter.waitlistLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm shadow-md hover:shadow-lg mt-3"
+                      >
+                        Submit Interest
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <WaitlistPrivacyNotice className="text-xs text-muted-foreground mt-2 max-w-[16rem]" />
+                    </div>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                    <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                       {litter.mother?.profileImageUrl ? (
                         <img
                           src={litter.mother.profileImageUrl}
@@ -181,14 +198,14 @@ export default function GoatUpcomingLitters() {
                         </div>
                       )}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium">{litter.mother?.name}</p>
                       <p className="text-sm text-muted-foreground">Dam</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                    <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                       {litter.father?.profileImageUrl ? (
                         <img
                           src={litter.father.profileImageUrl}
@@ -207,7 +224,7 @@ export default function GoatUpcomingLitters() {
                         </div>
                       )}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium">{litter.father?.name}</p>
                       <p className="text-sm text-muted-foreground">Sire</p>
                     </div>

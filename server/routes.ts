@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
 import { animals, products, users, siteContent, carouselItems, dogs, dogsHero, dogMedia, litters, dogDocuments, principles, contactInfo, fileStorage, goats, goatLitters, sheepLitters, marketSections, marketSchedules, litter_interest_signups, galleryPhotos, printifyProducts, orders, orderItems } from "@db/schema";
-import { eq, inArray, and } from "drizzle-orm";
-import { getCurrentSiteId, parseSiteIdHeader, buildDogWriteData, buildLitterWriteData, errorMessage } from "./helpers";
+import { eq, inArray, and, count } from "drizzle-orm";
+import { getCurrentSiteId, parseSiteIdHeader, buildDogWriteData, buildLitterWriteData, errorMessage, matchSiteId } from "./helpers";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -956,14 +956,44 @@ export function registerRoutes(app: Express): Server {
     litter: true,
   } as const;
 
+  async function loadPuppiesForLitters(litterIds: number[]) {
+    const byLitter = new Map<number, any[]>();
+    if (litterIds.length === 0) {
+      return byLitter;
+    }
+
+    const puppies = await db.query.dogs.findMany({
+      where: and(inArray(dogs.litterId, litterIds), eq(dogs.died, false)),
+      with: {
+        media: {
+          orderBy: (dogMedia: any, { asc }: any) => [asc(dogMedia.order)],
+        },
+      },
+    });
+
+    for (const puppy of puppies) {
+      if (puppy.litterId == null) continue;
+      const list = byLitter.get(puppy.litterId);
+      if (list) {
+        list.push(puppy);
+      } else {
+        byLitter.set(puppy.litterId, [puppy]);
+      }
+    }
+
+    return byLitter;
+  }
+
   app.get("/api/dogs", async (req, res) => {
     try {
       const siteId = getCurrentSiteId(req);
       const isAdmin = req.query.admin === 'true' || Boolean(req.session.isAdmin);
 
+      // Older dogs were inserted before site_id had a default, so NULL means site 1.
+      const siteFilter = matchSiteId(dogs.siteId, siteId);
       const whereCondition = isAdmin
-        ? eq(dogs.siteId, siteId)
-        : and(eq(dogs.siteId, siteId), eq(dogs.display, true));
+        ? siteFilter
+        : and(siteFilter, eq(dogs.display, true));
 
       const allDogs = await db.query.dogs.findMany({
         where: whereCondition,
@@ -1356,7 +1386,7 @@ export function registerRoutes(app: Express): Server {
     try {
     const siteId = getCurrentSiteId(req);
     const allLitters = await db.query.litters.findMany({
-      where: eq(litters.siteId, siteId),
+      where: matchSiteId(litters.siteId, siteId),
       orderBy: (litters, { desc }) => [desc(litters.dueDate)],
       with: {
         mother: {
@@ -1376,22 +1406,26 @@ export function registerRoutes(app: Express): Server {
       },
     });
 
-    // Get puppy counts for each litter
-    const littersWithPuppies = await Promise.all(
-      allLitters.map(async (litter) => {
-        const puppyCount = await db.query.dogs.findMany({
-          where: and(
-            eq(dogs.litterId, litter.id),
-            eq(dogs.puppy, true)
-          ),
-        });
-        
-        return {
-          ...litter,
-          puppyCount: puppyCount.length,
-        };
-      })
-    );
+    const litterIds = allLitters.map((litter) => litter.id);
+    const puppyCountByLitter = new Map<number, number>();
+    if (litterIds.length > 0) {
+      const puppyCounts = await db
+        .select({ litterId: dogs.litterId, n: count() })
+        .from(dogs)
+        .where(and(eq(dogs.puppy, true), inArray(dogs.litterId, litterIds)))
+        .groupBy(dogs.litterId);
+
+      for (const row of puppyCounts) {
+        if (row.litterId != null) {
+          puppyCountByLitter.set(row.litterId, Number(row.n));
+        }
+      }
+    }
+
+    const littersWithPuppies = allLitters.map((litter) => ({
+      ...litter,
+      puppyCount: puppyCountByLitter.get(litter.id) ?? 0,
+    }));
 
     res.json(littersWithPuppies);
     } catch (error) {
@@ -1540,7 +1574,7 @@ app.get("/api/litters/list/current", async (req, res) => {
       // Get litters marked as current for the current site
       const allLitters = await db.query.litters.findMany({
         where: and(
-          eq(litters.siteId, siteId),
+          matchSiteId(litters.siteId, siteId),
           eq(litters.isVisible, true),
           eq(litters.isCurrentLitter, true)
         ),
@@ -1559,22 +1593,10 @@ app.get("/api/litters/list/current", async (req, res) => {
         }
       });
       
-      // For each litter, find puppies (dogs with litterId matching the litter's id)
-      const littersWithPuppies = await Promise.all(allLitters.map(async (litter) => {
-        const puppies = await db.query.dogs.findMany({
-          where: and(
-            eq(dogs.litterId, litter.id),
-            eq(dogs.died, false)
-          ),
-          with: {
-            media: true
-          }
-        });
-        
-        return {
-          ...litter,
-          puppies: puppies || []
-        };
+      const puppiesByLitter = await loadPuppiesForLitters(allLitters.map((litter) => litter.id));
+      const littersWithPuppies = allLitters.map((litter) => ({
+        ...litter,
+        puppies: puppiesByLitter.get(litter.id) ?? [],
       }));
       
       res.json(littersWithPuppies);
@@ -1590,7 +1612,7 @@ app.get("/api/litters/list/current", async (req, res) => {
       // Get litters marked as planned for the current site
       const allLitters = await db.query.litters.findMany({
         where: and(
-          eq(litters.siteId, siteId),
+          matchSiteId(litters.siteId, siteId),
           eq(litters.isVisible, true),
           eq(litters.isPlannedLitter, true)
         ),
@@ -1621,7 +1643,7 @@ app.get("/api/litters/list/current", async (req, res) => {
       const siteId = getCurrentSiteId(req);
       const allLitters = await db.query.litters.findMany({
         where: and(
-          eq(litters.siteId, siteId),
+          matchSiteId(litters.siteId, siteId),
           eq(litters.isVisible, true),
           eq(litters.isPastLitter, true)
         ),
@@ -1643,31 +1665,17 @@ app.get("/api/litters/list/current", async (req, res) => {
         },
       });
 
-      //      // For each litter, fetch its puppies
-      const littersWithPuppies = await Promise.all(
-        allLitters.map(async (litter) => {
-          const puppies = await db.query.dogs.findMany({
-            where: and(
-              eq(dogs.litterId, litter.id),
-              eq(dogs.died, false)
-            ),
-            with: {
-              media: {
-                orderBy: (dogMedia, { asc }) => [asc(dogMedia.order)],
-              },
-            },
-          });
-
-          // Only include if thereare puppies and at least one puppy has a birth date
-          if (puppies.length > 0 && puppies.some(puppy => puppy.birthDate)) {
-            return {
-              ...litter,
-              puppies,
-            };
-          }
-          return null;
-        })
-      );
+      const puppiesByLitter = await loadPuppiesForLitters(allLitters.map((litter) => litter.id));
+      const littersWithPuppies = allLitters.map((litter) => {
+        const puppies = puppiesByLitter.get(litter.id) ?? [];
+        if (puppies.length > 0 && puppies.some((puppy) => puppy.birthDate)) {
+          return {
+            ...litter,
+            puppies,
+          };
+        }
+        return null;
+      });
 
       // Filter out null entries (litters without puppies or birth dates)
       const validLitters = littersWithPuppies.filter(litter => litter !== null);
@@ -2967,12 +2975,12 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
       
       // Get all visible dog litters
       const allDogLitters = await db.query.litters.findMany({
-        where: and(eq(litters.siteId, siteId), eq(litters.isVisible, true))
+        where: and(matchSiteId(litters.siteId, siteId), eq(litters.isVisible, true))
       });
 
       // Get all displayable dogs
       const allDogs = await db.query.dogs.findMany({
-        where: and(eq(dogs.siteId, siteId), eq(dogs.display, true))
+        where: and(matchSiteId(dogs.siteId, siteId), eq(dogs.display, true))
       });
 
       // Get all visible goat litters

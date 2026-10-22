@@ -26,7 +26,6 @@ export default function Header() {
   const hasSheep = sheep.length > 0;
   const hasAvailableSheep = sheep.some(s => s.available && s.display !== false);
   const hasCurrentSheepLitters = sheepLitters.some(l => l.isVisible && l.isCurrentLitter);
-  const hasUpcomingSheepLitters = sheepLitters.some(l => l.isVisible && l.isPlannedLitter);
   const hasPastSheepLitters = sheepLitters.some(l => l.isVisible && l.isPastLitter);
 
   return (
@@ -147,6 +146,11 @@ export default function Header() {
                     Past Litters
                   </a>
                 </Link>
+                <Link href="/goats/litters/upcoming">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Future Litters
+                  </a>
+                </Link>
                 <Link href="/goats/available">
                   <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
                     Available Goats
@@ -203,13 +207,6 @@ export default function Header() {
                     </a>
                   </Link>
                 )}
-                {hasUpcomingSheepLitters && (
-                  <Link href="/sheep/litters/upcoming">
-                    <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
-                      Upcoming Litters
-                    </a>
-                  </Link>
-                )}
                 {hasPastSheepLitters && (
                   <Link href="/sheep/litters/past">
                     <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
@@ -217,6 +214,11 @@ export default function Header() {
                     </a>
                   </Link>
                 )}
+                <Link href="/sheep/litters/upcoming">
+                  <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
+                    Future Litters
+                  </a>
+                </Link>
                 {hasAvailableSheep && (
                   <Link href="/sheep/available">
                     <a className="block px-4 py-3 text-stone-600 hover:text-stone-900 hover:bg-stone-100 hover:pl-6 transition-all duration-75 font-medium">
