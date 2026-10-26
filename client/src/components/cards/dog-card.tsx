@@ -23,6 +23,24 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
     <span className="text-pink-500">♀</span>
   );
 
+  // Show the profile picture as the card's first image without requiring it
+  // to already be part of the dog's gallery media.
+  const stripCacheBuster = (url: string) => url.split("?t=")[0];
+  const normalizeMediaUrl = (url: string) =>
+    url.startsWith("http") || url.startsWith("/") ? url : `/${url}`;
+  const galleryMedia = dog.media || [];
+  const displayMedia =
+    dog.profileImageUrl &&
+    !galleryMedia.some(
+      (m) => stripCacheBuster(m.url) === stripCacheBuster(dog.profileImageUrl!),
+    )
+      ? [{ url: dog.profileImageUrl, type: "image" }, ...galleryMedia]
+      : galleryMedia;
+  const carouselMedia = displayMedia.map((media) => ({
+    ...media,
+    url: normalizeMediaUrl(media.url),
+  }));
+
   const handleEditClick = (dog: Dog) => {
     onEdit?.(dog);
   };
@@ -39,9 +57,9 @@ export default function DogCard({ dog, isAdmin, showPrice, onEdit, onDelete, onO
       <Link href={`/dogs/${dog.id}`}>
         <div className="cursor-pointer">
           <div className="relative group">
-            {dog.media && dog.media.length > 0 ? (
+            {carouselMedia.length > 0 ? (
               <>
-                <DogMediaCarousel media={dog.media.map(media => ({...media, url: media.url.startsWith('http') ? media.url : media.url.startsWith('/') ? media.url : `/${media.url}`}))} />
+                <DogMediaCarousel media={carouselMedia} />
                 {showPrice && dog.price && !dog.sold && (
                   <div className="absolute top-0 left-0 right-0 bg-amber-600 py-2 px-4 flex items-center justify-center">
                     <p className="text-lg font-semibold text-white">

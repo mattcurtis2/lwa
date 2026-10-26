@@ -270,61 +270,26 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       if (uploadedUrl.startsWith('data:image/')) {
         console.log('Goat Form - Processing data URL image for upload');
         try {
-          // Create a Blob from the data URL
           const response = await fetch(uploadedUrl);
           const blob = await response.blob();
-          console.log(`Goat Form - Created blob from data URL, size: ${blob.size} bytes`);
-
-          // Create a new File object from the Blob
-          const fileName = isMediaUpload && tempMediaData?.file 
-            ? tempMediaData.file.name 
-            : 'goat-profile-image.jpg';  // More specific name
-          console.log(`Goat Form - Using filename: ${fileName}`);
-
-          const newFile = new File([blob], fileName, { type: 'image/jpeg' });
-          console.log(`Goat Form - Created File object, size: ${newFile.size} bytes`);
-
-          // Create form data for upload
-          const formData = new FormData();
-          formData.append('file', newFile);
-          console.log('Goat Form - FormData created with file');
-
-          // Upload the file
-          console.log('Goat Form - Starting upload to /api/upload');
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          console.log(`Goat Form - Upload response status: ${uploadResponse.status}`);
-          if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            console.error(`Goat Form - Upload failed with status: ${uploadResponse.status}, response: ${errorText}`);
-            throw new Error(`Upload failed with status: ${uploadResponse.status}. Server response: ${errorText}`);
-          }
-
-          const data = await uploadResponse.json();
-          console.log('Goat Form - Upload successful, received data:', data);
-
-          // Extract URL consistently whether it's an array or single object
-          const uploadUrl = Array.isArray(data) ? data[0]?.url : data.url;
-          console.log(`Goat Form - Extracted URL: ${uploadUrl}`);
+          const fileName =
+            isMediaUpload && tempMediaData?.file
+              ? tempMediaData.file.name
+              : "goat-profile-image.jpg";
+          const newFile = new File([blob], fileName, { type: "image/jpeg" });
+          const uploadUrl = await uploadFile(newFile);
 
           if (isMediaUpload && tempMediaData) {
-            // Update media at the specific index
-            console.log(`Goat Form - Updating media at index ${tempMediaData.index}`);
             const updatedMedia = [...mediaInputs];
             updatedMedia[tempMediaData.index] = {
               url: uploadUrl,
-              type: 'image',
+              type: "image",
               fileName: fileName,
-              isNew: true
+              isNew: true,
             };
             setMediaInputs(updatedMedia);
             form.setValue("media", updatedMedia);
           } else {
-            // Update profile image
-            console.log('Goat Form - Updating profile image URL');
             form.setValue("profileImageUrl", uploadUrl);
           }
 
@@ -482,22 +447,13 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
     setIsUploading(true);
     try {
-      const { index, file, isProfileImage } = tempMediaData!;
+      const { index, file } = tempMediaData!;
       const updatedMedia = [...mediaInputs];
-      const formData = new FormData();
-      formData.append('file', await (await fetch(croppedImageUrl)).blob(), 'cropped-image.jpg');
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      const blob = await (await fetch(croppedImageUrl)).blob();
+      const croppedFile = new File([blob], "cropped-image.jpg", {
+        type: blob.type || "image/jpeg",
       });
-
-      if (!res.ok) {
-          throw new Error('Failed to upload image.');
-      }
-
-      const data = await res.json();
-      const imageUrl = data[0].url;
+      const imageUrl = await uploadFile(croppedFile);
       const timestampedUrl = `${imageUrl}?t=${Date.now()}`;
 
       updatedMedia[index] = {
@@ -505,7 +461,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
         url: imageUrl,
         file,
         tempUrl: timestampedUrl,
-        type: 'image',
+        type: "image",
         isNew: true,
       };
 
@@ -525,7 +481,7 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
       setCropImageUrl("");
       setTempMediaData(null);
     }
-  }
+  };
 
   const onSubmit = async (values: z.infer<typeof goatSchema>) => {
     try {
@@ -737,28 +693,17 @@ export default function GoatForm({ goat, mode = 'create', open, onOpenChange, fr
                 // If user skips cropping, upload the original image
                 const response = await fetch(cropImageUrl);
                 const blob = await response.blob();
-                const formData = new FormData();
-                formData.append('file', blob, 'original-image.jpg');
-
-                const uploadRes = await fetch('/api/upload', {
-                  method: 'POST',
-                  body: formData
+                const file = new File([blob], "original-image.jpg", {
+                  type: blob.type || "image/jpeg",
                 });
+                const uploadedUrl = await uploadFile(file);
 
-                if (!uploadRes.ok) {
-                  throw new Error('Failed to upload image');
-                }
-
-                const data = await uploadRes.json();
-                if (data && data.length > 0) {
-                  // Update the form with the uploaded image URL
-                  form.setValue('profileImageUrl', data[0].url, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                    shouldTouch: true
-                  });
-                  form.trigger('profileImageUrl');
-                }
+                form.setValue("profileImageUrl", uploadedUrl, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                });
+                form.trigger("profileImageUrl");
 
                 toast({
                   title: "Success",

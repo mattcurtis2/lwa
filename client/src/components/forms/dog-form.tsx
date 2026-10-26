@@ -390,7 +390,7 @@ export default function DogForm({
     try {
       const previewUrl = URL.createObjectURL(file);
       setCropImageUrl(previewUrl);
-      setTempMediaData({ file, isProfileImage: true });
+      setTempMediaData({ index: 0, file, isProfileImage: true });
       setShowCropper(true);
     } catch (error) {
       toast({
@@ -409,41 +409,10 @@ export default function DogForm({
 
       setIsUploadingProfile(true);
 
-      // Convert data URL to blob
-      const byteString = atob(croppedImageUrl.split(',')[1]);
-      const mimeType = croppedImageUrl.split(',')[0].split(':')[1].split(';')[0];
-
-      console.log('[DogForm] Converting data URL to blob with type:', mimeType);
-
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      const blob = new Blob([ab], { type: mimeType });
-      console.log('[DogForm] Blob created with size:', blob.size);
-
-      // Create form data and upload
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
-
-      console.log('[DogForm] Uploading cropped image...');
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error(`Failed to upload image: ${uploadRes.status} ${uploadRes.statusText}`);
-      }
-
-      const data = await uploadRes.json();
-      console.log('[DogForm] Upload response:', data);
-
-      const imageUrl = Array.isArray(data) ? data[0].url : data.url;
-      console.log('[DogForm] Setting profile image URL to:', imageUrl);
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "cropped-image.jpg", { type: blob.type || "image/jpeg" });
+      const imageUrl = await uploadFile(file);
 
       form.setValue("profileImageUrl", imageUrl);
       toast({
@@ -461,6 +430,7 @@ export default function DogForm({
       setIsUploadingProfile(false);
       setShowCropper(false);
       setCropImageUrl("");
+      setTempMediaData(null);
     }
   };
 
@@ -762,25 +732,19 @@ export default function DogForm({
   const applyCroppedMediaImage = async (croppedImageUrl: string) => {
     if (tempMediaData) {
       try {
-        const formData = new FormData();
         const res = await fetch(croppedImageUrl);
         const blob = await res.blob();
         const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-        formData.append('file', croppedFile);
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadRes.ok) {
-          throw new Error('Failed to upload image');
-        }
-
-        const data = await uploadRes.json();
-        const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+        const uploadedUrl = await uploadFile(croppedFile);
 
         const updatedMediaInputs = [...mediaInputs];
-        updatedMediaInputs[mediaInputs.indexOf(tempMediaData)] = {...tempMediaData, url: uploadedUrl};
+        const index =
+          typeof tempMediaData.index === "number"
+            ? tempMediaData.index
+            : mediaInputs.findIndex((m) => m === tempMediaData);
+        if (index >= 0) {
+          updatedMediaInputs[index] = { ...updatedMediaInputs[index], url: uploadedUrl };
+        }
         setMediaInputs(updatedMediaInputs);
         form.setValue("media", updatedMediaInputs);
 
@@ -822,21 +786,8 @@ export default function DogForm({
         const dataUrl = canvas.toDataURL('image/jpeg');
         const response = await fetch(dataUrl);
         const blob = await response.blob();
-        const file = new File([blob], tempMediaData.file.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error(`Upload failed with status: ${uploadResponse.status}`);
-        }
-
-        const data = await uploadResponse.json();
-        const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+        const file = new File([blob], tempMediaData.file?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
+        const uploadedUrl = await uploadFile(file);
 
         const updatedMediaInputs = [...mediaInputs];
         updatedMediaInputs[tempMediaData.index] = { ...updatedMediaInputs[tempMediaData.index], url: uploadedUrl };
@@ -883,27 +834,10 @@ export default function DogForm({
     try {
       setIsUploading(true);
 
-      // Convert data URL to blob
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-
-      // Create form data and upload
-      console.log('[DogForm] Creating form data for upload');
-      const formData = new FormData();
-      formData.append('file', blob, 'cropped-image.jpg');
-
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Failed to upload cropped image');
-      }
-
-      const data = await uploadRes.json();
-      console.log('[DogForm] Upload response:', data);
-      const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
+      const file = new File([blob], "cropped-image.jpg", { type: blob.type || "image/jpeg" });
+      const uploadedUrl = await uploadFile(file);
 
       // Update the media inputs with the new cropped image
       const updatedMediaInputs = [...mediaInputs];
@@ -1015,39 +949,36 @@ export default function DogForm({
               setTempMediaData(null);
             }}
             onSkip={async () => {
-              const formData = new FormData();
-              const response = await fetch(cropImageUrl);
-              const blob = await response.blob();
-              formData.append('file', blob);
+              try {
+                const response = await fetch(cropImageUrl);
+                const blob = await response.blob();
+                const file = new File([blob], "image.jpg", { type: blob.type || "image/jpeg" });
+                const uploadedUrl = await uploadFile(file);
 
-              const uploadRes = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-              });
-
-              if (!uploadRes.ok) {
-                throw new Error('Failed to upload image');
+                if (tempMediaData?.isProfileImage || cropImageUrl === form.getValues("profileImageUrl")) {
+                  form.setValue("profileImageUrl", uploadedUrl);
+                } else {
+                  const updatedMediaInputs = [...mediaInputs, {
+                    url: uploadedUrl,
+                    type: 'image' as const,
+                    fileName: 'image.jpg',
+                    isNew: true,
+                    file,
+                  }];
+                  setMediaInputs(updatedMediaInputs);
+                  form.setValue("media", updatedMediaInputs);
+                }
+              } catch (error) {
+                toast({
+                  title: "Error",
+                  description: "Failed to upload image: " + (error instanceof Error ? error.message : "Unknown error"),
+                  variant: "destructive",
+                });
+              } finally {
+                setShowCropper(false);
+                setCropImageUrl("");
+                setTempMediaData(null);
               }
-
-              const data = await uploadRes.json();
-              const uploadedUrl = Array.isArray(data) ? data[0].url : data.url;
-
-              if (cropImageUrl === form.getValues("profileImageUrl")) {
-                form.setValue("profileImageUrl", uploadedUrl);
-              } else {
-                const updatedMediaInputs = [...mediaInputs, {
-                  url: uploadedUrl,
-                  type: 'image' as const,
-                  fileName: 'image.jpg',
-                  isNew: true,
-                  file: new File([blob], 'image.jpg', { type: 'image/jpeg' })
-                }];
-                setMediaInputs(updatedMediaInputs);
-                form.setValue("media", updatedMediaInputs);
-              }
-
-              setShowCropper(false);
-              setCropImageUrl("");
             }}
             aspect={cropImageUrl === form.getValues("profileImageUrl") ? 1 : undefined}
             circularCrop={cropImageUrl === form.getValues("profileImageUrl")}
